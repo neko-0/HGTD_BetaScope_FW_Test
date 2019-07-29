@@ -107,7 +107,7 @@ void BetaScopeWaveformAna::loopEvents()
 
   while( this->beta_scope.treeReader->Next() )
   {
-    *this->beta_scope.oTreeIntMap["ievent"] = **this->beta_scope.iTreeIntValueMap["ievent"];
+    if(this->beta_scope.ieventFromDAQ)*this->beta_scope.oTreeIntMap["ievent"] = **this->beta_scope.iTreeIntValueMap["ievent"];
 
     //std::time_t t1 = std::time(nullptr);
     //loop through all the possible channels
