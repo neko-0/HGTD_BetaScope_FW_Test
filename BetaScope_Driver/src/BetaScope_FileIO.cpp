@@ -32,7 +32,7 @@ bool BetaScope::fileIO_Open( const char *ifile_path )
 	}
 	this->ofileName = this->filePrefix += ofileName;
 	this->ifileName = ifile_path;
-  this->ifileNickName = ofileName;
+  this->ifileNickName = this->ofileName;
 
   ColorCout::print(coutPrefix, "Create output file", YELLOW);
   ColorCout::print(coutPrefix, "compressionLevel: "+std::to_string(this->compressionLevel), YELLOW);
