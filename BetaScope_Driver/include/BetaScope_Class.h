@@ -36,6 +36,7 @@ class BetaScope
     std::time_t _t_object_creation = std::time(nullptr);
 
     std::string ifileName;
+    std::string ifileNickName;
     TFile *iFile = new TFile;
     TTreeReader *treeReader = new TTreeReader;
     unsigned int numEvent;
