@@ -27,7 +27,7 @@ void BetaScope_AnaFramework::filldata()
   beta_scope.fillEvent();
   if(this->event_counter%1000==0 || (this->event_counter%10==0 && this->event_counter <= 100) )
   {
-    ColorCout::print( "   "+beta_scope.ifileName, " Proccessed events: "+std::to_string(this->event_counter), BOLDYELLOW);
+    ColorCout::print( "   "+beta_scope.ifileNickName, " Proccessed events: "+std::to_string(this->event_counter)+" /" + std::to_string(beta_scope.numEvent), BOLDYELLOW);
   }
 }
 
