@@ -16,17 +16,18 @@ void BetaScopeWaveformAna::initialize()
   //required
   this->beta_scope.fileIO_Open( ifile.c_str() );
   BetaScope_AnaFramework::initialize("/home/yuzhan/HGTD_BetaScope_FW_Test/BetaScope_Ana/BetaScopeWaveformAna/AnaTemplate/myOwnTree.ini" );
+  //----------------------
 
-  if( this->skipWaveform )
+  bool branch_checker;
+  int branch_counter = 0;
+
+  for( auto ch : this->beta_scope.channel )
   {
-    bool branch_checker;
-    int branch_counter = 0;
+    ColorCout::print("  CH:", std::to_string(ch), CYAN);
 
-    ColorCout::print("  ", "Creating branches for storing scope channels: ", YELLOW);
-    for( auto ch : this->beta_scope.channel )
+    if( !this->skipWaveform )
     {
-      ColorCout::print("  CH:", std::to_string(ch), CYAN);
-
+      ColorCout::print("  ", "Creating branches for storing scope channels: ", YELLOW);
       branch_checker = makeBranch<std::vector<double>>(this->beta_scope.oTree, Form("w%i", ch ), Form("w%i", ch ), &this->beta_scope.oTreeVecDoubleMap, this->beta_scope.oTreeVecDouble[branch_counter], branch_counter, &this->beta_scope.oTreeVecDoubleMapIndex, this->beta_scope.newBranchCounterKeeper );
       this->beta_scope.oTreeVecDouble[branch_counter-1]->reserve(1000000);
 
@@ -39,7 +40,6 @@ void BetaScopeWaveformAna::initialize()
       }
     }
   }
-
 
   //do your own stuffs here
   //this->beta_scope.treeReader->Next();
@@ -67,10 +67,21 @@ void BetaScopeWaveformAna::initialize()
     this->pulseArea_withZeroCross[ch] = this->beta_scope.oTreeVecDoubleMap["pulseArea_withZeroCross"+std::to_string(ch)]; this->pulseArea_withZeroCross[ch]->reserve(1000000000);
     */
 
-    this->w[ch] = this->beta_scope.oTreeVecDouble[this->beta_scope.oTreeVecDoubleMapIndex["w"+std::to_string(ch)]];
+    if( !this->skipWaveform )
+    {
+      this->w[ch] = this->beta_scope.oTreeVecDouble[this->beta_scope.oTreeVecDoubleMapIndex["w"+std::to_string(ch)]];
+      this->t[ch] = this->beta_scope.oTreeVecDouble[this->beta_scope.oTreeVecDoubleMapIndex["t"+std::to_string(ch)]];
+    }
+    else
+    {
+      this->w[ch] = &this->localW[ch];
+      this->t[ch] = &this->localT[ch];
+    }
+
+
     //this->w[ch]->resize(this->beta_scope.iTreeDoubleArray[this->beta_scope.iTreeDoubleArrayMapIndex["w"+std::to_string(ch)]]->GetSize());
     //for(int k =0,max = this->w[ch]->size();k++;){this->w[ch]->push_back(0.0);}
-    this->t[ch] = this->beta_scope.oTreeVecDouble[this->beta_scope.oTreeVecDoubleMapIndex["t"+std::to_string(ch)]];
+
     //this->t[ch]->resize(this->beta_scope.iTreeDoubleArray[this->beta_scope.iTreeDoubleArrayMapIndex["t"+std::to_string(ch)]]->GetSize());
     //for(int k =0,max = this->t[ch]->size();k++;){this->t[ch]->push_back(0.0);}
 
@@ -246,10 +257,16 @@ void BetaScopeWaveformAna::loopEvents()
 
           for(int k = 0; k < 2000; k++){ this->thTime[ch]->push_back( WaveAna.Find_Time_At_Threshold( double(k), *this->w[ch], *this->t[ch], pmaxHolder ) ); }
 
-          if( this->skipWaveform ){
+          if( !this->skipWaveform )
+          {
             for( unsigned int invI = 0; invI < this->w[ch]->size(); invI++){
               this->w[ch]->at(invI) = -1.0 * this->w[ch]->at(invI);
             }
+          }
+          else
+          {
+            this->w[ch]->clear();
+            this->t[ch]->clear();
           }
 
         }
