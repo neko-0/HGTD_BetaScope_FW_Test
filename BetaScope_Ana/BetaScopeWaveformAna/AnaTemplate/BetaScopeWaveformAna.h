@@ -43,6 +43,9 @@ class BetaScopeWaveformAna : public BetaScope_AnaFramework
   std::vector<double> *backBaselineInt_indepBaseCorr[8];
   std::vector<double> *frontBaselineInt_indepBaseCorr[8];
 
+  std::vector<double> localW[8];
+  std::vector<double> localT[8];
+
   double *current;
   double *timestamp;
 
