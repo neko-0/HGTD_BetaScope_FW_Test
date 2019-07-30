@@ -18,7 +18,6 @@ void BetaScopeWaveformAna::initialize()
   BetaScope_AnaFramework::initialize("/home/yuzhan/HGTD_BetaScope_FW_Test/BetaScope_Ana/BetaScopeWaveformAna/AnaTemplate/myOwnTree.ini" );
   //----------------------
 
-  std::cout<< this->skipWaveform << std::endl;
   if( !this->skipWaveform )
   {
     for( auto ch : this->beta_scope.channel )
