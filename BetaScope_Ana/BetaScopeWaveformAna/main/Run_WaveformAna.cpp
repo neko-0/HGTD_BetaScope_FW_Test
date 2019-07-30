@@ -70,10 +70,11 @@ int main( int argc, char **argv )
     if( argc==3 && std::strcmp(argv[2], "--skipWaveform")==0 ){
       skipWaveform = true;
     }
-    else{
+    else if(argc==3){
       std::cout << "invalid flag " << argv[2] << std::endl;
       return 1;
     }
+    else{}
     workers_dorm.push_back( new boost::thread(runAna, fileList.at(i), config, skipWaveform) );
     if(workers_dorm.size() == concurentThreadsSupported)
     {
