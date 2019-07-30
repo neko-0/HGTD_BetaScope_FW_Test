@@ -33,6 +33,7 @@ class BetaScope
 {
   public:
 
+    std::time_t cpuTime = std::clock();
     std::time_t _t_object_creation = std::time(nullptr);
 
     std::string ifileName;
