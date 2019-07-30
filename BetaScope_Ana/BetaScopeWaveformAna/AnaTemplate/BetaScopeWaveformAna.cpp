@@ -73,10 +73,13 @@ void BetaScopeWaveformAna::initialize()
     this->t[ch] = this->beta_scope.oTreeVecDouble[this->beta_scope.oTreeVecDoubleMapIndex["t"+std::to_string(ch)]];
     //this->t[ch]->resize(this->beta_scope.iTreeDoubleArray[this->beta_scope.iTreeDoubleArrayMapIndex["t"+std::to_string(ch)]]->GetSize());
     //for(int k =0,max = this->t[ch]->size();k++;){this->t[ch]->push_back(0.0);}
-    this->wRaw[ch] = this->beta_scope.oTreeVecDouble[this->beta_scope.oTreeVecDoubleMapIndex["wRaw"+std::to_string(ch)]];
+
+    //this->wRaw[ch] = this->beta_scope.oTreeVecDouble[this->beta_scope.oTreeVecDoubleMapIndex["wRaw"+std::to_string(ch)]];
+    //this->tRaw[ch] = this->beta_scope.oTreeVecDouble[this->beta_scope.oTreeVecDoubleMapIndex["tRaw"+std::to_string(ch)]];
+
     //this->wRaw[ch]->resize(this->beta_scope.iTreeDoubleArray[this->beta_scope.iTreeDoubleArrayMapIndex["w"+std::to_string(ch)]]->GetSize());
     //for(int k =0,max = this->wRaw[ch]->size();k++;){this->wRaw[ch]->push_back(0.0);}
-    this->tRaw[ch] = this->beta_scope.oTreeVecDouble[this->beta_scope.oTreeVecDoubleMapIndex["tRaw"+std::to_string(ch)]];
+
     //this->tRaw[ch]->resize(this->beta_scope.iTreeDoubleArray[this->beta_scope.iTreeDoubleArrayMapIndex["t"+std::to_string(ch)]]->GetSize());
     //for(int k =0,max = this->tRaw[ch]->size();k++;){this->tRaw[ch]->push_back(0.0);}
     this->pmax[ch] = this->beta_scope.oTreeVecDouble[this->beta_scope.oTreeVecDoubleMapIndex["pmax"+std::to_string(ch)]];
@@ -159,8 +162,10 @@ void BetaScopeWaveformAna::loopEvents()
               //this->w[ch]->at(i) = this->i_w[ch]->At(i) * this->voltageMultiFactor;
             }
             this->t[ch]->push_back( this->i_t[ch]->At(i) * this->timeMultiFactor );
-            this->wRaw[ch]->push_back( this->i_w[ch]->At(i) * this->voltageMultiFactor );
-            this->tRaw[ch]->push_back( this->i_t[ch]->At(i) * this->timeMultiFactor );
+
+            //this->wRaw[ch]->push_back( this->i_w[ch]->At(i) * this->voltageMultiFactor );
+            //this->tRaw[ch]->push_back( this->i_t[ch]->At(i) * this->timeMultiFactor );
+
             /*
             this->t[ch]->at(i) = this->i_t[ch]->At(i) * this->timeMultiFactor;
             this->wRaw[ch]->at(i) = this->i_w[ch]->At(i) * this->voltageMultiFactor;
