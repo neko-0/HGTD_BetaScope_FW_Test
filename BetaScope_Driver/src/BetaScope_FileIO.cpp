@@ -79,6 +79,8 @@ void BetaScope::fileIO_Close()
 
   ColorCout::print(coutPrefix, "Finished, extiting", BOLDGREEN);
   std::time_t _t_end_of_program = std::time(nullptr);
-  ColorCout::print( "  "+ this->ifileName +" Time used: ", std::to_string(_t_end_of_program-this->_t_object_creation) , BOLDYELLOW);
+  this->cpuTime = std::clock() - this->cpuTime;
+  ColorCout::print( "  "+ this->ifileName +" Wall Time used: ", std::to_string(_t_end_of_program-this->_t_object_creation) , BOLDYELLOW);
+  ColorCout::print( "  "+ this->ifileName +" CPU Time used: ", std::to_string(_t_end_of_program-this->cpuTime) , BOLDYELLOW);
 	//TThread::UnLock();
 }
