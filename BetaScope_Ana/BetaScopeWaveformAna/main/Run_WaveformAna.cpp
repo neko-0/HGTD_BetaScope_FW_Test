@@ -48,7 +48,7 @@ void runAna( std::string fileName, std::string config="WaveformAnaConfig.ini", b
 {
   TThread::Lock();
   BetaScopeWaveformAna doAna( fileName.c_str() );
-  if( skipWaveform )doAna.setWaveform(false);
+  if( skipWaveform )doAna.setWaveform(skipWaveform);
   doAna.readWaveformConfig(config);
   doAna.initialize();
   TThread::UnLock();
