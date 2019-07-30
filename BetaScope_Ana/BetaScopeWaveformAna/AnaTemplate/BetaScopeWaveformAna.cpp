@@ -75,7 +75,9 @@ void BetaScopeWaveformAna::initialize()
     else
     {
       this->w[ch] = &this->localW[ch];
+      this->w[ch]->reserve(10000);
       this->t[ch] = &this->localT[ch];
+      this->t[ch]->reserve(10000);
     }
 
 
