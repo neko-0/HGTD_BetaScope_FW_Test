@@ -28,11 +28,11 @@ void BetaScopeWaveformAna::initialize()
     if( !this->skipWaveform )
     {
       ColorCout::print("  ", "Creating branches for storing scope channels: ", YELLOW);
-      branch_checker = makeBranch<std::vector<double>>(this->beta_scope.oTree, Form("w%i", ch ), Form("w%i", ch ), &this->beta_scope.oTreeVecDoubleMap, this->beta_scope.oTreeVecDouble[branch_counter], branch_counter, &this->beta_scope.oTreeVecDoubleMapIndex, this->beta_scope.newBranchCounterKeeper );
-      this->beta_scope.oTreeVecDouble[branch_counter-1]->reserve(1000000);
+      branch_checker = makeBranch<std::vector<double>>(this->beta_scope.oTree, Form("w%i", ch ), Form("w%i", ch ), &this->beta_scope.oTreeVecDoubleMap, this->beta_scope.oTreeVecDouble[this->beta_scope.newBranchCounterKeeper], this->beta_scope.newBranchCounterKeeper, &this->beta_scope.oTreeVecDoubleMapIndex, this->beta_scope.newBranchCounterKeeper );
+      this->beta_scope.oTreeVecDouble[this->beta_scope.newBranchCounterKeeper-1]->reserve(1000000);
 
-      branch_checker = makeBranch<std::vector<double>>(this->beta_scope.oTree, Form("t%i", ch ), Form("t%i", ch ), &this->beta_scope.oTreeVecDoubleMap, this->beta_scope.oTreeVecDouble[branch_counter], branch_counter, &this->beta_scope.oTreeVecDoubleMapIndex, this->beta_scope.newBranchCounterKeeper );
-      this->beta_scope.oTreeVecDouble[branch_counter-1]->reserve(1000000);
+      branch_checker = makeBranch<std::vector<double>>(this->beta_scope.oTree, Form("t%i", ch ), Form("t%i", ch ), &this->beta_scope.oTreeVecDoubleMap, this->beta_scope.oTreeVecDouble[this->beta_scope.newBranchCounterKeeper], this->beta_scope.newBranchCounterKeeper, &this->beta_scope.oTreeVecDoubleMapIndex, this->beta_scope.newBranchCounterKeeper );
+      this->beta_scope.oTreeVecDouble[this->beta_scope.newBranchCounterKeeper-1]->reserve(1000000);
 
       if(branch_checker)
       {
@@ -74,9 +74,9 @@ void BetaScopeWaveformAna::initialize()
     }
     else
     {
-      this->w[ch] = &this->localW[ch];
+      this->w[ch] = &localW[ch];//new std::vector<double>;
       this->w[ch]->reserve(10000);
-      this->t[ch] = &this->localT[ch];
+      this->t[ch] = &localT[ch];//new std::vector<double>;
       this->t[ch]->reserve(10000);
     }
 
@@ -115,10 +115,10 @@ void BetaScopeWaveformAna::initialize()
     //this->i_w2[ch] = this->beta_scope.iTreeDoubleArrayMap["w"+std::to_string(ch)];
     //this->i_t[ch] = this->beta_scope.iTreeDoubleArrayMap["t"+std::to_string(ch)];
     this->i_w[ch] = this->beta_scope.iTreeDoubleArray[this->beta_scope.iTreeDoubleArrayMapIndex["w"+std::to_string(ch)]];
+    this->i_t[ch] = this->beta_scope.iTreeDoubleArray[this->beta_scope.iTreeDoubleArrayMapIndex["t"+std::to_string(ch)]];
     //std::cout << this->i_w[ch] << std::endl;
     //std::cout << this->i_w2[ch] << std::endl;
     //std::cout << this->i_w2[ch] << std::endl;
-    this->i_t[ch] = this->beta_scope.iTreeDoubleArray[this->beta_scope.iTreeDoubleArrayMapIndex["t"+std::to_string(ch)]];
   }
   this->i_current = this->beta_scope.iTreeDoubleValueMap["i_current"];
   this->i_timestamp = this->beta_scope.iTreeDoubleValueMap["i_timestamp"];
@@ -128,7 +128,7 @@ void BetaScopeWaveformAna::initialize()
 
   if(this->beta_scope.ieventFromDAQ)
   {
-    auto branch_checker = makeBranch<int>(this->beta_scope.oTree, "ievent", "ievent", &this->beta_scope.oTreeIntMap, this->beta_scope.oTreeInt[this->beta_scope.newBranchCounterKeeper], this->beta_scope.newBranchCounterKeeper, &this->beta_scope.oTreeIntMapIndex );
+    auto branch_checker = makeBranch<int>(this->beta_scope.oTree, "ievent", "ievent", &this->beta_scope.oTreeIntMap, this->beta_scope.oTreeInt[this->beta_scope.newBranchCounterKeeper], this->beta_scope.newBranchCounterKeeper, &this->beta_scope.oTreeIntMapIndex, this->beta_scope.newBranchCounterKeeper );
     if(branch_checker)
     {
       ColorCout::print("  Successful type I: ", "ievent", CYAN);
@@ -144,7 +144,7 @@ void BetaScopeWaveformAna::loopEvents()
   double pmaxSearchRange[2] = {this->pmaxSearchMinRange, this->pmaxSearchMaxRange};
   ColorCout::print( "   "+beta_scope.ifileName, " BetaScopeWaveformAna::loopEvents: Start event processing: ", BOLDYELLOW);
   WaveformAnalysis WaveAna;
-
+  int tempEvent = 0;
   while( this->beta_scope.treeReader->Next() )
   {
     if(this->beta_scope.ieventFromDAQ)*this->beta_scope.oTreeIntMap["ievent"] = **this->beta_scope.iTreeIntValueMap["ievent"];
@@ -176,6 +176,9 @@ void BetaScopeWaveformAna::loopEvents()
             }
             this->t[ch]->push_back( this->i_t[ch]->At(i) * this->timeMultiFactor );
 
+            //std::cout << this->w[ch]->at(5) << std::endl;
+            //std::cout << this->w[ch]->size() << std::endl;
+
             //this->wRaw[ch]->push_back( this->i_w[ch]->At(i) * this->voltageMultiFactor );
             //this->tRaw[ch]->push_back( this->i_t[ch]->At(i) * this->timeMultiFactor );
 
@@ -192,7 +195,6 @@ void BetaScopeWaveformAna::loopEvents()
 
           std::vector<double> back_temp_voltage = *this->w[ch];
           std::vector<double> back_temp_time = *this->t[ch];
-
 
           std::pair<double,unsigned int> pmax_before_baseline = WaveAna.Find_Singal_Maximum( *this->w[ch], *this->t[ch], limiting_search_region_OnOff, pmaxSearchRange);
           double tmax_for_baseline = this->t[ch]->at(pmax_before_baseline.second);
@@ -239,7 +241,6 @@ void BetaScopeWaveformAna::loopEvents()
           //Filling Tmax
           this->tmax[ch]->push_back( WaveAna.Get_Tmax( *this->t[ch], pmaxHolder) );
           this->neg_tmax[ch]->push_back( WaveAna.Get_Tmax( *this->t[ch], neg_pmaxHolder) );
-
 
           this->rms[ch]->push_back( WaveAna.Find_Noise( *this->w[ch], 0.25*this->w[ch]->size() ) );
 
@@ -291,7 +292,15 @@ void BetaScopeWaveformAna::loopEvents()
 void BetaScopeWaveformAna::finalize()
 {
   //do your own stuffs here
-
+  if(this->skipWaveform)
+  {
+    for(int chh = 0; chh < this->activeChannels.size(); chh ++)
+    {
+      int ch = this->activeChannels.at(chh);
+      if(this->w[ch]!=NULL)delete this->w[ch];
+      if(this->t[ch]!=NULL)delete this->t[ch];
+    }
+  }
 
   //required
   BetaScope_AnaFramework::finalize();
