@@ -13,6 +13,8 @@ class BetaScopeWaveformAna : public BetaScope_AnaFramework
   std::vector<int> invertChannels;
   std::vector<int> activeChannels;
 
+  bool skipWaveform = false;
+
   bool limitPmaxSearchRange = true;
   double pmaxSearchMinRange = -1000.0; //unit of ps
   double pmaxSearchMaxRange = 1000.0;
@@ -70,6 +72,7 @@ class BetaScopeWaveformAna : public BetaScope_AnaFramework
     void readWaveformConfig(std::string configName);
     static void generateWaveformConfig();
     void loadFile( std::string ifile){this->ifile = ifile;};
+    void setWaveform( bool value ){ this->skipWaveform = value; };
 
     std::string rawFilesDir = "";
 
