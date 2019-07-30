@@ -29,24 +29,24 @@ bool BetaScope::newTreeMaker( std::string additional_branch_list )
 
   bool branch_checker;
 
+  /*
   ColorCout::print(coutPrefix, "Scope channels from input file: ", YELLOW);
   for( auto ch : this->channel )
   {
     ColorCout::print("  CH:", std::to_string(ch), CYAN);
 
-    branch_checker = makeBranch<std::vector<double>>(this->oTree, Form("w%i", ch ), Form("w%i", ch ), &this->oTreeVecDoubleMap, this->oTreeVecDouble[branch_counter], branch_counter, &this->oTreeVecDoubleMapIndex  );
+    branch_checker = makeBranch<std::vector<double>>(this->oTree, Form("w%i", ch ), Form("w%i", ch ), &this->oTreeVecDoubleMap, this->oTreeVecDouble[branch_counter], branch_counter, &this->oTreeVecDoubleMapIndex, this->newBranchCounterKeeper );
     this->oTreeVecDouble[branch_counter-1]->reserve(1000000);
-    this->newBranchCounterKeeper = branch_counter;
 
-    branch_checker = makeBranch<std::vector<double>>(this->oTree, Form("t%i", ch ), Form("t%i", ch ), &this->oTreeVecDoubleMap, this->oTreeVecDouble[branch_counter], branch_counter, &this->oTreeVecDoubleMapIndex  );
+    branch_checker = makeBranch<std::vector<double>>(this->oTree, Form("t%i", ch ), Form("t%i", ch ), &this->oTreeVecDoubleMap, this->oTreeVecDouble[branch_counter], branch_counter, &this->oTreeVecDoubleMapIndex, this->newBranchCounterKeeper );
     this->oTreeVecDouble[branch_counter-1]->reserve(1000000);
-    this->newBranchCounterKeeper = branch_counter;
 
     if(branch_checker)
     {
       ColorCout::print("  Successful:", std::to_string(ch), CYAN);
     }
   }
+  */
 
   if(VERBOSITY!=0)this->oTree->Print();
 

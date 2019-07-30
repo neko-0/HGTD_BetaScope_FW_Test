@@ -44,10 +44,11 @@ std::vector<std::string> getFiles( const char *directory)
   return content;
 }
 
-void runAna( std::string fileName, std::string config="WaveformAnaConfig.ini" )
+void runAna( std::string fileName, std::string config="WaveformAnaConfig.ini", bool skipWaveform = false)
 {
   TThread::Lock();
   BetaScopeWaveformAna doAna( fileName.c_str() );
+  if( skipWaveform )doAna.setWaveform(false);
   doAna.readWaveformConfig(config);
   doAna.initialize();
   TThread::UnLock();
@@ -65,7 +66,15 @@ int main( int argc, char **argv )
   for(std::size_t i = 0, max = fileList.size(); i<max; i++)
   {
     std::string config = argv[1];
-    workers_dorm.push_back( new boost::thread(runAna, fileList.at(i), config) );
+    bool skipWaveform = false;
+    if( argc==3 && std::strcmp(argv[2], "--skipWaveform")==0 ){
+      skipWaveform = true;
+    }
+    else{
+      std::cout << "invalid flag " << argv[2] << std::endl;
+      return 1;
+    }
+    workers_dorm.push_back( new boost::thread(runAna, fileList.at(i), config, skipWaveform) );
     if(workers_dorm.size() == concurentThreadsSupported)
     {
       for( std::size_t id=0, currentNumWorkder = workers_dorm.size(); id<currentNumWorkder; id++)

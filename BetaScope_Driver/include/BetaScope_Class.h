@@ -147,7 +147,8 @@ bool makeBranch(
   std::map<std::string, dataType *> *vecDoubleBranch,
   dataType *&vecDouble,
   int &counter,
-  std::map<std::string, int> *mapIndex
+  std::map<std::string, int> *mapIndex,
+  int &counterKeeper
   )
   {
     std::string key = key_ctype;
@@ -159,6 +160,7 @@ bool makeBranch(
     tree->Branch( Form("%s",branchName.c_str()), vecDouble) ;
     mapIndex->insert( std::pair<std::string,int>(key, counter) );
     counter++;
+    counterKeeper = counter;
     return true;
   };
 

@@ -17,6 +17,30 @@ void BetaScopeWaveformAna::initialize()
   this->beta_scope.fileIO_Open( ifile.c_str() );
   BetaScope_AnaFramework::initialize("/home/yuzhan/HGTD_BetaScope_FW_Test/BetaScope_Ana/BetaScopeWaveformAna/AnaTemplate/myOwnTree.ini" );
 
+  if( this->skipWaveform )
+  {
+    bool branch_checker;
+    int branch_counter = 0;
+
+    ColorCout::print("  ", "Creating branches for storing scope channels: ", YELLOW);
+    for( auto ch : this->beta_scope.channel )
+    {
+      ColorCout::print("  CH:", std::to_string(ch), CYAN);
+
+      branch_checker = makeBranch<std::vector<double>>(this->beta_scope.oTree, Form("w%i", ch ), Form("w%i", ch ), &this->beta_scope.oTreeVecDoubleMap, this->beta_scope.oTreeVecDouble[branch_counter], branch_counter, &this->beta_scope.oTreeVecDoubleMapIndex, this->beta_scope.newBranchCounterKeeper );
+      this->beta_scope.oTreeVecDouble[branch_counter-1]->reserve(1000000);
+
+      branch_checker = makeBranch<std::vector<double>>(this->beta_scope.oTree, Form("t%i", ch ), Form("t%i", ch ), &this->beta_scope.oTreeVecDoubleMap, this->beta_scope.oTreeVecDouble[branch_counter], branch_counter, &this->beta_scope.oTreeVecDoubleMapIndex, this->beta_scope.newBranchCounterKeeper );
+      this->beta_scope.oTreeVecDouble[branch_counter-1]->reserve(1000000);
+
+      if(branch_checker)
+      {
+        ColorCout::print("  Successful:", std::to_string(ch), CYAN);
+      }
+    }
+  }
+
+
   //do your own stuffs here
   //this->beta_scope.treeReader->Next();
   for(int chh = 0; chh < this->activeChannels.size(); chh ++)
@@ -217,9 +241,10 @@ void BetaScopeWaveformAna::loopEvents()
 
           for(int k = 0; k < 2000; k++){ this->thTime[ch]->push_back( WaveAna.Find_Time_At_Threshold( double(k), *this->w[ch], *this->t[ch], pmaxHolder ) ); }
 
-          for( unsigned int invI = 0; invI < this->w[ch]->size(); invI++)
-          {
-            this->w[ch]->at(invI) = -1.0 * this->w[ch]->at(invI);
+          if( this->skipWaveform ){
+            for( unsigned int invI = 0; invI < this->w[ch]->size(); invI++){
+              this->w[ch]->at(invI) = -1.0 * this->w[ch]->at(invI);
+            }
           }
 
         }
