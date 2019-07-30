@@ -292,6 +292,7 @@ void BetaScopeWaveformAna::loopEvents()
 void BetaScopeWaveformAna::finalize()
 {
   //do your own stuffs here
+  /*
   if(this->skipWaveform)
   {
     for(int chh = 0; chh < this->activeChannels.size(); chh ++)
@@ -301,6 +302,7 @@ void BetaScopeWaveformAna::finalize()
       if(this->t[ch]!=NULL)delete this->t[ch];
     }
   }
+  */
 
   //required
   BetaScope_AnaFramework::finalize();
