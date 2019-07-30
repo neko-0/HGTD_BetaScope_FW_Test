@@ -18,15 +18,14 @@ void BetaScopeWaveformAna::initialize()
   BetaScope_AnaFramework::initialize("/home/yuzhan/HGTD_BetaScope_FW_Test/BetaScope_Ana/BetaScopeWaveformAna/AnaTemplate/myOwnTree.ini" );
   //----------------------
 
-  bool branch_checker;
-  int branch_counter = 0;
-
-  for( auto ch : this->beta_scope.channel )
+  if( !this->skipWaveform )
   {
-    ColorCout::print("  CH:", std::to_string(ch), CYAN);
-
-    if( !this->skipWaveform )
+    for( auto ch : this->beta_scope.channel )
     {
+      bool branch_checker;
+      int branch_counter = 0;
+      ColorCout::print("  CH:", std::to_string(ch), CYAN);
+
       ColorCout::print("  ", "Creating branches for storing scope channels: ", YELLOW);
       branch_checker = makeBranch<std::vector<double>>(this->beta_scope.oTree, Form("w%i", ch ), Form("w%i", ch ), &this->beta_scope.oTreeVecDoubleMap, this->beta_scope.oTreeVecDouble[this->beta_scope.newBranchCounterKeeper], this->beta_scope.newBranchCounterKeeper, &this->beta_scope.oTreeVecDoubleMapIndex, this->beta_scope.newBranchCounterKeeper );
       this->beta_scope.oTreeVecDouble[this->beta_scope.newBranchCounterKeeper-1]->reserve(1000000);
