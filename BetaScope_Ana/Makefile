@@ -60,13 +60,13 @@ $(BETASCOPE_WAVEFORM_ANA_BUILD_DIR)/%.o: $(BETASCOPE_WAVEFORM_ANA_TEMPATE)/%.cpp
 #===============================================================================
 # Make exe
 
-all: $(BETA_SCOPE_WAVEFORM_ANA_BIN)GenerateWaveformConfig \
-	$(BETA_SCOPE_WAVEFORM_ANA_BIN)Run_WaveformAna
+all: $(BETASCOPE_WAVEFORM_ANA_BIN)GenerateWaveformConfig \
+	$(BETASCOPE_WAVEFORM_ANA_BIN)Run_WaveformAna
 
-$(BETA_SCOPE_WAVEFORM_ANA_BIN)GenerateWaveformConfig: $(BETASCOPE_WAVEFORM_ANA_MAIN)GenerateWaveformConfig.cpp $(DEPS)
+$(BETASCOPE_WAVEFORM_ANA_BIN)GenerateWaveformConfig: $(BETASCOPE_WAVEFORM_ANA_MAIN)GenerateWaveformConfig.cpp $(DEPS)
 	$(CC) $(DEBUG) $(LFLAGS) -I./ -I../ -I$(GENERAL_DIR) -I$(BETASCOPE_DRIVER) -I$(BETASCOPE_WAVEFORM_ANA_TEMPATE) $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOT_INCLUDE) $(BOOST_LIB)
 
-$(BETA_SCOPE_WAVEFORM_ANA_BIN)Run_WaveformAna: $(BETASCOPE_WAVEFORM_ANA_MAIN)Run_WaveformAna.cpp $(DEPS)
+$(BETASCOPE_WAVEFORM_ANA_BIN)Run_WaveformAna: $(BETASCOPE_WAVEFORM_ANA_MAIN)Run_WaveformAna.cpp $(DEPS)
 	$(CC) $(DEBUG) $(LFLAGS) -I./ -I../ -I$(GENERAL_DIR) -I$(BETASCOPE_DRIVER) -I$(BETASCOPE_WAVEFORM_ANA_TEMPATE) $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOT_INCLUDE) $(BOOST_LIB)
 
 
