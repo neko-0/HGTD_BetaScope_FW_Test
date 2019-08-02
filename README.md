@@ -16,10 +16,10 @@ About the meow.py helper script:
 
    and then type the following:
 
-   set_output_dir( your_working_dir) # this sets up the working directory \n
-   set_run(612) # setting the run that you want to analyze. It will look into the usual DAQ dir and find the run \n
-   generate_config() \n
-   set_default_config() # most of the time you can use this \n
-   run_analysis() \n
+   set_output_dir( your_working_dir) # this sets up the working directory <br />
+   set_run(612) # setting the run that you want to analyze. It will look into the usual DAQ dir and find the run <br />
+   generate_config() <br />
+   set_default_config() # most of the time you can use this <br />
+   run_analysis()
 
    at the end you should have the usual _results.xlsx (or .ini) in the 'Results' directory.  
