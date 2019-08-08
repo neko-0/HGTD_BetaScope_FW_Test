@@ -23,14 +23,14 @@ bool BetaScope::rawTreeReader( const char* itreeName )
 
   ColorCout::print(coutPrefix, "Looping through raw scope channels.", YELLOW);
 
-  int branch_counter = 0;
+  //int branch_counter = 0;
 
   for( int b = 1, max = 5; b < max; b++ )
   {
     auto check_volName2 = ((TTree *) this->iFile->Get(iTreeName.c_str()))->GetListOfBranches()->FindObject(Form("w%i",b) );
     if(check_volName2!=NULL){
-      auto br_check = readBranch<TTreeReaderArray<double>>( this->treeReader, Form("w%i", b ), Form("w%i", b ), &this->iTreeDoubleArrayMap, this->iTreeDoubleArray[branch_counter], branch_counter, &this->iTreeDoubleArrayMapIndex );
-      br_check = readBranch<TTreeReaderArray<double>>( this->treeReader, Form("t%i", b ), Form("t%i", b ), &this->iTreeDoubleArrayMap, this->iTreeDoubleArray[branch_counter], branch_counter, &this->iTreeDoubleArrayMapIndex );
+      auto br_check = readBranch<TTreeReaderArray<double>>( this->treeReader, Form("w%i", b ), Form("w%i", b ), &this->iTreeDoubleArrayMap, this->iTreeDoubleArray[this->iTreeBranchCounter], this->iTreeBranchCounter, &this->iTreeDoubleArrayMapIndex );
+      br_check = readBranch<TTreeReaderArray<double>>( this->treeReader, Form("t%i", b ), Form("t%i", b ), &this->iTreeDoubleArrayMap, this->iTreeDoubleArray[this->iTreeBranchCounter], this->iTreeBranchCounter, &this->iTreeDoubleArrayMapIndex );
       this->channel.push_back(b);
     }
   }
@@ -39,7 +39,7 @@ bool BetaScope::rawTreeReader( const char* itreeName )
   {
     ColorCout::print("  > ", "Current branch from DAQ is found.", YELLOW);
     this->currentFromDAQ = true;
-    auto br_check = readBranch<TTreeReaderValue<double>>( this->treeReader, "i_current", "i_current", &this->iTreeDoubleValueMap, this->iTreeDoubleValue[branch_counter], branch_counter, &this->iTreeDoubleValueMapIndex );
+    auto br_check = readBranch<TTreeReaderValue<double>>( this->treeReader, "i_current", "i_current", &this->iTreeDoubleValueMap, this->iTreeDoubleValue[this->iTreeBranchCounter], this->iTreeBranchCounter, &this->iTreeDoubleValueMapIndex );
   }
 
   auto check_timestamp = ((TTree *) this->iFile->Get(iTreeName.c_str()))->GetListOfBranches()->FindObject("i_timestamp");
@@ -47,7 +47,7 @@ bool BetaScope::rawTreeReader( const char* itreeName )
   {
     ColorCout::print("  > ", "Timestamp branch from DAQ is found.", YELLOW);
     this->timestampFromDAQ = true;
-    auto br_check = readBranch<TTreeReaderValue<double>>( this->treeReader, "i_timestamp", "i_timestamp", &this->iTreeDoubleValueMap, this->iTreeDoubleValue[branch_counter], branch_counter, &this->iTreeDoubleValueMapIndex );
+    auto br_check = readBranch<TTreeReaderValue<double>>( this->treeReader, "i_timestamp", "i_timestamp", &this->iTreeDoubleValueMap, this->iTreeDoubleValue[this->iTreeBranchCounter], this->iTreeBranchCounter, &this->iTreeDoubleValueMapIndex );
   }
 
   auto check_ievent = ((TTree *) this->iFile->Get(iTreeName.c_str()))->GetListOfBranches()->FindObject("ievent");
@@ -55,7 +55,7 @@ bool BetaScope::rawTreeReader( const char* itreeName )
   {
     ColorCout::print("  >", "ievent branch from DAQ is found.", YELLOW);
     this->ieventFromDAQ = true;
-    auto br_check = readBranch<TTreeReaderValue<int>>( this->treeReader, "ievent", "ievent", &this->iTreeIntValueMap, this->iTreeIntValue[branch_counter], branch_counter, &this->iTreeIntValueMapIndex );
+    auto br_check = readBranch<TTreeReaderValue<int>>( this->treeReader, "ievent", "ievent", &this->iTreeIntValueMap, this->iTreeIntValue[this->iTreeBranchCounter], this->iTreeBranchCounter, &this->iTreeIntValueMapIndex );
   }
 
   this->treeReader->Next();
