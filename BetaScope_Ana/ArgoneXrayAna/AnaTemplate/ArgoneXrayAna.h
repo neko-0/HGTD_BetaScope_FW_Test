@@ -6,8 +6,6 @@
 
 class ArgoneXrayAna : public BetaScope_AnaFramework
 {
-  BetaScope beta_scope;
-
   std::string ifile;
 
   public:
