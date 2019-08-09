@@ -25,4 +25,4 @@ alias run_WaveformAna='${BETASCOPE_SCRIPTS}/../BetaScope_Ana/BetaScopeWaveformAn
 alias run_RunConfig='/home/yuzhan/HGTD_BetaScope/BetaScopeDataProcessor/bin/GenerateDataProcessorConfig.exe'
 alias run_GetResults='/home/yuzhan/HGTD_BetaScope/BetaScopeDataProcessor/bin/GetResults.exe run_info_v08022018.ini'
 
-cd ~
+#cd ~
