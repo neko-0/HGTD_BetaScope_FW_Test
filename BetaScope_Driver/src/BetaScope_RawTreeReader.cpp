@@ -29,13 +29,8 @@ bool BetaScope::rawTreeReader( const char* itreeName )
   {
     auto check_volName2 = ((TTree *) this->iFile->Get(iTreeName.c_str()))->GetListOfBranches()->FindObject(Form("w%i",b) );
     if(check_volName2!=NULL){
-      try{
-        auto br_check = readBranch<TTreeReaderArray<double>>( this->treeReader, Form("w%i", b ), Form("w%i", b ), &this->iTreeDoubleArrayMap, this->iTreeDoubleArray[this->iTreeBranchCounter], this->iTreeBranchCounter, &this->iTreeDoubleArrayMapIndex );
-        br_check = readBranch<TTreeReaderArray<double>>( this->treeReader, Form("t%i", b ), Form("t%i", b ), &this->iTreeDoubleArrayMap, this->iTreeDoubleArray[this->iTreeBranchCounter], this->iTreeBranchCounter, &this->iTreeDoubleArrayMapIndex );
-      }catch(...)
-      {
-        ColorCout::print(coutPrefix, "Cannot read in w or t branch", RED);
-      }
+      auto br_check = readBranch<TTreeReaderArray<double>>( this->treeReader, Form("w%i", b ), Form("w%i", b ), &this->iTreeDoubleArrayMap, this->iTreeDoubleArray[this->iTreeBranchCounter], this->iTreeBranchCounter, &this->iTreeDoubleArrayMapIndex );
+      br_check = readBranch<TTreeReaderArray<double>>( this->treeReader, Form("t%i", b ), Form("t%i", b ), &this->iTreeDoubleArrayMap, this->iTreeDoubleArray[this->iTreeBranchCounter], this->iTreeBranchCounter, &this->iTreeDoubleArrayMapIndex );
       this->channel.push_back(b);
     }
   }
