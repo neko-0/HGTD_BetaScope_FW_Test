@@ -22,23 +22,27 @@ void ArgoneXrayAna::loopEvents()
 {
   while( this->beta_scope.treeReader->Next() )
   {
-    for(int ch = 0; ch < 16; ch++)
+    for(int i = 0; i < this->beta_scope.iTreeDoubleArrayMap[Form("w%i",0)]->GetSize(); i++)
     {
-      for(int i = 0; i < this->beta_scope.iTreeDoubleArrayMap[Form("w%i",ch)]->GetSize(); i++)
-      {
-        this->beta_scope.oTreeVecDoubleMap[Form("w%i",ch)]->push_back( this->beta_scope.iTreeDoubleArrayMap[Form("w%i",ch)]->At(i) );
-      }
-    }
-
-    for(int i = 0; i < this->beta_scope.iTreeDoubleArrayMap["t"]->GetSize(); i++)
-    {
+      this->beta_scope.oTreeVecDoubleMap["w0"]->push_back( this->beta_scope.iTreeDoubleArrayMap["w0"]->At(i) );
+      this->beta_scope.oTreeVecDoubleMap["w1"]->push_back( this->beta_scope.iTreeDoubleArrayMap["w1"]->At(i) );
+      this->beta_scope.oTreeVecDoubleMap["w2"]->push_back( this->beta_scope.iTreeDoubleArrayMap["w2"]->At(i) );
+      this->beta_scope.oTreeVecDoubleMap["w3"]->push_back( this->beta_scope.iTreeDoubleArrayMap["w3"]->At(i) );
+      this->beta_scope.oTreeVecDoubleMap["w4"]->push_back( this->beta_scope.iTreeDoubleArrayMap["w4"]->At(i) );
+      this->beta_scope.oTreeVecDoubleMap["w5"]->push_back( this->beta_scope.iTreeDoubleArrayMap["w5"]->At(i) );
+      this->beta_scope.oTreeVecDoubleMap["w6"]->push_back( this->beta_scope.iTreeDoubleArrayMap["w6"]->At(i) );
+      this->beta_scope.oTreeVecDoubleMap["w7"]->push_back( this->beta_scope.iTreeDoubleArrayMap["w7"]->At(i) );
+      this->beta_scope.oTreeVecDoubleMap["w8"]->push_back( this->beta_scope.iTreeDoubleArrayMap["w8"]->At(i) );
+      this->beta_scope.oTreeVecDoubleMap["w9"]->push_back( this->beta_scope.iTreeDoubleArrayMap["w9"]->At(i) );
+      this->beta_scope.oTreeVecDoubleMap["w10"]->push_back( this->beta_scope.iTreeDoubleArrayMap["w10"]->At(i) );
+      this->beta_scope.oTreeVecDoubleMap["w11"]->push_back( this->beta_scope.iTreeDoubleArrayMap["w11"]->At(i) );
+      this->beta_scope.oTreeVecDoubleMap["w12"]->push_back( this->beta_scope.iTreeDoubleArrayMap["w12"]->At(i) );
+      this->beta_scope.oTreeVecDoubleMap["w13"]->push_back( this->beta_scope.iTreeDoubleArrayMap["w13"]->At(i) );
+      this->beta_scope.oTreeVecDoubleMap["w14"]->push_back( this->beta_scope.iTreeDoubleArrayMap["w14"]->At(i) );
+      this->beta_scope.oTreeVecDoubleMap["w15"]->push_back( this->beta_scope.iTreeDoubleArrayMap["w15"]->At(i) );
+      this->beta_scope.oTreeVecDoubleMap["w16"]->push_back( this->beta_scope.iTreeDoubleArrayMap["w16"]->At(i) );
       this->beta_scope.oTreeVecDoubleMap["Time"]->push_back( this->beta_scope.iTreeDoubleArrayMap["t"]->At(i) );
     }
-
-
-
-
-
 
 
     BetaScope_AnaFramework::filldata();
