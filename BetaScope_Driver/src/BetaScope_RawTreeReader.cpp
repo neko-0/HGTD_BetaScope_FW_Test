@@ -31,6 +31,7 @@ bool BetaScope::rawTreeReader( const char* itreeName )
     if(check_volName2!=NULL){
       auto br_check = readBranch<TTreeReaderArray<double>>( this->treeReader, Form("w%i", b ), Form("w%i", b ), &this->iTreeDoubleArrayMap, this->iTreeDoubleArray[this->iTreeBranchCounter], this->iTreeBranchCounter, &this->iTreeDoubleArrayMapIndex );
       br_check = readBranch<TTreeReaderArray<double>>( this->treeReader, Form("t%i", b ), Form("t%i", b ), &this->iTreeDoubleArrayMap, this->iTreeDoubleArray[this->iTreeBranchCounter], this->iTreeBranchCounter, &this->iTreeDoubleArrayMapIndex );
+      if(!br_check)break;
       this->channel.push_back(b);
     }
   }
