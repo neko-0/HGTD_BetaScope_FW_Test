@@ -2,7 +2,7 @@
 
 void ArgoneXrayAna::initialize( )
 {
-  this->beta_scope.fileIO_Open( ifile.c_str() );
+  this->beta_scope.fileIO_Open( this->ifile.c_str() );
   BetaScope_AnaFramework::initialize( "/home/yuzhan/HGTD_BetaScope_FW_Test/BetaScope_Ana/ArgoneXrayAna/AnaTemplate/myOwnTree.ini" );
 
   //do your own stuffs here
