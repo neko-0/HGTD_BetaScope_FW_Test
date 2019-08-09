@@ -58,10 +58,10 @@ bool BetaScope::rawTreeReader( const char* itreeName )
     auto br_check = readBranch<TTreeReaderValue<int>>( this->treeReader, "ievent", "ievent", &this->iTreeIntValueMap, this->iTreeIntValue[this->iTreeBranchCounter], this->iTreeBranchCounter, &this->iTreeIntValueMapIndex );
   }
 
-  this->treeReader->Next();
-  int npoint = this->iTreeDoubleArrayMap["t2"]->GetSize();
-  this->treeReader->Restart();
-  if ( npoint == 0 ){ std::cout << "there is no npoints, check your file" << std::endl; return false;}
+  //this->treeReader->Next();
+  //int npoint = this->iTreeDoubleArrayMap["w2"]->GetSize();
+  //this->treeReader->Restart();
+  //if ( npoint == 0 ){ std::cout << "there is no npoints, check your file" << std::endl; return false;}
 
   ColorCout::print(coutPrefix, "Finished, exiting", BOLDGREEN);
 
