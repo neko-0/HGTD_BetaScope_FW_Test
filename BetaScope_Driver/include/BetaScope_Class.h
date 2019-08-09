@@ -177,10 +177,6 @@ bool readBranch(
   )
   {
     vecDouble = new dataType( *iTreeReader, branchName.c_str());
-    if(!vecDouble->IsValid())
-    {
-      return false;
-    }
     vecDoubleBranch->insert( std::pair<std::string, dataType * >( key, vecDouble) );
     mapIndex->insert( std::pair<std::string,int>(key, counter) );
     counter++;
