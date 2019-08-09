@@ -40,7 +40,7 @@ void ArgoneXrayAna::loopEvents()
       this->beta_scope.oTreeVecDoubleMap["w13"]->push_back( this->beta_scope.iTreeDoubleArrayMap["w13"]->At(i) );
       this->beta_scope.oTreeVecDoubleMap["w14"]->push_back( this->beta_scope.iTreeDoubleArrayMap["w14"]->At(i) );
       this->beta_scope.oTreeVecDoubleMap["w15"]->push_back( this->beta_scope.iTreeDoubleArrayMap["w15"]->At(i) );
-      this->beta_scope.oTreeVecDoubleMap["w16"]->push_back( this->beta_scope.iTreeDoubleArrayMap["w16"]->At(i) );
+      //this->beta_scope.oTreeVecDoubleMap["w16"]->push_back( this->beta_scope.iTreeDoubleArrayMap["w16"]->At(i) );
       this->beta_scope.oTreeVecDoubleMap["Time"]->push_back( this->beta_scope.iTreeDoubleArrayMap["t"]->At(i) );
     }
 
