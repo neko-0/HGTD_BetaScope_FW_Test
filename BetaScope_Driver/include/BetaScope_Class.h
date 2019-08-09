@@ -179,7 +179,6 @@ bool readBranch(
     vecDouble = new dataType( *iTreeReader, branchName.c_str());
     if(!vecDouble->IsValid())
     {
-      std::cout<<"Cannot read branch\n";
       return false;
     }
     vecDoubleBranch->insert( std::pair<std::string, dataType * >( key, vecDouble) );
