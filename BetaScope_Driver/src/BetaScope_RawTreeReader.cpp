@@ -67,3 +67,39 @@ bool BetaScope::rawTreeReader( const char* itreeName )
 
   return true;
 }
+
+
+bool simple_readBranch( BetaScope &beta_scope, std::string typeName, std::string key, std::string branchName )
+{
+  if( typeName.compare("TTreeReaderArray<double>") ==0 ){
+    beta_scope.iTreeDoubleArray[beta_scope.iTreeBranchCounter] = new TTreeReaderArray<double>( *beta_scope.treeReader, branchName.c_str() );
+    beta_scope.iTreeDoubleArrayMap.insert( std::pair<std::string, TTreeReaderArray<double> * >(key, beta_scope.iTreeDoubleArray[beta_scope.iTreeBranchCounter]) );
+    beta_scope.iTreeDoubleArrayMapIndex.insert( std::pair<std::string, int>(key, beta_scope.iTreeBranchCounter) );
+    beta_scope.iTreeBranchCounter+=1;
+    return true;
+  }
+  else if( typeName.compare("TTreeReaderArray<int>") ==0 ){
+    beta_scope.iTreeIntArray[beta_scope.iTreeBranchCounter] = new TTreeReaderArray<int>( *beta_scope.treeReader, branchName.c_str() );
+    beta_scope.iTreeIntArrayMap.insert( std::pair<std::string, TTreeReaderArray<int>*>(key, beta_scope.iTreeIntArray[beta_scope.iTreeBranchCounter]) );
+    beta_scope.iTreeIntArrayMapIndex.insert( std::pair<std::string, int>(key, beta_scope.iTreeBranchCounter) );
+    beta_scope.iTreeBranchCounter+=1;
+    return true;
+  }
+  else if( typeName.compare("TTreeReaderValue<double>") ==0 ){
+    beta_scope.iTreeDoubleValue[beta_scope.iTreeBranchCounter] = new TTreeReaderValue<double>( *beta_scope.treeReader, branchName.c_str() );
+    beta_scope.iTreeDoubleValueMap.insert( std::pair<std::string, TTreeReaderValue<double>*>(key, beta_scope.iTreeDoubleValue[beta_scope.iTreeBranchCounter]) );
+    beta_scope.iTreeDoubleValueMapIndex.insert( std::pair<std::string, int>(key, beta_scope.iTreeBranchCounter) );
+    beta_scope.iTreeBranchCounter+=1;
+    return true;
+  }
+  else if( typeName.compare("TTreeReaderValue<int>") ==0 ){
+    beta_scope.iTreeIntValue[beta_scope.iTreeBranchCounter] = new TTreeReaderValue<int>( *beta_scope.treeReader, branchName.c_str() );
+    beta_scope.iTreeIntValueMap.insert( std::pair<std::string, TTreeReaderValue<int>*>(key, beta_scope.iTreeIntValue[beta_scope.iTreeBranchCounter]) );
+    beta_scope.iTreeIntValueMapIndex.insert( std::pair<std::string, int>(key, beta_scope.iTreeBranchCounter) );
+    beta_scope.iTreeBranchCounter+=1;
+    return true;
+  }
+  else{
+    return false;
+  }
+}
