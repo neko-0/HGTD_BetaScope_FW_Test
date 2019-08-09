@@ -184,7 +184,7 @@ bool readBranch(
     return true;
   };
 
-bool readBranch( BetaScope &beta_scope, std::string typeName, std::string key, std::string branchName )
+bool simple_readBranch( BetaScope &beta_scope, std::string typeName, std::string key, std::string branchName )
 {
   if( typeName.compare("TTreeReaderArray<double>") ==0 ){
     beta_scope.iTreeDoubleArray[beta_scope.iTreeBranchCounter] = new TTreeReaderArray<double>( *beta_scope.treeReader, branchName.c_str() );
