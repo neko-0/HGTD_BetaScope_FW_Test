@@ -46,7 +46,7 @@ BETASCOPE_WAVEFORM_ANA_DEP = $(patsubst $(BETASCOPE_WAVEFORM_ANA_TEMPATE)/%.cpp,
 BETASCOPE_WAVEFORM_ANA_MAIN = $(BETASCOPE_ANA)BetaScopeWaveformAna/main/
 BETASCOPE_WAVEFORM_ANA_BIN = $(BETASCOPE_ANA)BetaScopeWaveformAna/bin/
 
-BETASCOPE_WAVEFORM_ANA_DEP += $(DEPS)
+DEPS += $(BETASCOPE_WAVEFORM_ANA_DEP)
 
 
 #--ArgoneXrayAna
@@ -59,7 +59,7 @@ ARGONE_XRAY_ANA_DEP = $(patsubst $(ARGONE_XRAY_ANA_TEMPATE)/%.cpp, $(ARGONE_XRAY
 ARGONE_XRAY_ANA_MAIN = $(ARGONE_XRAY_ANA)ArgoneXrayAna/main/
 ARGONE_XRAY_ANA_BIN = $(ARGONE_XRAY_ANA)ArgoneXrayAna/bin/
 
-ARGONE_XRAY_ANA_DEP += $(DEPS)
+DEPS += $(ARGONE_XRAY_ANA_DEP)
 
 ################################################################################
 # Building object files.
