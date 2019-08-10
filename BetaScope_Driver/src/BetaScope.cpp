@@ -22,5 +22,5 @@ dataType* BetaScope::get(std::string key, std::string dtype){
   }
 };
 
-std::vector<double> *BetaScope::getDV(std::string key){ this->oTreeVecDoubleMap[key]; }
-std::vector<int> *BetaScope::getIV(std::string key){ this->oTreeVecIntMap[key]; }
+std::vector<double> *BetaScope::getDV(std::string key){ return this->oTreeVecDoubleMap[key]; }
+std::vector<int> *BetaScope::getIV(std::string key){ return this->oTreeVecIntMap[key]; }
