@@ -61,7 +61,7 @@ ARGONE_XRAY_ANA_BIN = $(ARGONE_XRAY_ANA)ArgoneXrayAna/bin/
 
 ARGONE_DEPS = $(BETASCOPE_DRIVER_DEPS)
 ARGONE_DEPS += $(WAVEFORM_ANA_DEPS)
-ARGONE_DEPS  += $(ARGONE_XRAY_ANA_DEP)
+ARGONE_DEPS += $(ARGONE_XRAY_ANA_DEP)
 
 
 ################################################################################
@@ -89,9 +89,8 @@ $(BETASCOPE_WAVEFORM_ANA_BIN)GenerateWaveformConfig: $(BETASCOPE_WAVEFORM_ANA_MA
 $(BETASCOPE_WAVEFORM_ANA_BIN)Run_WaveformAna: $(BETASCOPE_WAVEFORM_ANA_MAIN)Run_WaveformAna.cpp $(DEPS)
 	$(CC) $(DEBUG) $(LFLAGS) -I./ -I../ -I$(GENERAL_DIR) -I$(BETASCOPE_DRIVER) -I$(BETASCOPE_WAVEFORM_ANA_TEMPATE) $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOT_INCLUDE) $(BOOST_LIB)
 
-
 $(ARGONE_XRAY_ANA_BIN)ArgoneTest: $(ARGONE_XRAY_ANA_MAIN)ArgoneTest.cpp $(ARGONE_DEPS)
-	$(CC) $(DEBUG) $(LFLAGS) -I./ -I../ -I$(GENERAL_DIR) -I$(BETASCOPE_DRIVER) -I$(ARGONE_XRAY_ANA_TEMPATE) $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOT_INCLUDE) $(BOOST_LIB)
+	$(CC) $(DEBUG) $(LFLAGS) -I./ -I../ -I$(GENERAL_DIR) -I$(BETASCOPE_DRIVER) -I$(BETASCOPE_DRIVER_INC) -I$(ARGONE_XRAY_ANA_TEMPATE) $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOT_INCLUDE) $(BOOST_LIB)
 
 
 
@@ -105,4 +104,5 @@ clean:
 	@for file in ./*/*/build/*; do rm -rf $$file; echo Delete Object file: $$file; done
 	@for file in ./bin/*; do rm -rf $$file; echo Delete binary file: $$file; done
 	@for file in ./*/*/bin/*; do rm -rf $$file; echo Delete Object file: $$file; done
+	@for file in ./*/bin/*; do rm -rf $$file; echo Delete Object file: $$file; done
 	@echo "finished"
