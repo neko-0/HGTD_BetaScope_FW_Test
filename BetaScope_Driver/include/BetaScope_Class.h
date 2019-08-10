@@ -29,6 +29,10 @@
 
 #define VERBOSITY 0
 
+template<typename T>
+struct DataType{using type = T;};
+
+
 class BetaScope
 {
   public:
@@ -112,6 +116,14 @@ class BetaScope
     void _clearVecBuffer();
     void fileIO_Close();
 
+    bool setBranch( std::string typeName, std::string key, std::string branchName );
+
+    template <typename dataType>
+    dataType *get(std::string key, std::string dtype);
+
+    std::vector<double> *getDV(std::string key );
+    std::vector<int> *getIV(std::string key );
+
     std::vector<
       std::tuple<
         int, std::string, std::string, std::string
@@ -184,7 +196,6 @@ bool readBranch(
     return true;
   };
 
-bool simple_readBranch( BetaScope &beta_scope, std::string typeName, std::string key, std::string branchName );
 /*
 template <class dataType>
 bool readBranch(

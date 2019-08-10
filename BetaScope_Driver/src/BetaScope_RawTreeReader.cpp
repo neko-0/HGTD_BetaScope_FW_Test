@@ -69,34 +69,34 @@ bool BetaScope::rawTreeReader( const char* itreeName )
 }
 
 
-bool simple_readBranch( BetaScope &beta_scope, std::string typeName, std::string key, std::string branchName )
+bool BetaScope::setBranch( std::string typeName, std::string key, std::string branchName )
 {
   if( typeName.compare("TTreeReaderArray<double>") ==0 ){
-    beta_scope.iTreeDoubleArray[beta_scope.iTreeBranchCounter] = new TTreeReaderArray<double>( *beta_scope.treeReader, branchName.c_str() );
-    beta_scope.iTreeDoubleArrayMap.insert( std::pair<std::string, TTreeReaderArray<double> * >(key, beta_scope.iTreeDoubleArray[beta_scope.iTreeBranchCounter]) );
-    beta_scope.iTreeDoubleArrayMapIndex.insert( std::pair<std::string, int>(key, beta_scope.iTreeBranchCounter) );
-    beta_scope.iTreeBranchCounter+=1;
+    this->iTreeDoubleArray[this->iTreeBranchCounter] = new TTreeReaderArray<double>( *this->treeReader, branchName.c_str() );
+    this->iTreeDoubleArrayMap.insert( std::pair<std::string, TTreeReaderArray<double> * >(key, this->iTreeDoubleArray[this->iTreeBranchCounter]) );
+    this->iTreeDoubleArrayMapIndex.insert( std::pair<std::string, int>(key, this->iTreeBranchCounter) );
+    this->iTreeBranchCounter+=1;
     return true;
   }
   else if( typeName.compare("TTreeReaderArray<int>") ==0 ){
-    beta_scope.iTreeIntArray[beta_scope.iTreeBranchCounter] = new TTreeReaderArray<int>( *beta_scope.treeReader, branchName.c_str() );
-    beta_scope.iTreeIntArrayMap.insert( std::pair<std::string, TTreeReaderArray<int>*>(key, beta_scope.iTreeIntArray[beta_scope.iTreeBranchCounter]) );
-    beta_scope.iTreeIntArrayMapIndex.insert( std::pair<std::string, int>(key, beta_scope.iTreeBranchCounter) );
-    beta_scope.iTreeBranchCounter+=1;
+    this->iTreeIntArray[this->iTreeBranchCounter] = new TTreeReaderArray<int>( *this->treeReader, branchName.c_str() );
+    this->iTreeIntArrayMap.insert( std::pair<std::string, TTreeReaderArray<int>*>(key, this->iTreeIntArray[this->iTreeBranchCounter]) );
+    this->iTreeIntArrayMapIndex.insert( std::pair<std::string, int>(key, this->iTreeBranchCounter) );
+    this->iTreeBranchCounter+=1;
     return true;
   }
   else if( typeName.compare("TTreeReaderValue<double>") ==0 ){
-    beta_scope.iTreeDoubleValue[beta_scope.iTreeBranchCounter] = new TTreeReaderValue<double>( *beta_scope.treeReader, branchName.c_str() );
-    beta_scope.iTreeDoubleValueMap.insert( std::pair<std::string, TTreeReaderValue<double>*>(key, beta_scope.iTreeDoubleValue[beta_scope.iTreeBranchCounter]) );
-    beta_scope.iTreeDoubleValueMapIndex.insert( std::pair<std::string, int>(key, beta_scope.iTreeBranchCounter) );
-    beta_scope.iTreeBranchCounter+=1;
+    this->iTreeDoubleValue[this->iTreeBranchCounter] = new TTreeReaderValue<double>( *this->treeReader, branchName.c_str() );
+    this->iTreeDoubleValueMap.insert( std::pair<std::string, TTreeReaderValue<double>*>(key, this->iTreeDoubleValue[this->iTreeBranchCounter]) );
+    this->iTreeDoubleValueMapIndex.insert( std::pair<std::string, int>(key, this->iTreeBranchCounter) );
+    this->iTreeBranchCounter+=1;
     return true;
   }
   else if( typeName.compare("TTreeReaderValue<int>") ==0 ){
-    beta_scope.iTreeIntValue[beta_scope.iTreeBranchCounter] = new TTreeReaderValue<int>( *beta_scope.treeReader, branchName.c_str() );
-    beta_scope.iTreeIntValueMap.insert( std::pair<std::string, TTreeReaderValue<int>*>(key, beta_scope.iTreeIntValue[beta_scope.iTreeBranchCounter]) );
-    beta_scope.iTreeIntValueMapIndex.insert( std::pair<std::string, int>(key, beta_scope.iTreeBranchCounter) );
-    beta_scope.iTreeBranchCounter+=1;
+    this->iTreeIntValue[this->iTreeBranchCounter] = new TTreeReaderValue<int>( *this->treeReader, branchName.c_str() );
+    this->iTreeIntValueMap.insert( std::pair<std::string, TTreeReaderValue<int>*>(key, this->iTreeIntValue[this->iTreeBranchCounter]) );
+    this->iTreeIntValueMapIndex.insert( std::pair<std::string, int>(key, this->iTreeBranchCounter) );
+    this->iTreeBranchCounter+=1;
     return true;
   }
   else{

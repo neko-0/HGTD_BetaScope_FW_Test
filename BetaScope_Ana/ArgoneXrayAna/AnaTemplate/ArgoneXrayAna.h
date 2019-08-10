@@ -21,6 +21,9 @@ class ArgoneXrayAna : public BetaScope_AnaFramework
     void loopEvents();
     void finalize();
 
+    std::vector<double> *w[16];
+    std::vector<double> *t;
+
 };
 
 int runAnalysis(std::string ifile);
