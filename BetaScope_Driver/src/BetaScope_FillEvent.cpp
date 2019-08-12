@@ -7,5 +7,5 @@
 void BetaScope::fillEvent()
 {
     this->oTree->Fill();
-    BetaScope::_clearVecBuffer();
+    BetaScope::_clearVecBuffer("default");
 }

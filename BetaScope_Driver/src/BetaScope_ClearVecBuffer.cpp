@@ -42,3 +42,15 @@ void BetaScope::_clearVecBuffer()
     if(this->oTreeVecInt[i]){int cap = this->oTreeVecInt[i]->size();this->oTreeVecInt[i]->clear();this->oTreeVecInt[i]->reserve(cap);}
   }
 }
+
+void BetaScope::_clearVecBuffer(std::string default){
+  for(int i =0;i<100;i++)
+  {
+    //v1->clear();
+    //v2->clear();
+    //if(this->oTreeVecInt[i]){this->oTreeVecInt[i]->clear();this->oTreeVecInt[i]->reserve(5000);}
+    //if(this->oTreeVecDouble[i]){this->oTreeVecDouble[i]->clear();this->oTreeVecDouble[i]->reserve(5000);}
+    if(this->oTreeVecInt[i]){int cap = this->oTreeVecInt[i]->size();this->oTreeVecInt[i]->clear();this->oTreeVecInt[i]->reserve(cap);}
+    if(this->oTreeVecDouble[i]){int cap = this->oTreeVecDouble[i]->size();this->oTreeVecDouble[i]->clear();this->oTreeVecDouble[i]->reserve(cap);}
+  }
+}

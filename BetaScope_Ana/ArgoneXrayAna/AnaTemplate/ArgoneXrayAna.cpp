@@ -1,5 +1,9 @@
 #include "ArgoneXrayAna.h"
 
+//user include files
+#include "General/WaveformAna/include/Waveform_Analysis.hpp"
+//---------------
+
 void ArgoneXrayAna::initialize( )
 {
   this->beta_scope.fileIO_Open( this->ifile.c_str() );
@@ -47,27 +51,30 @@ void ArgoneXrayAna::loopEvents()
   //double *d = this->beta_scope.get<double>("ws0", "vector<double?");
   int count = 0;
 
+  double verScaler = 1.0;
+  double horiScaler = 1.0;
+
   while( this->beta_scope.treeReader->Next() )
   {
     for(int i = 0; i < this->beta_scope.iTreeDoubleArrayMap[Form("w0")]->GetSize(); i++)
     {
-      w[0]->push_back( this->beta_scope.iTreeDoubleArrayMap["w0"]->At(i) );
-      w[1]->push_back( this->beta_scope.iTreeDoubleArrayMap["w1"]->At(i) );
-      w[2]->push_back( this->beta_scope.iTreeDoubleArrayMap["w2"]->At(i) );
-      w[3]->push_back( this->beta_scope.iTreeDoubleArrayMap["w3"]->At(i) );
-      w[4]->push_back( this->beta_scope.iTreeDoubleArrayMap["w4"]->At(i) );
-      w[5]->push_back( this->beta_scope.iTreeDoubleArrayMap["w5"]->At(i) );
-      w[6]->push_back( this->beta_scope.iTreeDoubleArrayMap["w6"]->At(i) );
-      w[7]->push_back( this->beta_scope.iTreeDoubleArrayMap["w7"]->At(i) );
-      w[8]->push_back( this->beta_scope.iTreeDoubleArrayMap["w8"]->At(i) );
-      w[9]->push_back( this->beta_scope.iTreeDoubleArrayMap["w9"]->At(i) );
-      w[10]->push_back( this->beta_scope.iTreeDoubleArrayMap["w10"]->At(i) );
-      w[11]->push_back( this->beta_scope.iTreeDoubleArrayMap["w11"]->At(i) );
-      w[12]->push_back( this->beta_scope.iTreeDoubleArrayMap["w12"]->At(i) );
-      w[13]->push_back( this->beta_scope.iTreeDoubleArrayMap["w13"]->At(i) );
-      w[14]->push_back( this->beta_scope.iTreeDoubleArrayMap["w14"]->At(i) );
-      w[15]->push_back( this->beta_scope.iTreeDoubleArrayMap["w15"]->At(i) );
-      t->push_back( this->beta_scope.iTreeDoubleArrayMap["t"]->At(i) );
+      w[0]->push_back( this->beta_scope.iTreeDoubleArrayMap["w0"]->At(i) * verScaler );
+      w[1]->push_back( this->beta_scope.iTreeDoubleArrayMap["w1"]->At(i) * verScaler );
+      w[2]->push_back( this->beta_scope.iTreeDoubleArrayMap["w2"]->At(i) * verScaler );
+      w[3]->push_back( this->beta_scope.iTreeDoubleArrayMap["w3"]->At(i) * verScaler );
+      w[4]->push_back( this->beta_scope.iTreeDoubleArrayMap["w4"]->At(i) * verScaler );
+      w[5]->push_back( this->beta_scope.iTreeDoubleArrayMap["w5"]->At(i) * verScaler );
+      w[6]->push_back( this->beta_scope.iTreeDoubleArrayMap["w6"]->At(i) * verScaler );
+      w[7]->push_back( this->beta_scope.iTreeDoubleArrayMap["w7"]->At(i) * verScaler );
+      w[8]->push_back( this->beta_scope.iTreeDoubleArrayMap["w8"]->At(i) * verScaler );
+      w[9]->push_back( this->beta_scope.iTreeDoubleArrayMap["w9"]->At(i) * verScaler );
+      w[10]->push_back( this->beta_scope.iTreeDoubleArrayMap["w10"]->At(i) * verScaler );
+      w[11]->push_back( this->beta_scope.iTreeDoubleArrayMap["w11"]->At(i) * verScaler );
+      w[12]->push_back( this->beta_scope.iTreeDoubleArrayMap["w12"]->At(i) * verScaler );
+      w[13]->push_back( this->beta_scope.iTreeDoubleArrayMap["w13"]->At(i) * verScaler );
+      w[14]->push_back( this->beta_scope.iTreeDoubleArrayMap["w14"]->At(i) * verScaler );
+      w[15]->push_back( this->beta_scope.iTreeDoubleArrayMap["w15"]->At(i) * verScaler );
+      t->push_back( this->beta_scope.iTreeDoubleArrayMap["t"]->At(i) * horiScaler );
     }
 
     *this->beta_scope.oTreeIntMap["counter"] = count;
