@@ -15,8 +15,10 @@ void ArgoneXrayAna::initialize( )
 
     if(ch==0){ br_check = this->beta_scope.setBranch( "TTreeReaderArray<double>", "t", "t"); }
   }
-  auto br_check = makeBranch<std::vector<double>>(this->beta_scope.oTree, "t", "t", &this->beta_scope.oTreeVecDoubleMap, this->beta_scope.oTreeVecDouble[this->beta_scope.newBranchCounterKeeper], this->beta_scope.newBranchCounterKeeper, &this->beta_scope.oTreeVecDoubleMapIndex, this->beta_scope.newBranchCounterKeeper );
-  this->beta_scope.oTreeVecDouble[this->beta_scope.newBranchCounterKeeper-1]->reserve(1000000);
+  //auto br_check = makeBranch<std::vector<double>>(this->beta_scope.oTree, "t", "t", &this->beta_scope.oTreeVecDoubleMap, this->beta_scope.oTreeVecDouble[this->beta_scope.newBranchCounterKeeper], this->beta_scope.newBranchCounterKeeper, &this->beta_scope.oTreeVecDoubleMapIndex, this->beta_scope.newBranchCounterKeeper );
+  //this->beta_scope.oTreeVecDouble[this->beta_scope.newBranchCounterKeeper-1]->reserve(1000000);
+  auto br_check = this->beta_scope.buildBranch< std::vector<double> >("t");
+
 
 
   w[0] = this->beta_scope.getDV("w0");
