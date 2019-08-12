@@ -89,6 +89,9 @@ class BetaScope
     std::map<std::string, int> oTreeVecDoubleMapIndex;
     std::map<std::string, int> oTreeDoubleMapIndex;
     std::map<std::string, int> oTreeIntMapIndex;
+      std::map<std::string, int> oTreeVecIntMapIndex;
+    std::vector<int> reserved_vec_d = {};
+    std::vector<int> reserved_vec_i = {};
 
     int newBranchCounterKeeper = 0;
 
@@ -117,6 +120,9 @@ class BetaScope
     void fileIO_Close();
 
     bool setBranch( std::string typeName, std::string key, std::string branchName );
+
+    template <typename type>
+    bool buildBranch( std::string branchName );
 
     template <typename dataType>
     dataType *get(std::string key, std::string dtype);
