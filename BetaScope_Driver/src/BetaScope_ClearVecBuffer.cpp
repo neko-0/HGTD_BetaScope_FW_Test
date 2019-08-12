@@ -43,7 +43,7 @@ void BetaScope::_clearVecBuffer()
   }
 }
 
-void BetaScope::_clearVecBuffer(std::string default){
+void BetaScope::_clearVecBuffer(std::string mode){
   for(int i =0;i<100;i++)
   {
     //v1->clear();

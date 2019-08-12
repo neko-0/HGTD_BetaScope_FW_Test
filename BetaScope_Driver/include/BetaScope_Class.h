@@ -119,7 +119,7 @@ class BetaScope
     bool newTreeMaker( std::string additional_branch_list );
     void fillEvent();
     void _clearVecBuffer();
-    void _clearVecBuffer(std::string default);
+    void _clearVecBuffer(std::string mode);
     void fileIO_Close();
 
     bool setBranch( std::string typeName, std::string key, std::string branchName );
