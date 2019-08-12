@@ -18,6 +18,7 @@ void ArgoneXrayAna::initialize( )
   //auto br_check = makeBranch<std::vector<double>>(this->beta_scope.oTree, "t", "t", &this->beta_scope.oTreeVecDoubleMap, this->beta_scope.oTreeVecDouble[this->beta_scope.newBranchCounterKeeper], this->beta_scope.newBranchCounterKeeper, &this->beta_scope.oTreeVecDoubleMapIndex, this->beta_scope.newBranchCounterKeeper );
   //this->beta_scope.oTreeVecDouble[this->beta_scope.newBranchCounterKeeper-1]->reserve(1000000);
   auto br_check = this->beta_scope.buildBranch< std::vector<double> >("t");
+  br_check = this->beta_scope.buildBranch<int>("counter");
 
 
 
@@ -44,6 +45,7 @@ void ArgoneXrayAna::initialize( )
 void ArgoneXrayAna::loopEvents()
 {
   //double *d = this->beta_scope.get<double>("ws0", "vector<double?");
+  int count = 0;
 
   while( this->beta_scope.treeReader->Next() )
   {
@@ -67,6 +69,9 @@ void ArgoneXrayAna::loopEvents()
       w[15]->push_back( this->beta_scope.iTreeDoubleArrayMap["w15"]->At(i) );
       t->push_back( this->beta_scope.iTreeDoubleArrayMap["t"]->At(i) );
     }
+
+    *this->beta_scope.oTreeIntMap["counter"] = count;
+    count++;
 
 
     BetaScope_AnaFramework::filldata();

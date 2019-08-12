@@ -91,7 +91,9 @@ class BetaScope
     std::map<std::string, int> oTreeIntMapIndex;
       std::map<std::string, int> oTreeVecIntMapIndex;
     std::vector<int> reserved_vec_d = {};
+    std::vector<int> reserved_d = {};
     std::vector<int> reserved_vec_i = {};
+    std::vector<int> reserved_i = {};
 
     int newBranchCounterKeeper = 0;
 
@@ -129,6 +131,8 @@ class BetaScope
 
     std::vector<double> *getDV(std::string key );
     std::vector<int> *getIV(std::string key );
+    double *getD(std::string key);
+    int *getI(std::string key);
 
     std::vector<
       std::tuple<
