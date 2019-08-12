@@ -22,6 +22,7 @@ void BetaScope::_clearVecBuffer()
 void BetaScope::_clearVecBuffer()
 {
   //for( auto & [v1, v2] : zip(this->oTreeVecDoubleMap, this->oTreeVecIntMap) )
+  /*
   for(int i =0;i<100;i++)
   {
     //v1->clear();
@@ -30,5 +31,14 @@ void BetaScope::_clearVecBuffer()
     //if(this->oTreeVecDouble[i]){this->oTreeVecDouble[i]->clear();this->oTreeVecDouble[i]->reserve(5000);}
     if(this->oTreeVecInt[i]){int cap = this->oTreeVecInt[i]->size();this->oTreeVecInt[i]->clear();this->oTreeVecInt[i]->reserve(cap);}
     if(this->oTreeVecDouble[i]){int cap = this->oTreeVecDouble[i]->size();this->oTreeVecDouble[i]->clear();this->oTreeVecDouble[i]->reserve(cap);}
+  }
+  */
+  for( auto i : this->reserved_vec_d )
+  {
+    if(this->oTreeVecDouble[i]){int cap = this->oTreeVecDouble[i]->size();this->oTreeVecDouble[i]->clear();this->oTreeVecDouble[i]->reserve(cap);}
+  }
+  for( auto i : this->reserved_vec_i )
+  {
+    if(this->oTreeVecInt[i]){int cap = this->oTreeVecInt[i]->size();this->oTreeVecInt[i]->clear();this->oTreeVecInt[i]->reserve(cap);}
   }
 }
