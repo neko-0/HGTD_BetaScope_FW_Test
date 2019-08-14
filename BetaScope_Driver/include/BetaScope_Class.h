@@ -135,6 +135,9 @@ class BetaScope
     double *getD(std::string key);
     int *getI(std::string key);
 
+    template <class branchType>
+    typename DataType<branchType>::type *get_oTreeBranch( std::string branchName );
+
     std::vector<
       std::tuple<
         int, std::string, std::string, std::string
