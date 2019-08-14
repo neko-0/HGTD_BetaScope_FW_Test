@@ -26,23 +26,23 @@ void ArgoneXrayAna::initialize( )
 
 
 
-  w[0] = this->beta_scope.getDV("w0");
-  w[1] = this->beta_scope.getDV("w1");
-  w[2] = this->beta_scope.getDV("w2");
-  w[3] = this->beta_scope.getDV("w3");
-  w[4] = this->beta_scope.getDV("w4");
-  w[5] = this->beta_scope.getDV("w5");
-  w[6] = this->beta_scope.getDV("w6");
-  w[7] = this->beta_scope.getDV("w7");
-  w[8] = this->beta_scope.getDV("w8");
-  w[9] = this->beta_scope.getDV("w9");
-  w[10] = this->beta_scope.getDV("w10");
-  w[11] = this->beta_scope.getDV("w11");
-  w[12] = this->beta_scope.getDV("w12");
-  w[13] = this->beta_scope.getDV("w13");
-  w[14] = this->beta_scope.getDV("w14");
-  w[15] = this->beta_scope.getDV("w15");
-  t = this->beta_scope.getDV("t");
+  w[0] = this->beta_scope.get_oTreeBranch<std::vector<double>>("w0");
+  w[1] = this->beta_scope.get_oTreeBranch<std::vector<double>>("w1");
+  w[2] = this->beta_scope.get_oTreeBranch<std::vector<double>>("w2");
+  w[3] = this->beta_scope.get_oTreeBranch<std::vector<double>>("w3");
+  w[4] = this->beta_scope.get_oTreeBranch<std::vector<double>>("w4");
+  w[5] = this->beta_scope.get_oTreeBranch<std::vector<double>>("w5");
+  w[6] = this->beta_scope.get_oTreeBranch<std::vector<double>>("w6");
+  w[7] = this->beta_scope.get_oTreeBranch<std::vector<double>>("w7");
+  w[8] = this->beta_scope.get_oTreeBranch<std::vector<double>>("w8");
+  w[9] = this->beta_scope.get_oTreeBranch<std::vector<double>>("w9");
+  w[10] = this->beta_scope.get_oTreeBranch<std::vector<double>>("w10");
+  w[11] = this->beta_scope.get_oTreeBranch<std::vector<double>>("w11");
+  w[12] = this->beta_scope.get_oTreeBranch<std::vector<double>>("w12");
+  w[13] = this->beta_scope.get_oTreeBranch<std::vector<double>>("w13");
+  w[14] = this->beta_scope.get_oTreeBranch<std::vector<double>>("w14");
+  w[15] = this->beta_scope.get_oTreeBranch<std::vector<double>>("w15");
+  t = this->beta_scope.get_oTreeBranch<std::vector<double>>("t");
 
 }
 

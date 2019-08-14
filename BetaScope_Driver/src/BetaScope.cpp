@@ -26,3 +26,16 @@ std::vector<double> *BetaScope::getDV(std::string key){ return this->oTreeVecDou
 std::vector<int> *BetaScope::getIV(std::string key){ return this->oTreeVecIntMap[key]; }
 double *BetaScope::getD(std::string key){ return this->oTreeDoubleMap[key]; }
 int *BetaScope::getI(std::string key){ return this->oTreeIntMap[key]; }
+
+
+template <>
+DataType<double>::type *BetaScope::get_oTreeBranch<double>(std::string branchName){ return this->oTreeDoubleMap[branchName]; }
+
+template <>
+DataType<int>::type *BetaScope::get_oTreeBranch<int>(std::string branchName){ return this->oTreeIntMap[branchName]; }
+
+template <>
+DataType<std::vector<double>>::type *BetaScope::get_oTreeBranch<std::vector<double>>(std::string branchName){ return this->oTreeVecDoubleMap[branchName]; }
+
+template <>
+DataType<std::vector<int>>::type *BetaScope::get_oTreeBranch<std::vector<int>>(std::string branchName){ return this->oTreeVecIntMap[branchName]; }
