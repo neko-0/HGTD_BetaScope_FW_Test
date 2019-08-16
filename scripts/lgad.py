@@ -158,6 +158,8 @@ class Lgad(cmd.Cmd, object):
             colorString.sysError("current run is not set" )
 
         else:
+            self.do_cd_current_run()
+
             if "nohup" in mode:
                 nohup = "nohup"
                 nohup_log = " >> $BETASCOPE_SCRIPTS/nohup.log"
@@ -178,7 +180,6 @@ class Lgad(cmd.Cmd, object):
                 p.wait()
 
                 if "full" in mode:
-                    self.do_cd_current_run()
                     p = subprocess.Popen("{} /home/yuzhan/HGTD_BetaScope/BetaScopeDataProcessor/bin/GenerateDataProcessorConfig.exe {}".format(nohup, nohup_log), shell=True)
                     p.wait()
 
@@ -193,7 +194,6 @@ class Lgad(cmd.Cmd, object):
                     #isRunning(pid)
                     p.wait()
                     if "full" in mode:
-                        self.do_cd_current_run()
                         p = subprocess.Popen("{} /home/yuzhan/HGTD_BetaScope/BetaScopeDataProcessor/bin/GenerateDataProcessorConfig.exe {}".format(nohup, nohup_log), shell=True)
                         #pid = p.pid
                         #isRunning(pid)
