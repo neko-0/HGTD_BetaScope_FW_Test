@@ -6,20 +6,22 @@ To begin:
    source setup.sh
 
 
-About the meow.py helper script:
+After sourcing the setup.sh, you will now have a function call "LGAD". This will setup an command line wrapper for the beta-scope routine analysis scripts. Here is the example:
 
-   This helper script provides a simple interface with the BetaScope Waveform Analysis and the plotting scripts I am using.
+type "LGAD" in your terminal, you will now have a new terminal interface with prompt (LGAD).
+You can also pass "--test" argument to "LGAD", which will invoke a testing version with prompt (Meow~). Some new features might be found in the testing version.
 
-   To run analysis with this helper script, do:
+In this new terminal interface, in principle you will have all the usual terminal commands(e.g. ls, pwd, cat ...). Don't forget to use your smart TAB. 
 
-   type 'meow' after sourcing the setup script. If there's no compilation error, things should be working.
+After entering the new terminal interface, you can use "?" to list all of the available commands.
 
-   and then type the following:
+To run routine analysis, you can follow this example:
 
-   set_output_dir( your_working_dir) # this sets up the working directory <br />
-   set_run(612) # setting the run that you want to analyze. It will look into the usual DAQ dir and find the run <br />
-   generate_config() <br />
-   set_default_config() # most of the time you can use this <br />
-   run_analysis()
+(LGAD) set_output_dir my_dir/testing_dir/
+(LGAD) set_run 624
+(LGAD) generate_config
+(LGAD) set_default_config
+(LGAD) run_analysis "nohup full"
 
-   at the end you should have the usual _results.xlsx (or .ini) in the 'Results' directory.  
+In the last command, "nohup" suppress the output. This is same as the usual nohup. "full" will tell the analyzer to run the full routine analysis.
+If "full" is not specified, the analyzer will only produce "stats_" files

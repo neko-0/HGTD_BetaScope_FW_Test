@@ -11,6 +11,8 @@ import os
 import sys
 import cmd
 import subprocess
+import threading
+import multiprocessing as mp
 from colorStringFormating import *
 
 predefined_path = {
@@ -18,7 +20,7 @@ predefined_path = {
 "__yuzhan":"/media/mnt/BigHD/BetaScope_Data/Analyzed_YZ/"
 }
 
-class Lgad(cmd.Cmd):
+class Lgad(cmd.Cmd, object):
 
     intro = colorString.colorFormat("   Interface for beta-scope analysis", "cyan")
     prompt = colorString.colorFormat("(LGAD) ", "yellow")
@@ -27,11 +29,26 @@ class Lgad(cmd.Cmd):
 
     def __init__(self):
         self.raw_dir = predefined_path["__raw"]
+        self.files = os.listdir(os.getcwd())
         cmd.Cmd.__init__(self)
 
+    def cmdloop(self, intro=None):
+        print(self.intro)
+        while True:
+            try:
+                super(Lgad, self).cmdloop(intro="")
+            except KeyboardInterrupt:
+                colorString.sysError("You have pressed ctrl+C! do you want to exit?(press again to exit)" )
+                raw_input()
+
+    def completedefault(self, text, line, begidx, endidx):
+        return [i for i in self.files if i.startswith(text)]
+
     def do_cd(self, tdir):
+        "change direcotry, similar to the usual cd in cml."
         #glob.glob(os.path.expanduser(str(tdir)+"*"))
         #os.path.expanduser(tdir)
+        self.files = os.listdir(os.getcwd())
         if tdir:
             pass
         else:
@@ -59,6 +76,7 @@ class Lgad(cmd.Cmd):
     '''
 
     def do_set_output_dir(self, path ):
+        "Setup the stats file output direcotry. If you have predefined path, you can use it. "
         if path in predefined_path:
             self.output_dir = predefined_path[path]
             colorString.sysMsg("output path is set to {}".format(self.output_dir) )
@@ -71,7 +89,7 @@ class Lgad(cmd.Cmd):
 
 
     def do_set_run( self, runNum):
-
+        "Setup a run for analysis. It will automatically search the run number in the pre-defined raw data direcotry. If it can find the run number , it will create a folder for the run in your output direcotry"
         if hasattr(self, "output_dir"):
             if self.output_dir:
                 pass
@@ -97,13 +115,16 @@ class Lgad(cmd.Cmd):
             colorString.sysError("No run number {}".format(runNum) )
 
     def do_cd_current_run(self, tdir=""):
+        "change direcotry to the run you set from set_run"
         self.do_cd( self.current_run )
 
 
     def do_generate_config(self, place_holder=""):
+        "Generate configuration file for the beta-scope waveform analyzer."
         subprocess.call("${BETASCOPE_SCRIPTS}/../BetaScope_Ana/BetaScopeWaveformAna/bin/GenerateWaveformConfig", shell=True)
 
     def do_set_default_config(self, place_holder=""):
+        "Set the configuration file to default for beta-scope waveform analyzer"
         import configparser
 
         global __raw_data_dir
@@ -128,31 +149,65 @@ class Lgad(cmd.Cmd):
             parser.write(config)
 
 
-    def do_run_analysis(self, mode=""):
+    def do_show_ana_progress(self, line=""):
+        os.system("tail $BETASCOPE_SCRIPTS/nohup.log")
 
+    def do_run_analysis(self, mode=""):
+        "Run routine beta-scope analysis. Argument with 'full' will do the full rountine analysis, else it will only generate stats files. Argument with 'nohup' will supress the output "
         if not hasattr(self, "current_run"):
             colorString.sysError("current run is not set" )
 
         else:
             if "nohup" in mode:
                 nohup = "nohup"
-                nohup_log = " >> ${BETASCOPE_SCRIPTS}/nohup.log"
+                nohup_log = " >> $BETASCOPE_SCRIPTS/nohup.log"
+
+                def isRunning(pid):
+                    while True:
+                        if os.path.isdir("/proc/{}".format(pid)):
+                            continue
+                        else:
+                            break
+
             else:
                 nohup = ""
                 nohup_log = ""
 
-            p = subprocess.Popen("{} $BETASCOPE_SCRIPTS/../BetaScope_Ana/BetaScopeWaveformAna/bin/Run_WaveformAna WaveformAnaConfig.ini --skipWaveform {}".format(nohup, nohup_log), shell=True)
-            p.wait()
-
-            if "full" in mode:
-
-                p = subprocess.Popen("{} /home/yuzhan/HGTD_BetaScope/BetaScopeDataProcessor/bin/GenerateDataProcessorConfig.exe {}".format(nohup, nohup_log), shell=True)
+            if not nohup:
+                p = subprocess.Popen("{nohup} $BETASCOPE_SCRIPTS/../BetaScope_Ana/BetaScopeWaveformAna/bin/Run_WaveformAna {tdir}/WaveformAnaConfig.ini --skipWaveform {nohup_log}".format(nohup=nohup, nohup_log=nohup_log, tdir=self.current_run), shell=True)
                 p.wait()
 
-                p = subprocess.call("{nohup} python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum {num} {nohup_log}".format(num=__num, nohup=nohup, nohup_log=nohup_log), shell=True)
+                if "full" in mode:
+                    self.do_cd_current_run()
+                    p = subprocess.Popen("{} /home/yuzhan/HGTD_BetaScope/BetaScopeDataProcessor/bin/GenerateDataProcessorConfig.exe {}".format(nohup, nohup_log), shell=True)
+                    p.wait()
 
-                p = subprocess.Popen("{nohup} /home/yuzhan/HGTD_BetaScope/BetaScopeDataProcessor/bin/GetResults.exe run_info_v08022018.ini {nohup_log}".format(nohup=nohup, nohup_log=nohup_log), shell=True)
-                p.wait()
+                    p = subprocess.call("{nohup} python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum {num} {nohup_log}".format(num=__num, nohup=nohup, nohup_log=nohup_log), shell=True)
+
+                    p = subprocess.Popen("{nohup} /home/yuzhan/HGTD_BetaScope/BetaScopeDataProcessor/bin/GetResults.exe run_info_v08022018.ini {nohup_log}".format(nohup=nohup, nohup_log=nohup_log), shell=True)
+                    p.wait()
+            else:
+                def nohupRun(mode):
+                    p = subprocess.Popen("{nohup} $BETASCOPE_SCRIPTS/../BetaScope_Ana/BetaScopeWaveformAna/bin/Run_WaveformAna {tdir}/WaveformAnaConfig.ini --skipWaveform {nohup_log}".format(nohup=nohup, nohup_log=nohup_log, tdir=self.current_run), shell=True)
+                    #pid = p.pid
+                    #isRunning(pid)
+                    p.wait()
+                    if "full" in mode:
+                        self.do_cd_current_run()
+                        p = subprocess.Popen("{} /home/yuzhan/HGTD_BetaScope/BetaScopeDataProcessor/bin/GenerateDataProcessorConfig.exe {}".format(nohup, nohup_log), shell=True)
+                        #pid = p.pid
+                        #isRunning(pid)
+                        p.wait()
+
+                        p = subprocess.call("{nohup} python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum {num} {nohup_log}".format(num=__num, nohup=nohup, nohup_log=nohup_log), shell=True)
+
+                        p = subprocess.Popen("{nohup} /home/yuzhan/HGTD_BetaScope/BetaScopeDataProcessor/bin/GetResults.exe run_info_v08022018.ini {nohup_log}".format(nohup=nohup, nohup_log=nohup_log), shell=True)
+                        p.wait()
+
+                #job = threading.Thread(name="nohupRun", target=nohupRun, args=(mode,) )
+                job = mp.Process(target=nohupRun, args=(mode,) )
+                job.start()
+
 
 if __name__ == "__main__":
     interface = Lgad()

@@ -19,10 +19,18 @@ make -j
 
 cd ${current_path}
 echo "setting up alias"
-alias meow="python -i ${BETASCOPE_SCRIPTS}/meow.py"
 alias run_WaveformConfig='${BETASCOPE_SCRIPTS}/../BetaScope_Ana/BetaScopeWaveformAna/bin/GenerateWaveformConfig'
 alias run_WaveformAna='${BETASCOPE_SCRIPTS}/../BetaScope_Ana/BetaScopeWaveformAna/bin/Run_WaveformAna WaveformAnaConfig.ini --skipWaveform'
 alias run_RunConfig='/home/yuzhan/HGTD_BetaScope/BetaScopeDataProcessor/bin/GenerateDataProcessorConfig.exe'
 alias run_GetResults='/home/yuzhan/HGTD_BetaScope/BetaScopeDataProcessor/bin/GetResults.exe run_info_v08022018.ini'
+
+function LGAD(){
+  if [ "$1" = "--test" ]
+  then
+    python ${BETASCOPE_SCRIPTS}/meow.py
+  else
+    python ${BETASCOPE_SCRIPTS}/lgad.py
+  fi
+}
 
 #cd ~

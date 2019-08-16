@@ -21,7 +21,7 @@ predefined_path = {
 }
 
 
-class Meow(Lgad):
+class Meow(Lgad, object):
 
     intro = colorString.colorFormat("   Interface for beta-scope analysis (Testing ver)", "cyan")
     prompt = colorString.colorFormat("(Meow~) ", "yellow")
@@ -32,6 +32,16 @@ class Meow(Lgad):
         self.prompt = colorString.colorFormat("(Meow~) ", "yellow")
     cmd.Cmd.__init__(self)
     '''
+    def __init__(self):
+        self.files = os.listdir(os.getcwd())
+        super(Meow, self).__init__()
+
+    def do_cd(self, line="./"):
+        super(Meow, self).do_cd(line)
+        self.files = os.listdir(os.getcwd())
+
+    def completedefault(self, text, line, begidx, endidx):
+        return [i for i in self.files if i.startswith(text)]
 
 
 if __name__ == "__main__":
