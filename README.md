@@ -1,14 +1,14 @@
 # HGTD_BetaScope_FW_Test
 Beta-Scope Ana Framework for analyzing waveform.
 
-#Installations
+## Installations
 To begin:
    cd scripts
    source setup.sh
 
-#Usage
+## Usage
 
-## LGAD Interface.
+### LGAD Interface.
 After sourcing the setup.sh, you will now have a function call "LGAD".
 This will setup an command line wrapper for the beta-scope routine analysis scripts. Here is the example:
 
@@ -30,10 +30,10 @@ To run routine analysis, you can follow this example:
 In the last command, "nohup" suppress the output. This is same as the usual nohup. "full" will tell the analyzer to run the full routine analysis.
 If "full" is not specified, the analyzer will only produce "stats_" files
 
-## BetaScope Waveform Ana
+### BetaScope Waveform Ana
 
 
-#Known issues
+## Known issues
 
-## LGAD Interface
-Using "nohup" in run_analysis will create huge memory usage, but running the executable independently is fine. Try to avoid "nohup" for now. 
+### LGAD Interface
+Using "nohup" in run_analysis will create huge memory usage, but running the executable independently is fine. Try to avoid "nohup" for now.
