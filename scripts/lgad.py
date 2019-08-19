@@ -51,20 +51,22 @@ class Lgad(cmd.Cmd, object):
         "change direcotry, similar to the usual cd in cml."
         #glob.glob(os.path.expanduser(str(tdir)+"*"))
         #os.path.expanduser(tdir)
-        self.files = os.listdir(os.getcwd())
         if tdir:
             pass
         else:
             tdir = "."
         if "~" in tdir:
             tdir = os.path.expanduser("~") + tdir.split("~")[1]
+            self.files = os.listdir(os.getcwd())
 
         if tdir in predefined_path:
             tdir = predefined_path[tdir]
+            self.files = os.listdir(os.getcwd())
 
         try:
             os.chdir(tdir)
             colorString.sysMsg("changed dir to {}".format(tdir) )
+            self.files = os.listdir(os.getcwd())
         except OSError:
             print(colorString.colorFormat("Cannot find {}".format(tdir), "red"))
 
@@ -154,8 +156,24 @@ class Lgad(cmd.Cmd, object):
             parser.write(config)
 
 
-    def do_show_ana_progress(self, line=""):
-        os.system("tail $BETASCOPE_SCRIPTS/nohup.log")
+    def do_show_ana_progress(self, opt=""):
+        if "persist" in opt:
+            os.system("watch --color tail $BETASCOPE_SCRIPTS/nohup.log")
+        else:
+            os.system("tail $BETASCOPE_SCRIPTS/nohup.log")
+
+    def do_auto_cut( self, run="" ):
+        if not hasattr(self,"current_run"):
+            if not run:
+                print("please specify a run number")
+                return -1
+            else:
+                self.do_set_run(run)
+                self.do_cd_current_run()
+            p = subprocess.call("python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum {num}".format(num=self.runNum), shell=True)
+        else:
+            self.do_cd_current_run()
+            p = subprocess.call("python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum {num}".format(num=self.runNum), shell=True)
 
     def do_run_analysis(self, mode=""):
         "Run routine beta-scope analysis. Argument with 'full' will do the full rountine analysis, else it will only generate stats files. Argument with 'nohup' will supress the output "
@@ -188,7 +206,7 @@ class Lgad(cmd.Cmd, object):
                     p = subprocess.Popen("{} /home/yuzhan/HGTD_BetaScope/BetaScopeDataProcessor/bin/GenerateDataProcessorConfig.exe {}".format(nohup, nohup_log), shell=True)
                     p.wait()
 
-                    p = subprocess.call("{nohup} python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum {num} {nohup_log}".format(num=__num, nohup=nohup, nohup_log=nohup_log), shell=True)
+                    p = subprocess.call("{nohup} python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum {num} {nohup_log}".format(num=self.runNum, nohup=nohup, nohup_log=nohup_log), shell=True)
 
                     p = subprocess.Popen("{nohup} /home/yuzhan/HGTD_BetaScope/BetaScopeDataProcessor/bin/GetResults.exe run_info_v08022018.ini {nohup_log}".format(nohup=nohup, nohup_log=nohup_log), shell=True)
                     p.wait()
@@ -204,7 +222,7 @@ class Lgad(cmd.Cmd, object):
                         #isRunning(pid)
                         p.wait()
 
-                        p = subprocess.call("{nohup} python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum {num} {nohup_log}".format(num=__num, nohup=nohup, nohup_log=nohup_log), shell=True)
+                        p = subprocess.call("{nohup} python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum {num} {nohup_log}".format(num=self.runNum, nohup=nohup, nohup_log=nohup_log), shell=True)
 
                         p = subprocess.Popen("{nohup} /home/yuzhan/HGTD_BetaScope/BetaScopeDataProcessor/bin/GetResults.exe run_info_v08022018.ini {nohup_log}".format(nohup=nohup, nohup_log=nohup_log), shell=True)
                         p.wait()
