@@ -3,8 +3,8 @@ Beta-Scope Ana Framework for analyzing waveform.
 
 ## Installations
 To begin:
-   cd scripts
-   source setup.sh
+  - cd scripts
+  - source setup.sh
 
 ## Usage
 
@@ -21,11 +21,11 @@ After entering the new terminal interface, you can use "?" to list all of the av
 
 To run routine analysis, you can follow this example:
 
-...(LGAD) set_output_dir my_dir/testing_dir/ \
-...(LGAD) set_run 624 \
-...(LGAD) generate_config \
-...(LGAD) set_default_config \
-...(LGAD) run_analysis "nohup full" \
+  - (LGAD) set_output_dir my_dir/testing_dir/ \
+  - (LGAD) set_run 624 \
+  - (LGAD) generate_config \
+  - (LGAD) set_default_config \
+  - (LGAD) run_analysis "nohup full" 
 
 In the last command, "nohup" suppress the output. This is same as the usual nohup. "full" will tell the analyzer to run the full routine analysis.
 If "full" is not specified, the analyzer will only produce "stats_" files
