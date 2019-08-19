@@ -25,10 +25,31 @@
 
 
 /*==============================================================================
-Finding Multiple Signal Peaks
-  param w          := waveform
-  param t          := time trace of the waveform
-  param StartIndex := index of the waveform vector to start the next search
+std::pair <double, unsigned int>
+  WaveformAnalysis::Find_Identical_Peak
+
+  if there are multiple peaks with same hight, the usual peak finder will only
+  gives the first peak. This peak finder allows user to give a starting point
+  for the search.
+
+
+  std::vector<double>
+    w := waveform
+
+  std::vector<double>
+    t := time trace of the waveform
+
+  unsigned int
+    StartIndex := index of the waveform vector to start the next search
+
+  bool
+    limitSearchRegion := option for limiting the pmax search region
+
+  double
+    min_search_range := minimum search range in time.
+
+  double
+    max_search_range := maximum search range in time.
 
   return : Pmax value and its index in the waveform vector.
 ==============================================================================*/
@@ -147,6 +168,9 @@ std::pair <double, unsigned int> WaveformAnalysis::Find_Identical_Peak(
 
 
 //==============================================================================
+
+
+
 //==============================================================================
 //find all the pmax for multiple signals
 
@@ -202,8 +226,8 @@ void Get_PmaxTmax_Of_Multiple_Singal(
 
   if( noisy_event )
   {
-    multiple_singal_pmax_v.push_back( 1.23456e12 );
-    multiple_singal_tmax_v.push_back( 1.23456e12 );
+    multiple_singal_pmax_v.push_back( 10e11 ); //default value if nothing is found.
+    multiple_singal_tmax_v.push_back( 10e11 );
     indexing_v.push_back( 0 );
     std::cout<<"Noisy" <<std::endl;
   }

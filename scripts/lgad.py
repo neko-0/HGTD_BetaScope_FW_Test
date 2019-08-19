@@ -206,6 +206,7 @@ class Lgad(cmd.Cmd, object):
 
                 #job = threading.Thread(name="nohupRun", target=nohupRun, args=(mode,) )
                 job = mp.Process(target=nohupRun, args=(mode,) )
+                job.daemon = True 
                 job.start()
 
 

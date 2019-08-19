@@ -135,6 +135,9 @@ class BetaScope
     double *getD(std::string key);
     int *getI(std::string key);
 
+    template <typename o_type>
+    void copyTTreeReaderArrayToVector( std::string oBranchName, std::string iBranchName, int entry);
+
     template <class branchType>
     typename DataType<branchType>::type *get_oTreeBranch( std::string branchName );
 

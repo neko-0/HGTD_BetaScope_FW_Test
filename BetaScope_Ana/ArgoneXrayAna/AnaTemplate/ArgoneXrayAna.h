@@ -24,6 +24,11 @@ class ArgoneXrayAna : public BetaScope_AnaFramework
     std::vector<double> *w[16];
     std::vector<double> *t;
 
+    //template <typename o_type, typename i_type>
+    //void copyTTreeReaderArrayToVector( o_type *output_v, TTreeReaderArray<i_type> *input_v);
+
+
+
 };
 
 int runAnalysis(std::string ifile);
