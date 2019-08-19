@@ -44,6 +44,9 @@ class Lgad(cmd.Cmd, object):
     def completedefault(self, text, line, begidx, endidx):
         return [i for i in self.files if i.startswith(text)]
 
+    def emptyline(self):
+         pass
+
     def do_cd(self, tdir):
         "change direcotry, similar to the usual cd in cml."
         #glob.glob(os.path.expanduser(str(tdir)+"*"))
