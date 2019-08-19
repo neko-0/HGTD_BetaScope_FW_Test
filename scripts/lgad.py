@@ -136,7 +136,7 @@ class Lgad(cmd.Cmd, object):
         parser = configparser.ConfigParser()
         parser.optionxform = str
         parser.read("WaveformAnaConfig.ini")
-        parser.set("General","rawFilesDir", "{raw_dir}/{raw_data}/fromDAQ/".format(raw_dir=__raw_data_dir, raw_data=__runNum) )
+        parser.set("General","rawFilesDir", "{raw_dir}/{raw_data}/fromDAQ/".format(raw_dir=__raw_data_dir, raw_data=self.runNum_dir) )
         parser.set("Channel_Activation", "channel_2", "1")
         parser.set("Channel_Activation", "channel_3", "1")
         parser.set("Channel_Invertion", "channel_2", "1")
