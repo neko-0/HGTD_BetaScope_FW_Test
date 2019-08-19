@@ -127,9 +127,11 @@ class Lgad(cmd.Cmd, object):
         "Set the configuration file to default for beta-scope waveform analyzer"
         import configparser
 
-        global __raw_data_dir
-        global __data_output_dir
-        global __runNum
+        global predefined_path
+
+        __raw_data_dir = self.raw_dir
+        __data_output_dir = self.current_run
+        __runNum = self.runNum
 
         parser = configparser.ConfigParser()
         parser.optionxform = str
@@ -206,7 +208,7 @@ class Lgad(cmd.Cmd, object):
 
                 #job = threading.Thread(name="nohupRun", target=nohupRun, args=(mode,) )
                 job = mp.Process(target=nohupRun, args=(mode,) )
-                job.daemon = True 
+                job.daemon = True
                 job.start()
 
 
