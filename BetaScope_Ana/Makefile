@@ -4,7 +4,7 @@
 
 ########## defaut ##########
 
-CC      = g++ -std=c++17 -fPIC -no-pie
+CC      = g++ -std=c++17 -fPIC -no-pie -funroll-loops -ftree-vectorizer-verbose=1
 DEBUG   = -g -Wall
 CFLAGS  = -c
 CFLAGS_NO_C  = -Wall $(DEBUG)

@@ -2,7 +2,16 @@
 
 //user include files
 #include "General/WaveformAna/include/Waveform_Analysis.hpp"
+
+#include <boost/thread.hpp>
+#include <thread>
+#include <TThread.h>
+#include <TROOT.h>
+#include <mutex>
+#include <ROOT/TProcessExecutor.hxx>
+
 //---------------
+
 
 void ArgoneXrayAna::initialize( )
 {
@@ -56,7 +65,8 @@ void ArgoneXrayAna::loopEvents()
 
   while( this->beta_scope.treeReader->Next() )
   {
-    for(int i = 0; i < this->beta_scope.iTreeDoubleArrayMap[Form("w0")]->GetSize(); i++)
+    /*
+    for(int i = 0, max = this->beta_scope.iTreeDoubleArrayMap[Form("w0")]->GetSize(); i<max; i++)
     {
       w[0]->push_back( this->beta_scope.iTreeDoubleArrayMap["w0"]->At(i) * verScaler );
       w[1]->push_back( this->beta_scope.iTreeDoubleArrayMap["w1"]->At(i) * verScaler );
@@ -74,8 +84,54 @@ void ArgoneXrayAna::loopEvents()
       w[13]->push_back( this->beta_scope.iTreeDoubleArrayMap["w13"]->At(i) * verScaler );
       w[14]->push_back( this->beta_scope.iTreeDoubleArrayMap["w14"]->At(i) * verScaler );
       w[15]->push_back( this->beta_scope.iTreeDoubleArrayMap["w15"]->At(i) * verScaler );
-      t->push_back( this->beta_scope.iTreeDoubleArrayMap["t"]->At(i) * horiScaler );
+      //t->push_back( this->beta_scope.iTreeDoubleArrayMap["t"]->At(i) * horiScaler );
     }
+    */
+
+    //std::mutex mu;
+    //mu.lock();
+    ///*
+    int entry = this->beta_scope.treeReader->GetCurrentEntry();
+    std::vector<boost::thread*> workers;
+    for( int i = 0; i < 15; i++)
+    {
+      std::string bName(Form("w%i",i));
+      workers.push_back( new boost::thread( &BetaScope::copyTTreeReaderArrayToVector<std::vector<double>>, &this->beta_scope, bName, bName, entry) );
+      //workers.push_back( new std::thread( ArgoneXrayAna::copyTTreeReaderArrayToVector<std::vector<double>, double>, &ww[i], this->beta_scope.iTreeDoubleArrayMap[Form("w%i",i)] ) );
+
+    }
+
+    for(std::size_t id=0; id < workers.size(); id++ )
+    {
+      workers[id]->join();
+      delete workers[id];
+    }
+    //*/
+    //mu.unlock();
+
+    /*
+    TThread::Lock();
+    ROOT::TProcessExecutor pool(16);
+    // define our method: it will simply return the square of each element of a vector
+    auto squares = pool.Map(
+      [&]( int k )
+      {
+        std::string bName = Form("w%i",k);
+        for(int i = 0, max = this->beta_scope.iTreeDoubleArrayMap[bName]->GetSize(); i < max; i++)
+        {
+          this->beta_scope.oTreeVecDoubleMap[bName]->push_back( this->beta_scope.iTreeDoubleArrayMap[bName]->At(i) );
+        }
+        return 1;
+      },
+      {0,1,2,3,4,5}
+    );
+    TThread::Lock();
+    */
+
+
+
+
+    //t->push_back( this->beta_scope.iTreeDoubleArrayMap["t"]->At(i) * horiScaler );
 
     *this->beta_scope.oTreeIntMap["counter"] = count;
     count++;
