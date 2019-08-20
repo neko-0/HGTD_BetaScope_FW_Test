@@ -13,7 +13,7 @@
 #include <TROOT.h>
 
 
-std::vector<std::string> getFiles( const char *directory)
+std::vector<std::string> getFiles( const char *directory )
 {
   DIR *dir;
   struct dirent *ent;
