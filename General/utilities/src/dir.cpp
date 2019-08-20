@@ -40,11 +40,11 @@ New method
 ===============================================================================*/
 std::vector<std::string> BetaScope_Utilities::Dir::getFiles( std::string directory, std::string pattern )
 {
-  namespace fs = std::filesystem;
+  namespace fs = std::experimental::filesystem;
 
   std::vector<std::string> content = {};
 
-  for( const auto & entry : fs::directory_iterator(directory) )
+  for( const auto & entry : fs::directory_iterator(directory.c_str()) )
   {
      std::string tmp_fileName = entry.path();
      if( tmp_fileName.find(pattern) != std::string::npos )

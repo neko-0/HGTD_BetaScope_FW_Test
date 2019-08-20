@@ -4,7 +4,7 @@
 
 ########## defaut ##########
 
-CC      = g++ -std=c++17 -fPIC -no-pie
+CC      = g++-7 -std=c++17 -lstdc++fs -fPIC -no-pie
 DEBUG   = -g -Wall
 CFLAGS  = -c
 CFLAGS_NO_C  = -Wall $(DEBUG)
