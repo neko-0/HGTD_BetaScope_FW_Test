@@ -55,6 +55,13 @@ class WaveformAnalysis
       const std::pair<double,unsigned int> Pmax
     );
 
+    double Find_Pulse_Area(
+      std::vector<double> voltageVec,
+      std::vector<double> timeVec,
+      const std::pair<double,unsigned int> Pmax,
+      const double artificial_baseline
+    );
+
     double Find_Udershoot_Area(
       std::vector<double> voltageVec,
       std::vector<double> timeVec,

@@ -87,6 +87,82 @@ double WaveformAnalysis::Find_Pulse_Area(
     return pulse_area; // collected pulse area, assuming voltage is in volts, time is in seconds
 }
 
+/*==============================================================================
+double
+  WaveformAnalysis::Find_Pulse_Area
+
+  usage: Wrapper of WaveformAnalysis::Find_Pulse_Area.
+  added a artificial_baseline parameter for manual lifting the baseline.
+  The default value is 0.
+
+  std::vector<double>
+    voltageVec := voltage vector
+
+  std::vector<double>
+    timeVec := time vector
+
+  const std::pair<double,unsigned int>
+    Pmax := pmax value and it's index, stored as pair
+
+  const double
+    artificial_baseline = 0.0 := for manually redefine the zero-crossing when
+  calculting the pulse area.
+
+  return : pulse area
+
+  comments: this function should be merged with the previous one
+==============================================================================*/
+double WaveformAnalysis::Find_Pulse_Area(
+  std::vector<double> voltageVec,
+  std::vector<double> timeVec,
+  const std::pair<double,unsigned int> Pmax,
+  const double artificial_baseline
+)
+{
+    if(artificial_baseline == 0.0)
+    {
+      return WaveformAnalysis::Find_Pulse_Area( voltageVec, timeVec, Pmax);
+    }
+
+    double pulse_area = 0.0;
+    const double time_difference = timeVec.at(1) - timeVec.at(0);
+
+    const unsigned int imax = Pmax.second;
+    unsigned int istart = 0;
+    unsigned int iend;
+    std::size_t npoints = voltageVec.size();
+
+    for( int j = imax; j>-1; j-- ) // find index of start of pulse
+    {
+      if(voltageVec.at(j) <= artificial_baseline) //stop after crossing zero
+      {
+        istart = j;
+        break;
+      }
+    }
+    for( unsigned int j = imax; j< npoints; j++ ) // find index of end of pulse
+    {
+      if(voltageVec.at(j) <= artificial_baseline)
+      {
+        iend = j;
+        break;
+      }
+      if( j == npoints-1 )
+      {
+        iend = j;
+      }
+    }
+
+    for( unsigned int j = istart; j < iend; j++ )
+    {
+      pulse_area = pulse_area + voltageVec.at(j)/1000.0;
+    }
+
+    pulse_area = pulse_area * time_difference /1.0E12;
+
+    return pulse_area; // collected pulse area, assuming voltage is in volts, time is in seconds
+}
+
 
 /*==============================================================================
 Finding the undershoot area of a signal. Stop when it crosses zero
