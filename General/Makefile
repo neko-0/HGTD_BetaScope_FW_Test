@@ -34,6 +34,18 @@ COLORFUL_COUT_SRC_FILES += $(wildcard $(COLORFUL_COUT_SRC_DIR)/*.c)
 COLORFUL_COUT_DEP = $(patsubst $(COLORFUL_COUT_SRC_DIR)/%.cpp, $(COLORFUL_COUT_BUILD_DIR)/%.o, $(COLORFUL_COUT_SRC_FILES))
 #COLORFUL_COUT_DEP += $(patsubst $(COLORFUL_COUT_SRC_DIR)/%.c, $(COLORFUL_COUT_BUILD_DIR)/%.o, $(COLORFUL_COUT_SRC_FILES))
 
+################################################################################
+# utilities
+################################################################################
+UTILITIES_DIR = utilities/
+UTILITIES_SRC_DIR = $(UTILITIES_DIR)src/
+UTILITIES_BUILD_DIR = $(UTILITIES_DIR)build/
+UTILITIES_INC_DIR = $(UTILITIES_DIR)include/
+UTILITIES_SRC_FILES = $(wildcard $(UTILITIES_SRC_DIR)/*.cpp)
+UTILITIES_SRC_FILES += $(wildcard $(UTILITIES_SRC_DIR)/*.c)
+UTILITIES_DEP = $(patsubst $(UTILITIES_SRC_DIR)/%.cpp, $(UTILITIES_BUILD_DIR)/%.o, $(UTILITIES_SRC_FILES))
+#COLORFUL_COUT_DEP += $(patsubst $(COLORFUL_COUT_SRC_DIR)/%.c, $(COLORFUL_COUT_BUILD_DIR)/%.o, $(COLORFUL_COUT_SRC_FILES))
+
 
 ################################################################################
 # Waveform Ana
@@ -52,13 +64,18 @@ WAVEFORM_ANA_DEP = $(patsubst $(WAVEFORM_ANA_SRC_DIR)/%.cpp, $(WAVEFORM_ANA_BUIL
 ################################################################################
 
 all: $(WAVEFORM_ANA_DEP)\
-	$(COLORFUL_COUT_DEP)
+	$(COLORFUL_COUT_DEP)\
+	$(UTILITIES_DEP)
 
 $(COLORFUL_COUT_BUILD_DIR)/%.o: $(COLORFUL_COUT_SRC_DIR)/%.cpp
 	$(CC) $(DEBUG) -I./ -I$(COLORFUL_COUT_INC_DIR) -I$(WAVEFORM_ANA_DIR) -c $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOT_INCLUDE) $(BOOST_LIB)
 
 $(WAVEFORM_ANA_BUILD_DIR)/%.o: $(WAVEFORM_ANA_SRC_DIR)/%.cpp
 	$(CC) $(DEBUG) -I./ -I$(COLORFUL_COUT_INC_DIR) -I$(WAVEFORM_ANA_DIR) -I$(WAVEFORM_ANA_INC_DIR) -c $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOT_INCLUDE) $(BOOST_LIB)
+
+$(UTILITIES_BUILD_DIR)/%.o: $(UTILITIES_SRC_DIR)/%.cpp
+	$(CC) $(DEBUG) -I./ -I$(UTILITIES_INC_DIR) -I$(UTILITIES_DIR) -c $^ -o $@
+
 
 
 ################################################################################

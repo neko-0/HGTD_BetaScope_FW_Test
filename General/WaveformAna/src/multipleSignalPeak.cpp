@@ -167,14 +167,37 @@ std::pair <double, unsigned int> WaveformAnalysis::Find_Identical_Peak(
 
 
 
-//==============================================================================
+/*==============================================================================
+void
+  WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Singal
 
+  usage: get pmax and tmax pair for multiple signals on as time window.
+  A threadhold is require to help with dientifying signals
 
+  const double
+    assist_threshold := threshold use for detecting signals.
 
-//==============================================================================
+  std::vector<double>
+    voltageVec := voltage vector
+
+  std::vector<double>
+    timeVec := time vector
+
+  std::vector<dohble> &
+    multiple_singal_pmax_v := vector for holding all of the detected signal peak
+
+  std::vector<dohble> &
+    multiple_singal_tmax_v := time assiciated with the signal peak
+
+  std::vector<int>  &
+    indexing_v := vector for keeping track of the index of found signal peaks
+
+  return : no return
+
+==============================================================================*/
 //find all the pmax for multiple signals
 
-void Get_PmaxTmax_Of_Multiple_Singal(
+void WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Singal(
   const double        assist_threshold,
   std::vector<double> voltageVec,
   std::vector<double> timeVec,
@@ -229,7 +252,7 @@ void Get_PmaxTmax_Of_Multiple_Singal(
     multiple_singal_pmax_v.push_back( 10e11 ); //default value if nothing is found.
     multiple_singal_tmax_v.push_back( 10e11 );
     indexing_v.push_back( 0 );
-    std::cout<<"Noisy" <<std::endl;
+    std::cout<<"Noisy" <<std::endl; //if too many "Noisy", there might be a problem.
   }
 }
 
