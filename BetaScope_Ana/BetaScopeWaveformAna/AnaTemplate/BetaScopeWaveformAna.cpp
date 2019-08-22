@@ -125,6 +125,12 @@ void BetaScopeWaveformAna::initialize()
   this->current = this->beta_scope.oTreeDouble[this->beta_scope.oTreeDoubleMapIndex["current"]];
   this->timestamp = this->beta_scope.oTreeDouble[this->beta_scope.oTreeDoubleMapIndex["timestamp"]];
 
+  //read in the humidity branch
+  bool humidity_read_check = this->beta_scope.setBranch("TTreeReaderValue<double>", "humidity", "humidity");
+  bool humidity_make_check = this->beta_scope.buildBranch<double>("humidity");
+  bool temperature_read_check = this->beta_scope.setBranch("TTreeReaderValue<double>", "temperature", "temperature");
+  bool temperature_make_check = this->beta_scope.buildBranch<double>("temperature");
+
   if(this->beta_scope.ieventFromDAQ)
   {
     auto branch_checker = makeBranch<int>(this->beta_scope.oTree, "ievent", "ievent", &this->beta_scope.oTreeIntMap, this->beta_scope.oTreeInt[this->beta_scope.newBranchCounterKeeper], this->beta_scope.newBranchCounterKeeper, &this->beta_scope.oTreeIntMapIndex, this->beta_scope.newBranchCounterKeeper );
@@ -278,6 +284,9 @@ void BetaScopeWaveformAna::loopEvents()
     //filling value that's indep of scope channels
     if( this->beta_scope.currentFromDAQ )*this->current = **this->i_current;
     if( this->beta_scope.timestampFromDAQ )*this->timestamp = **this->i_timestamp;
+
+    *this->beta_scope.oTreeDoubleMap["humidity"] = **this->beta_scope.iTreeDoubleValueMap["humidity"];
+    *this->beta_scope.oTreeDoubleMap["temperature"] = **this->beta_scope.iTreeDoubleValueMap["temperature"];
 
 
     //required
