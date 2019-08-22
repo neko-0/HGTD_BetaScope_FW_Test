@@ -17,9 +17,18 @@
 
 void ArgoneXrayAna::initialize( )
 {
-  std::string bete_scope_path(getenv("BETASCOPE_SCRIPTS"));
   this->beta_scope.fileIO_Open( this->ifile.c_str() );
-  BetaScope_AnaFramework::initialize( bete_scope_path + "/../BetaScope_Ana/ArgoneXrayAna/AnaTemplate/myOwnTree.ini" );
+
+  char *check_path = getenv("BETASCOPE_SCRIPTS");
+  if(check_path!=NULL)
+  {
+    std::string beta_scope_path(getenv("BETASCOPE_SCRIPTS"));
+    BetaScope_AnaFramework::initialize( beta_scope_path + "/../BetaScope_Ana/ArgoneXrayAna/AnaTemplate/myOwnTree.ini" );
+  }
+  else
+  {
+    BetaScope_AnaFramework::initialize("");
+  }
 
   //do your own stuffs here
   for(int ch = 0; ch < 16; ch++)
