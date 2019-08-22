@@ -4,6 +4,7 @@
 #include "General/WaveformAna/include/Waveform_Analysis.hpp"
 #include "General/WaveformAna/include/general.hpp"
 
+#include <stdlib.h>
 #include <boost/thread.hpp>
 #include <thread>
 #include <TThread.h>
@@ -17,7 +18,7 @@
 void ArgoneXrayAna::initialize( )
 {
   this->beta_scope.fileIO_Open( this->ifile.c_str() );
-  BetaScope_AnaFramework::initialize( "/home/yuzhan/HGTD_BetaScope_FW_Test/BetaScope_Ana/ArgoneXrayAna/AnaTemplate/myOwnTree.ini" );
+  BetaScope_AnaFramework::initialize( getenv("BETASCOPE_SCRIPTS")+"/../BetaScope_Ana/ArgoneXrayAna/AnaTemplate/myOwnTree.ini" );
 
   //do your own stuffs here
   for(int ch = 0; ch < 16; ch++)
