@@ -17,7 +17,8 @@ from colorStringFormating import *
 
 predefined_path = {
 "__raw":"/media/mnt/BigHD/Beta_DAQ_Data/",
-"__yuzhan":"/media/mnt/BigHD/BetaScope_Data/Analyzed_YZ/"
+"__yuzhan":"/media/mnt/BigHD/BetaScope_Data/Analyzed_YZ/",
+"__simone":"/media/mnt/BigHD/BetaScope_Data/Analyzed_Simone/"
 }
 
 class Lgad(cmd.Cmd, object):
