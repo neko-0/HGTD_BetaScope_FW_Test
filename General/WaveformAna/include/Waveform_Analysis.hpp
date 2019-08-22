@@ -177,7 +177,8 @@ class WaveformAnalysis
       std::vector<double> timeVec,
       std::vector<double> &multiple_singal_pmax_v,
       std::vector<double> &multiple_singal_tmax_v,
-      std::vector<int>    &indexing_v
+      std::vector<int>    &indexing_v,
+      const double scale = 2.0
     );
 
     int Signal_Peak_Counter(
