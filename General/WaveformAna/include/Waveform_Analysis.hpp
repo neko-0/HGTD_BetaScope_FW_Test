@@ -6,6 +6,9 @@
 
 class WaveformAnalysis
 {
+  bool supressNoisy = false;
+  int supressNoisyCounter = 0;
+
   public:
 
     WaveformAnalysis(){};

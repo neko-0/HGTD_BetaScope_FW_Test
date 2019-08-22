@@ -47,6 +47,7 @@ std::vector<std::string> BetaScope_Utilities::Dir::getFiles( std::string directo
   for( const auto & entry : fs::directory_iterator(directory.c_str()) )
   {
      std::string tmp_fileName = entry.path();
+     tmp_fileName.erase(0, tmp_fileName.find(directory)+directory.length() );
      if( tmp_fileName.find(pattern) != std::string::npos )
      {
        std::string file_dir = directory;

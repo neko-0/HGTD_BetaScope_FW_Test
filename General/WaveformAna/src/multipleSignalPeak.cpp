@@ -252,7 +252,13 @@ void WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Singal(
     multiple_singal_pmax_v.push_back( 10e11 ); //default value if nothing is found.
     multiple_singal_tmax_v.push_back( 10e11 );
     indexing_v.push_back( 0 );
-    std::cout<<"Noisy" <<std::endl; //if too many "Noisy", there might be a problem.
+    if(!this->supressNoisy)std::cout<<"Noisy" <<std::endl; //if too many "Noisy", there might be a problem.
+    this->supressNoisyCounter++;
+    if(this->supressNoisyCounter==100)
+    {
+      std::cout<<"supressNoisyCounter reaches 100" <<std::endl;
+      this->supressNoisy=true;
+    }
   }
 }
 

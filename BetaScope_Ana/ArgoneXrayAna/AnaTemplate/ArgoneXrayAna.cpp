@@ -2,6 +2,7 @@
 
 //user include files
 #include "General/WaveformAna/include/Waveform_Analysis.hpp"
+#include "General/WaveformAna/include/general.hpp"
 
 #include <boost/thread.hpp>
 #include <thread>
@@ -33,39 +34,45 @@ void ArgoneXrayAna::initialize( )
   auto br_check = this->beta_scope.buildBranch< std::vector<double> >("t");
   br_check = this->beta_scope.buildBranch<int>("counter");
 
-
-
-  w[0] = this->beta_scope.get_oTreeBranch<std::vector<double>>("w0");
-  w[1] = this->beta_scope.get_oTreeBranch<std::vector<double>>("w1");
-  w[2] = this->beta_scope.get_oTreeBranch<std::vector<double>>("w2");
-  w[3] = this->beta_scope.get_oTreeBranch<std::vector<double>>("w3");
-  w[4] = this->beta_scope.get_oTreeBranch<std::vector<double>>("w4");
-  w[5] = this->beta_scope.get_oTreeBranch<std::vector<double>>("w5");
-  w[6] = this->beta_scope.get_oTreeBranch<std::vector<double>>("w6");
-  w[7] = this->beta_scope.get_oTreeBranch<std::vector<double>>("w7");
-  w[8] = this->beta_scope.get_oTreeBranch<std::vector<double>>("w8");
-  w[9] = this->beta_scope.get_oTreeBranch<std::vector<double>>("w9");
-  w[10] = this->beta_scope.get_oTreeBranch<std::vector<double>>("w10");
-  w[11] = this->beta_scope.get_oTreeBranch<std::vector<double>>("w11");
-  w[12] = this->beta_scope.get_oTreeBranch<std::vector<double>>("w12");
-  w[13] = this->beta_scope.get_oTreeBranch<std::vector<double>>("w13");
-  w[14] = this->beta_scope.get_oTreeBranch<std::vector<double>>("w14");
-  w[15] = this->beta_scope.get_oTreeBranch<std::vector<double>>("w15");
+  for( int i =0; i < 16; i++)
+  {
+    w[i] = this->beta_scope.get_oTreeBranch<std::vector<double>>(Form("w%i",i));
+    br_check = this->beta_scope.buildBranch<std::vector<double>>(Form("tmax%i",i));
+  }
   t = this->beta_scope.get_oTreeBranch<std::vector<double>>("t");
 
+  for( int i =0; i < 16; i++)
+  {
+    auto br_check = this->beta_scope.buildBranch<std::vector<double>>(Form("pmax%i",i));
+    this->pmax[i] = this->beta_scope.get_oTreeBranch<std::vector<double>>(Form("pmax%i",i));
+    this->tmax[i] = this->beta_scope.get_oTreeBranch<std::vector<double>>(Form("tmax%i",i));
+    br_check = this->beta_scope.buildBranch<std::vector<int>>(Form("max_indexing%i",i));
+    this->max_indexing[i] = this->beta_scope.get_oTreeBranch<std::vector<int>>(Form("max_indexing%i",i));
+
+    br_check = this->beta_scope.buildBranch<std::vector<double>>(Form("pulseArea%i",i));
+    this->pulseArea[i] = this->beta_scope.get_oTreeBranch<std::vector<double>>(Form("pulseArea%i",i));
+  }
+
 }
+
+//==============================================================================
+//==============================================================================
+//==============================================================================
 
 void ArgoneXrayAna::loopEvents()
 {
   //double *d = this->beta_scope.get<double>("ws0", "vector<double?");
   int count = 0;
 
-  double verScaler = 1.0;
+  double verScaler = -1.0;
   double horiScaler = 1.0;
+
+  WaveformAnalysis WaveAna;
+  double assistThreshold = 100.0;
 
   while( this->beta_scope.treeReader->Next() )
   {
-    /*
+    ///*
     for(int i = 0, max = this->beta_scope.iTreeDoubleArrayMap[Form("w0")]->GetSize(); i<max; i++)
     {
       w[0]->push_back( this->beta_scope.iTreeDoubleArrayMap["w0"]->At(i) * verScaler );
@@ -84,13 +91,13 @@ void ArgoneXrayAna::loopEvents()
       w[13]->push_back( this->beta_scope.iTreeDoubleArrayMap["w13"]->At(i) * verScaler );
       w[14]->push_back( this->beta_scope.iTreeDoubleArrayMap["w14"]->At(i) * verScaler );
       w[15]->push_back( this->beta_scope.iTreeDoubleArrayMap["w15"]->At(i) * verScaler );
-      //t->push_back( this->beta_scope.iTreeDoubleArrayMap["t"]->At(i) * horiScaler );
+      t->push_back( this->beta_scope.iTreeDoubleArrayMap["t"]->At(i) * horiScaler );
     }
-    */
+    //*/
 
     //std::mutex mu;
     //mu.lock();
-    ///*
+    /*
     int entry = this->beta_scope.treeReader->GetCurrentEntry();
     std::vector<boost::thread*> workers;
     for( int i = 0; i < 15; i++)
@@ -106,7 +113,7 @@ void ArgoneXrayAna::loopEvents()
       workers[id]->join();
       delete workers[id];
     }
-    //*/
+    */
     //mu.unlock();
 
     /*
@@ -129,6 +136,20 @@ void ArgoneXrayAna::loopEvents()
     */
 
 
+    //Analysis:
+
+    for( int i =0; i < 16; i++)
+    {
+      WaveAna.Correct_Baseline2(*this->w[i], 0.30);
+      WaveAna.Get_PmaxTmax_Of_Multiple_Singal(assistThreshold, *this->w[i], *this->t, *this->pmax[i], *this->tmax[i], *this->max_indexing[i] );
+      for(std::size_t vSize=0, maxSize=this->pmax[i]->size(); vSize<maxSize; vSize++)
+      {
+        std::pair<double, unsigned int> my_pmax = std::make_pair( this->pmax[i]->at(vSize), this->max_indexing[i]->at(vSize) );
+        pulseArea[i]->push_back( WaveAna.Find_Pulse_Area(*this->w[i], *this->t, my_pmax) );
+      }
+    }
+
+
 
 
     //t->push_back( this->beta_scope.iTreeDoubleArrayMap["t"]->At(i) * horiScaler );
@@ -140,6 +161,10 @@ void ArgoneXrayAna::loopEvents()
     BetaScope_AnaFramework::filldata();
   }
 }
+
+//==============================================================================
+//==============================================================================
+//==============================================================================
 
 void ArgoneXrayAna::finalize()
 {

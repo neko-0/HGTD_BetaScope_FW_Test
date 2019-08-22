@@ -11,7 +11,7 @@ class ArgoneXrayAna : public BetaScope_AnaFramework
   public:
     ArgoneXrayAna( std::string ifile )
     {
-      std::cout << "Using user template: " << "BetaScopeWaveformAna" << std::endl;
+      std::cout << "Using user template: " << "ArgoneXrayAna" << std::endl;
       this->ifile = ifile;
     };
     ~ArgoneXrayAna(){};
@@ -23,6 +23,12 @@ class ArgoneXrayAna : public BetaScope_AnaFramework
 
     std::vector<double> *w[16];
     std::vector<double> *t;
+
+    std::vector<double> *pmax[16];
+    std::vector<double> *tmax[16];
+    std::vector<int> *max_indexing[16];
+
+    std::vector<double> *pulseArea[16];
 
     //template <typename o_type, typename i_type>
     //void copyTTreeReaderArrayToVector( o_type *output_v, TTreeReaderArray<i_type> *input_v);
