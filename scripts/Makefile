@@ -7,4 +7,5 @@ clean:
 	@for file in ../*/*/bin/*; do rm -rf $$file; echo Delete Object file: $$file; done
 	@for file in ../*/*/build/*.o; do rm -rf $$file; echo Delete Object file: $$file; done
 	@for file in ../*/*/*/build/*.o; do rm -rf $$file; echo Delete Object file: $$file; done
+	@for file in ./*.log; do rm -rf $$file; echo Delete log file: $$file; done
 	@echo "finished"
