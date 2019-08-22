@@ -203,9 +203,12 @@ void WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Singal(
   std::vector<double> timeVec,
   std::vector<double> &multiple_singal_pmax_v,
   std::vector<double> &multiple_singal_tmax_v,
-  std::vector<int>    &indexing_v
+  std::vector<int>    &indexing_v,
+  const double scale //by default scale = 2.0
 )
 {
+  std::string function_name = "WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Singal";
+
   double pmax = 0.0;
   int pmax_index = 0;
   bool candidate_signal = false;
@@ -234,7 +237,7 @@ void WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Singal(
         pmax = voltageVec.at(i);
         pmax_index = i;
       }
-      else if( (voltageVec.at(i) < assist_threshold) && (assist_threshold - voltageVec.at(i)) <= (assist_threshold/2.0) )
+      else if( (voltageVec.at(i) < assist_threshold) && (assist_threshold - voltageVec.at(i)) <= (assist_threshold/scale) )
       {
         multiple_singal_pmax_v.push_back( pmax );
         multiple_singal_tmax_v.push_back( timeVec.at(pmax_index) );

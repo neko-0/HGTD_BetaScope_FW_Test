@@ -141,7 +141,7 @@ void ArgoneXrayAna::loopEvents()
     for( int i =0; i < 16; i++)
     {
       WaveAna.Correct_Baseline2(*this->w[i], 0.30);
-      WaveAna.Get_PmaxTmax_Of_Multiple_Singal(assistThreshold, *this->w[i], *this->t, *this->pmax[i], *this->tmax[i], *this->max_indexing[i] );
+      WaveAna.Get_PmaxTmax_Of_Multiple_Singal(assistThreshold, *this->w[i], *this->t, *this->pmax[i], *this->tmax[i], *this->max_indexing[i], 1.0 );
       for(std::size_t vSize=0, maxSize=this->pmax[i]->size(); vSize<maxSize; vSize++)
       {
         std::pair<double, unsigned int> my_pmax = std::make_pair( this->pmax[i]->at(vSize), this->max_indexing[i]->at(vSize) );
