@@ -6,7 +6,7 @@
 void BetaScope_AnaFramework::initialize( std::string addBranches, std::string rawBranches )
 {
   beta_scope.rawTreeReader();
-  beta_scope.newTreeMaker( addBranches );
+  if( addBranches.compare("")!=0 )beta_scope.newTreeMaker( addBranches );
 }
 
 void BetaScope_AnaFramework::loopEvents( )
