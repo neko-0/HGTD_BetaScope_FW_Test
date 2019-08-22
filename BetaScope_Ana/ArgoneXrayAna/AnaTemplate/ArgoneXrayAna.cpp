@@ -17,7 +17,7 @@
 
 void ArgoneXrayAna::initialize( )
 {
-  std::string bete_scope_path = getenv("BETASCOPE_SCRIPTS");
+  std::string bete_scope_path(getenv("BETASCOPE_SCRIPTS"));
   this->beta_scope.fileIO_Open( this->ifile.c_str() );
   BetaScope_AnaFramework::initialize( bete_scope_path + "/../BetaScope_Ana/ArgoneXrayAna/AnaTemplate/myOwnTree.ini" );
 
