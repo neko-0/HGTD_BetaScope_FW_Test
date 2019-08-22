@@ -87,7 +87,7 @@ class Lgad(cmd.Cmd, object):
             colorString.sysMsg("output path is set to {}".format(self.output_dir) )
         else:
             try:
-                self.output_dir = predefined_path[path]
+                self.output_dir = path
                 colorString.sysMsg("output path is set to {}".format(self.output_dir) )
             except:
                 colorString.sysError("cannot to output path to {}".format(self.output_dir) )
