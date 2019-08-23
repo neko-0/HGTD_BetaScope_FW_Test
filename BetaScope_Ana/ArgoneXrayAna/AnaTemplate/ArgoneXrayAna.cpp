@@ -158,6 +158,7 @@ void ArgoneXrayAna::loopEvents()
         std::pair<double, unsigned int> my_pmax = std::make_pair( this->pmax[i]->at(vSize), this->max_indexing[i]->at(vSize) );
         pulseArea[i]->push_back( WaveAna.Find_Pulse_Area(*this->w[i], *this->t, my_pmax) );
       }
+      bool baseline_corrected = WaveAna.Correct_Baseline4( *this->w[i], *this->t, *this->pmax[i], *this->tmax[i] );
     }
 
 
