@@ -108,6 +108,91 @@ void WaveformAnalysis::Correct_Baseline3(
   else{ Correct_Baseline2(voltageVec, 0.3); }
 }
 
+/*==============================================================================
+bool
+  WaveformAnalysis::Correct_Baseline4
+
+  Alternate implementation of baseline correction.(3) It use the pmax and tmax
+  to find a flat region to correct the baseline.
+
+  params:
+
+  std::vector<double> &
+    voltageVec := (stl) vector contains the voltage.
+
+  std::vector<double>
+    timeVec := (stl) vector contains the time.
+
+  std::vector<double> &
+    pmax := (stl) vector contains the pmax.
+
+  std::vector<double>
+    tmax := (stl) vector contains the tmax.
+
+  return: boolean.
+==============================================================================*/
+bool WaveformAnalysis::Correct_Baseline4(
+  std::vector<double> &voltageVec,
+  std::vector<double> timeVec,
+  std::vector<double> &pmax,
+  std::vector<double> tmax
+)
+{
+  std::string function_name = "WaveformAnalysis::Correct_Baseline4";
+
+  //check to see if pmax and tmax are empty or different size.
+  if( pmax.size() != tmax.size() ){ std::cout<< function_name << " pmax and tmax size dose not match!" << std::endl; return false; }
+  if( pmax.size()==0 ){ std::cout<< function_name << " pmax or tmax is empty!" << std::endl; return false; }
+
+  double mean =0;
+  int counter =0;
+  std::size_t npoints = voltageVec.size();
+
+  //getting the first and last point of tmax and time vector.
+  double fpt_of_timeVec = timeVec.at(0);
+  double lpt_of_timeVec = timeVec.at(timeVec.size()-1);
+  double fpt_of_tmax = tmax.at(0);
+  double lpt_of_tmax = tmax.at(tmax.size()-1);
+
+  //compare to see which region has more points for baseline correction
+  double shifter = 0.0; //amount in time to shift the region away from the tmax
+  double f_delta =  (fpt_of_tmax-shifter) - fpt_of_timeVec;
+  double l_delta = lpt_of_timeVec - (lpt_of_tmax+shifter);
+
+  double range_min;
+  double range_max;
+  if(l_delta >= f_delta)
+  {
+    range_min = lpt_of_tmax+shifter;
+    range_max = lpt_of_timeVec;
+  }
+  else
+  {
+    range_min = fpt_of_timeVec;
+    range_max = fpt_of_tmax-shifter;
+  }
+
+  for(std::size_t j = 0, max = npoints; j < max; j++)
+  {
+    if( timeVec.at(j) >= range_min && timeVec.at(j) <= range_max )
+    {
+      mean += voltageVec.at(j);
+      counter++;
+    }
+  }
+
+  if(counter != 0)
+  {
+    mean = mean/counter;
+    for(std::size_t j = 0; j < npoints; j++){ voltageVec.at(j) = voltageVec.at(j)- mean;}
+    for(std::size_t p = 0, max = pmax.size(); p<max; p++){ pmax.at(p) - mean; }
+    return true;
+  }
+  else{
+    return false;
+  }
+}
+
 //==============================================================================
 //==============================================================================
 //find the baseline correction for SSRL data.
