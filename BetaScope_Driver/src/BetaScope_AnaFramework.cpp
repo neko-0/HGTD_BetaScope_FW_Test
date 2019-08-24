@@ -2,14 +2,16 @@
 #include "BetaScope_Driver/include/BetaScope_AnaFramework.h"
 #include "Colorful_Cout/include/Colorful_Cout.h"
 
-
-void BetaScope_AnaFramework::initialize( std::string addBranches, std::string rawBranches )
+/*
+template <typename beta_scope_type>
+void BetaScope_AnaFramework<beta_scope_type>::initialize( std::string addBranches, std::string rawBranches )
 {
   beta_scope.rawTreeReader();
   if( addBranches.compare("")!=0 )beta_scope.newTreeMaker( addBranches );
 }
 
-void BetaScope_AnaFramework::loopEvents( )
+template <typename beta_scope_type>
+void BetaScope_AnaFramework<beta_scope_type>::loopEvents( )
 {
   while( beta_scope.treeReader->Next())
   {
@@ -21,7 +23,8 @@ void BetaScope_AnaFramework::loopEvents( )
   }
 }
 
-void BetaScope_AnaFramework::filldata()
+template <typename beta_scope_type>
+void BetaScope_AnaFramework<beta_scope_type>::filldata()
 {
   this->event_counter++;
   beta_scope.fillEvent();
@@ -31,13 +34,25 @@ void BetaScope_AnaFramework::filldata()
   }
 }
 
-void BetaScope_AnaFramework::finalize()
+template <typename beta_scope_type>
+void BetaScope_AnaFramework<beta_scope_type>::filldata()
+{
+  this->event_counter++;
+  beta_scope.fillEvent();
+  if(this->event_counter%1000==0 || (this->event_counter%10==0 && this->event_counter <= 100) )
+  {
+    ColorCout::print( "   "+beta_scope.ifileNickName, " Proccessed events: "+std::to_string(this->event_counter)+" /" + std::to_string(beta_scope.numEvent), BOLDYELLOW);
+  }
+}
+
+template <typename beta_scope_type>
+void BetaScope_AnaFramework<beta_scope_type>::finalize()
 {
   beta_scope.fileIO_Close();
 }
 
-
-void BetaScope_AnaFramework::copyBranch()
+template <typename beta_scope_type>
+void BetaScope_AnaFramework<beta_scope_type>::copyBranch()
 {
   for( int b = 0, max_b = beta_scope.channel.size(); b < max_b; b++ )
   {
@@ -50,3 +65,4 @@ void BetaScope_AnaFramework::copyBranch()
     }
   }
 }
+*/

@@ -4,7 +4,7 @@
 #include <string>
 #include <iostream>
 
-class ArgoneXrayAna : public BetaScope_AnaFramework
+class ArgoneXrayAna : public BetaScope_AnaFramework<BetaScope_Ext>
 {
   std::string ifile;
 
@@ -29,6 +29,10 @@ class ArgoneXrayAna : public BetaScope_AnaFramework
     std::vector<int> *max_indexing[16];
 
     std::vector<double> *pulseArea[16];
+
+    //example of filling standalone histograms
+    TH1D standAloneHisto = TH1D("standAloneHisto", "standAloneHisto", 100, 1 ,1);
+    TH1D *standAloneHisto_ptr = 0;
 
     //template <typename o_type, typename i_type>
     //void copyTTreeReaderArrayToVector( o_type *output_v, TTreeReaderArray<i_type> *input_v);

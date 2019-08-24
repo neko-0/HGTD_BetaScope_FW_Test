@@ -122,7 +122,13 @@ class BetaScope
     void _clearVecBuffer(std::string mode);
     void fileIO_Close();
 
-    bool setBranch( std::string typeName, std::string key, std::string branchName );
+    TFile *get_ofile(){ return this->oFile; }
+    std::string get_ofile_name(){ return this->ofileName; }
+
+    int get_newBranchCounterKeeper(){return this->newBranchCounterKeeper;}
+    void set_newBranchCounterKeeper(int value){this->newBranchCounterKeeper = value;}
+
+    virtual bool setBranch( std::string typeName, std::string key, std::string branchName );
 
     template <typename type>
     bool buildBranch( std::string branchName );
