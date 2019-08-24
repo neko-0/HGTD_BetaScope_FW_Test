@@ -4,7 +4,7 @@
 #include <string>
 #include <iostream>
 
-class BetaScopeWaveformAna : public BetaScope_AnaFramework
+class BetaScopeWaveformAna : public BetaScope_AnaFramework<BetaScope>
 {
   BetaScope beta_scope;
 
