@@ -185,7 +185,7 @@ bool WaveformAnalysis::Correct_Baseline4(
   {
     mean = mean/counter;
     for(std::size_t j = 0; j < npoints; j++){ voltageVec.at(j) = voltageVec.at(j)- mean;}
-    for(std::size_t p = 0, max = pmax.size(); p<max; p++){ pmax.at(p) - mean; }
+    for(std::size_t p = 0, max = pmax.size(); p<max; p++){ pmax.at(p) = pmax.at(p) - mean; }
     return true;
   }
   else{
