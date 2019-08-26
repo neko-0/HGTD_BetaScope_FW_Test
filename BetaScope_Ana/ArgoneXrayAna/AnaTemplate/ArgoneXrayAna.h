@@ -25,8 +25,11 @@ class ArgoneXrayAna : public BetaScope_AnaFramework<BetaScope_Ext>
     std::vector<double> *w[16];
     std::vector<double> *t;
 
+    TH1F *hitpos;
+
     std::vector<double> *pmax[16];
     std::vector<double> *tmax[16];
+    std::vector<double> *rms[16];
     std::vector<int> *max_indexing[16];
 
     std::vector<double> *pulseArea[16];

@@ -172,7 +172,20 @@ class WaveformAnalysis
       double max_search_range = 1000.0
     );
 
-    void Get_PmaxTmax_Of_Multiple_Singal(
+    void Get_PmaxTmax_Of_Multiple_Signal_Argonne_Fixed(
+      const double        assist_threshold,
+      std::vector<double> voltageVec,
+      std::vector<double> timeVec,
+      std::vector<double> &multiple_signal_pmax_v,
+      std::vector<double> &multiple_signal_tmax_v,
+      std::vector<int>    &indexing_v,
+      const double scale, //by default scale = 2.0,
+      const double        time_start,
+      const double        time_separation,
+      const int           n_pulses
+    );
+
+    void Get_PmaxTmax_Of_Multiple_Signal(
       const double        assist_threshold,
       std::vector<double> voltageVec,
       std::vector<double> timeVec,

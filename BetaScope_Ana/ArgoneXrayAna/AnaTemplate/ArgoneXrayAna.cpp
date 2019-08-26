@@ -31,6 +31,9 @@ void ArgoneXrayAna::initialize( )
   }
 
   //do your own stuffs here
+
+  hitpos = new TH1F("hitpos", "hitpos", 16,0,16);
+
   for(int ch = 0; ch < 16; ch++)
   {
     auto br_check = this->beta_scope.setBranch( "TTreeReaderArray<double>", Form("w%i",ch), Form("w%i",ch) );
@@ -55,8 +58,10 @@ void ArgoneXrayAna::initialize( )
   for( int i =0; i < 16; i++)
   {
     auto br_check = this->beta_scope.buildBranch<std::vector<double>>(Form("pmax%i",i));
+    br_check = this->beta_scope.buildBranch<std::vector<double>>(Form("rms%i",i));
     this->pmax[i] = this->beta_scope.get_oTreeBranch<std::vector<double>>(Form("pmax%i",i));
     this->tmax[i] = this->beta_scope.get_oTreeBranch<std::vector<double>>(Form("tmax%i",i));
+    this->rms[i] = this->beta_scope.get_oTreeBranch<std::vector<double>>(Form("rms%i",i));
     br_check = this->beta_scope.buildBranch<std::vector<int>>(Form("max_indexing%i",i));
     this->max_indexing[i] = this->beta_scope.get_oTreeBranch<std::vector<int>>(Form("max_indexing%i",i));
 
@@ -158,17 +163,19 @@ void ArgoneXrayAna::loopEvents()
     for( int i =0; i < 16; i++)
     {
       WaveAna.Correct_Baseline2(*this->w[i], 0.30);
-      WaveAna.Get_PmaxTmax_Of_Multiple_Singal(assistThreshold, *this->w[i], *this->t, *this->pmax[i], *this->tmax[i], *this->max_indexing[i], 1.0 );
+      double this_rms = WaveAna.Find_Noise(*this->w[i], 80);
+      rms[i]->push_back(this_rms);
+      //WaveAna.Get_PmaxTmax_Of_Multiple_Signal(5*this_rms, *this->w[i], *this->t, *this->pmax[i], *this->tmax[i], *this->max_indexing[i], 1.0 );
+      WaveAna.Get_PmaxTmax_Of_Multiple_Signal_Argonne_Fixed(5*this_rms, *this->w[i], *this->t, *this->pmax[i], *this->tmax[i], *this->max_indexing[i], 1.0, 0.0275, 0.003, 8);
       for(std::size_t vSize=0, maxSize=this->pmax[i]->size(); vSize<maxSize; vSize++)
       {
         std::pair<double, unsigned int> my_pmax = std::make_pair( this->pmax[i]->at(vSize), this->max_indexing[i]->at(vSize) );
         pulseArea[i]->push_back( WaveAna.Find_Pulse_Area(*this->w[i], *this->t, my_pmax) );
+        //hitpos->Fill(i);
       }
       bool baseline_corrected = WaveAna.Correct_Baseline4( *this->w[i], *this->t, *this->pmax[i], *this->tmax[i] );
+      hitpos->SetBinContent(i+1, hitpos->GetBinContent(i+1) + this->pmax[i]->size());
     }
-
-
-
 
     //t->push_back( this->beta_scope.iTreeDoubleArrayMap["t"]->At(i) * horiScaler );
 
@@ -188,11 +195,14 @@ void ArgoneXrayAna::loopEvents()
     *this->beta_scope.oTreeIntMap["counter"] = count;
     count++;
 
-
     BetaScope_AnaFramework::filldata();
 
+    if(count > 1000) break;
     //this->beta_scope.oTree_TH1D_Map["counter_histo"]->Reset();
+
   }
+
+  for( int i =0; i < 16; i++) hitpos->SetBinContent(i+1, hitpos->GetBinContent(i+1)/count);
 }
 
 //==============================================================================
@@ -202,8 +212,12 @@ void ArgoneXrayAna::loopEvents()
 void ArgoneXrayAna::finalize()
 {
   //do your own stuffs here
+
   this->standAloneHisto.Write( );
   this->standAloneHisto_ptr->Write( );
+  TFile f("test_out.root", "RECREATE");
+  hitpos->Write();
+  f.Close();
 
   BetaScope_AnaFramework::finalize();
 }

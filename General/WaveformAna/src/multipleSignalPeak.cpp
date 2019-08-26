@@ -165,11 +165,122 @@ std::pair <double, unsigned int> WaveformAnalysis::Find_Identical_Peak(
     return std::make_pair(pmax, pmax_index);
 }
 
+/*==============================================================================
+void
+  WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Signal_Argonne_Fixed
 
+  usage: get pmax and tmax pair for multiple signals on as time window.
+  Assuming a fixed pulse structure
+  A threadhold is require to help with dientifying signals
+
+  const double
+    assist_threshold := threshold use for detecting signals.
+
+  std::vector<double>
+    voltageVec := voltage vector
+
+  std::vector<double>
+    timeVec := time vector
+
+  std::vector<dohble> &
+    multiple_signal_pmax_v := vector for holding all of the detected signal peak
+
+  std::vector<dohble> &
+    multiple_signal_tmax_v := time assiciated with the signal peak
+
+  std::vector<int>  &
+    indexing_v := vector for keeping track of the index of found signal peaks
+
+  return : no return
+
+==============================================================================*/
+//find all the pmax for multiple signals
+
+void WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Signal_Argonne_Fixed(
+  const double        assist_threshold,
+  std::vector<double> voltageVec,
+  std::vector<double> timeVec,
+  std::vector<double> &multiple_signal_pmax_v,
+  std::vector<double> &multiple_signal_tmax_v,
+  std::vector<int>    &indexing_v,
+  const double        scale, //by default scale = 2.0,
+  const double        time_start,
+  const double        time_separation,
+  const int           n_pulses
+)
+{
+  std::string function_name = "WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Signal_Argonne_Fixed";
+
+  double pmax = 0.0;
+  int pmax_index = 0;
+  bool candidate_signal = false;
+  bool noisy_event = true;
+  std::size_t npoints = voltageVec.size();
+
+  int n_time_start;
+  int n_time_separation = (int) (time_separation/(timeVec.at(1) - timeVec.at(0)));
+  for( unsigned int i = 0; i < npoints; i++ ){
+    if(timeVec.at(i) > time_start){
+      n_time_start = i;
+      break;
+    }
+  }
+
+  //std::cout << function_name << " " << n_time_start << " " << n_time_separation << std::endl;
+
+  for( unsigned int i = n_time_start; i < (n_time_start + n_time_separation); i++ )
+  {
+    if( !candidate_signal )
+    {
+      if( voltageVec.at(i) >= assist_threshold )
+      {
+        if( voltageVec.at(i) > pmax )
+        {
+          pmax = voltageVec.at(i);
+          pmax_index = i;
+          candidate_signal = true;
+          if( noisy_event ) noisy_event = false;
+        }
+      }
+    }
+    else
+    {
+      if( voltageVec.at(i) > pmax )
+      {
+        pmax = voltageVec.at(i);
+        pmax_index = i;
+      }
+      else if( (voltageVec.at(i) < assist_threshold) && (assist_threshold - voltageVec.at(i)) <= (assist_threshold/scale) )
+      {
+        multiple_signal_pmax_v.push_back( pmax );
+        multiple_signal_tmax_v.push_back( timeVec.at(pmax_index) );
+        indexing_v.push_back( pmax_index );
+        pmax = voltageVec.at(i);
+        pmax_index = i;
+        candidate_signal = false;
+      }
+      else{}
+    }
+  }
+
+  if( noisy_event )
+  {
+    multiple_signal_pmax_v.push_back( 10e11 ); //default value if nothing is found.
+    multiple_signal_tmax_v.push_back( 10e11 );
+    indexing_v.push_back( 0 );
+    if(!this->supressNoisy)std::cout<<"Noisy" <<std::endl; //if too many "Noisy", there might be a problem.
+    this->supressNoisyCounter++;
+    if(this->supressNoisyCounter==100)
+    {
+      std::cout<<"supressNoisyCounter reaches 100" <<std::endl;
+      this->supressNoisy=true;
+    }
+  }
+}
 
 /*==============================================================================
 void
-  WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Singal
+  WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Signal
 
   usage: get pmax and tmax pair for multiple signals on as time window.
   A threadhold is require to help with dientifying signals
@@ -184,10 +295,10 @@ void
     timeVec := time vector
 
   std::vector<dohble> &
-    multiple_singal_pmax_v := vector for holding all of the detected signal peak
+    multiple_signal_pmax_v := vector for holding all of the detected signal peak
 
   std::vector<dohble> &
-    multiple_singal_tmax_v := time assiciated with the signal peak
+    multiple_signal_tmax_v := time assiciated with the signal peak
 
   std::vector<int>  &
     indexing_v := vector for keeping track of the index of found signal peaks
@@ -197,17 +308,17 @@ void
 ==============================================================================*/
 //find all the pmax for multiple signals
 
-void WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Singal(
+void WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Signal(
   const double        assist_threshold,
   std::vector<double> voltageVec,
   std::vector<double> timeVec,
-  std::vector<double> &multiple_singal_pmax_v,
-  std::vector<double> &multiple_singal_tmax_v,
+  std::vector<double> &multiple_signal_pmax_v,
+  std::vector<double> &multiple_signal_tmax_v,
   std::vector<int>    &indexing_v,
   const double scale //by default scale = 2.0
 )
 {
-  std::string function_name = "WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Singal";
+  std::string function_name = "WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Signal";
 
   double pmax = 0.0;
   int pmax_index = 0;
@@ -239,8 +350,8 @@ void WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Singal(
       }
       else if( (voltageVec.at(i) < assist_threshold) && (assist_threshold - voltageVec.at(i)) <= (assist_threshold/scale) )
       {
-        multiple_singal_pmax_v.push_back( pmax );
-        multiple_singal_tmax_v.push_back( timeVec.at(pmax_index) );
+        multiple_signal_pmax_v.push_back( pmax );
+        multiple_signal_tmax_v.push_back( timeVec.at(pmax_index) );
         indexing_v.push_back( pmax_index );
         pmax = voltageVec.at(i);
         pmax_index = i;
@@ -252,8 +363,8 @@ void WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Singal(
 
   if( noisy_event )
   {
-    multiple_singal_pmax_v.push_back( 10e11 ); //default value if nothing is found.
-    multiple_singal_tmax_v.push_back( 10e11 );
+    multiple_signal_pmax_v.push_back( 10e11 ); //default value if nothing is found.
+    multiple_signal_tmax_v.push_back( 10e11 );
     indexing_v.push_back( 0 );
     if(!this->supressNoisy)std::cout<<"Noisy" <<std::endl; //if too many "Noisy", there might be a problem.
     this->supressNoisyCounter++;
@@ -279,8 +390,8 @@ int Signal_Peak_Counter(
   double assisting_threshold
 )
 {
-  std::vector<double> multiple_singal_pmax_v = {};
-  multiple_singal_pmax_v.reserve(timeVec.size());
+  std::vector<double> multiple_signal_pmax_v = {};
+  multiple_signal_pmax_v.reserve(timeVec.size());
 
   double pmax = 0.0;
   //unsigned int pmax_index = 0;
@@ -313,7 +424,7 @@ int Signal_Peak_Counter(
       }
       else if( (voltageVec.at(i) < assisting_threshold) && (assisting_threshold - voltageVec.at(i)) <= (assisting_threshold) )
       {
-        multiple_singal_pmax_v.push_back( pmax );
+        multiple_signal_pmax_v.push_back( pmax );
         pmax = voltageVec.at(i);
         //pmax_index = i;
         candidate_signal = false;
@@ -325,7 +436,7 @@ int Signal_Peak_Counter(
 
   if( !noisy_event )
   {
-    return multiple_singal_pmax_v.size();
+    return multiple_signal_pmax_v.size();
   }
   else return 0;
 }
