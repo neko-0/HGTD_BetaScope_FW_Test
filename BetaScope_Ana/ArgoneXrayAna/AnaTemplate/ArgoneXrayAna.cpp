@@ -64,6 +64,12 @@ void ArgoneXrayAna::initialize( )
     this->pulseArea[i] = this->beta_scope.get_oTreeBranch<std::vector<double>>(Form("pulseArea%i",i));
   }
 
+  this->beta_scope.buildBranch<TH1D>("counter_histo");
+
+  this->beta_scope.buildTH1Branch<TH1D>("counter");
+
+  this->standAloneHisto_ptr = new TH1D("standAloneHisto_ptr", "standAloneHisto_ptr", 100, 1, 1);
+
 }
 
 //==============================================================================
@@ -166,11 +172,26 @@ void ArgoneXrayAna::loopEvents()
 
     //t->push_back( this->beta_scope.iTreeDoubleArrayMap["t"]->At(i) * horiScaler );
 
+    TH1D tmp(Form("tmp%i",count), "", 100, 1, 1);
+    tmp.Fill(count);
+    *this->beta_scope.oTree_TH1D_Map["counter_histo"] = tmp;
+
+    TH1D tmp2(Form("tmp2%i",count), "", 100, 1, 1);
+    tmp2.Fill(count);
+    //*static_cast<TH1_Container<TH1D>*>(this->beta_scope.oTree_TH1_Map["counter"])->get() = tmp2;
+    *this->beta_scope.get_oHisto1D<TH1D>("counter") = tmp2;
+
+    this->standAloneHisto.Fill(count*2.0);
+    this->standAloneHisto_ptr->Fill(count*2.0);
+
+
     *this->beta_scope.oTreeIntMap["counter"] = count;
     count++;
 
 
     BetaScope_AnaFramework::filldata();
+
+    //this->beta_scope.oTree_TH1D_Map["counter_histo"]->Reset();
   }
 }
 
@@ -181,7 +202,8 @@ void ArgoneXrayAna::loopEvents()
 void ArgoneXrayAna::finalize()
 {
   //do your own stuffs here
-
+  this->standAloneHisto.Write( );
+  this->standAloneHisto_ptr->Write( );
 
   BetaScope_AnaFramework::finalize();
 }

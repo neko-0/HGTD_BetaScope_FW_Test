@@ -52,7 +52,7 @@ void BetaScope::fileIO_Close()
   ColorCout::print(coutPrefix, "Entering", BOLDGREEN);
   ColorCout::print(coutPrefix, "Writing output files.", YELLOW);
 
-	this->oFile->Write();
+	this->oTree->Write();
 	this->oFile->Close();
 
   ColorCout::print(coutPrefix, "Clean up allocated memory", YELLOW);
