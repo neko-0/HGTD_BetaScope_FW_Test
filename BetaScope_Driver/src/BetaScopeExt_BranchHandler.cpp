@@ -114,6 +114,7 @@ bool BetaScope_Ext::buildBranch<std::vector<TH1D>>( std::string branchName )
   }
 }
 
+
 bool BetaScope_Ext::setBranch( std::string typeName, std::string key, std::string branchName)
 {
   if( typeName.compare("TTreeReaderArray<double>") ==0 ){ return BetaScope::setBranch(typeName, key, branchName); }
@@ -168,4 +169,5 @@ bool BetaScope_Ext::setBranch( std::string typeName, std::string key, std::strin
     iTreeBranchCounter+=1;
     return true;
   }
+  else{return false;}
 }

@@ -66,6 +66,8 @@ void ArgoneXrayAna::initialize( )
 
   this->beta_scope.buildBranch<TH1D>("counter_histo");
 
+  this->beta_scope.buildTH1Branch<TH1D>("counter");
+
   this->standAloneHisto_ptr = new TH1D("standAloneHisto_ptr", "standAloneHisto_ptr", 100, 1, 1);
 
 }
@@ -173,6 +175,11 @@ void ArgoneXrayAna::loopEvents()
     TH1D tmp(Form("tmp%i",count), "", 100, 1, 1);
     tmp.Fill(count);
     *this->beta_scope.oTree_TH1D_Map["counter_histo"] = tmp;
+
+    TH1D tmp2(Form("tmp2%i",count), "", 100, 1, 1);
+    tmp2.Fill(count);
+    //*static_cast<TH1_Container<TH1D>*>(this->beta_scope.oTree_TH1_Map["counter"])->get() = tmp2;
+    *this->beta_scope.get_oHisto1D<TH1D>("counter") = tmp2;
 
     this->standAloneHisto.Fill(count*2.0);
     this->standAloneHisto_ptr->Fill(count*2.0);
