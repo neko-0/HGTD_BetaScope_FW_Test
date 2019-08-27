@@ -53,6 +53,15 @@ class WaveformAnalysis
       const std::pair<double, unsigned int> Pmax
     );
 
+    void Find_Bunch_Negative_Signal_Maximum(
+      std::vector<double> voltageVec,
+      std::vector<double> timeVec,
+      std::vector<double> pmax,
+      std::vector<double> tmax,
+      std::vector<double> &negPmax,
+      std::vector<double> &negTmax
+    );
+
     //==========================================================================
     // Pulse Area
     double Find_Pulse_Area(
