@@ -221,7 +221,8 @@ void ArgoneXrayAna::finalize()
 {
   //do your own stuffs here
   this->standAloneHisto.Write( );
-  this->standAloneHisto_ptr->Write(this->beta_scope.oFile);
+  this->beta_scope.oFile->cd();
+  this->standAloneHisto_ptr->Write();
 
   BetaScope_AnaFramework::finalize();
 }
