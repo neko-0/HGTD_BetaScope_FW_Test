@@ -7,6 +7,7 @@
 #ifndef BETACOPE_EXT_H
 #define BETACOPE_EXT_H
 
+
 struct TH1_BaseContainer;
 template <typename th1_type> struct TH1_Container;
 
@@ -92,7 +93,7 @@ class BetaScope_Ext : public BetaScope
     BetaScope_Ext(){ std::cout << this->class_name << std::endl; };
     ~BetaScope_Ext()
     {
-      std::cout << this << " call destructor at " << objectLocation <<std::endl;
+      ColorCout::Msg(this->class_name, "call destructor at");
     };
 
     void fillEvent();
@@ -124,10 +125,10 @@ bool BetaScope_Ext::buildTH1Branch( std::string branchName )
     th1_type *my_th1 = static_cast<TH1_Container<th1_type>*>(this->oTree_TH1[newBranchCounterKeeper])->get();
     //my_th1 = my_new_th1;
     this->oTree_TH1_Map.insert( std::pair<std::string, TH1_BaseContainer* >(branchName, this->oTree_TH1[newBranchCounterKeeper]) );
-    std::cout<<"setting branch\n";
-    std::cout<< my_th1 << std::endl;
-    std::cout<< static_cast<TH1_Container<th1_type>*>(this->oTree_TH1[newBranchCounterKeeper])->get() << std::endl;
-    std::cout<<"setting branch2\n";
+    //std::cout<<"setting branch\n";
+    //std::cout<< my_th1 << std::endl;
+    //std::cout<< static_cast<TH1_Container<th1_type>*>(this->oTree_TH1[newBranchCounterKeeper])->get() << std::endl;
+    //std::cout<<"setting branch2\n";
     oTree->Branch( branchName.c_str(), my_th1 );
     //this->oTreeVecIntMapIndex.insert( std::pair<std::string , int>(branchName, newBranchCounterKeeper) );
     //this->reserved_vec_i.push_back( this->newBranchCounterKeeper );
@@ -135,7 +136,7 @@ bool BetaScope_Ext::buildTH1Branch( std::string branchName )
     return true;
   }
   catch(...){
-    std::cout<<"ss branch2\n";
+    //std::cout<<"ss branch2\n";
     return false;
   }
 }

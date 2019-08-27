@@ -7,6 +7,8 @@
 #ifndef BETACOPE_H
 #define BETACOPE_H
 
+#include "General/Colorful_Cout/include/Colorful_Cout.h"
+
 //-------c++----------------//
 #include <iostream>
 #include <ctime>
@@ -299,6 +301,7 @@ bool readBranch(
 template <typename dtype>
 bool BetaScope::buildPrimitiveBranch( std::string branchName, int ISvector)
 {
+  std::string function_name = "BetaScope::buildPrimitiveBranch";
   try{
     this->oTreePrimitiveBranches[this->oTreePrimitiveBranchCounter] = new PrimitiveDataType_Container<dtype>();
     this->oTreePrimitiveBranchesMap.insert( std::pair<std::string, PrimitiveDataType_BaseContainer*>( branchName, this->oTreePrimitiveBranches[this->oTreePrimitiveBranchCounter] ) );
@@ -313,23 +316,23 @@ bool BetaScope::buildPrimitiveBranch( std::string branchName, int ISvector)
       ///*
       if( std::is_same< v, std::vector<int>>::value )
       {
-        std::cout<< " Branch: " << branchName << " is std::vector<int>. Handle buffer internally\n";
+        ColorCout::Msg(function_name, "Branch:" + branchName + " is std::vector<int>, Handle buffer internally" );
         this->oTreeSTLVecotr_Int_keeper.push_back( static_cast<PrimitiveDataType_Container<std::vector<int>>*>(this->oTreePrimitiveBranches[this->oTreePrimitiveBranchCounter])->get() );
       }
       if( std::is_same< v, std::vector<double>>::value )
       {
-        std::cout<< " Branch: " << branchName << " is std::vector<double>. Handle buffer internally\n";
+        ColorCout::Msg(function_name, "Branch:" + branchName + " is std::vector<double>, Handle buffer internally" );
         this->oTreeSTLVecotr_Double_keeper.push_back( static_cast<PrimitiveDataType_Container<std::vector<double>>*>(this->oTreePrimitiveBranches[this->oTreePrimitiveBranchCounter])->get() );
       }
       if( std::is_same< v, std::vector<float>>::value)
       {
-        std::cout<< " Branch: " << branchName << " is std::vector<float>. Handle buffer internally\n";
+        ColorCout::Msg(function_name, "Branch:" + branchName + " is std::vector<float>, Handle buffer internally" );
         this->oTreeSTLVecotr_Float_keeper.push_back( static_cast<PrimitiveDataType_Container<std::vector<float>>*>(this->oTreePrimitiveBranches[this->oTreePrimitiveBranchCounter])->get() );
       }
       //*/
     }
     else{
-      std::cout<< " Branch: " << branchName << " is not vector. No action needed.\n";
+      ColorCout::Msg(function_name, "Branch:" + branchName + " is NOT std::vector. No action is needed." );
     }
 
     this->oTreePrimitiveBranchCounter++;
