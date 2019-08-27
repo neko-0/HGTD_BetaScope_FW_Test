@@ -35,16 +35,17 @@ void ArgoneXrayAna::initialize( )
   {
     auto br_check = this->beta_scope.setBranch( "TTreeReaderArray<double>", Form("w%i",ch), Form("w%i",ch) );
 
-    br_check = this->beta_scope.buildBranch< std::vector<double> >(Form("w%i", ch ));
-    //this->beta_scope.oTreeVecDouble[this->beta_scope.newBranchCounterKeeper-1]->reserve(1000000);
+    br_check = this->beta_scope.buildPrimitiveBranch< std::vector<double> >(Form("w%i", ch ), 2);
+    w[ch] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>(Form("w%i",ch));
 
-    if(ch==0){ br_check = this->beta_scope.setBranch( "TTreeReaderArray<double>", "t", "t"); }
+    if(ch==0){
+      br_check = this->beta_scope.setBranch( "TTreeReaderArray<double>", "t", "t");
+      br_check = this->beta_scope.buildPrimitiveBranch< std::vector<double> >("t", 2);
+      t = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>("t");
+    }
   }
-  //auto br_check = makeBranch<std::vector<double>>(this->beta_scope.oTree, "t", "t", &this->beta_scope.oTreeVecDoubleMap, this->beta_scope.oTreeVecDouble[this->beta_scope.newBranchCounterKeeper], this->beta_scope.newBranchCounterKeeper, &this->beta_scope.oTreeVecDoubleMapIndex, this->beta_scope.newBranchCounterKeeper );
-  //this->beta_scope.oTreeVecDouble[this->beta_scope.newBranchCounterKeeper-1]->reserve(1000000);
-  auto br_check = this->beta_scope.buildBranch< std::vector<double> >("t");
-  br_check = this->beta_scope.buildBranch<int>("counter");
 
+  /*
   for( int i =0; i < 16; i++)
   {
     w[i] = this->beta_scope.get_oTreeBranch<std::vector<double>>(Form("w%i",i));
@@ -63,6 +64,23 @@ void ArgoneXrayAna::initialize( )
     br_check = this->beta_scope.buildBranch<std::vector<double>>(Form("pulseArea%i",i));
     this->pulseArea[i] = this->beta_scope.get_oTreeBranch<std::vector<double>>(Form("pulseArea%i",i));
   }
+  */
+
+  for( int i =0; i < 16; i++)
+  {
+    auto br_check = this->beta_scope.buildPrimitiveBranch<std::vector<double>>( Form("pmax%i",i), 2);
+    br_check = this->beta_scope.buildPrimitiveBranch<std::vector<double>>( Form("tmax%i",i), 2);
+    br_check = this->beta_scope.buildPrimitiveBranch<std::vector<int>>( Form("max_indexing%i",i), 1);
+    br_check = this->beta_scope.buildPrimitiveBranch<std::vector<double>>(Form("pulseArea%i",i), 2);
+
+
+    this->pmax[i] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( Form("pmax%i",i));
+    this->tmax[i] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>(Form("tmax%i",i));
+    this->max_indexing[i] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<int>>(Form("max_indexing%i",i));
+    this->pulseArea[i] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>(Form("pulseArea%i",i));
+  }
+
+  auto br_check = this->beta_scope.buildPrimitiveBranch<int>("counter");
 
   this->beta_scope.buildBranch<TH1D>("counter_histo");
 
@@ -185,7 +203,7 @@ void ArgoneXrayAna::loopEvents()
     this->standAloneHisto_ptr->Fill(count*2.0);
 
 
-    *this->beta_scope.oTreeIntMap["counter"] = count;
+    *this->beta_scope.get_oTree_PrimitiveBranch<int>("counter") = count;
     count++;
 
 

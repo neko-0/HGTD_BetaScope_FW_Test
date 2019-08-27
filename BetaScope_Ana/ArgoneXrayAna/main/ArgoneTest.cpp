@@ -19,11 +19,15 @@ void runAna( std::string fileName )
 
 int main(int argc, char **argv)
 {
-  if(argc != 3)return -1;
-
   ROOT::EnableThreadSafety();
   TThread::IsInitialized();
   ROOT::EnableImplicitMT(16);
+
+  if( argc == 2 )
+  {
+    runAna( argv[1] );
+    return 0;
+  }
 
   auto files = BetaScope_Utilities::Dir::getFiles( argv[1], argv[2] );
   for( auto f : files )

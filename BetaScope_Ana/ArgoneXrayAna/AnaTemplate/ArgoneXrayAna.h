@@ -14,6 +14,7 @@ class ArgoneXrayAna : public BetaScope_AnaFramework<BetaScope_Ext>
     {
       std::cout << "Using user template: " << "ArgoneXrayAna" << std::endl;
       this->ifile = ifile;
+      std::cout << "on file: " << ifile << std::endl;
     };
     ~ArgoneXrayAna(){};
 
