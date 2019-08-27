@@ -43,8 +43,24 @@ public:
     std::string ct(std::ctime(&current_time));
     std::string date = ct.substr(0,ct.length()-1);
 
-    std::cout <<"[" << date << "]" << "   " << GREEN << prefix << RESET << contentColor << content << RESET << std::endl;
+    std::cout <<"[" << date << "]" << "   " << GREEN << prefix << RESET << " " << contentColor << content << RESET << std::endl;
   }
+
+  static void ErrorMsg( std::string func_name, std::string content )
+  {
+    ColorCout::print( func_name, content, RED);
+  }
+
+  static void Msg( std::string func_name, std::string content )
+  {
+    ColorCout::print( func_name, content, CYAN);
+  }
+
+  static void WarningMsg( std::string func_name, std::string content )
+  {
+    ColorCout::print( func_name, content, YELLOW);
+  }
+
 };
 
 #endif //COLORFUL_COUT_H

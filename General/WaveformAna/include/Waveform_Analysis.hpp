@@ -4,10 +4,14 @@
 #include <vector>
 #include <string>
 
+#include "General/Colorful_Cout/include/Colorful_Cout.h"
+
 class WaveformAnalysis
 {
   bool supressNoisy = false;
   int supressNoisyCounter = 0;
+
+  int Find_Bunch_Negative_Signal_Maximum_counter = 0;
 
   public:
 
@@ -49,6 +53,15 @@ class WaveformAnalysis
     double Get_Tmax(
       std::vector<double> timeVec,
       const std::pair<double, unsigned int> Pmax
+    );
+
+    void Find_Bunch_Negative_Signal_Maximum(
+      std::vector<double> voltageVec,
+      std::vector<double> timeVec,
+      std::vector<double> pmax,
+      std::vector<double> tmax,
+      std::vector<double> &negPmax,
+      std::vector<double> &negTmax
     );
 
     //==========================================================================

@@ -7,6 +7,8 @@
 #ifndef BETACOPE_H
 #define BETACOPE_H
 
+#include "General/Colorful_Cout/include/Colorful_Cout.h"
+
 //-------c++----------------//
 #include <iostream>
 #include <ctime>
@@ -19,6 +21,9 @@
 #include <utility>      // std::pair, std::make_pair
 //#include <boost/unordered_map.hpp>
 #include <unordered_map>
+
+#include <boost/type_traits/is_same.hpp>
+
 //------ROOT----------------//
 #include <TFile.h>
 #include <TTree.h>
@@ -29,9 +34,43 @@
 
 #define VERBOSITY 0
 
+//helper function from stack overflow
+
+template <class N>
+struct is_vector{
+  static const bool value = false;
+  using T = N;
+};
+
+template <class N, class A>
+struct is_vector<std::vector<N,A>>{
+  static const bool value = true;
+  using T = std::vector<N,A>;
+};
+
+
+//==============================================================================
+
 template<typename T>
 struct DataType{using type = T;};
 
+struct PrimitiveDataType_BaseContainer
+{
+  PrimitiveDataType_BaseContainer(){};
+  virtual ~PrimitiveDataType_BaseContainer(){};
+};
+
+template <typename dtype>
+struct PrimitiveDataType_Container : public PrimitiveDataType_BaseContainer
+{
+  private:
+    dtype *data_type = new dtype;
+  public:
+    PrimitiveDataType_Container(){};
+    virtual ~PrimitiveDataType_Container(){};
+
+    dtype *get(){return this->data_type; };
+};
 
 class BetaScope
 {
@@ -89,13 +128,25 @@ class BetaScope
     std::map<std::string, int> oTreeVecDoubleMapIndex;
     std::map<std::string, int> oTreeDoubleMapIndex;
     std::map<std::string, int> oTreeIntMapIndex;
-      std::map<std::string, int> oTreeVecIntMapIndex;
+    std::map<std::string, int> oTreeVecIntMapIndex;
     std::vector<int> reserved_vec_d = {};
     std::vector<int> reserved_d = {};
     std::vector<int> reserved_vec_i = {};
     std::vector<int> reserved_i = {};
 
     int newBranchCounterKeeper = 0;
+
+
+    //Experiment
+    PrimitiveDataType_BaseContainer *oTreePrimitiveBranches[500];
+    std::map<std::string, PrimitiveDataType_BaseContainer * > oTreePrimitiveBranchesMap;
+    std::map<std::string, int > oTreePrimitiveBranchesMapIndex;
+    int oTreePrimitiveBranchCounter = 0;
+    std::vector<int> oTreeSTLVectorReservedIndex = {};
+    std::vector< std::vector<int>* > oTreeSTLVecotr_Int_keeper = {};
+    std::vector< std::vector<double>* > oTreeSTLVecotr_Double_keeper = {};
+    std::vector< std::vector<float>* > oTreeSTLVecotr_Float_keeper = {};
+
 
 
     bool skipBadVector = false;
@@ -132,6 +183,12 @@ class BetaScope
 
     template <typename type>
     bool buildBranch( std::string branchName );
+
+    template <typename dtype>
+    bool buildPrimitiveBranch( std::string branchName, int vector = 0 );
+
+    template <typename dtype>
+    typename DataType<dtype>::type *get_oTree_PrimitiveBranch(std::string branchName);
 
     template <typename dataType>
     dataType *get(std::string key, std::string dtype);
@@ -240,4 +297,57 @@ bool readBranch(
     return true;
   };
 */
+
+template <typename dtype>
+bool BetaScope::buildPrimitiveBranch( std::string branchName, int ISvector)
+{
+  std::string function_name = "BetaScope::buildPrimitiveBranch";
+  try{
+    this->oTreePrimitiveBranches[this->oTreePrimitiveBranchCounter] = new PrimitiveDataType_Container<dtype>();
+    this->oTreePrimitiveBranchesMap.insert( std::pair<std::string, PrimitiveDataType_BaseContainer*>( branchName, this->oTreePrimitiveBranches[this->oTreePrimitiveBranchCounter] ) );
+    oTree->Branch( branchName.c_str(), static_cast<PrimitiveDataType_Container<dtype>*>(this->oTreePrimitiveBranches[this->oTreePrimitiveBranchCounter])->get() );
+    this->oTreePrimitiveBranchesMapIndex.insert( std::pair<std::string , int>(branchName, this->oTreePrimitiveBranchCounter) );
+
+    if( is_vector<dtype>::value )
+    {
+      this->oTreeSTLVectorReservedIndex.push_back( this->newBranchCounterKeeper );
+
+      typedef typename is_vector<dtype>::T v;
+      ///*
+      if( std::is_same< v, std::vector<int>>::value )
+      {
+        ColorCout::Msg(function_name, "Branch:" + branchName + " is std::vector<int>, Handle buffer internally" );
+        this->oTreeSTLVecotr_Int_keeper.push_back( static_cast<PrimitiveDataType_Container<std::vector<int>>*>(this->oTreePrimitiveBranches[this->oTreePrimitiveBranchCounter])->get() );
+      }
+      if( std::is_same< v, std::vector<double>>::value )
+      {
+        ColorCout::Msg(function_name, "Branch:" + branchName + " is std::vector<double>, Handle buffer internally" );
+        this->oTreeSTLVecotr_Double_keeper.push_back( static_cast<PrimitiveDataType_Container<std::vector<double>>*>(this->oTreePrimitiveBranches[this->oTreePrimitiveBranchCounter])->get() );
+      }
+      if( std::is_same< v, std::vector<float>>::value)
+      {
+        ColorCout::Msg(function_name, "Branch:" + branchName + " is std::vector<float>, Handle buffer internally" );
+        this->oTreeSTLVecotr_Float_keeper.push_back( static_cast<PrimitiveDataType_Container<std::vector<float>>*>(this->oTreePrimitiveBranches[this->oTreePrimitiveBranchCounter])->get() );
+      }
+      //*/
+    }
+    else{
+      ColorCout::Msg(function_name, "Branch:" + branchName + " is NOT std::vector. No action is needed." );
+    }
+
+    this->oTreePrimitiveBranchCounter++;
+    return true;
+  }
+  catch(...){
+    return false;
+  }
+}
+
+template <typename dtype>
+typename DataType<dtype>::type *BetaScope::get_oTree_PrimitiveBranch( std::string branchName )
+{
+  return static_cast<PrimitiveDataType_Container<dtype>*>(this->oTreePrimitiveBranchesMap[branchName])->get();
+}
+
+
 #endif // BETACOPE_H

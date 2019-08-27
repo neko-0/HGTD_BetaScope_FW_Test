@@ -53,4 +53,8 @@ void BetaScope::_clearVecBuffer(std::string mode){
     if(this->oTreeVecInt[i]){int cap = this->oTreeVecInt[i]->size();this->oTreeVecInt[i]->clear();this->oTreeVecInt[i]->reserve(cap);}
     if(this->oTreeVecDouble[i]){int cap = this->oTreeVecDouble[i]->size();this->oTreeVecDouble[i]->clear();this->oTreeVecDouble[i]->reserve(cap);}
   }
+
+  for( auto i : this->oTreeSTLVecotr_Int_keeper ){ if(i){ i->clear(); } }
+  for( auto i : this->oTreeSTLVecotr_Double_keeper ){ if(i){ i->clear(); } }
+  for( auto i : this->oTreeSTLVecotr_Float_keeper ){ if(i){ i->clear(); } }
 }

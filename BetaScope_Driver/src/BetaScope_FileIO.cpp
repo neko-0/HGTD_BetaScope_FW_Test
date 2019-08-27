@@ -38,6 +38,7 @@ bool BetaScope::fileIO_Open( const char *ifile_path )
   ColorCout::print(coutPrefix, "compressionLevel: "+std::to_string(this->compressionLevel), YELLOW);
 
   this->oFile = new TFile( this->ofileName.c_str(), "RECREATE", "", this->compressionLevel );
+  this->oFile->cd();
 
   ColorCout::print(coutPrefix, "Fininished, exiting", BOLDGREEN);
   //TThread::UnLock();

@@ -14,13 +14,18 @@ class ArgoneXrayAna : public BetaScope_AnaFramework<BetaScope_Ext>
     {
       std::cout << "Using user template: " << "ArgoneXrayAna" << std::endl;
       this->ifile = ifile;
+      std::cout << "on file: " << ifile << std::endl;
     };
     ~ArgoneXrayAna(){};
 
     //required, user can add more to the existing methods;
     void initialize();
     void loopEvents();
-    void finalize();
+    void finalize(){
+      beta_scope.oFile->cd();
+      ArgoneXrayAna::_finalize();
+    };
+    void _finalize();
 
     std::vector<double> *w[16];
     std::vector<double> *t;
@@ -30,6 +35,8 @@ class ArgoneXrayAna : public BetaScope_AnaFramework<BetaScope_Ext>
     std::vector<int> *max_indexing[16];
 
     std::vector<double> *pulseArea[16];
+    std::vector<double> *negPmax[16];
+    std::vector<double> *negTmax[16];
 
     //example of filling standalone histograms
     TH1D standAloneHisto = TH1D("standAloneHisto", "standAloneHisto", 100, 1 ,1);
