@@ -217,11 +217,10 @@ void ArgoneXrayAna::loopEvents()
 //==============================================================================
 //==============================================================================
 
-void ArgoneXrayAna::finalize()
+void ArgoneXrayAna::_finalize()
 {
   //do your own stuffs here
   this->standAloneHisto.Write( );
-  this->beta_scope.oFile->cd();
   this->standAloneHisto_ptr->Write();
 
   BetaScope_AnaFramework::finalize();
