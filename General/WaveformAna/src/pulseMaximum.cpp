@@ -194,7 +194,7 @@ void WaveformAnalysis::Find_Bunch_Negative_Signal_Maximum(
 
   if( voltageVec.size() != timeVec.size() && pmax.size() != tmax.size() )
   {
-    if(this->Find_Bunch_Negative_Signal_Maximum_counter>100)ColorCout::ErrorMsg(function_name, "Size dose not match! fill with 10e11." );
+    if(this->Find_Bunch_Negative_Signal_Maximum_counter<100)ColorCout::ErrorMsg(function_name, "Size dose not match! fill with 10e11." );
     negPmax.push_back( 10e11 );
     negTmax.push_back( 10e11 );
     this->Find_Bunch_Negative_Signal_Maximum_counter++;
@@ -203,7 +203,7 @@ void WaveformAnalysis::Find_Bunch_Negative_Signal_Maximum(
   {
     if( pmax.size()==1 )
     {
-      if(this->Find_Bunch_Negative_Signal_Maximum_counter>100)ColorCout::Msg(function_name, "Only one pmax, no needed to use this function, set value to -10e11" );
+      if(this->Find_Bunch_Negative_Signal_Maximum_counter<100)ColorCout::Msg(function_name, "Only one pmax, no needed to use this function, set value to -10e11" );
       negPmax.push_back( -10e11 );
       negTmax.push_back( -10e11 );
       this->Find_Bunch_Negative_Signal_Maximum_counter++;
