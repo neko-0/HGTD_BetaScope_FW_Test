@@ -4,6 +4,8 @@
 #include <vector>
 #include <string>
 
+#include "General/Colorful_Cout/include/Colorful_Cout.h"
+
 class WaveformAnalysis
 {
   bool supressNoisy = false;
