@@ -72,12 +72,16 @@ void ArgoneXrayAna::initialize( )
     br_check = this->beta_scope.buildPrimitiveBranch<std::vector<double>>( Form("tmax%i",i), 2);
     br_check = this->beta_scope.buildPrimitiveBranch<std::vector<int>>( Form("max_indexing%i",i), 1);
     br_check = this->beta_scope.buildPrimitiveBranch<std::vector<double>>(Form("pulseArea%i",i), 2);
+    br_check = this->beta_scope.buildPrimitiveBranch<std::vector<double>>( Form("negPmax%i",i) );
+    br_check = this->beta_scope.buildPrimitiveBranch<std::vector<double>>( Form("negTmax%i",i) );
 
 
     this->pmax[i] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( Form("pmax%i",i));
     this->tmax[i] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>(Form("tmax%i",i));
     this->max_indexing[i] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<int>>(Form("max_indexing%i",i));
     this->pulseArea[i] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>(Form("pulseArea%i",i));
+    this->negPmax[i] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( Form("negPmax%i",i));
+    this->negTmax[i] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( Form("negTmax%i",i));
   }
 
   auto br_check = this->beta_scope.buildPrimitiveBranch<int>("counter");
@@ -183,6 +187,8 @@ void ArgoneXrayAna::loopEvents()
         pulseArea[i]->push_back( WaveAna.Find_Pulse_Area(*this->w[i], *this->t, my_pmax) );
       }
       bool baseline_corrected = WaveAna.Correct_Baseline4( *this->w[i], *this->t, *this->pmax[i], *this->tmax[i] );
+
+      WaveAna.Find_Bunch_Negative_Signal_Maximum( *this->w[i], *this->t, *this->pmax[i], *this->tmax[i], *this->negPmax[i], *this->negTmax[i] );
     }
 
 
