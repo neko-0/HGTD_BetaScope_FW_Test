@@ -19,6 +19,9 @@
 #include <utility>      // std::pair, std::make_pair
 //#include <boost/unordered_map.hpp>
 #include <unordered_map>
+
+#include <boost/type_traits/is_same.hpp>
+
 //------ROOT----------------//
 #include <TFile.h>
 #include <TTree.h>
@@ -28,6 +31,23 @@
 #include <TTreeReaderValue.h>
 
 #define VERBOSITY 0
+
+//helper function from stack overflow
+
+template <class N>
+struct is_vector{
+  static const bool value = false;
+  using T = N;
+};
+
+template <class N, class A>
+struct is_vector<std::vector<N,A>>{
+  static const bool value = true;
+  using T = std::vector<N,A>;
+};
+
+
+//==============================================================================
 
 template<typename T>
 struct DataType{using type = T;};
@@ -163,7 +183,7 @@ class BetaScope
     bool buildBranch( std::string branchName );
 
     template <typename dtype>
-    bool buildPrimitiveBranch( std::string branchName, int is_vector = 0 );
+    bool buildPrimitiveBranch( std::string branchName, int vector = 0 );
 
     template <typename dtype>
     typename DataType<dtype>::type *get_oTree_PrimitiveBranch(std::string branchName);
@@ -277,19 +297,41 @@ bool readBranch(
 */
 
 template <typename dtype>
-bool BetaScope::buildPrimitiveBranch( std::string branchName, int is_vector)
+bool BetaScope::buildPrimitiveBranch( std::string branchName, int ISvector)
 {
   try{
     this->oTreePrimitiveBranches[this->oTreePrimitiveBranchCounter] = new PrimitiveDataType_Container<dtype>();
     this->oTreePrimitiveBranchesMap.insert( std::pair<std::string, PrimitiveDataType_BaseContainer*>( branchName, this->oTreePrimitiveBranches[this->oTreePrimitiveBranchCounter] ) );
     oTree->Branch( branchName.c_str(), static_cast<PrimitiveDataType_Container<dtype>*>(this->oTreePrimitiveBranches[this->oTreePrimitiveBranchCounter])->get() );
     this->oTreePrimitiveBranchesMapIndex.insert( std::pair<std::string , int>(branchName, this->oTreePrimitiveBranchCounter) );
-    if(is_vector){
+
+    if( is_vector<dtype>::value )
+    {
       this->oTreeSTLVectorReservedIndex.push_back( this->newBranchCounterKeeper );
-      if(is_vector==1)this->oTreeSTLVecotr_Int_keeper.push_back( static_cast<PrimitiveDataType_Container<std::vector<int>>*>(this->oTreePrimitiveBranches[this->oTreePrimitiveBranchCounter])->get() );
-      if(is_vector==2)this->oTreeSTLVecotr_Double_keeper.push_back( static_cast<PrimitiveDataType_Container<std::vector<double>>*>(this->oTreePrimitiveBranches[this->oTreePrimitiveBranchCounter])->get() );
-      if(is_vector==3)this->oTreeSTLVecotr_Float_keeper.push_back( static_cast<PrimitiveDataType_Container<std::vector<float>>*>(this->oTreePrimitiveBranches[this->oTreePrimitiveBranchCounter])->get() );
+
+      typedef typename is_vector<dtype>::T v;
+      ///*
+      if( std::is_same< v, std::vector<int>>::value )
+      {
+        std::cout<< " Branch: " << branchName << " is std::vector<int>. Handle buffer internally\n";
+        this->oTreeSTLVecotr_Int_keeper.push_back( static_cast<PrimitiveDataType_Container<std::vector<int>>*>(this->oTreePrimitiveBranches[this->oTreePrimitiveBranchCounter])->get() );
+      }
+      if( std::is_same< v, std::vector<double>>::value )
+      {
+        std::cout<< " Branch: " << branchName << " is std::vector<double>. Handle buffer internally\n";
+        this->oTreeSTLVecotr_Double_keeper.push_back( static_cast<PrimitiveDataType_Container<std::vector<double>>*>(this->oTreePrimitiveBranches[this->oTreePrimitiveBranchCounter])->get() );
+      }
+      if( std::is_same< v, std::vector<float>>::value)
+      {
+        std::cout<< " Branch: " << branchName << " is std::vector<float>. Handle buffer internally\n";
+        this->oTreeSTLVecotr_Float_keeper.push_back( static_cast<PrimitiveDataType_Container<std::vector<float>>*>(this->oTreePrimitiveBranches[this->oTreePrimitiveBranchCounter])->get() );
+      }
+      //*/
     }
+    else{
+      std::cout<< " Branch: " << branchName << " is not vector. No action needed.\n";
+    }
+
     this->oTreePrimitiveBranchCounter++;
     return true;
   }
