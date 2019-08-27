@@ -21,7 +21,11 @@ class ArgoneXrayAna : public BetaScope_AnaFramework<BetaScope_Ext>
     //required, user can add more to the existing methods;
     void initialize();
     void loopEvents();
-    void finalize();
+    void finalize(){
+      beta_scope.oFile->cd();
+      ArgoneXrayAna::_finalize();
+    };
+    void _finalize();
 
     std::vector<double> *w[16];
     std::vector<double> *t;
