@@ -33,6 +33,15 @@ If "full" is not specified, the analyzer will only produce "stats_" files
 
 ### BetaScope Waveform Ana
 
+Routine waveform analysis for beta-scope charge collection measurement.
+
+### Argone Xray Ana
+
+Originate from SSRL bunch signals analysis.
+
+####Updates
+
+2019/8/27: only maximum and minimum peak of bunch signals are included for now, but it's enough to do some preliminary event filtering.
 
 ## Known issues
 
