@@ -1,5 +1,6 @@
 #include "BetaScope_Driver/include/BetaScope_Class.h"
 #include "BetaScope_Driver/include/BetaScopeExt_Class.h"
+#include "BetaScope_Driver/include/BetaScopeExt_Templates.tpp"
 #include "BetaScope_Driver/include/BetaScope_AnaFramework.h"
 #include "General/Colorful_Cout/include/Colorful_Cout.h"
 #include <string>
