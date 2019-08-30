@@ -203,7 +203,12 @@ void WaveformAnalysis::Find_Bunch_Negative_Signal_Maximum(
   {
     if( pmax.size()==1 )
     {
-      if(this->Find_Bunch_Negative_Signal_Maximum_counter<100)ColorCout::Msg(function_name, "Only one pmax, no needed to use this function, set value to -10e11" );
+      if(this->Find_Bunch_Negative_Signal_Maximum_counter<100)
+      {
+        this->mu.lock();
+        ColorCout::Msg(function_name, "Only one pmax, no needed to use this function, set value to -10e11" );
+        this->mu.unlock(); 
+      }
       negPmax.push_back( -10e11 );
       negTmax.push_back( -10e11 );
       this->Find_Bunch_Negative_Signal_Maximum_counter++;
