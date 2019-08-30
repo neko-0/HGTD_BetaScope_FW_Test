@@ -5,7 +5,6 @@
 #include <iostream>
 #include <ctime>
 #include <chrono>
-#include <mutex>
 
 /*
 From stack-overflow:
@@ -44,10 +43,7 @@ public:
     std::string ct(std::ctime(&current_time));
     std::string date = ct.substr(0,ct.length()-1);
 
-    std::mutex mu;
-    mu.lock();
     std::cout <<"[" << date << "]" << "   " << GREEN << prefix << RESET << " " << contentColor << content << RESET << std::endl;
-    mu.unlock();
   }
 
   static void ErrorMsg( std::string func_name, std::string content )

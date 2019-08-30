@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <mutex>
 
 #include "General/Colorful_Cout/include/Colorful_Cout.h"
 
@@ -12,6 +13,8 @@ class WaveformAnalysis
   int supressNoisyCounter = 0;
 
   int Find_Bunch_Negative_Signal_Maximum_counter = 0;
+
+  std::mutex mu;
 
   public:
 

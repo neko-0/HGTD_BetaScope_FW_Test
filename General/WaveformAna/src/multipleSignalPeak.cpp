@@ -261,11 +261,16 @@ void WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Singal(
     multiple_singal_pmax_v.push_back( 10e11 ); //default value if nothing is found.
     multiple_singal_tmax_v.push_back( 10e11 );
     indexing_v.push_back( 0 );
-    if(!this->supressNoisy)ColorCout::WarningMsg(function_name, "Noisy"); //if too many "Noisy", there might be a problem.
+    if(!this->supressNoisy)
+    {
+      this->mu.lock();
+      ColorCout::WarningMsg(function_name, "Noisy"); //if too many "Noisy", there might be a problem.
+      this->mu.unlock(); 
+    }
     this->supressNoisyCounter++;
     if(this->supressNoisyCounter==100)
     {
-      ColorCout::WarningMsg(function_name, "supressNoisyCounter reaches 100");
+      this->mu.lock(); ColorCout::WarningMsg(function_name, "supressNoisyCounter reaches 100"); this->mu.unlock();
       this->supressNoisy=true;
     }
   }
@@ -274,7 +279,12 @@ void WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Singal(
     multiple_singal_pmax_v.push_back( 10e11 ); //default value if nothing is found.
     multiple_singal_tmax_v.push_back( 10e11 );
     indexing_v.push_back( 0 );
-    if(!this->supressNoisy)ColorCout::WarningMsg(function_name, "Method fail, the output size is 0. Assigning default value"); //if too many "Noisy", there might be a problem.
+    if(!this->supressNoisy)
+    {
+      this->mu.lock();
+      ColorCout::WarningMsg(function_name, "Method fail, the output size is 0. Assigning default value"); //if too many "Noisy", there might be a problem.
+      this->mu.unlock();
+    }
   }
 }
 
