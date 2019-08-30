@@ -172,7 +172,13 @@ class WaveformAnalysis
       double max_search_range = 1000.0
     );
 
-    void Get_PmaxTmax_Of_Multiple_Signal_Argonne_Fixed(
+    double Get_First_Threshold(
+      const double        assist_threshold,
+      std::vector<double> voltageVec,
+      std::vector<double> timeVec
+    );
+
+    int Get_PmaxTmax_Of_Multiple_Signal_Argonne_Fixed(
       const double        assist_threshold,
       std::vector<double> voltageVec,
       std::vector<double> timeVec,
@@ -185,7 +191,7 @@ class WaveformAnalysis
       const int           n_pulses
     );
 
-    void Get_PmaxTmax_Of_Multiple_Signal(
+    int Get_PmaxTmax_Of_Multiple_Signal(
       const double        assist_threshold,
       std::vector<double> voltageVec,
       std::vector<double> timeVec,

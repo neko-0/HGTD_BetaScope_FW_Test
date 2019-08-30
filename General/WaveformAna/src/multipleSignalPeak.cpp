@@ -196,7 +196,23 @@ void
 ==============================================================================*/
 //find all the pmax for multiple signals
 
-void WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Signal_Argonne_Fixed(
+
+double WaveformAnalysis::Get_First_Threshold(
+  const double        assist_threshold,
+  std::vector<double> voltageVec,
+  std::vector<double> timeVec
+)
+{
+  std::string function_name = "WaveformAnalysis::Get_First_Threshold";
+  std::size_t npoints = voltageVec.size();
+  double first_threshold;
+
+  for( unsigned int i = 0; i < npoints; i++ ) if( voltageVec.at(i) >= assist_threshold ) first_threshold = timeVec.at(i);
+
+  return first_threshold;
+}
+
+int WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Signal_Argonne_Fixed(
   const double        assist_threshold,
   std::vector<double> voltageVec,
   std::vector<double> timeVec,
@@ -213,7 +229,8 @@ void WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Signal_Argonne_Fixed(
 
   double pmax = 0.0;
   int pmax_index = 0;
-  bool candidate_signal = false;
+  int n_found_peaks = 0;
+
   bool noisy_event = true;
   std::size_t npoints = voltageVec.size();
 
@@ -225,43 +242,59 @@ void WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Signal_Argonne_Fixed(
       break;
     }
   }
-
   //std::cout << function_name << " " << n_time_start << " " << n_time_separation << std::endl;
+  for(unsigned int i_pulse=0; i_pulse < n_pulses; i_pulse++){
+    bool found_peak = false;
+    bool candidate_signal = false;
+    //std::cout << "  " << (n_time_start + n_time_separation*i_pulse) << " " << (n_time_start + n_time_separation * (1 + i_pulse)) << std::endl;
 
-  for( unsigned int i = n_time_start; i < (n_time_start + n_time_separation); i++ )
-  {
-    if( !candidate_signal )
+    for( unsigned int i = (n_time_start + n_time_separation*i_pulse); i < (n_time_start + n_time_separation * (1 + i_pulse)); i++ )
     {
-      if( voltageVec.at(i) >= assist_threshold )
+      if( !candidate_signal )
+      {
+        if( voltageVec.at(i) >= assist_threshold )
+        {
+          if( voltageVec.at(i) > pmax )
+          {
+            pmax = voltageVec.at(i);
+            pmax_index = i;
+            candidate_signal = true;
+            if( noisy_event ) noisy_event = false;
+          }
+        }
+      }
+      else
       {
         if( voltageVec.at(i) > pmax )
         {
           pmax = voltageVec.at(i);
           pmax_index = i;
-          candidate_signal = true;
-          if( noisy_event ) noisy_event = false;
         }
+        else if( (voltageVec.at(i) < assist_threshold) && (assist_threshold - voltageVec.at(i)) <= (assist_threshold/scale) )
+        {
+          multiple_signal_pmax_v.push_back( pmax );
+          multiple_signal_tmax_v.push_back( timeVec.at(pmax_index) );
+          indexing_v.push_back( pmax_index );
+          n_found_peaks++;
+          //std::cout << "Peak found at " << pmax_index << " tmax: " << timeVec.at(pmax_index) << " Pmax: " << pmax << std::endl;
+          pmax = voltageVec.at(i);
+          pmax_index = i;
+          candidate_signal = false;
+          found_peak = true;
+        }
+        else{}
       }
     }
-    else
-    {
-      if( voltageVec.at(i) > pmax )
-      {
-        pmax = voltageVec.at(i);
-        pmax_index = i;
-      }
-      else if( (voltageVec.at(i) < assist_threshold) && (assist_threshold - voltageVec.at(i)) <= (assist_threshold/scale) )
-      {
-        multiple_signal_pmax_v.push_back( pmax );
-        multiple_signal_tmax_v.push_back( timeVec.at(pmax_index) );
-        indexing_v.push_back( pmax_index );
-        pmax = voltageVec.at(i);
-        pmax_index = i;
-        candidate_signal = false;
-      }
-      else{}
+    if(!found_peak){
+      multiple_signal_pmax_v.push_back( 0 );
+      multiple_signal_tmax_v.push_back( 0 );
+      indexing_v.push_back( 0 );
     }
   }
+
+  //std::cout << "Vector: ";
+  //for(unsigned int i_pulse=0; i_pulse < n_pulses; i_pulse++){ std::cout << indexing_v[i_pulse] << " ";}
+  //std::cout << "\n";
 
   if( noisy_event )
   {
@@ -276,6 +309,7 @@ void WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Signal_Argonne_Fixed(
       this->supressNoisy=true;
     }
   }
+  return n_found_peaks;
 }
 
 /*==============================================================================
@@ -308,7 +342,7 @@ void
 ==============================================================================*/
 //find all the pmax for multiple signals
 
-void WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Signal(
+int WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Signal(
   const double        assist_threshold,
   std::vector<double> voltageVec,
   std::vector<double> timeVec,
@@ -324,6 +358,7 @@ void WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Signal(
   int pmax_index = 0;
   bool candidate_signal = false;
   bool noisy_event = true;
+  int npeaks = 0;
   std::size_t npoints = voltageVec.size();
 
   for( unsigned int i = 0; i < npoints; i++ )
@@ -352,7 +387,9 @@ void WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Signal(
       {
         multiple_signal_pmax_v.push_back( pmax );
         multiple_signal_tmax_v.push_back( timeVec.at(pmax_index) );
+        npeaks++;
         indexing_v.push_back( pmax_index );
+        //std::cout<<"In Function pmax "<<pmax<<" tmax "<<timeVec.at(pmax_index)<<std::endl;
         pmax = voltageVec.at(i);
         pmax_index = i;
         candidate_signal = false;
@@ -374,6 +411,8 @@ void WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Signal(
       this->supressNoisy=true;
     }
   }
+
+  return npeaks;
 }
 
 

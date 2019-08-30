@@ -142,7 +142,7 @@ bool WaveformAnalysis::Correct_Baseline4(
 
   //check to see if pmax and tmax are empty or different size.
   if( pmax.size() != tmax.size() ){ std::cout<< function_name << " pmax and tmax size dose not match!" << std::endl; return false; }
-  if( pmax.size()==0 ){ std::cout<< function_name << " pmax or tmax is empty!" << std::endl; return false; }
+  if( pmax.size()==0 ){ /*std::cout<< function_name << " pmax or tmax is empty!" << std::endl;*/ return false; }
 
   double mean =0;
   int counter =0;
@@ -185,7 +185,7 @@ bool WaveformAnalysis::Correct_Baseline4(
   {
     mean = mean/counter;
     for(std::size_t j = 0; j < npoints; j++){ voltageVec.at(j) = voltageVec.at(j)- mean;}
-    for(std::size_t p = 0, max = pmax.size(); p<max; p++){ pmax.at(p) = pmax.at(p) - mean; }
+    for(std::size_t p = 0, max = pmax.size(); p<max; p++){ pmax.at(p) - mean; }
     return true;
   }
   else{

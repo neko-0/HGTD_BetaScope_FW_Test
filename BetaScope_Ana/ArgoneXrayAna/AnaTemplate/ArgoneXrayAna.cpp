@@ -36,44 +36,48 @@ void ArgoneXrayAna::initialize( )
 
   for(int ch = 0; ch < 16; ch++)
   {
-    auto br_check = this->beta_scope.setBranch( "TTreeReaderArray<double>", Form("w%i",ch), Form("w%i",ch) );
-
-    br_check = this->beta_scope.buildBranch< std::vector<double> >(Form("w%i", ch ));
+    this->beta_scope.setBranch( "TTreeReaderArray<double>", Form("w%i",ch), Form("w%i",ch) );
     //this->beta_scope.oTreeVecDouble[this->beta_scope.newBranchCounterKeeper-1]->reserve(1000000);
-
-    if(ch==0){ br_check = this->beta_scope.setBranch( "TTreeReaderArray<double>", "t", "t"); }
+    if(ch==0){ this->beta_scope.setBranch( "TTreeReaderArray<double>", "t", "t"); }
   }
-  //auto br_check = makeBranch<std::vector<double>>(this->beta_scope.oTree, "t", "t", &this->beta_scope.oTreeVecDoubleMap, this->beta_scope.oTreeVecDouble[this->beta_scope.newBranchCounterKeeper], this->beta_scope.newBranchCounterKeeper, &this->beta_scope.oTreeVecDoubleMapIndex, this->beta_scope.newBranchCounterKeeper );
+
   //this->beta_scope.oTreeVecDouble[this->beta_scope.newBranchCounterKeeper-1]->reserve(1000000);
-  auto br_check = this->beta_scope.buildBranch< std::vector<double> >("t");
-  br_check = this->beta_scope.buildBranch<int>("counter");
-
-  for( int i =0; i < 16; i++)
-  {
-    w[i] = this->beta_scope.get_oTreeBranch<std::vector<double>>(Form("w%i",i));
-    br_check = this->beta_scope.buildBranch<std::vector<double>>(Form("tmax%i",i));
-  }
+  this->beta_scope.buildBranch< std::vector<double> >("t");
+  this->beta_scope.buildBranch<int>("counter");
   t = this->beta_scope.get_oTreeBranch<std::vector<double>>("t");
 
   for( int i =0; i < 16; i++)
   {
-    auto br_check = this->beta_scope.buildBranch<std::vector<double>>(Form("pmax%i",i));
-    br_check = this->beta_scope.buildBranch<std::vector<double>>(Form("rms%i",i));
+    this->beta_scope.buildBranch< std::vector<double> >(Form("w%i", i ));
+    w[i] = this->beta_scope.get_oTreeBranch<std::vector<double>>(Form("w%i",i));
+
+    this->beta_scope.buildBranch<std::vector<double>>(Form("tmax%i",i));
+    this->beta_scope.buildBranch<std::vector<double>>(Form("pmax%i",i));
+    this->beta_scope.buildBranch<std::vector<double>>(Form("rms%i",i));
+
     this->pmax[i] = this->beta_scope.get_oTreeBranch<std::vector<double>>(Form("pmax%i",i));
     this->tmax[i] = this->beta_scope.get_oTreeBranch<std::vector<double>>(Form("tmax%i",i));
     this->rms[i] = this->beta_scope.get_oTreeBranch<std::vector<double>>(Form("rms%i",i));
-    br_check = this->beta_scope.buildBranch<std::vector<int>>(Form("max_indexing%i",i));
+
+    this->beta_scope.buildBranch<std::vector<int>>(Form("max_indexing%i",i));
     this->max_indexing[i] = this->beta_scope.get_oTreeBranch<std::vector<int>>(Form("max_indexing%i",i));
 
-    br_check = this->beta_scope.buildBranch<std::vector<double>>(Form("pulseArea%i",i));
+    this->beta_scope.buildBranch<std::vector<double>>(Form("pulseArea%i",i));
     this->pulseArea[i] = this->beta_scope.get_oTreeBranch<std::vector<double>>(Form("pulseArea%i",i));
+
+    this->beta_scope.buildBranch<std::vector<int>>(Form("found_peaks%i",i));
+    this->found_peaks[i] = this->beta_scope.get_oTreeBranch<std::vector<int>>(Form("found_peaks%i",i));
+
+    this->beta_scope.buildBranch<std::vector<int>>(Form("separated%i",i));
+    this->separated[i] = this->beta_scope.get_oTreeBranch<std::vector<int>>(Form("separated%i",i));
+
+    //this->beta_scope.buildBranch<double>(Form("first_threshold%i",i));
+    //this->first_threshold[i] = this->beta_scope.get_oTreeBranch<double>(Form("first_threshold%i",i));
   }
 
-  this->beta_scope.buildBranch<TH1D>("counter_histo");
-
-  this->beta_scope.buildTH1Branch<TH1D>("counter");
-
-  this->standAloneHisto_ptr = new TH1D("standAloneHisto_ptr", "standAloneHisto_ptr", 100, 1, 1);
+  //this->beta_scope.buildBranch<TH1D>("counter_histo");
+  //this->beta_scope.buildTH1Branch<TH1D>("counter");
+  //this->standAloneHisto_ptr = new TH1D("standAloneHisto_ptr", "standAloneHisto_ptr", 100, 1, 1);
 
 }
 
@@ -115,48 +119,6 @@ void ArgoneXrayAna::loopEvents()
       w[15]->push_back( this->beta_scope.iTreeDoubleArrayMap["w15"]->At(i) * verScaler );
       t->push_back( this->beta_scope.iTreeDoubleArrayMap["t"]->At(i) * horiScaler );
     }
-    //*/
-
-    //std::mutex mu;
-    //mu.lock();
-    /*
-    int entry = this->beta_scope.treeReader->GetCurrentEntry();
-    std::vector<boost::thread*> workers;
-    for( int i = 0; i < 15; i++)
-    {
-      std::string bName(Form("w%i",i));
-      workers.push_back( new boost::thread( &BetaScope::copyTTreeReaderArrayToVector<std::vector<double>>, &this->beta_scope, bName, bName, entry) );
-      //workers.push_back( new std::thread( ArgoneXrayAna::copyTTreeReaderArrayToVector<std::vector<double>, double>, &ww[i], this->beta_scope.iTreeDoubleArrayMap[Form("w%i",i)] ) );
-
-    }
-
-    for(std::size_t id=0; id < workers.size(); id++ )
-    {
-      workers[id]->join();
-      delete workers[id];
-    }
-    */
-    //mu.unlock();
-
-    /*
-    TThread::Lock();
-    ROOT::TProcessExecutor pool(16);
-    // define our method: it will simply return the square of each element of a vector
-    auto squares = pool.Map(
-      [&]( int k )
-      {
-        std::string bName = Form("w%i",k);
-        for(int i = 0, max = this->beta_scope.iTreeDoubleArrayMap[bName]->GetSize(); i < max; i++)
-        {
-          this->beta_scope.oTreeVecDoubleMap[bName]->push_back( this->beta_scope.iTreeDoubleArrayMap[bName]->At(i) );
-        }
-        return 1;
-      },
-      {0,1,2,3,4,5}
-    );
-    TThread::Lock();
-    */
-
 
     //Analysis:
 
@@ -165,12 +127,27 @@ void ArgoneXrayAna::loopEvents()
       WaveAna.Correct_Baseline2(*this->w[i], 0.30);
       double this_rms = WaveAna.Find_Noise(*this->w[i], 80);
       rms[i]->push_back(this_rms);
-      //WaveAna.Get_PmaxTmax_Of_Multiple_Signal(5*this_rms, *this->w[i], *this->t, *this->pmax[i], *this->tmax[i], *this->max_indexing[i], 1.0 );
-      WaveAna.Get_PmaxTmax_Of_Multiple_Signal_Argonne_Fixed(5*this_rms, *this->w[i], *this->t, *this->pmax[i], *this->tmax[i], *this->max_indexing[i], 1.0, 0.0275, 0.003, 8);
+      //std::cout<<"\nEvent "<<count<<" Channel "<<i<<std::endl;
+      this->found_peaks[i]->push_back(WaveAna.Get_PmaxTmax_Of_Multiple_Signal(5*this_rms, *this->w[i], *this->t, *this->pmax[i], *this->tmax[i], *this->max_indexing[i], 1.0 ));
+      //if(*found_peaks[i] > 0) std::cout<<*found_peaks[i]<<" pmax1 "<<this->pmax[i]->at(0)<<" tmax1 "<<this->tmax[i]->at(0)<<std::endl;
+      //*found_peaks[i] = (WaveAna.Get_PmaxTmax_Of_Multiple_Signal_Argonne_Fixed(5*this_rms, *this->w[i], *this->t, *this->pmax[i], *this->tmax[i],
+      //                                                                        *this->max_indexing[i], 1.0, 0.029, 0.003, 8));
+      //*first_threshold[i] = 0.;
+      //*first_threshold[i] = (WaveAna.Get_First_Threshold(assistThreshold, *this->w[i], *this->t));
+
+      this->separated[i]->push_back(1);
       for(std::size_t vSize=0, maxSize=this->pmax[i]->size(); vSize<maxSize; vSize++)
       {
-        std::pair<double, unsigned int> my_pmax = std::make_pair( this->pmax[i]->at(vSize), this->max_indexing[i]->at(vSize) );
-        pulseArea[i]->push_back( WaveAna.Find_Pulse_Area(*this->w[i], *this->t, my_pmax) );
+        std::pair<double, unsigned int> pmax_tmax = std::make_pair( this->pmax[i]->at(vSize), this->max_indexing[i]->at(vSize) );
+        pulseArea[i]->push_back( WaveAna.Find_Pulse_Area(*this->w[i], *this->t, pmax_tmax) );
+
+        //Check if the event has well separated peaks
+        for(std::size_t vSize2=0, maxSize2=this->pmax[i]->size(); vSize2<maxSize2; vSize2++){
+          if( vSize != vSize2 && this->found_peaks[i]->at(0) > 1 && fabs(this->tmax[i]->at(vSize) - this->tmax[i]->at(vSize2)) < 0.005) {
+            this->separated[i]->at(0) = 0;
+            //std::cout<<"separation "<<this->found_peaks[i]->at(0)<<" "<<fabs(this->tmax[i]->at(vSize) - this->tmax[i]->at(vSize2))<<std::endl;
+          }
+        }
         //hitpos->Fill(i);
       }
       bool baseline_corrected = WaveAna.Correct_Baseline4( *this->w[i], *this->t, *this->pmax[i], *this->tmax[i] );
@@ -179,18 +156,17 @@ void ArgoneXrayAna::loopEvents()
 
     //t->push_back( this->beta_scope.iTreeDoubleArrayMap["t"]->At(i) * horiScaler );
 
-    TH1D tmp(Form("tmp%i",count), "", 100, 1, 1);
-    tmp.Fill(count);
-    *this->beta_scope.oTree_TH1D_Map["counter_histo"] = tmp;
+    //TH1D tmp(Form("tmp%i",count), "", 100, 1, 1);
+    //tmp.Fill(count);
+    //*this->beta_scope.oTree_TH1D_Map["counter_histo"] = tmp;
 
-    TH1D tmp2(Form("tmp2%i",count), "", 100, 1, 1);
-    tmp2.Fill(count);
+    //TH1D tmp2(Form("tmp2%i",count), "", 100, 1, 1);
+    //tmp2.Fill(count);
     //*static_cast<TH1_Container<TH1D>*>(this->beta_scope.oTree_TH1_Map["counter"])->get() = tmp2;
-    *this->beta_scope.get_oHisto1D<TH1D>("counter") = tmp2;
+    //*this->beta_scope.get_oHisto1D<TH1D>("counter") = tmp2;
 
-    this->standAloneHisto.Fill(count*2.0);
-    this->standAloneHisto_ptr->Fill(count*2.0);
-
+    //this->standAloneHisto.Fill(count*2.0);
+    //this->standAloneHisto_ptr->Fill(count*2.0);
 
     *this->beta_scope.oTreeIntMap["counter"] = count;
     count++;
@@ -200,6 +176,11 @@ void ArgoneXrayAna::loopEvents()
     if(count > 1000) break;
     //this->beta_scope.oTree_TH1D_Map["counter_histo"]->Reset();
 
+    // some extra cleaning
+    for( int i =0; i < 16; i++){
+      this->found_peaks[i]->clear();
+      this->separated[i]->clear();
+    }
   }
 
   for( int i =0; i < 16; i++) hitpos->SetBinContent(i+1, hitpos->GetBinContent(i+1)/count);
@@ -212,12 +193,13 @@ void ArgoneXrayAna::loopEvents()
 void ArgoneXrayAna::finalize()
 {
   //do your own stuffs here
-
+  /*
+  TFile f("test_out.root", "RECREATE");
+  f.cd();
   this->standAloneHisto.Write( );
   this->standAloneHisto_ptr->Write( );
-  TFile f("test_out.root", "RECREATE");
   hitpos->Write();
   f.Close();
-
+  */
   BetaScope_AnaFramework::finalize();
 }
