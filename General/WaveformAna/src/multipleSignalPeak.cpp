@@ -246,6 +246,12 @@ void WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Singal(
         pmax_index = i;
         candidate_signal = false;
       }
+      else if( i==npoints-1)
+      {
+        multiple_singal_pmax_v.push_back( pmax );
+        multiple_singal_tmax_v.push_back( timeVec.at(pmax_index) );
+        indexing_v.push_back( pmax_index );
+      }
       else{}
     }
   }
@@ -263,6 +269,7 @@ void WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Singal(
       this->supressNoisy=true;
     }
   }
+  else if( )
 }
 
 
