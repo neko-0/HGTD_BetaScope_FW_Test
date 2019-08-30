@@ -35,6 +35,8 @@ void loopHelper(WaveformAnalysis *WaveAna,
   }
   bool baseline_corrected = WaveAna->Correct_Baseline4( *w, *t, *pmax, *tmax );
 
+  if( !baseline_corrected )return;
+
   WaveAna->Find_Bunch_Negative_Signal_Maximum( *w, *t, *pmax, *tmax, *negPmax, *negTmax );
 }
 
