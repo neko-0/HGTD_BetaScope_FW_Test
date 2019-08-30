@@ -237,7 +237,7 @@ void WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Singal(
         pmax = voltageVec.at(i);
         pmax_index = i;
       }
-      else if( (voltageVec.at(i) < assist_threshold) && (assist_threshold - voltageVec.at(i)) <= (assist_threshold/scale) )
+      else if( (voltageVec.at(i) < assist_threshold) && (assist_threshold - abs(voltageVec.at(i)) ) <= (assist_threshold/scale) )
       {
         multiple_singal_pmax_v.push_back( pmax );
         multiple_singal_tmax_v.push_back( timeVec.at(pmax_index) );
