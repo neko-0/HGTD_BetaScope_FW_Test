@@ -14,6 +14,31 @@
 
 //---------------
 
+void loopHelper(WaveformAnalysis *WaveAna,
+  std::vector<double> *w,
+  std::vector<double> *t,
+  std::vector<double> *pmax,
+  std::vector<double> *tmax,
+  std::vector<int> *max_indexing,
+  std::vector<double> *negPmax,
+  std::vector<double> *negTmax,
+  std::vector<double> *pulseArea,
+  double assistThreshold
+)
+{
+  WaveAna->Correct_Baseline2(*w, 0.30);
+  WaveAna->Get_PmaxTmax_Of_Multiple_Singal(assistThreshold, *w, *t, *pmax, *tmax, *max_indexing, 1.0 );
+  for(std::size_t vSize=0, maxSize=pmax->size(); vSize<maxSize; vSize++)
+  {
+    std::pair<double, unsigned int> my_pmax = std::make_pair( pmax->at(vSize), max_indexing->at(vSize) );
+    pulseArea->push_back( WaveAna->Find_Pulse_Area(*w, *t, my_pmax) );
+  }
+  bool baseline_corrected = WaveAna->Correct_Baseline4( *w, *t, *pmax, *tmax );
+
+  WaveAna->Find_Bunch_Negative_Signal_Maximum( *w, *t, *pmax, *tmax, *negPmax, *negTmax );
+}
+
+//---------------
 
 void ArgoneXrayAna::initialize( )
 {
@@ -176,8 +201,9 @@ void ArgoneXrayAna::loopEvents()
     */
 
 
-    //Analysis:
+    //Analysis:================================================================
 
+    /*
     for( int i =0; i < 16; i++)
     {
       WaveAna.Correct_Baseline2(*this->w[i], 0.30);
@@ -190,6 +216,20 @@ void ArgoneXrayAna::loopEvents()
       bool baseline_corrected = WaveAna.Correct_Baseline4( *this->w[i], *this->t, *this->pmax[i], *this->tmax[i] );
 
       WaveAna.Find_Bunch_Negative_Signal_Maximum( *this->w[i], *this->t, *this->pmax[i], *this->tmax[i], *this->negPmax[i], *this->negTmax[i] );
+    }
+    */
+
+    WaveformAnalysis *WaveAna_ptr = &WaveAna;
+    std::vector<std::thread*> workers;
+    for( int i = 0; i < 16; i++)
+    {
+      workers.push_back( new std::thread( loopHelper, WaveAna_ptr, this->w[i], this->t, this->pmax[i], this->tmax[i], this->max_indexing[i], this->negPmax[i], this->negTmax[i], this->pulseArea[i], assistThreshold) );
+    }
+
+    for(std::size_t id=0; id < workers.size(); id++ )
+    {
+      workers[id]->join();
+      delete workers[id];
     }
 
 
