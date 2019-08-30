@@ -269,6 +269,13 @@ void WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Singal(
       this->supressNoisy=true;
     }
   }
+  else if( multiple_singal_pmax_v.size()==0 )
+  {
+    multiple_singal_pmax_v.push_back( 10e11 ); //default value if nothing is found.
+    multiple_singal_tmax_v.push_back( 10e11 );
+    indexing_v.push_back( 0 );
+    if(!this->supressNoisy)ColorCout::WarningMsg(function_name, "Method fail, the output size is 0. Assigning default value"); //if too many "Noisy", there might be a problem.
+  }
 }
 
 
