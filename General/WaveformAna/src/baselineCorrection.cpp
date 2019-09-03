@@ -48,8 +48,11 @@ void WaveformAnalysis::Correct_Baseline(
   for(std::size_t j = 0, max = ptN; j < max; j++){mean += voltageVec.at(j);}
 
   mean = mean/ptN;
+  //std::cout<<"Pre "<<voltageVec.at(0)<<std::endl;
+  //std::cout<<"Baseline "<<mean<<std::endl;
 
   for(std::size_t j = 0, max = voltageVec.size(); j < max; j++){voltageVec.at(j) = voltageVec.at(j)- mean;}
+  //std::cout<<"After "<<voltageVec.at(0)<<std::endl;
 }
 
 /*==============================================================================

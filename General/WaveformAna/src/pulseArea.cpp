@@ -79,10 +79,12 @@ double WaveformAnalysis::Find_Pulse_Area(
 
     for( unsigned int j = istart; j < iend; j++ )
     {
-      pulse_area = pulse_area + voltageVec.at(j)/1000.0;
+      pulse_area = pulse_area + voltageVec.at(j); ///1000.0;
     }
 
-    pulse_area = pulse_area * time_difference /1.0E12;
+    pulse_area = pulse_area * time_difference; ///1.0E12;
+
+    //std::cout<<Pmax.first<<" "<<Pmax.second<<" "<<pulse_area<<" "<<istart<<" "<<iend<<std::endl;
 
     return pulse_area; // collected pulse area, assuming voltage is in volts, time is in seconds
 }
@@ -208,10 +210,10 @@ double WaveformAnalysis::Find_Udershoot_Area(
     }
     for( unsigned int j = istart; j < iend; j++ )
     {
-      undershoot_area = undershoot_area + voltageVec.at(j)/1000.0;
+      undershoot_area = undershoot_area + voltageVec.at(j); ///1000.0;
     }
 
-    undershoot_area = undershoot_area * time_difference /1.0E12;
+    undershoot_area = undershoot_area * time_difference;// /1.0E12;
 
     return undershoot_area; // collected undershoot area, assuming voltage is in volts, time is in seconds
 }

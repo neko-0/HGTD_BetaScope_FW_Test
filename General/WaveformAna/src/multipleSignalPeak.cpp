@@ -309,6 +309,7 @@ int WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Signal_Argonne_Fixed(
       this->supressNoisy=true;
     }
   }
+
   return n_found_peaks;
 }
 
@@ -398,6 +399,7 @@ int WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Signal(
     }
   }
 
+  /*
   if( noisy_event )
   {
     multiple_signal_pmax_v.push_back( 10e11 ); //default value if nothing is found.
@@ -411,7 +413,8 @@ int WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Signal(
       this->supressNoisy=true;
     }
   }
-
+  */
+  
   return npeaks;
 }
 

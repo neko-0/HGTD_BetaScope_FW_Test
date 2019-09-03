@@ -65,6 +65,9 @@ void ArgoneXrayAna::initialize( )
     this->beta_scope.buildBranch<std::vector<double>>(Form("pulseArea%i",i));
     this->pulseArea[i] = this->beta_scope.get_oTreeBranch<std::vector<double>>(Form("pulseArea%i",i));
 
+    this->beta_scope.buildBranch<std::vector<double>>(Form("undershootArea%i",i));
+    this->undershootArea[i] = this->beta_scope.get_oTreeBranch<std::vector<double>>(Form("undershootArea%i",i));
+
     this->beta_scope.buildBranch<std::vector<int>>(Form("found_peaks%i",i));
     this->found_peaks[i] = this->beta_scope.get_oTreeBranch<std::vector<int>>(Form("found_peaks%i",i));
 
@@ -124,11 +127,13 @@ void ArgoneXrayAna::loopEvents()
 
     for( int i =0; i < 16; i++)
     {
-      WaveAna.Correct_Baseline2(*this->w[i], 0.30);
-      double this_rms = WaveAna.Find_Noise(*this->w[i], 80);
+      //std::cout<<"\nEvent "<<count<<" Channel "<<i<<std::endl;
+      WaveAna.Correct_Baseline(*this->w[i], 20);
+      double this_rms = WaveAna.Find_Noise(*this->w[i], 20);
       rms[i]->push_back(this_rms);
       //std::cout<<"\nEvent "<<count<<" Channel "<<i<<std::endl;
-      this->found_peaks[i]->push_back(WaveAna.Get_PmaxTmax_Of_Multiple_Signal(5*this_rms, *this->w[i], *this->t, *this->pmax[i], *this->tmax[i], *this->max_indexing[i], 1.0 ));
+      this->found_peaks[i]->push_back(WaveAna.Get_PmaxTmax_Of_Multiple_Signal(10*this_rms, *this->w[i], *this->t, *this->pmax[i], *this->tmax[i], *this->max_indexing[i], 1.0 ));
+      //std::cout<<"\nEvent "<<count<<" Channel "<<i<<" Found peaks "<<this->found_peaks[i]->at(0)<<std::endl;
       //if(*found_peaks[i] > 0) std::cout<<*found_peaks[i]<<" pmax1 "<<this->pmax[i]->at(0)<<" tmax1 "<<this->tmax[i]->at(0)<<std::endl;
       //*found_peaks[i] = (WaveAna.Get_PmaxTmax_Of_Multiple_Signal_Argonne_Fixed(5*this_rms, *this->w[i], *this->t, *this->pmax[i], *this->tmax[i],
       //                                                                        *this->max_indexing[i], 1.0, 0.029, 0.003, 8));
@@ -136,20 +141,24 @@ void ArgoneXrayAna::loopEvents()
       //*first_threshold[i] = (WaveAna.Get_First_Threshold(assistThreshold, *this->w[i], *this->t));
 
       this->separated[i]->push_back(1);
-      for(std::size_t vSize=0, maxSize=this->pmax[i]->size(); vSize<maxSize; vSize++)
-      {
-        std::pair<double, unsigned int> pmax_tmax = std::make_pair( this->pmax[i]->at(vSize), this->max_indexing[i]->at(vSize) );
-        pulseArea[i]->push_back( WaveAna.Find_Pulse_Area(*this->w[i], *this->t, pmax_tmax) );
+      if(this->found_peaks[i]->at(0) > 0){
+        for(std::size_t vSize=0, maxSize=this->pmax[i]->size(); vSize<maxSize; vSize++)
+        {
+          std::pair<double, unsigned int> pmax_tmax = std::make_pair( this->pmax[i]->at(vSize), this->max_indexing[i]->at(vSize) );
+          pulseArea[i]->push_back( WaveAna.Find_Pulse_Area(*this->w[i], *this->t, pmax_tmax) );
+          undershootArea[i]->push_back( WaveAna.Find_Udershoot_Area(*this->w[i], *this->t, pmax_tmax) );
 
-        //Check if the event has well separated peaks
-        for(std::size_t vSize2=0, maxSize2=this->pmax[i]->size(); vSize2<maxSize2; vSize2++){
-          if( vSize != vSize2 && this->found_peaks[i]->at(0) > 1 && fabs(this->tmax[i]->at(vSize) - this->tmax[i]->at(vSize2)) < 0.005) {
-            this->separated[i]->at(0) = 0;
-            //std::cout<<"separation "<<this->found_peaks[i]->at(0)<<" "<<fabs(this->tmax[i]->at(vSize) - this->tmax[i]->at(vSize2))<<std::endl;
+          //Check if the event has well separated peaks
+          for(std::size_t vSize2=0, maxSize2=this->pmax[i]->size(); vSize2<maxSize2; vSize2++){
+            if( vSize != vSize2 && this->found_peaks[i]->at(0) > 1 && fabs(this->tmax[i]->at(vSize) - this->tmax[i]->at(vSize2)) < 0.005) {
+              this->separated[i]->at(0) = 0;
+              //std::cout<<"separation "<<this->found_peaks[i]->at(0)<<" "<<fabs(this->tmax[i]->at(vSize) - this->tmax[i]->at(vSize2))<<std::endl;
+            }
           }
+          //hitpos->Fill(i);
         }
-        //hitpos->Fill(i);
       }
+
       bool baseline_corrected = WaveAna.Correct_Baseline4( *this->w[i], *this->t, *this->pmax[i], *this->tmax[i] );
       hitpos->SetBinContent(i+1, hitpos->GetBinContent(i+1) + this->pmax[i]->size());
     }
@@ -173,13 +182,17 @@ void ArgoneXrayAna::loopEvents()
 
     BetaScope_AnaFramework::filldata();
 
-    if(count > 1000) break;
+    //if(count > 100) break;
     //this->beta_scope.oTree_TH1D_Map["counter_histo"]->Reset();
 
     // some extra cleaning
     for( int i =0; i < 16; i++){
       this->found_peaks[i]->clear();
       this->separated[i]->clear();
+      this->undershootArea[i]->clear();
+      this->pmax[i]->clear();
+      this->tmax[i]->clear();
+      this->max_indexing[i]->clear();
     }
   }
 

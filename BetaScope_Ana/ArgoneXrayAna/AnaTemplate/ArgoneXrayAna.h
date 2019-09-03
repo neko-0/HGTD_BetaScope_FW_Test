@@ -33,12 +33,10 @@ class ArgoneXrayAna : public BetaScope_AnaFramework<BetaScope_Ext>
     std::vector<int> *max_indexing[16];
 
     std::vector<int> *separated[16];
-
     std::vector<int> *found_peaks[16];
-    double first_threshold[16];
-
 
     std::vector<double> *pulseArea[16];
+    std::vector<double> *undershootArea[16];
 
     //example of filling standalone histograms
     TH1D standAloneHisto = TH1D("standAloneHisto", "standAloneHisto", 100, 1 ,1);
