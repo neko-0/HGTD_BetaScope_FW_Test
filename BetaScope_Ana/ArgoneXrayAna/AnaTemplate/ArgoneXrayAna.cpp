@@ -128,8 +128,8 @@ void ArgoneXrayAna::loopEvents()
     for( int i =0; i < 16; i++)
     {
       //std::cout<<"\nEvent "<<count<<" Channel "<<i<<std::endl;
-      WaveAna.Correct_Baseline(*this->w[i], 20);
-      double this_rms = WaveAna.Find_Noise(*this->w[i], 20);
+      WaveAna.Correct_Baseline(*this->w[i], 80);
+      double this_rms = WaveAna.Find_Noise(*this->w[i], 80);
       rms[i]->push_back(this_rms);
       //std::cout<<"\nEvent "<<count<<" Channel "<<i<<std::endl;
       this->found_peaks[i]->push_back(WaveAna.Get_PmaxTmax_Of_Multiple_Signal(10*this_rms, *this->w[i], *this->t, *this->pmax[i], *this->tmax[i], *this->max_indexing[i], 1.0 ));
