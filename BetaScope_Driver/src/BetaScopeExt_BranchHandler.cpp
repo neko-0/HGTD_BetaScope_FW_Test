@@ -1,16 +1,16 @@
 #include "BetaScope_Driver/include/BetaScopeExt_Class.h"
 
 template <>
-bool BetaScope_Ext::buildBranch<double>(std::string branchName ){ return BetaScope::buildBranch<double>(branchName); }
+bool BetaScope_Ext::buildBranch<double>(std::string branchName ){ return BetaScope::buildPrimitiveBranch<double>(branchName); }
 
 template <>
-bool BetaScope_Ext::buildBranch<int>(std::string branchName ){ return BetaScope::buildBranch<int>(branchName); }
+bool BetaScope_Ext::buildBranch<int>(std::string branchName ){ return BetaScope::buildPrimitiveBranch<int>(branchName); }
 
 template <>
-bool BetaScope_Ext::buildBranch<std::vector<double>>(std::string branchName ){ return BetaScope::buildBranch<std::vector<double>>(branchName); }
+bool BetaScope_Ext::buildBranch<std::vector<double>>(std::string branchName ){ return BetaScope::buildPrimitiveBranch<std::vector<double>>(branchName); }
 
 template <>
-bool BetaScope_Ext::buildBranch<std::vector<int>>(std::string branchName ){ return BetaScope::buildBranch<std::vector<int>>(branchName); }
+bool BetaScope_Ext::buildBranch<std::vector<int>>(std::string branchName ){ return BetaScope::buildPrimitiveBranch<std::vector<int>>(branchName); }
 
 template <>
 bool BetaScope_Ext::buildBranch<TH1I>( std::string branchName )
@@ -117,10 +117,10 @@ bool BetaScope_Ext::buildBranch<std::vector<TH1D>>( std::string branchName )
 
 bool BetaScope_Ext::setBranch( std::string typeName, std::string key, std::string branchName)
 {
-  if( typeName.compare("TTreeReaderArray<double>") ==0 ){ return BetaScope::setBranch(typeName, key, branchName); }
-  else if( typeName.compare("TTreeReaderArray<int>") ==0 ){ return BetaScope::setBranch(typeName, key, branchName); }
-  else if( typeName.compare("TTreeReaderValue<double>") ==0 ){ return BetaScope::setBranch(typeName, key, branchName); }
-  else if( typeName.compare("TTreeReaderValue<int>") ==0 ){ return BetaScope::setBranch(typeName, key, branchName); }
+  if( typeName.compare("TTreeReaderArray<double>") ==0 ){ return BetaScope::set_iBranch<TTreeReaderArray,double>( branchName.c_str(), key.c_str()); }
+  else if( typeName.compare("TTreeReaderArray<int>") ==0 ){ return BetaScope::set_iBranch<TTreeReaderArray,int>( branchName.c_str(), key.c_str()); }
+  else if( typeName.compare("TTreeReaderValue<double>") ==0 ){ return BetaScope::set_iBranch<TTreeReaderValue,double>( branchName.c_str(), key.c_str()); }
+  else if( typeName.compare("TTreeReaderValue<int>") ==0 ){ return BetaScope::set_iBranch<TTreeReaderValue,int>( branchName.c_str(), key.c_str()); }
   else if( typeName.compare("TTreeReaderArray<TH1I>") == 0 )
   {
     this->iTree_TH1I_Array[iTreeBranchCounter] = new TTreeReaderArray<TH1I>( *this->treeReader, branchName.c_str() );
