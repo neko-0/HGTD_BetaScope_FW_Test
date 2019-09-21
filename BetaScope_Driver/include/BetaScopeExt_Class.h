@@ -12,6 +12,8 @@
 //template <typename th1_type> struct TH1_Container;
 
 #include "BetaScope_Class.h"
+#include "BetaScope_Templates.h"
+
 #include <TH1.h>
 #include <TH2.h>
 
@@ -46,6 +48,12 @@ class BetaScope_Ext : public BetaScope
   int newTHBranchCounter = 0;
 
   public:
+    TFile *oFile = BetaScope::get_ofile();
+    TTreeReader* treeReader = BetaScope::get_treeReader();
+    TTree* oTree = BetaScope::get_otree();
+
+    int iTreeBranchCounter=0;
+    int newBranchCounterKeeper=0;
     //TH1 for input
     TTreeReaderArray<TH1I> *iTree_TH1I_Array[numCh] = {};
     TTreeReaderArray<TH1F> *iTree_TH1F_Array[numCh] = {};

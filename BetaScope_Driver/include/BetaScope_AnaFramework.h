@@ -2,6 +2,8 @@
 #define BETASCOPE_ANAFRAMEWORK_H
 
 #include "BetaScope_Driver/include/BetaScope_Class.h"
+#include "BetaScope_Driver/include/BetaScope_Templates.h"
+
 #include "BetaScope_Driver/include/BetaScopeExt_Class.h"
 #include "Colorful_Cout/include/Colorful_Cout.h"
 
@@ -33,17 +35,7 @@ void BetaScope_AnaFramework<beta_scope_type>::initialize( std::string addBranche
 }
 
 template <typename beta_scope_type>
-void BetaScope_AnaFramework<beta_scope_type>::loopEvents( )
-{
-  while( beta_scope.treeReader->Next())
-  {
-    //user put analysis codes here. This method will loop through all the events.
-
-    BetaScope_AnaFramework::copyBranch();
-
-    BetaScope_AnaFramework::filldata();
-  }
-}
+void BetaScope_AnaFramework<beta_scope_type>::loopEvents( ){}
 
 template <typename beta_scope_type>
 void BetaScope_AnaFramework<beta_scope_type>::filldata()
@@ -52,7 +44,7 @@ void BetaScope_AnaFramework<beta_scope_type>::filldata()
   beta_scope.fillEvent();
   if(this->event_counter%1000==0 || (this->event_counter%10==0 && this->event_counter <= 100) )
   {
-    ColorCout::print( "   "+beta_scope.ifileNickName, " Proccessed events: "+std::to_string(this->event_counter)+" /" + std::to_string(beta_scope.numEvent), BOLDYELLOW);
+    ColorCout::print( "   "+beta_scope.get_ifile_nickName(), " Proccessed events: "+std::to_string(this->event_counter)+" /" + std::to_string(beta_scope.get_iNumEvent()), BOLDYELLOW);
   }
 }
 
@@ -62,6 +54,7 @@ void BetaScope_AnaFramework<beta_scope_type>::finalize()
   beta_scope.fileIO_Close();
 }
 
+/*
 template <typename beta_scope_type>
 void BetaScope_AnaFramework<beta_scope_type>::copyBranch()
 {
@@ -76,5 +69,6 @@ void BetaScope_AnaFramework<beta_scope_type>::copyBranch()
     }
   }
 }
+*/
 
 #endif // TEST_H

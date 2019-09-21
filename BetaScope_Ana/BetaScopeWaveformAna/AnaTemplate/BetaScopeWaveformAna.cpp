@@ -15,7 +15,7 @@ void BetaScopeWaveformAna::initialize()
 {
   //required
   this->beta_scope.fileIO_Open( ifile.c_str() );
-  BetaScope_AnaFramework::initialize("/home/yuzhan/HGTD_BetaScope_FW_Test/BetaScope_Ana/BetaScopeWaveformAna/AnaTemplate/myOwnTree.ini" );
+  BetaScope_AnaFramework::initialize("/home/white_meow/scripts/HGTD_BetaScope_FW_Test/BetaScope_Ana/BetaScopeWaveformAna/AnaTemplate/myOwnTree.ini" );
   //----------------------
 
   if( !this->skipWaveform )
@@ -27,11 +27,9 @@ void BetaScopeWaveformAna::initialize()
       ColorCout::print("  CH:", std::to_string(ch), CYAN);
 
       ColorCout::print("  ", "Creating branches for storing scope channels: ", YELLOW);
-      branch_checker = makeBranch<std::vector<double>>(this->beta_scope.oTree, Form("w%i", ch ), Form("w%i", ch ), &this->beta_scope.oTreeVecDoubleMap, this->beta_scope.oTreeVecDouble[this->beta_scope.newBranchCounterKeeper], this->beta_scope.newBranchCounterKeeper, &this->beta_scope.oTreeVecDoubleMapIndex, this->beta_scope.newBranchCounterKeeper );
-      this->beta_scope.oTreeVecDouble[this->beta_scope.newBranchCounterKeeper-1]->reserve(1000000);
+      branch_checker = this->beta_scope.buildPrimitiveBranch<std::vector<double>>( Form("w%i", ch ) );
 
-      branch_checker = makeBranch<std::vector<double>>(this->beta_scope.oTree, Form("t%i", ch ), Form("t%i", ch ), &this->beta_scope.oTreeVecDoubleMap, this->beta_scope.oTreeVecDouble[this->beta_scope.newBranchCounterKeeper], this->beta_scope.newBranchCounterKeeper, &this->beta_scope.oTreeVecDoubleMapIndex, this->beta_scope.newBranchCounterKeeper );
-      this->beta_scope.oTreeVecDouble[this->beta_scope.newBranchCounterKeeper-1]->reserve(1000000);
+      branch_checker = this->beta_scope.buildPrimitiveBranch<std::vector<double>>( Form("t%i", ch ) );
 
       if(branch_checker)
       {
@@ -45,31 +43,11 @@ void BetaScopeWaveformAna::initialize()
   for(int chh = 0; chh < this->activeChannels.size(); chh ++)
   {
     int ch = this->activeChannels.at(chh);
-    /*
-    this->w[ch] = this->beta_scope.oTreeVecDoubleMap["w"+std::to_string(ch)]; this->w[ch]->reserve(1000000000);
-    this->t[ch] = this->beta_scope.oTreeVecDoubleMap["t"+std::to_string(ch)]; this->t[ch]->reserve(1000000000);
-    this->wRaw[ch] = this->beta_scope.oTreeVecDoubleMap["wRaw"+std::to_string(ch)]; this->wRaw[ch]->reserve(1000000000);
-    this->tRaw[ch] = this->beta_scope.oTreeVecDoubleMap["tRaw"+std::to_string(ch)]; this->tRaw[ch]->reserve(1000000000);
-    this->pmax[ch] = this->beta_scope.oTreeVecDoubleMap["pmax"+std::to_string(ch)]; this->pmax[ch]->reserve(1000000000);
-    this->tmax[ch] = this->beta_scope.oTreeVecDoubleMap["tmax"+std::to_string(ch)]; this->tmax[ch]->reserve(1000000000);
-    this->neg_pmax[ch] = this->beta_scope.oTreeVecDoubleMap["neg_pmax"+std::to_string(ch)]; this->neg_pmax[ch]->reserve(1000000000);
-    this->neg_tmax[ch] = this->beta_scope.oTreeVecDoubleMap["neg_tmax"+std::to_string(ch)]; this->neg_tmax[ch]->reserve(1000000000);
-
-    this->riseTime[ch] = this->beta_scope.oTreeVecDoubleMap["riseTime"+std::to_string(ch)]; this->riseTime[ch]->reserve(1000000000);
-    this->dvdt[ch] = this->beta_scope.oTreeVecDoubleMap["dvdt"+std::to_string(ch)]; this->dvdt[ch]->reserve(1000000000);
-    this->cfd_fall[ch] = this->beta_scope.oTreeVecDoubleMap["cfd_fall"+std::to_string(ch)]; this->cfd_fall[ch]->reserve(1000000000);
-    this->cfd[ch] = this->beta_scope.oTreeVecDoubleMap["cfd"+std::to_string(ch)]; this->cfd[ch]->reserve(1000000000);
-    this->fineCFDRise[ch] = this->beta_scope.oTreeVecDoubleMap["fineCFDRise"+std::to_string(ch)]; this->fineCFDRise[ch]->reserve(1000000000);
-    this->thTime[ch] = this->beta_scope.oTreeVecDoubleMap["thTime"+std::to_string(ch)]; this->thTime[ch]->reserve(1000000000);
-    this->rms[ch] = this->beta_scope.oTreeVecDoubleMap["rms"+std::to_string(ch)]; this->rms[ch]->reserve(1000000000);
-    this->pulseArea_withUndershoot[ch] = this->beta_scope.oTreeVecDoubleMap["pulseArea_withUnderShoot"+std::to_string(ch)]; this->pulseArea_withUndershoot[ch]->reserve(1000000000);
-    this->pulseArea_withZeroCross[ch] = this->beta_scope.oTreeVecDoubleMap["pulseArea_withZeroCross"+std::to_string(ch)]; this->pulseArea_withZeroCross[ch]->reserve(1000000000);
-    */
 
     if( !this->skipWaveform )
     {
-      this->w[ch] = this->beta_scope.oTreeVecDouble[this->beta_scope.oTreeVecDoubleMapIndex["w"+std::to_string(ch)]];
-      this->t[ch] = this->beta_scope.oTreeVecDouble[this->beta_scope.oTreeVecDoubleMapIndex["t"+std::to_string(ch)]];
+      this->w[ch] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( "w"+std::to_string(ch) );
+      this->t[ch] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( "t"+std::to_string(ch) );
     }
     else
     {
@@ -79,66 +57,32 @@ void BetaScopeWaveformAna::initialize()
       this->t[ch]->reserve(10000);
     }
 
+    this->pmax[ch] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( "pmax"+std::to_string(ch) );
+    this->tmax[ch] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( "tmax"+std::to_string(ch) );
+    this->neg_pmax[ch] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( "neg_pmax"+std::to_string(ch) );
+    this->neg_tmax[ch] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( "neg_tmax"+std::to_string(ch) );
 
-    //this->w[ch]->resize(this->beta_scope.iTreeDoubleArray[this->beta_scope.iTreeDoubleArrayMapIndex["w"+std::to_string(ch)]]->GetSize());
-    //for(int k =0,max = this->w[ch]->size();k++;){this->w[ch]->push_back(0.0);}
+    this->riseTime[ch] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( "riseTime"+std::to_string(ch) );
+    this->dvdt[ch] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( "dvdt"+std::to_string(ch) );
+    this->cfd_fall[ch] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( "cfd_fall"+std::to_string(ch) );
+    this->cfd[ch] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( "cfd"+std::to_string(ch) );
+    this->fineCFDRise[ch] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( "fineCFDRise"+std::to_string(ch) );
+    this->thTime[ch] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( "thTime"+std::to_string(ch) );
+    this->rms[ch] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( "rms"+std::to_string(ch) );
+    this->pulseArea_withUndershoot[ch] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( "pulseArea_withUndershoot"+std::to_string(ch) );
+    this->pulseArea_withZeroCross[ch] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( "pulseArea_withZeroCross"+std::to_string(ch) );
+    this->frontBaselineInt_indepBaseCorr[ch] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( "frontBaselineInt_indepBaseCorr"+std::to_string(ch) );
+    this->backBaselineInt_indepBaseCorr[ch] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( "backBaselineInt_indepBaseCorr"+std::to_string(ch) );
 
-    //this->t[ch]->resize(this->beta_scope.iTreeDoubleArray[this->beta_scope.iTreeDoubleArrayMapIndex["t"+std::to_string(ch)]]->GetSize());
-    //for(int k =0,max = this->t[ch]->size();k++;){this->t[ch]->push_back(0.0);}
-
-    //this->wRaw[ch] = this->beta_scope.oTreeVecDouble[this->beta_scope.oTreeVecDoubleMapIndex["wRaw"+std::to_string(ch)]];
-    //this->tRaw[ch] = this->beta_scope.oTreeVecDouble[this->beta_scope.oTreeVecDoubleMapIndex["tRaw"+std::to_string(ch)]];
-
-    //this->wRaw[ch]->resize(this->beta_scope.iTreeDoubleArray[this->beta_scope.iTreeDoubleArrayMapIndex["w"+std::to_string(ch)]]->GetSize());
-    //for(int k =0,max = this->wRaw[ch]->size();k++;){this->wRaw[ch]->push_back(0.0);}
-
-    //this->tRaw[ch]->resize(this->beta_scope.iTreeDoubleArray[this->beta_scope.iTreeDoubleArrayMapIndex["t"+std::to_string(ch)]]->GetSize());
-    //for(int k =0,max = this->tRaw[ch]->size();k++;){this->tRaw[ch]->push_back(0.0);}
-    this->pmax[ch] = this->beta_scope.oTreeVecDouble[this->beta_scope.oTreeVecDoubleMapIndex["pmax"+std::to_string(ch)]];
-    this->tmax[ch] = this->beta_scope.oTreeVecDouble[this->beta_scope.oTreeVecDoubleMapIndex["tmax"+std::to_string(ch)]];
-    this->neg_pmax[ch] = this->beta_scope.oTreeVecDouble[this->beta_scope.oTreeVecDoubleMapIndex["neg_pmax"+std::to_string(ch)]];
-    this->neg_tmax[ch] = this->beta_scope.oTreeVecDouble[this->beta_scope.oTreeVecDoubleMapIndex["neg_tmax"+std::to_string(ch)]];
-
-    this->riseTime[ch] = this->beta_scope.oTreeVecDouble[this->beta_scope.oTreeVecDoubleMapIndex["riseTime"+std::to_string(ch)]];
-    this->dvdt[ch] = this->beta_scope.oTreeVecDouble[this->beta_scope.oTreeVecDoubleMapIndex["dvdt"+std::to_string(ch)]];
-    this->cfd_fall[ch] = this->beta_scope.oTreeVecDouble[this->beta_scope.oTreeVecDoubleMapIndex["cfd_fall"+std::to_string(ch)]];
-    this->cfd[ch] = this->beta_scope.oTreeVecDouble[this->beta_scope.oTreeVecDoubleMapIndex["cfd"+std::to_string(ch)]];
-    this->fineCFDRise[ch] = this->beta_scope.oTreeVecDouble[this->beta_scope.oTreeVecDoubleMapIndex["fineCFDRise"+std::to_string(ch)]];
-    this->thTime[ch] = this->beta_scope.oTreeVecDouble[this->beta_scope.oTreeVecDoubleMapIndex["thTime"+std::to_string(ch)]];
-    this->rms[ch] = this->beta_scope.oTreeVecDouble[this->beta_scope.oTreeVecDoubleMapIndex["rms"+std::to_string(ch)]];
-    this->pulseArea_withUndershoot[ch] = this->beta_scope.oTreeVecDouble[this->beta_scope.oTreeVecDoubleMapIndex["pulseArea_withUndershoot"+std::to_string(ch)]];
-    this->pulseArea_withZeroCross[ch] = this->beta_scope.oTreeVecDouble[this->beta_scope.oTreeVecDoubleMapIndex["pulseArea_withZeroCross"+std::to_string(ch)]];
-    this->frontBaselineInt_indepBaseCorr[ch] = this->beta_scope.oTreeVecDouble[this->beta_scope.oTreeVecDoubleMapIndex["frontBaselineInt_indepBaseCorr"+std::to_string(ch)]];
-    this->backBaselineInt_indepBaseCorr[ch] = this->beta_scope.oTreeVecDouble[this->beta_scope.oTreeVecDoubleMapIndex["backBaselineInt_indepBaseCorr"+std::to_string(ch)]];
-
-    //this->i_w2[ch] = this->beta_scope.iTreeDoubleArrayMap["w"+std::to_string(ch)];
-    //this->i_t[ch] = this->beta_scope.iTreeDoubleArrayMap["t"+std::to_string(ch)];
-    this->i_w[ch] = this->beta_scope.iTreeDoubleArray[this->beta_scope.iTreeDoubleArrayMapIndex["w"+std::to_string(ch)]];
-    this->i_t[ch] = this->beta_scope.iTreeDoubleArray[this->beta_scope.iTreeDoubleArrayMapIndex["t"+std::to_string(ch)]];
-    //std::cout << this->i_w[ch] << std::endl;
-    //std::cout << this->i_w2[ch] << std::endl;
-    //std::cout << this->i_w2[ch] << std::endl;
-  }
-  this->i_current = this->beta_scope.iTreeDoubleValueMap["i_current"];
-  this->i_timestamp = this->beta_scope.iTreeDoubleValueMap["i_timestamp"];
-
-  this->current = this->beta_scope.oTreeDouble[this->beta_scope.oTreeDoubleMapIndex["current"]];
-  this->timestamp = this->beta_scope.oTreeDouble[this->beta_scope.oTreeDoubleMapIndex["timestamp"]];
-
-  //read in the humidity branch
-  bool humidity_read_check = this->beta_scope.setBranch("TTreeReaderValue<double>", "humidity", "humidity");
-  bool humidity_make_check = this->beta_scope.buildBranch<double>("humidity");
-  bool temperature_read_check = this->beta_scope.setBranch("TTreeReaderValue<double>", "temperature", "temperature");
-  bool temperature_make_check = this->beta_scope.buildBranch<double>("temperature");
-
-  if(this->beta_scope.ieventFromDAQ)
-  {
-    auto branch_checker = makeBranch<int>(this->beta_scope.oTree, "ievent", "ievent", &this->beta_scope.oTreeIntMap, this->beta_scope.oTreeInt[this->beta_scope.newBranchCounterKeeper], this->beta_scope.newBranchCounterKeeper, &this->beta_scope.oTreeIntMapIndex, this->beta_scope.newBranchCounterKeeper );
-    if(branch_checker)
+    this->i_w[ch] = this->beta_scope.get_iBranch<TTreeReaderArray,double>("w"+std::to_string(ch) );
+    this->i_t[ch] = this->beta_scope.get_iBranch<TTreeReaderArray,double>("t"+std::to_string(ch) );
+    if(!this->i_w[ch])
     {
-      ColorCout::print("  Successful type I: ", "ievent", CYAN);
+      std::cout<<this->i_w[ch]<<std::endl;
+      std::cout<<this->beta_scope.get_iBranch<TTreeReaderArray,double>("w"+std::to_string(ch) )<<std::endl;
     }
   }
+
   //this->beta_scope.treeReader->Restart();
 }
 
@@ -147,12 +91,12 @@ void BetaScopeWaveformAna::loopEvents()
   //fill up your own analysis in the while loop
   bool limiting_search_region_OnOff = this->limitPmaxSearchRange;
   double pmaxSearchRange[2] = {this->pmaxSearchMinRange, this->pmaxSearchMaxRange};
-  ColorCout::print( "   "+beta_scope.ifileName, " BetaScopeWaveformAna::loopEvents: Start event processing: ", BOLDYELLOW);
+  ColorCout::print( "   " + beta_scope.get_ifile_name(), " BetaScopeWaveformAna::loopEvents: Start event processing: ", BOLDYELLOW);
   WaveformAnalysis WaveAna;
   int tempEvent = 0;
-  while( this->beta_scope.treeReader->Next() )
+  while( this->beta_scope.get_treeReader()->Next() )
   {
-    if(this->beta_scope.ieventFromDAQ)*this->beta_scope.oTreeIntMap["ievent"] = **this->beta_scope.iTreeIntValueMap["ievent"];
+    //if(this->beta_scope.ieventFromDAQ)*this->beta_scope.oTreeIntMap["ievent"] = **this->beta_scope.iTreeIntValueMap["ievent"];
 
     //std::time_t t1 = std::time(nullptr);
     //loop through all the possible channels
@@ -165,6 +109,7 @@ void BetaScopeWaveformAna::loopEvents()
         //if( this->beta_scope.iTreeDoubleArrayMap.count("w"+std::to_string(ch) ))
         if(true)
         {
+          if(!this->i_w[ch])std::cout<< ch << std::endl;
           for(std::size_t i=0, max = this->i_w[ch]->GetSize(); i<max; i++)
           {
             //std::cout<<  <<std::endl;
@@ -282,11 +227,11 @@ void BetaScopeWaveformAna::loopEvents()
     }
 
     //filling value that's indep of scope channels
-    if( this->beta_scope.currentFromDAQ )*this->current = **this->i_current;
-    if( this->beta_scope.timestampFromDAQ )*this->timestamp = **this->i_timestamp;
+    //if( this->beta_scope.currentFromDAQ )*this->current = **this->i_current;
+    //if( this->beta_scope.timestampFromDAQ )*this->timestamp = **this->i_timestamp;
 
-    *this->beta_scope.oTreeDoubleMap["humidity"] = **this->beta_scope.iTreeDoubleValueMap["humidity"];
-    *this->beta_scope.oTreeDoubleMap["temperature"] = **this->beta_scope.iTreeDoubleValueMap["temperature"];
+    //*this->beta_scope.oTreeDoubleMap["humidity"] = **this->beta_scope.iTreeDoubleValueMap["humidity"];
+    //*this->beta_scope.oTreeDoubleMap["temperature"] = **this->beta_scope.iTreeDoubleValueMap["temperature"];
 
 
     //required
