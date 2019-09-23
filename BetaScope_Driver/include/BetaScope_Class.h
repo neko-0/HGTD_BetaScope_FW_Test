@@ -111,10 +111,9 @@ struct PrimitiveDataType_TemplateContainer : public PrimitiveDataType_BaseContai
 
 class BetaScope
 {
-  private:
-
+  protected:
+    
     // output stuff are here.
-
     TFile *oFile = new TFile;
     TTree *oTree = new TTree;
     std::string filePrefix = "stats_";
