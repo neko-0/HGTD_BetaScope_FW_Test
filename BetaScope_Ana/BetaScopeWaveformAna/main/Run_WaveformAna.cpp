@@ -50,16 +50,17 @@ void runAna( std::string fileName, std::string config="WaveformAnaConfig.ini", b
   BetaScopeWaveformAna doAna( fileName.c_str() );
   if( skipWaveform )doAna.setWaveform(skipWaveform);
   doAna.readWaveformConfig(config);
-  doAna.initialize();
+  //doAna.initialize();
   TThread::UnLock();
-  doAna.loopEvents();
-  doAna.finalize();
+  doAna.run();
+  //doAna.loopEvents();
+  //doAna.finalize();
 }
 
 int main( int argc, char **argv )
 {
   ROOT::EnableThreadSafety();
-  //ROOT::EnableImplicitMT(16);
+  ROOT::EnableImplicitMT(16);
   unsigned concurentThreadsSupported = std::thread::hardware_concurrency();
   BetaScopeWaveformAna doAna_temp; doAna_temp.readWaveformConfig(argv[1]);
   std::vector<std::string> fileList = getFiles( doAna_temp.rawFilesDir.c_str() );
