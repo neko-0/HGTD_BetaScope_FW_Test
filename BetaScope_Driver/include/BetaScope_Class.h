@@ -112,7 +112,7 @@ struct PrimitiveDataType_TemplateContainer : public PrimitiveDataType_BaseContai
 class BetaScope
 {
   protected:
-    
+
     // output stuff are here.
     TFile *oFile = new TFile;
     TTree *oTree = new TTree;
@@ -192,6 +192,8 @@ class BetaScope
     void _clearVecBuffer(std::string mode);
     void fileIO_Close();
 
+    bool isBranchExists( const char* branchName );
+
     //=========================================================================
     // reading and getting branches methods for input ttree
 
@@ -209,6 +211,9 @@ class BetaScope
     template < template<class> class ibranchType, typename dtype>
     ibranchType<dtype> *get_iBranch( std::string key );
 
+    template < template<class> class ibranchType, typename dtype>
+    dtype get_iBranch_value( std::string key ){ return **get_iBranch<ibranchType,dtype>(key); }
+
     //=========================================================================
     // building and getting branches methods for ouput ttree
 
@@ -217,6 +222,9 @@ class BetaScope
 
     template <typename dtype>
     typename DataType<dtype>::type *get_oTree_PrimitiveBranch(std::string branchName);
+
+    template <typename dtype>
+    void set_oTree_value( std::string branchName, dtype i_value ){ *get_oTree_PrimitiveBranch<dtype>(branchName) = i_value;}
 
     //==========================================================================
 

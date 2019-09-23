@@ -12,7 +12,16 @@ struct AnaParam{
 class BetaScopeWaveformAna : public BetaScope_AnaFramework<BetaScope>
 {
   private:
+
     bool isProcessing = false;
+    bool has_daq_current = false;
+    bool has_daq_timestamp = false;
+    bool has_daq_temperature = false;
+    bool has_daq_humidity = false;
+    bool has_daq_eventNum = false;
+    bool has_daq_cycle = false;
+    bool has_daq_bias = false;
+
   public:
   //this is are required.
   std::string ifile;

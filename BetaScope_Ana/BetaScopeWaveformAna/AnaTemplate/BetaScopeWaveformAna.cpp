@@ -176,13 +176,17 @@ void BetaScopeWaveformAna::analysis()
     delete workers[id];
   }
 
-  //filling value that's indep of scope channels
-  //if( this->beta_scope.currentFromDAQ )*this->current = **this->i_current;
-  //if( this->beta_scope.timestampFromDAQ )*this->timestamp = **this->i_timestamp;
+  // filling value that's indep of scope channels
+  if( this->has_daq_cycle )this->beta_scope.set_oTree_value<int>("cycle", this->beta_scope.get_iBranch_value<TTreeReaderValue,int>("cycle") );
+  if( this->has_daq_temperature )this->beta_scope.set_oTree_value<double>("temperature", this->beta_scope.get_iBranch_value<TTreeReaderValue,double>("temperature") );
+  if( this->has_daq_humidity )this->beta_scope.set_oTree_value<double>("humidity", this->beta_scope.get_iBranch_value<TTreeReaderValue,double>("humidity") );
+  if( this->has_daq_bias )this->beta_scope.set_oTree_value<double>("bias", this->beta_scope.get_iBranch_value<TTreeReaderValue,double>("bias") );
+  if( this->has_daq_timestamp )this->beta_scope.set_oTree_value<double>("timestamp", this->beta_scope.get_iBranch_value<TTreeReaderValue,double>("timestamp") );
+  if( this->has_daq_current )this->beta_scope.set_oTree_value<double>("current", this->beta_scope.get_iBranch_value<TTreeReaderValue,double>("current") );
+  if( this->has_daq_eventNum )this->beta_scope.set_oTree_value<double>("ievent", this->beta_scope.get_iBranch_value<TTreeReaderValue,int>("ievent") );
 
-  //*this->beta_scope.oTreeDoubleMap["humidity"] = **this->beta_scope.iTreeDoubleValueMap["humidity"];
-  //*this->beta_scope.oTreeDoubleMap["temperature"] = **this->beta_scope.iTreeDoubleValueMap["temperature"];
 }
+
 
 void BetaScopeWaveformAna::initialize()
 {
@@ -258,6 +262,49 @@ void BetaScopeWaveformAna::initialize()
       std::cout<<this->i_w[ch]<<std::endl;
       std::cout<<this->beta_scope.get_iBranch<TTreeReaderArray,double>("w"+std::to_string(ch) )<<std::endl;
     }
+  }
+
+  if( beta_scope.isBranchExists("ievent") )
+  {
+    this->has_daq_eventNum = true;
+    this->beta_scope.set_iBranch<TTreeReaderValue,int>("ievent", "ievent");
+    this->beta_scope.buildPrimitiveBranch<int>("ievent");
+  }
+  if( beta_scope.isBranchExists("temperature") )
+  {
+    this->has_daq_temperature = true;
+    this->beta_scope.set_iBranch<TTreeReaderValue,double>("temperature", "temperature");
+    this->beta_scope.buildPrimitiveBranch<double>("temperature");
+  }
+  if( beta_scope.isBranchExists("humidity") )
+  {
+    this->has_daq_humidity = true;
+    this->beta_scope.set_iBranch<TTreeReaderValue,double>("humidity", "humidity");
+    this->beta_scope.buildPrimitiveBranch<double>("humidity");
+  }
+  if( beta_scope.isBranchExists("i_timestamp") )
+  {
+    this->has_daq_timestamp = true;
+    this->beta_scope.set_iBranch<TTreeReaderValue,double>("i_timestamp", "timestamp");
+    this->beta_scope.buildPrimitiveBranch<double>("timestamp");
+  }
+  if( beta_scope.isBranchExists("i_current") )
+  {
+    this->has_daq_current = true;
+    this->beta_scope.set_iBranch<TTreeReaderValue,double>("i_current", "current");
+    this->beta_scope.buildPrimitiveBranch<double>("current");
+  }
+  if( beta_scope.isBranchExists("bias") )
+  {
+    this->has_daq_bias = true;
+    this->beta_scope.set_iBranch<TTreeReaderValue,double>("bias", "bias");
+    this->beta_scope.buildPrimitiveBranch<double>("bias");
+  }
+  if( beta_scope.isBranchExists("cycle") )
+  {
+    this->has_daq_cycle = true;
+    this->beta_scope.set_iBranch<TTreeReaderValue,int>("cycle", "cycle");
+    this->beta_scope.buildPrimitiveBranch<int>("cycle");
   }
 
   //this->beta_scope.treeReader->Restart();
