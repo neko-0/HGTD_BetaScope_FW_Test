@@ -30,3 +30,10 @@ void BetaScope::copyTTreeReaderArrayToVector<std::vector<double>>( std::string o
   delete mylocalArray;
   delete mylocalReader;
 }
+
+bool BetaScope::isBranchExists( const char* branchName )
+{
+  auto branch_checker = ((TTree *) this->iFile->Get(iTreeName.c_str()))->GetListOfBranches()->FindObject( branchName );
+  if( branch_checker!=NULL )return true;
+  else return false;
+}

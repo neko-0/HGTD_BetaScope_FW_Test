@@ -29,8 +29,8 @@ bool BetaScope::rawTreeReader( const char* itreeName )
 
   for( int b = 1, max = 5; b < max; b++ )
   {
-    auto check_volName2 = ((TTree *) this->iFile->Get(iTreeName.c_str()))->GetListOfBranches()->FindObject(Form("t%i",b) );
-    if(check_volName2!=NULL){
+    bool isBranch = BetaScope::isBranchExists( Form("t%i",b) );
+    if(isBranch){
       br_check = BetaScope::set_iBranch<TTreeReaderArray, double>( Form("w%i", b ),  Form("w%i", b ) );
       br_check = BetaScope::set_iBranch<TTreeReaderArray, double>( Form("t%i", b ),  Form("t%i", b ) );
       this->channel.push_back(b);
