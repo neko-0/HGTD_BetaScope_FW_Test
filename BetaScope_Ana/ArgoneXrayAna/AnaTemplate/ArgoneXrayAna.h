@@ -23,7 +23,7 @@ class ArgoneXrayAna : public BetaScope_AnaFramework<BetaScope_Ext>
     void initialize();
     void loopEvents();
     void finalize(){
-      beta_scope.oFile->cd();
+      beta_scope.get_ofile()->cd();
       ArgoneXrayAna::_finalize();
     };
     void _finalize();

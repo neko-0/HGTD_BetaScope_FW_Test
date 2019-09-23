@@ -43,17 +43,14 @@ struct TH_Container : public TH_BaseContainer
 
 class BetaScope_Ext : public BetaScope
 {
-  std::string class_name = "BetaScope_Ext";
+  private:
 
-  int newTHBranchCounter = 0;
-
-  public:
-    TFile *oFile = BetaScope::get_ofile();
-    TTreeReader* treeReader = BetaScope::get_treeReader();
-    TTree* oTree = BetaScope::get_otree();
+    std::string class_name = "BetaScope_Ext";
+    int newTHBranchCounter = 0;
 
     int iTreeBranchCounter=0;
     int newBranchCounterKeeper=0;
+
     //TH1 for input
     TTreeReaderArray<TH1I> *iTree_TH1I_Array[numCh] = {};
     TTreeReaderArray<TH1F> *iTree_TH1F_Array[numCh] = {};
@@ -90,6 +87,8 @@ class BetaScope_Ext : public BetaScope
     std::map<std::string, TH1I* > oTree_TH1I_Map;
     std::map<std::string, TH1F* > oTree_TH1F_Map;
     std::map<std::string, TH1D* > oTree_TH1D_Map;
+
+  public:
 
     BetaScope_Ext(){ std::cout << this->class_name << std::endl; };
     ~BetaScope_Ext()
