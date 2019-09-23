@@ -4,8 +4,16 @@
 #include <string>
 #include <iostream>
 
+struct AnaParam{
+  bool limiting_search_region_OnOff;
+  double pmaxSearchRange[2];
+};
+
 class BetaScopeWaveformAna : public BetaScope_AnaFramework<BetaScope>
 {
+  private:
+    bool isProcessing = false;
+  public:
   //this is are required.
   std::string ifile;
 
@@ -56,6 +64,7 @@ class BetaScopeWaveformAna : public BetaScope_AnaFramework<BetaScope>
   TTreeReaderValue<double> *i_current;
   TTreeReaderValue<double> *i_timestamp;
 
+  AnaParam my_anaParam;
 
   public:
     BetaScopeWaveformAna(){};
@@ -68,8 +77,19 @@ class BetaScopeWaveformAna : public BetaScope_AnaFramework<BetaScope>
 
     //required, user can add more to the existing methods;
     void initialize();
+    void analysis();
     void loopEvents();
     void finalize();
+
+    void run()
+    {
+      initialize();
+      loopEvents();
+      finalize();
+    };
+
+
+    void thread_it( int ch );
 
     //custom methods.
     void readWaveformConfig(std::string configName);

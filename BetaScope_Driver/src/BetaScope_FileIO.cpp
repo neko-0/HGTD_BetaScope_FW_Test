@@ -59,29 +59,9 @@ void BetaScope::fileIO_Close()
 
   ColorCout::print(coutPrefix, "Clean up allocated memory", YELLOW);
 
-  for( auto const& val : this->iTree_int_arrayReaderKeeper )
+  for( auto const& val : this->iTree_branch )
   {
-    if(val)delete val;
-  }
-  for( auto const& val : this->iTree_double_arrayReaderKeeper )
-  {
-    if(val)delete val;
-  }
-  for( auto const& val : this->iTree_float_arrayReaderKeeper )
-  {
-    if(val)delete val;
-  }
-  for( auto const& val : this->iTree_int_valueReaderKeeper )
-  {
-    if(val)delete val;
-  }
-  for( auto const& val : this->iTree_double_valueReaderKeeper )
-  {
-    if(val)delete val;
-  }
-  for( auto const& val : this->iTree_float_valueReaderKeeper )
-  {
-    if(val)delete val;
+    delete val;
   }
 
   ColorCout::print(coutPrefix, "Finished, extiting", BOLDGREEN);

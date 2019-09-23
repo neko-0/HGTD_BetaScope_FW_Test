@@ -7,13 +7,19 @@
 
 void BetaScope::_clearVecBuffer()
 {
-  for( auto i : this->oTreeSTLVecotr_Int_keeper ){ if(i){ i->clear(); } }
-  for( auto i : this->oTreeSTLVecotr_Double_keeper ){ if(i){ i->clear(); } }
-  for( auto i : this->oTreeSTLVecotr_Float_keeper ){ if(i){ i->clear(); } }
+  //for( auto &i : this->oTreeSTLVecotr_Int_keeper ){ if(i){ i->clear(); } }
+  //for( auto &i : this->oTreeSTLVecotr_Double_keeper ){ if(i){ i->clear(); } }
+  //for( auto &i : this->oTreeSTLVecotr_Float_keeper ){ if(i){ i->clear(); } }
+  for( auto &val : this->oTree_STLVecotrKeeper )
+  {
+    val->clear();
+  }
 }
 
-void BetaScope::_clearVecBuffer(std::string mode){
-  for( auto i : this->oTreeSTLVecotr_Int_keeper ){ if(i){ i->clear(); } }
-  for( auto i : this->oTreeSTLVecotr_Double_keeper ){ if(i){ i->clear(); } }
-  for( auto i : this->oTreeSTLVecotr_Float_keeper ){ if(i){ i->clear(); } }
+void BetaScope::_clearVecBuffer(std::string mode)
+{
+  for( auto &val : this->oTree_STLVecotrKeeper )
+  {
+    val->clear();
+  }
 }

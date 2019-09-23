@@ -59,6 +59,8 @@ struct PrimitiveDataType_BaseContainer
 {
   PrimitiveDataType_BaseContainer(){};
   virtual ~PrimitiveDataType_BaseContainer(){};
+
+  virtual void clear(){};
 };
 
 template <typename dtype>
@@ -66,27 +68,40 @@ struct PrimitiveDataType_Container : public PrimitiveDataType_BaseContainer
 {
   private:
     dtype *data_type = new dtype;
+    is_vector<dtype> _isVec;
   public:
     PrimitiveDataType_Container(){};
-    virtual ~PrimitiveDataType_Container(){};
+    virtual ~PrimitiveDataType_Container()
+    {
+      if(this->data_type){delete this->data_type;}
+    };
 
-    dtype *get(){return this->data_type; };
+    dtype *get(){ return this->data_type; };
+
+    void clear(){ if constexpr(_isVec.value){this->data_type->clear();} }
 };
 
 template <template<class> class c, typename dtype>
-struct PrimitiveDataType_TempplateContainer : public PrimitiveDataType_BaseContainer
+struct PrimitiveDataType_TemplateContainer : public PrimitiveDataType_BaseContainer
 {
   private:
     c<dtype> *data_type;
+    std::string class_name = "PrimitiveDataType_TemplateContainer";
   public:
-    PrimitiveDataType_TempplateContainer(){};
-    virtual ~PrimitiveDataType_TempplateContainer(){};
+    PrimitiveDataType_TemplateContainer(){};
+    virtual ~PrimitiveDataType_TemplateContainer()
+    {
+      ColorCout::print( class_name, "clean up.", YELLOW);
+      if(this->data_type){delete this->data_type;}
+    };
 
     c<dtype> *get(){return this->data_type; };
     void set( TTreeReader* itree, std::string branchName)
     {
       this->data_type = new c<dtype>( *itree, branchName.c_str());
-    }
+    };
+
+    void del(){ if(this->data_type){ delete this->data_type;} };
 };
 
 //==============================================================================
@@ -114,6 +129,7 @@ class BetaScope
 
     // output stl vector keepers
     std::vector<int> oTreeSTLVectorReservedIndex = {};
+    std::vector<PrimitiveDataType_BaseContainer *> oTree_STLVecotrKeeper = {};
     std::vector< std::vector<int>* > oTreeSTLVecotr_Int_keeper = {};
     std::vector< std::vector<double>* > oTreeSTLVecotr_Double_keeper = {};
     std::vector< std::vector<float>* > oTreeSTLVecotr_Float_keeper = {};
@@ -137,12 +153,14 @@ class BetaScope
     PrimitiveDataType_BaseContainer *iTree_branch[500];
     std::map<std::string, PrimitiveDataType_BaseContainer *> iTree_branchMap;
     std::map<std::string, int> iTree_branchMapIndex;
+    /*
     std::vector<TTreeReaderArray<int>*> iTree_int_arrayReaderKeeper = {};
     std::vector<TTreeReaderArray<double>*> iTree_double_arrayReaderKeeper = {};
     std::vector<TTreeReaderArray<float>*> iTree_float_arrayReaderKeeper = {};
     std::vector<TTreeReaderValue<int>*> iTree_int_valueReaderKeeper = {};
     std::vector<TTreeReaderValue<double>*> iTree_double_valueReaderKeeper = {};
     std::vector<TTreeReaderValue<float>*> iTree_float_valueReaderKeeper = {};
+    */
     int iTreeBranchCounter = 0;
 
   public:
@@ -179,7 +197,15 @@ class BetaScope
     // reading and getting branches methods for input ttree
 
     template < template<class> class ibranchType, typename dtype>
-    bool set_iBranch( const char* my_branchName, const char* my_key );
+    bool set_iBranch( std::string my_branchName, std::string my_key );
+
+    template < template<class> class ibranchType, typename dtype>
+    bool set_iBranch( const char* my_branchName, const char* my_key )
+    {
+      std::string branchName = my_branchName;
+      std::string key = my_key;
+      return set_iBranch<ibranchType, dtype>(branchName, key);
+    }
 
     template < template<class> class ibranchType, typename dtype>
     ibranchType<dtype> *get_iBranch( std::string key );
