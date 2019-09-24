@@ -116,7 +116,7 @@ void BetaScopeWaveformAna::analysis()
 
   if(! this->isProcessing)
   {
-    ColorCout::print( "   " + beta_scope.get_ifile_name(), " BetaScopeWaveformAna::analysis: Start event processing: ", BOLDYELLOW);
+    ColorCout::print( "   " + beta_scope.get_ifile_nickName(), " BetaScopeWaveformAna::analysis: Start event processing: ", BOLDYELLOW);
     this->isProcessing = true;
   }
 
@@ -191,8 +191,21 @@ void BetaScopeWaveformAna::analysis()
 void BetaScopeWaveformAna::initialize()
 {
   //required
+  std::string function_name = "BetaScopeWaveformAna::initialize";
   this->beta_scope.fileIO_Open( ifile.c_str() );
-  BetaScope_AnaFramework::initialize("/home/white_meow/scripts/HGTD_BetaScope_FW_Test/BetaScope_Ana/BetaScopeWaveformAna/AnaTemplate/myOwnTree.ini" );
+
+  char *check_path = getenv("BETASCOPE_SCRIPTS");
+  if(check_path!=NULL)
+  {
+    ColorCout::Msg( function_name, "Found myOwnTree.ini" );
+    std::string beta_scope_path(getenv("BETASCOPE_SCRIPTS"));
+    BetaScope_AnaFramework::initialize( beta_scope_path + "/../BetaScope_Ana/BetaScopeWaveformAna/AnaTemplate/myOwnTree.ini" );
+  }
+  else
+  {
+    ColorCout::Msg( function_name, "Did not find myOwnTree.ini" );
+    BetaScope_AnaFramework::initialize("");
+  }
 
   this->my_anaParam.limiting_search_region_OnOff = this->limitPmaxSearchRange;
   this->my_anaParam.pmaxSearchRange[0] = this->pmaxSearchMinRange;
