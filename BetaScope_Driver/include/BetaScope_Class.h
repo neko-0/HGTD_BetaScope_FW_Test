@@ -69,6 +69,14 @@ struct PrimitiveDataType_Container : public PrimitiveDataType_BaseContainer
   private:
     dtype *data_type = new dtype;
     is_vector<dtype> _isVec;
+    bool __isVec = _isVec.value;
+
+    template <class vClass>
+    typename std::enable_if<is_vector<vClass>::value>::type _clear(){ this->data_type->clear(); };
+
+    template <class vClass>
+    typename std::enable_if<!is_vector<vClass>::value>::type _clear(){};
+
   public:
     PrimitiveDataType_Container(){};
     virtual ~PrimitiveDataType_Container()
@@ -78,7 +86,12 @@ struct PrimitiveDataType_Container : public PrimitiveDataType_BaseContainer
 
     dtype *get(){ return this->data_type; };
 
-    void clear(){ if constexpr(_isVec.value){this->data_type->clear();} }
+    inline bool isVec(){ return __isVec; };
+
+    //inline void clear(){ if constexpr( __isVec ){this->data_type->clear();} else{} }
+
+    inline void clear(){ _clear<dtype>(); };
+
 };
 
 template <template<class> class c, typename dtype>
