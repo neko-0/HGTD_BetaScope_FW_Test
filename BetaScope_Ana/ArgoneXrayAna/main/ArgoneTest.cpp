@@ -23,7 +23,7 @@ int main(int argc, char **argv)
   TThread::IsInitialized();
   ROOT::EnableImplicitMT(16);
 
-  if( argc == 2 )
+  if( argc < 2 )
   {
     runAna( argv[1] );
     return 0;
