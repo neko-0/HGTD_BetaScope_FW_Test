@@ -33,7 +33,7 @@ struct TH_Container : public TH_BaseContainer
     TH_Type *th = new TH_Type;
   public:
     TH_Container(){};
-    virtual ~TH_Container(){};
+    virtual ~TH_Container(){if(this->th)delete th;};
     TH_Type *get(){return this->th;};
 };
 

@@ -113,7 +113,7 @@ void ArgoneXrayAna::initialize( )
 
   auto br_check = this->beta_scope.buildPrimitiveBranch<int>("counter");
 
-  this->beta_scope.buildBranch<TH1D>("counter_histo");
+  this->beta_scope.buildTH1Branch<TH1D>("counter_histo");
 
   this->beta_scope.buildTH1Branch<TH1D>("counter");
   this->beta_scope.buildTH1Branch<TH2D>("counter2D");

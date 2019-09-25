@@ -44,16 +44,41 @@ std::vector<std::string> BetaScope_Utilities::Dir::getFiles( std::string directo
 
   std::vector<std::string> content = {};
 
+  // looping through all of the files under directory
   for( const auto & entry : fs::directory_iterator(directory.c_str()) )
   {
-     std::string tmp_fileName = entry.path();
-     tmp_fileName.erase(0, tmp_fileName.find(directory)+directory.length() );
-     if( tmp_fileName.find(pattern) != std::string::npos )
-     {
-       std::string file_dir = directory;
-       std::string file_name = file_dir + "/" + tmp_fileName;
-       content.push_back( file_name );
-     }
+    // removing the directory part
+    std::string my_fileName = entry.path();
+    my_fileName.erase(0, my_fileName.find(directory)+directory.length() );
+
+    // spliting pattern based on wildcard symbol *
+    std::vector<std::string> pattern_fragment = {};
+    std::string my_pattern_copy = pattern;
+    std::string wildcard_delimiter = "*";
+    int pos = 0;
+    while( (pos = my_pattern_copy.find(wildcard_delimiter)) != std::string::npos )
+    {
+      std::string my_pattern_fragment = my_pattern_copy.substr(0, pos);
+      my_pattern_copy.erase(0, pos+wildcard_delimiter.length() );
+    }
+    pattern_fragment.push_back( my_pattern_copy );
+
+    bool matched = false;
+    for( const auto &frag : pattern_fragment )
+    {
+      if( my_fileName.find(frag) != std::string::npos )matched=true;
+      else{
+        matched=false;
+        break;
+      }
+    }
+
+    if( matched )
+    {
+     std::string file_dir = directory;
+     std::string file_name = file_dir + "/" + my_fileName;
+     content.push_back( file_name );
+    }
   }
 
   return content;
