@@ -153,8 +153,8 @@ void BetaScopeWaveformAna::analysis()
 
           if(this->resample_time)
           {
-            this->t[ch]->push_back( this->xorigin * this->timeMultiFactor );
-            this->xorigin = this->xorigin + this->dt;
+            this->t[ch]->push_back( (this->xorigin + i*this->dt) * this->timeMultiFactor );
+            //this->xorigin = this->xorigin + this->dt;
           }
           else
           {
@@ -172,8 +172,8 @@ void BetaScopeWaveformAna::analysis()
           this->tRaw[ch]->at(i) = this->i_t[ch]->At(i) * this->timeMultiFactor;
           */
         }
-        this->xorigin = 0.0;
-        this->dt = 0.0;
+        //this->xorigin = 0.0;
+        //this->dt = 0.0;
 
         workers.push_back( new std::thread( &BetaScopeWaveformAna::thread_it, this, ch) );
 
