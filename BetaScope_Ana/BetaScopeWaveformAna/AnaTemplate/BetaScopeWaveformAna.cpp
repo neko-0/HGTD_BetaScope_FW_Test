@@ -173,7 +173,7 @@ void BetaScopeWaveformAna::analysis()
           */
         }
         this->xorigin = 0.0;
-        this->dt = 0.0
+        this->dt = 0.0;
 
         workers.push_back( new std::thread( &BetaScopeWaveformAna::thread_it, this, ch) );
 

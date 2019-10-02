@@ -17,7 +17,9 @@ from colorStringFormating import *
 
 predefined_path = {
 "__raw":"/media/mnt/BigHD/Beta_DAQ_Data/",
+"__raw2":"/media/mnt/gunter/Beta_DAQ_Data_2/",
 "__yuzhan":"/media/mnt/BigHD/BetaScope_Data/Analyzed_YZ/",
+"__yuzhan2":"/media/mnt/gunter/beta/betaAna2/",
 "__simone":"/media/mnt/BigHD/BetaScope_Data/Analyzed_Simone/"
 }
 
@@ -29,7 +31,9 @@ class Lgad(cmd.Cmd, object):
     global predefined_path
 
     def __init__(self):
-        self.raw_dir = predefined_path["__raw"]
+        self.raw_dir = []
+        self.raw_dir.append( predefined_path["__raw"] )
+        self.raw_dir.append( predefined_path["__raw2"] )
         self.files = os.listdir(os.getcwd())
         cmd.Cmd.__init__(self)
 
@@ -104,10 +108,11 @@ class Lgad(cmd.Cmd, object):
         else:
             colorString.sysError("output direcotry has not been set. Please run set_output_dir" )
 
-        for d in os.listdir( self.raw_dir ):
-            if "Sr_Run"+str( runNum ) in d:
-                self.runNum = runNum
-                self.runNum_dir = d
+        for rawDir in self.raw_dir:
+            for d in os.listdir( self.raw_dir ):
+                if "Sr_Run"+str( runNum ) in d:
+                    self.runNum = runNum
+                    self.runNum_dir = d
 
 
         if hasattr(self, "runNum"):
