@@ -48,6 +48,7 @@ if __name__ == "__main__":
     import argparse
     cml_parser = argparse.ArgumentParser()
     cml_parser.add_argument("--CFD", dest="CFD", nargs="?", default="50", type=int, help="CFD")
+    cml_parser.add_argument("--scope", dest="scope", nargs="?", default="lecroy", type=str, help="scope")
 
     argv = cml_parser.parse_args()
 
@@ -55,8 +56,12 @@ if __name__ == "__main__":
     ROOT.gROOT.SetBatch(True)
     ROOT.gStyle.SetOptFit(1)
 
-    trigger_resolution = 16.7 #ps
-    trigger_resolution_err = 0.7
+    if "keysight" in argv.scope:
+        trigger_resolution = 14.8 #ps 14.8+-0.1 for keysight 16.7 for lecroy
+        trigger_resolution_err = 0.1
+    else:
+        trigger_resolution = 16.7 #ps 14.8+-0.1 for keysight 16.7 for lecroy
+        trigger_resolution_err = 0.7
 
     import configparser
     config_file = configparser.ConfigParser()
@@ -103,7 +108,7 @@ if __name__ == "__main__":
         c.cd()
         result["histo"].Draw()
         c.SaveAs("bias_%s_temp_%sC_tdiff_fit_CFD%s.png"%(bias, temperature, argv.CFD))
-        
+
 
     print("Sensor: %s"%sensor_name)
     print("Temp,Bias,Res,ResErr")
