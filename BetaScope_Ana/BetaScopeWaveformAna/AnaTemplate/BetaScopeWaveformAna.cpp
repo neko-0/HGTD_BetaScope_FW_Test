@@ -129,6 +129,7 @@ void BetaScopeWaveformAna::analysis()
   {
     int ch = this->activeChannels.at(chh);
     //if(std::find(this->activeChannels.begin(), this->activeChannels.end(), ch) != this->activeChannels.end())
+    if(this->resample_time && this->dt<=0.0){this->xorigin=this->i_t[ch]->At(0);this->dt=this->i_t[ch]->At(1)-this->i_t[ch]->At(0);}
     if(true)
     {
       //if( this->beta_scope.iTreeDoubleArrayMap.count("w"+std::to_string(ch) ))
@@ -149,8 +150,16 @@ void BetaScopeWaveformAna::analysis()
             this->w[ch]->push_back( this->i_w[ch]->At(i) * this->voltageMultiFactor );
             //this->w[ch]->at(i) = this->i_w[ch]->At(i) * this->voltageMultiFactor;
           }
-          this->t[ch]->push_back( this->i_t[ch]->At(i) * this->timeMultiFactor );
 
+          if(this->resample_time)
+          {
+            this->t[ch]->push_back( this->xorigin * this->timeMultiFactor );
+            this->xorigin = this->xorigin + this->dt;
+          }
+          else
+          {
+            this->t[ch]->push_back( this->i_t[ch]->At(i) * this->timeMultiFactor );
+          }
           //std::cout << this->w[ch]->at(5) << std::endl;
           //std::cout << this->w[ch]->size() << std::endl;
 
@@ -163,6 +172,8 @@ void BetaScopeWaveformAna::analysis()
           this->tRaw[ch]->at(i) = this->i_t[ch]->At(i) * this->timeMultiFactor;
           */
         }
+        this->xorigin = 0.0;
+        this->dt = 0.0
 
         workers.push_back( new std::thread( &BetaScopeWaveformAna::thread_it, this, ch) );
 

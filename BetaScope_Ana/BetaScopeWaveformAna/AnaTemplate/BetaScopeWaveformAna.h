@@ -22,6 +22,10 @@ class BetaScopeWaveformAna : public BetaScope_AnaFramework<BetaScope>
     bool has_daq_cycle = false;
     bool has_daq_bias = false;
 
+    bool resample_time = true;
+    double dt = 0.0;
+    double xorigin = 0.0;
+
   public:
   //this is are required.
   std::string ifile;
