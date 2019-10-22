@@ -189,7 +189,7 @@ def parseINIToExcel(fname="_results.ini"):
 
     wb.save("_results.xlsx")
 
-    mergeExcel(fname)
+    mergeExcel("_results.xlsx")
 
 
 parseINIToExcel()
