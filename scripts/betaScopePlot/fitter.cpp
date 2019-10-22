@@ -108,8 +108,8 @@ std::tuple<double,double,double,double> Fitter::fitter_RooLanGausArea( HistoPack
     paveText->Draw();
 
     TImage *img = TImage::Create();
-    img->FromPad (oCanvas);
-    img->WriteImage( Form("%s_lxg_RooFit.png", i_histo.get_title().c_str()) );
+    img->FromPad(oCanvas);
+    img->WriteImage( Form("%s_%s_lxg_RooFit.png", i_histo.get_fname().c_str(), i_histo.get_title().c_str()) );
     delete img;
     if( histo_fit != NULL ) delete histo_fit;
     if( paveText != NULL ) delete paveText;
@@ -218,7 +218,7 @@ std::tuple<double,double,double,double> Fitter::fitter_RooLanGaus( HistoPackage 
 
     TImage *img = TImage::Create();
     img->FromPad (oCanvas);
-    img->WriteImage( Form("%s_lxg_RooFit.png", i_histo.get_title().c_str()) );
+    img->WriteImage( Form("%s_%s_lxg_RooFit.png", i_histo.get_fname().c_str(), i_histo.get_title().c_str()) );
     delete img;
     if( histo_fit != NULL ) delete histo_fit;
     if( paveText != NULL ) delete paveText;
@@ -263,7 +263,7 @@ std::tuple<double,double,double,double> Fitter::fitter_fit( HistoPackage &i_hist
     gSystem->ProcessEvents();
     TImage *img = TImage::Create();
     img->FromPad (oCanvas);
-    img->WriteImage( Form("%s.png", i_histo.get_histoName().c_str()) );
+    img->WriteImage( Form("%s_%s.png", i_histo.get_fname().c_str(), i_histo.get_histoName().c_str()) );
     delete img;
     delete oCanvas;
   }

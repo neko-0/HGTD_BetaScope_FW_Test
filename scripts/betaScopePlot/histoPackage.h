@@ -14,6 +14,8 @@ class HistoPackage
 
     std::string observable_name;
 
+    std::string root_file_name;
+
     std::string cut_str  = "";
 
     TH1D* histo;
@@ -42,6 +44,9 @@ class HistoPackage
 
     void set_cut_str(std::string i_cut){this->cut_str = i_cut;};
     std::string get_cut_str(){return this->cut_str;};
+
+    void set_fname(std::string fname){this->root_file_name=fname;};
+    std::string get_fname(){return this->root_file_name;};
 
     std::string get_observable(){return this->observable_name;};
     std::string get_title(){return this->my_title;};

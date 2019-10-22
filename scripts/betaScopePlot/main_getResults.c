@@ -47,6 +47,7 @@ void getResults(std::string plotConfig_fname, std::string outDir = "Results/" )
     {
       HistoPackage myHisto;
       myHisto.set_cut_str( selection->cuts.GetTitle() );
+      myHisto.set_fname( plotConfig.file_name[i].at(0) );
       myHisto.set_bin( job.binNum );
       myHisto.set_min( job.x_min );
       myHisto.set_max( job.x_max );

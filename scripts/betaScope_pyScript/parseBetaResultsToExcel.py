@@ -149,3 +149,5 @@ def parseINIToExcel(fname="_results.ini"):
         rowCounter+=1
 
     wb.save("_results.xlsx")
+
+parseINIToExcel()
