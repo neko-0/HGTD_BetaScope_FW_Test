@@ -143,7 +143,10 @@ def parseINIToExcel(fname="_results.ini"):
                 else:
                     #Bias = trigBias
                     ws = wb["TRIG"]
-                    SensorName = description_file["Run_Description"]["Trigger_Sensor_Name"]
+                    try:
+                        SensorName = description_file["Run_Description"]["Trigger_Sensor_Name"]
+                    except:
+                        pass
                     try:
                         Bias = config[bias]["trigger_bias"]
                         if ".." in bias:
