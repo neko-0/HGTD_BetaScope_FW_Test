@@ -72,7 +72,7 @@ def mergeExcel(fname="_results.xlxs"):
         for par in par_list:
             input_cell = par_dict[par] + str(rowCounter-1)
             src_cell = par_dict[par] + str(max_row+rowCounter)
-            src_ws[src_cell] = input_ws[input_cell]
+            src_ws[src_cell] = input_ws[input_cell].value
 
     if no_merge_file:
         src_wb.save("/tmp/merged_beta_results.xlsx")
