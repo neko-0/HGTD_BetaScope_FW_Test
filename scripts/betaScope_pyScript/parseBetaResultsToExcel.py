@@ -128,7 +128,7 @@ def parseINIToExcel(fname="_results.ini"):
     for ch in dut_trig:
         rowCounter = 1
         for bias in config_section:
-            RunNum += "->"+str(rowCounter)
+            myRunNum = str(RunNum)+"->"+str(rowCounter)
             if ch in bias:
                 if ch != "Trig":
                     ws = wb["DUT"]
@@ -159,6 +159,9 @@ def parseINIToExcel(fname="_results.ini"):
                     if (par == "SensorName"):
                         cell = par_dict[par] + str(rowCounter)
                         ws[cell] = SensorName
+                    elif(par=="runNumber"):
+                        cell = par_dict[par] + str(rowCounter)
+                        ws[cell] = myRunNum
                     elif (par == "Temp"):
                         try:
                             Temp = config[bias]["temperature"]
