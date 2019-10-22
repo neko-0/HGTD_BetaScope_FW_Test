@@ -192,7 +192,7 @@ class Lgad(cmd.Cmd, object):
 
             if "nohup" in mode:
                 nohup = "nohup"
-                nohup_log = " >> $BETASCOPE_SCRIPTS/nohup.log"
+                nohup_log = " >> /tmp/betaPlot_nohup.log"
 
                 def isRunning(pid):
                     while True:
@@ -207,23 +207,23 @@ class Lgad(cmd.Cmd, object):
 
             if "resonly" in mode:
                 if not nohup:
-                    p = subprocess.Popen("{} /home/yuzhan/HGTD_BetaScope/BetaScopeDataProcessor/bin/GenerateDataProcessorConfig.exe {}".format(nohup, nohup_log), shell=True)
+                    p = subprocess.Popen("{} $BETASCOPE_SCRIPTS/bin/genConfig {}".format(nohup, nohup_log), shell=True)
                     p.wait()
 
                     p = subprocess.call("{nohup} python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum {num} {nohup_log}".format(num=self.runNum, nohup=nohup, nohup_log=nohup_log), shell=True)
 
-                    p = subprocess.Popen("{nohup} /home/yuzhan/HGTD_BetaScope/BetaScopeDataProcessor/bin/GetResults.exe run_info_v08022018.ini {nohup_log}".format(nohup=nohup, nohup_log=nohup_log), shell=True)
+                    p = subprocess.Popen("{nohup} $BETASCOPE_SCRIPTS/bin/getResults run_info_v08022018.ini {nohup_log}".format(nohup=nohup, nohup_log=nohup_log), shell=True)
                     p.wait()
                 else:
                     def nohupRun(mode):
-                        p = subprocess.Popen("{} /home/yuzhan/HGTD_BetaScope/BetaScopeDataProcessor/bin/GenerateDataProcessorConfig.exe {}".format(nohup, nohup_log), shell=True)
+                        p = subprocess.Popen("{} $BETASCOPE_SCRIPTS/bin/genConfig {}".format(nohup, nohup_log), shell=True)
                         #pid = p.pid
                         #isRunning(pid)
                         p.wait()
 
                         p = subprocess.call("{nohup} python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum {num} {nohup_log}".format(num=self.runNum, nohup=nohup, nohup_log=nohup_log), shell=True)
 
-                        p = subprocess.Popen("{nohup} /home/yuzhan/HGTD_BetaScope/BetaScopeDataProcessor/bin/GetResults.exe run_info_v08022018.ini {nohup_log}".format(nohup=nohup, nohup_log=nohup_log), shell=True)
+                        p = subprocess.Popen("{nohup} $BETASCOPE_SCRIPTS/bin/getResults run_info_v08022018.ini {nohup_log}".format(nohup=nohup, nohup_log=nohup_log), shell=True)
                         p.wait()
             else:
                 if not nohup:
@@ -231,12 +231,12 @@ class Lgad(cmd.Cmd, object):
                     p.wait()
 
                     if "full" in mode:
-                        p = subprocess.Popen("{} /home/yuzhan/HGTD_BetaScope/BetaScopeDataProcessor/bin/GenerateDataProcessorConfig.exe {}".format(nohup, nohup_log), shell=True)
+                        p = subprocess.Popen("{} $BETASCOPE_SCRIPTS/bin/genConfig {}".format(nohup, nohup_log), shell=True)
                         p.wait()
 
                         p = subprocess.call("{nohup} python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum {num} {nohup_log}".format(num=self.runNum, nohup=nohup, nohup_log=nohup_log), shell=True)
 
-                        p = subprocess.Popen("{nohup} /home/yuzhan/HGTD_BetaScope/BetaScopeDataProcessor/bin/GetResults.exe run_info_v08022018.ini {nohup_log}".format(nohup=nohup, nohup_log=nohup_log), shell=True)
+                        p = subprocess.Popen("{nohup} $BETASCOPE_SCRIPTS/bin/getResults run_info_v08022018.ini {nohup_log}".format(nohup=nohup, nohup_log=nohup_log), shell=True)
                         p.wait()
                 else:
                     def nohupRun(mode):
@@ -245,14 +245,14 @@ class Lgad(cmd.Cmd, object):
                         #isRunning(pid)
                         p.wait()
                         if "full" in mode:
-                            p = subprocess.Popen("{} /home/yuzhan/HGTD_BetaScope/BetaScopeDataProcessor/bin/GenerateDataProcessorConfig.exe {}".format(nohup, nohup_log), shell=True)
+                            p = subprocess.Popen("{} $BETASCOPE_SCRIPTS/bin/genConfig {}".format(nohup, nohup_log), shell=True)
                             #pid = p.pid
                             #isRunning(pid)
                             p.wait()
 
                             p = subprocess.call("{nohup} python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum {num} {nohup_log}".format(num=self.runNum, nohup=nohup, nohup_log=nohup_log), shell=True)
 
-                            p = subprocess.Popen("{nohup} /home/yuzhan/HGTD_BetaScope/BetaScopeDataProcessor/bin/GetResults.exe run_info_v08022018.ini {nohup_log}".format(nohup=nohup, nohup_log=nohup_log), shell=True)
+                            p = subprocess.Popen("{nohup} $BETASCOPE_SCRIPTS/bin/getResults run_info_v08022018.ini {nohup_log}".format(nohup=nohup, nohup_log=nohup_log), shell=True)
                             p.wait()
 
                 #job = threading.Thread(name="nohupRun", target=nohupRun, args=(mode,) )

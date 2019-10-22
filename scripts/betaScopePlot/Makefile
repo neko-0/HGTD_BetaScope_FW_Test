@@ -50,13 +50,17 @@ BETASCOPE_PLOTTER_DEP = $(patsubst $(BETASCOPE_PLOTTER_SRC_DIR)/%.cpp, $(BETASCO
 
 # $(info [${BETASCOPE_PLOTTER_INC_DIR}] )
 
-all: $(BETASCOPE_PLOTTER_DEP) $(BIN)/getResults
+all: $(BETASCOPE_PLOTTER_DEP) $(BIN)/getResults $(BIN)/genPlotConfig
 
 $(BETASCOPE_PLOTTER_BUILD_DIR)/%.o: $(BETASCOPE_PLOTTER_SRC_DIR)/%.cpp
 	$(CC) $(DEBUG) -I./ -I../ -I$(GENERAL_DIR) -I$(BETASCOPE_PLOTTER_INC_DIR) -c $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOFIT) $(ROOT_INCLUDE) $(BOOST_LIB)
 
 $(BIN)/getResults: main_getResults.c $(BETASCOPE_PLOTTER_DEP)
 	$(CC) $(DEBUG) -I./ -I../ -I$(GENERAL_DIR) -I$(BETASCOPE_PLOTTER_INC_DIR) $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOFIT) $(ROOT_INCLUDE) $(BOOST_LIB)
+
+$(BIN)/genPlotConfig: main_genPlotConfig.c $(BETASCOPE_PLOTTER_DEP)
+	$(CC) $(DEBUG) -I./ -I../ -I$(GENERAL_DIR) -I$(BETASCOPE_PLOTTER_INC_DIR) $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOFIT) $(ROOT_INCLUDE) $(BOOST_LIB)
+
 ################################################################################
 # cleanning object files.
 ################################################################################
