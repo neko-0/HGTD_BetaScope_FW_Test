@@ -53,7 +53,7 @@ par_dict = {
 
 def mergeExcel(fname="_results.xlxs"):
     no_merge_file = False
-    if os.path.exists("/tmp/merged_beta_results.xlxs"):
+    if os.path.exists("/tmp/merged_beta_results.xlsx"):
         src_wb = load_workbook("/tmp/merged_beta_results.xlsx")
     else:
         no_merge_file = True
