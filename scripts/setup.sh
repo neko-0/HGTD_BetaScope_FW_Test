@@ -16,13 +16,18 @@ cd ${current_path}
 echo "going to BetaScope Ana folder"
 cd ../BetaScope_Ana
 make -j
+cd ${current_path}
+
+echo "going to betaScopePlot folder"
+cd betaScopePlot
+make
 
 cd ${current_path}
 echo "setting up alias"
 alias run_WaveformConfig='${BETASCOPE_SCRIPTS}/../BetaScope_Ana/BetaScopeWaveformAna/bin/GenerateWaveformConfig'
 alias run_WaveformAna='${BETASCOPE_SCRIPTS}/../BetaScope_Ana/BetaScopeWaveformAna/bin/Run_WaveformAna WaveformAnaConfig.ini --skipWaveform'
-alias run_RunConfig='/home/yuzhan/HGTD_BetaScope/BetaScopeDataProcessor/bin/GenerateDataProcessorConfig.exe'
-alias run_GetResults='/home/yuzhan/HGTD_BetaScope/BetaScopeDataProcessor/bin/GetResults.exe run_info_v08022018.ini'
+alias run_RunConfig='${BETASCOPE_SCRIPTS}/betaScopePlot/bin/genPlotConfig'
+alias run_GetResults='${BETASCOPE_SCRIPTS}/betaScopePlot/bin/getResults run_info_v08022018.ini'
 
 function LGAD(){
   if [ "$1" = "--test" ]

@@ -117,9 +117,7 @@ void getResults(std::string plotConfig_fname, std::string outDir = "Results/" )
 	std::string mv_results_txt = "mv *_results.txt " + outDir;
 	std::string mv_results_ini = "mv *_results.ini " + outDir;
 	std::string mv_results_xlsx = "mv *_results.xlsx " + outDir;
-	system( "python  ~/Codes/py_pyExcel/parseBetaResultsToExcel.py");
-	system( "python  $BETASCOPE_PAHT/parseBetaResultsToExcel.py");
-	system( "python  /usr/local/Software/parseBetaResultsToExcel.py");
+	system( "python  $BETASCOPE_SCRIPTS/betaScope_pyScript/parseBetaResultsToExcel.py");
 	system( mv_png.c_str() );
 	system( mv_results_txt.c_str() );
 	system( mv_results_ini.c_str() );
