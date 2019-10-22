@@ -58,7 +58,7 @@ def parseINIToExcel(fname="_results.ini"):
     description_file = None
     for descr in os.listdir("./"):
         if "_Description.ini" in descr:
-            description_file = ConfigParser.ConfigParser()
+            description_file = configparser.ConfigParser()
             description_file.read(descr)
             print("found DAQ description file")
             break
