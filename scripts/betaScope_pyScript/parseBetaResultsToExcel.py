@@ -1,8 +1,9 @@
-from openpyxl import Workbook
+from openpyxl import Workbook, load_workbook
 import configparser
 import os
 
 par_list = [
+"runNumber",
 "SensorName",
 "Temp",
 "Bias",
@@ -26,6 +27,7 @@ par_list = [
 ]
 
 par_dict = {
+"runNumber" : "A",
 "SensorName" : "B",
 "Temp" : "G",
 "Bias" : "H",
@@ -48,6 +50,34 @@ par_dict = {
 "FallTime_Error" : "DH",
 "cycle" : "F"
 }
+
+def mergeExcel(fname="_results.xlxs"):
+    no_merge_file = False
+    if os.path.exists("/tmp/merged_beta_results.xlxs"):
+        src_wb = load_workbook("/tmp/merged_beta_results.xlsx")
+    else:
+        no_merge_file = True
+        src_wb = Workbook()
+        src_wb.create_sheet("DUT")
+        scr_wb.create_sheet("TRIG")
+
+    input_wb = load_workbook(fname)
+
+    sheets = ["DUT", "TRIG"]
+    for sheet in sheets:
+        rowCounter = 2
+        src_ws = scr_wb[sheet]
+        input_ws = input_wb[sheet]
+        max_row = src_ws.max_row
+        for par in par_list:
+            input_cell = par_dict[par] + str(rowCounter-1)
+            src_cell = par_dict[par] + str(max_row+rowCounter)
+            src_ws[src_cell] = input_ws[input_cell]
+
+    if no_merge_file:
+        src_wb.save("/tmp/merged_beta_results.xlsx")
+
+
 
 def parseINIToExcel(fname="_results.ini"):
     config = configparser.ConfigParser()
@@ -96,7 +126,9 @@ def parseINIToExcel(fname="_results.ini"):
     Resistance = 4700
 
     for ch in dut_trig:
+        rowCounter = 1
         for bias in config_section:
+            RunNum += "->"+str(rowCounter)
             if ch in bias:
                 if ch != "Trig":
                     ws = wb["DUT"]
@@ -111,6 +143,7 @@ def parseINIToExcel(fname="_results.ini"):
                 else:
                     #Bias = trigBias
                     ws = wb["TRIG"]
+                    SensorName = description_file["Run_Description"]["Trigger_Sensor_Name"]
                     try:
                         Bias = config[bias]["trigger_bias"]
                         if ".." in bias:
@@ -149,5 +182,8 @@ def parseINIToExcel(fname="_results.ini"):
         rowCounter+=1
 
     wb.save("_results.xlsx")
+
+    mergeExcel(fname)
+
 
 parseINIToExcel()
