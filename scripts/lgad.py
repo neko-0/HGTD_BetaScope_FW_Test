@@ -208,7 +208,7 @@ class Lgad(cmd.Cmd, object):
 
             if "resonly" in mode:
                 if not nohup:
-                    p = subprocess.Popen("{} $BETASCOPE_SCRIPTS/betaScopePlot/bin/genConfig {}".format(nohup, nohup_log), shell=True)
+                    p = subprocess.Popen("{} $BETASCOPE_SCRIPTS/betaScopePlot/bin/genPlotConfig {}".format(nohup, nohup_log), shell=True)
                     p.wait()
 
                     p = subprocess.call("{nohup} python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum {num} {nohup_log}".format(num=self.runNum, nohup=nohup, nohup_log=nohup_log), shell=True)
@@ -217,7 +217,7 @@ class Lgad(cmd.Cmd, object):
                     p.wait()
                 else:
                     def nohupRun(mode):
-                        p = subprocess.Popen("{} $BETASCOPE_SCRIPTS/betaScopePlot/bin/genConfig {}".format(nohup, nohup_log), shell=True)
+                        p = subprocess.Popen("{} $BETASCOPE_SCRIPTS/betaScopePlot/bin/genPlotConfig {}".format(nohup, nohup_log), shell=True)
                         #pid = p.pid
                         #isRunning(pid)
                         p.wait()
@@ -232,7 +232,7 @@ class Lgad(cmd.Cmd, object):
                     p.wait()
 
                     if "full" in mode:
-                        p = subprocess.Popen("{} $BETASCOPE_SCRIPTS/betaScopePlot/bin/genConfig {}".format(nohup, nohup_log), shell=True)
+                        p = subprocess.Popen("{} $BETASCOPE_SCRIPTS/betaScopePlot/bin/genPlotConfig {}".format(nohup, nohup_log), shell=True)
                         p.wait()
 
                         p = subprocess.call("{nohup} python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum {num} {nohup_log}".format(num=self.runNum, nohup=nohup, nohup_log=nohup_log), shell=True)
@@ -246,7 +246,7 @@ class Lgad(cmd.Cmd, object):
                         #isRunning(pid)
                         p.wait()
                         if "full" in mode:
-                            p = subprocess.Popen("{} $BETASCOPE_SCRIPTS/betaScopePlot/bin/genConfig {}".format(nohup, nohup_log), shell=True)
+                            p = subprocess.Popen("{} $BETASCOPE_SCRIPTS/betaScopePlot/bin/genPlotConfig {}".format(nohup, nohup_log), shell=True)
                             #pid = p.pid
                             #isRunning(pid)
                             p.wait()
