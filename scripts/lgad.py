@@ -19,7 +19,8 @@ predefined_path = {
 "__raw":"/media/mnt/BigHD/Beta_DAQ_Data/",
 "__raw2":"/media/mnt/gunter/Beta_DAQ_Data_2/",
 "__yuzhan":"/media/mnt/BigHD/BetaScope_Data/Analyzed_YZ/",
-"__yuzhan2":"/media/mnt/gunter/beta/betaAna2/",
+"__yuzhan2":"/media/mnt/gunter/betaAna2/",
+"__def":"/media/mnt/gunter/betaAna2/",
 "__simone":"/media/mnt/BigHD/BetaScope_Data/Analyzed_Simone/"
 }
 
@@ -109,10 +110,11 @@ class Lgad(cmd.Cmd, object):
             colorString.sysError("output direcotry has not been set. Please run set_output_dir" )
 
         for rawDir in self.raw_dir:
-            for d in os.listdir( self.raw_dir ):
+            for d in os.listdir( rawDir ):
                 if "Sr_Run"+str( runNum ) in d:
                     self.runNum = runNum
                     self.runNum_dir = d
+                    self.my_raw_dir = rawDir
 
 
         if hasattr(self, "runNum"):
@@ -140,7 +142,7 @@ class Lgad(cmd.Cmd, object):
 
         global predefined_path
 
-        __raw_data_dir = self.raw_dir
+        __raw_data_dir = self.my_raw_dir
         __data_output_dir = self.current_run
         __runNum = self.runNum
 
@@ -182,7 +184,7 @@ class Lgad(cmd.Cmd, object):
             p = subprocess.call("python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum {num}".format(num=self.runNum), shell=True)
 
     def do_run_analysis(self, mode=""):
-        "Run routine beta-scope analysis. Argument with 'full' will do the full rountine analysis, else it will only generate stats files. Argument with 'nohup' will supress the output "
+        "Run routine beta-scope analysis. Argument with 'full' will do the full rountine analysis, else it will only generate stats files. Argument 'resonly' will only run the result calculation. Argument with 'nohup' will supress the output "
         if not hasattr(self, "current_run"):
             colorString.sysError("current run is not set" )
 
@@ -204,11 +206,8 @@ class Lgad(cmd.Cmd, object):
                 nohup = ""
                 nohup_log = ""
 
-            if not nohup:
-                p = subprocess.Popen("{nohup} $BETASCOPE_SCRIPTS/../BetaScope_Ana/BetaScopeWaveformAna/bin/Run_WaveformAna {tdir}/WaveformAnaConfig.ini --skipWaveform {nohup_log}".format(nohup=nohup, nohup_log=nohup_log, tdir=self.current_run), shell=True)
-                p.wait()
-
-                if "full" in mode:
+            if "resonly" in mode:
+                if not nohup:
                     p = subprocess.Popen("{} /home/yuzhan/HGTD_BetaScope/BetaScopeDataProcessor/bin/GenerateDataProcessorConfig.exe {}".format(nohup, nohup_log), shell=True)
                     p.wait()
 
@@ -216,13 +215,8 @@ class Lgad(cmd.Cmd, object):
 
                     p = subprocess.Popen("{nohup} /home/yuzhan/HGTD_BetaScope/BetaScopeDataProcessor/bin/GetResults.exe run_info_v08022018.ini {nohup_log}".format(nohup=nohup, nohup_log=nohup_log), shell=True)
                     p.wait()
-            else:
-                def nohupRun(mode):
-                    p = subprocess.Popen("{nohup} $BETASCOPE_SCRIPTS/../BetaScope_Ana/BetaScopeWaveformAna/bin/Run_WaveformAna {tdir}/WaveformAnaConfig.ini --skipWaveform {nohup_log}".format(nohup=nohup, nohup_log=nohup_log, tdir=self.current_run), shell=True)
-                    #pid = p.pid
-                    #isRunning(pid)
-                    p.wait()
-                    if "full" in mode:
+                else:
+                    def nohupRun(mode):
                         p = subprocess.Popen("{} /home/yuzhan/HGTD_BetaScope/BetaScopeDataProcessor/bin/GenerateDataProcessorConfig.exe {}".format(nohup, nohup_log), shell=True)
                         #pid = p.pid
                         #isRunning(pid)
@@ -232,6 +226,35 @@ class Lgad(cmd.Cmd, object):
 
                         p = subprocess.Popen("{nohup} /home/yuzhan/HGTD_BetaScope/BetaScopeDataProcessor/bin/GetResults.exe run_info_v08022018.ini {nohup_log}".format(nohup=nohup, nohup_log=nohup_log), shell=True)
                         p.wait()
+            else:
+                if not nohup:
+                    p = subprocess.Popen("{nohup} $BETASCOPE_SCRIPTS/../BetaScope_Ana/BetaScopeWaveformAna/bin/Run_WaveformAna {tdir}/WaveformAnaConfig.ini --skipWaveform {nohup_log}".format(nohup=nohup, nohup_log=nohup_log, tdir=self.current_run), shell=True)
+                    p.wait()
+
+                    if "full" in mode:
+                        p = subprocess.Popen("{} /home/yuzhan/HGTD_BetaScope/BetaScopeDataProcessor/bin/GenerateDataProcessorConfig.exe {}".format(nohup, nohup_log), shell=True)
+                        p.wait()
+
+                        p = subprocess.call("{nohup} python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum {num} {nohup_log}".format(num=self.runNum, nohup=nohup, nohup_log=nohup_log), shell=True)
+
+                        p = subprocess.Popen("{nohup} /home/yuzhan/HGTD_BetaScope/BetaScopeDataProcessor/bin/GetResults.exe run_info_v08022018.ini {nohup_log}".format(nohup=nohup, nohup_log=nohup_log), shell=True)
+                        p.wait()
+                else:
+                    def nohupRun(mode):
+                        p = subprocess.Popen("{nohup} $BETASCOPE_SCRIPTS/../BetaScope_Ana/BetaScopeWaveformAna/bin/Run_WaveformAna {tdir}/WaveformAnaConfig.ini --skipWaveform {nohup_log}".format(nohup=nohup, nohup_log=nohup_log, tdir=self.current_run), shell=True)
+                        #pid = p.pid
+                        #isRunning(pid)
+                        p.wait()
+                        if "full" in mode:
+                            p = subprocess.Popen("{} /home/yuzhan/HGTD_BetaScope/BetaScopeDataProcessor/bin/GenerateDataProcessorConfig.exe {}".format(nohup, nohup_log), shell=True)
+                            #pid = p.pid
+                            #isRunning(pid)
+                            p.wait()
+
+                            p = subprocess.call("{nohup} python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum {num} {nohup_log}".format(num=self.runNum, nohup=nohup, nohup_log=nohup_log), shell=True)
+
+                            p = subprocess.Popen("{nohup} /home/yuzhan/HGTD_BetaScope/BetaScopeDataProcessor/bin/GetResults.exe run_info_v08022018.ini {nohup_log}".format(nohup=nohup, nohup_log=nohup_log), shell=True)
+                            p.wait()
 
                 #job = threading.Thread(name="nohupRun", target=nohupRun, args=(mode,) )
                 job = mp.Process(target=nohupRun, args=(mode,) )
