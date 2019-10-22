@@ -20,12 +20,17 @@ def generate_cuts( dutCh, trigCh, runNum, configFileName, trigFixedCut, tmax_min
     for i in range(int(num_file)):
         runNum = "run"+str(i)
         fileName = betaRunConfig[runNum]["file_name"]
+<<<<<<< HEAD
         try:
             spliter = "stats_Sr_Run"+str(betaRunNum)+"_"
             biasVoltage = fileName.split(spliter)[1].split("_trig")[0]
         except:
             spliter = "stats_unseg_Sr_Run"+str(betaRunNum)+"_"
             biasVoltage = fileName.split(spliter)[1].split("_trig")[0]
+=======
+        spliter = "stats_Sr_Run"+str(betaRunNum)+"_"
+        biasVoltage = fileName.split(spliter)[1].split("_trig")[0]
+>>>>>>> 4ddd56b498c5e1dd4f24f05da0fd669e9722d78c
         betaRunConfig.set( runNum, "bias", biasVoltage)
 
         tfile = ROOT.TFile.Open(fileName)
