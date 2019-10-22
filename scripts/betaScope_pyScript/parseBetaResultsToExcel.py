@@ -59,7 +59,7 @@ def mergeExcel(fname="_results.xlxs"):
         no_merge_file = True
         src_wb = Workbook()
         src_wb.create_sheet("DUT")
-        scr_wb.create_sheet("TRIG")
+        src_wb.create_sheet("TRIG")
 
     input_wb = load_workbook(fname)
 
