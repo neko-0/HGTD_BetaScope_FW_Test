@@ -66,7 +66,7 @@ def mergeExcel(fname="_results.xlxs"):
     sheets = ["DUT", "TRIG"]
     for sheet in sheets:
         rowCounter = 2
-        src_ws = scr_wb[sheet]
+        src_ws = src_wb[sheet]
         input_ws = input_wb[sheet]
         max_row = src_ws.max_row
         for par in par_list:
