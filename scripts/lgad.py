@@ -121,10 +121,10 @@ class Lgad(cmd.Cmd, object):
             if not os.path.isdir(self.output_dir + "/" + self.runNum_dir):
                 os.mkdir( self.output_dir + "/" + self.runNum_dir )
                 self.current_run = self.output_dir + "/" + self.runNum_dir
-                copyfile(rawDir+self.runNum_dir+"/fromDAQ/Sr_Run_{}_Description.ini".format(self.runNum), self.current_run+"/Sr_Run_{}_Description.ini".format(self.runNum))
             else:
                 self.current_run = self.output_dir + "/" + self.runNum_dir
                 colorString.sysError("direcotry {} is already there".format(self.current_run) )
+            copyfile(rawDir+self.runNum_dir+"/fromDAQ/Sr_Run_{}_Description.ini".format(self.runNum), self.current_run+"/Sr_Run_{}_Description.ini".format(self.runNum))
         else:
             colorString.sysError("No run number {}".format(runNum) )
 

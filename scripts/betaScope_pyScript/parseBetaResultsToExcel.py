@@ -1,6 +1,7 @@
 from openpyxl import Workbook, load_workbook
 import configparser
 import os
+import json
 
 par_list = [
 "runNumber",
@@ -52,9 +53,18 @@ par_dict = {
 }
 
 def mergeExcel(fname="_results.xlxs"):
+    output_dir = os.environ['BETASCOPE_SCRIPTS']
+    if not output_dir:
+        output_dir = "/tmp/"
+
+    if os.path.exists("{}/user_data/".format(output_dir)):
+        pass
+    else:
+        os.makedirs("{}/user_data/".format(output_dir))
+
     no_merge_file = False
-    if os.path.exists("/tmp/merged_beta_results.xlsx"):
-        src_wb = load_workbook("/tmp/merged_beta_results.xlsx")
+    if os.path.exists("{}/user_data/merged_beta_results.xlsx".format(output_dir)):
+        src_wb = load_workbook("{}/user_data/merged_beta_results.xlsx".format(output_dir))
     else:
         no_merge_file = True
         src_wb = Workbook()
@@ -62,6 +72,12 @@ def mergeExcel(fname="_results.xlxs"):
         src_wb.create_sheet("TRIG")
 
     input_wb = load_workbook(fname)
+
+    # for meta data
+    input_run_number = input_wb["DUT"][par_dict["runNumber"]+str(1)].value.split("->")[0]
+    input_sensor_name = input_wb["DUT"][par_dict["SensorName"]+str(1)].value
+    start_row_in_merge = None
+    end_row_in_merge = None
 
     sheets = ["DUT", "TRIG"]
     for sheet in sheets:
@@ -72,14 +88,24 @@ def mergeExcel(fname="_results.xlxs"):
         for par in par_list:
             rowCounter = 2
             for row in range(1,input_max_row+1):
+                if start_row_in_merge==None:
+                    start_row_in_merge = max_row+rowCounter
                 input_cell = par_dict[par] + str(row)
                 src_cell = par_dict[par] + str(max_row+rowCounter)
                 src_ws[src_cell] = input_ws[input_cell].value
-                #print(input_ws[input_cell].value)
+                end_row_in_merge = max_row+rowCounter
                 rowCounter+=1
-                
-    src_wb.save("/tmp/merged_beta_results.xlsx")
 
+    src_wb.save("{}/user_data/merged_beta_results.xlsx".format(output_dir))
+
+    if os.path.exists("{}/user_data/merged_log.json".format(output_dir))
+        with open("{}/user_data/merged_log.json".format(output_dir)) as f:
+            meta_data = json.load(f)
+            meta_data["log"].append( {"run":input_run_number, "sensor":input_sensor_name, "start":start_row_in_merge, "end":end_row_in_merge} )
+    else:
+        with open("{}/user_data/merged_log.json".format(output_dir), "w") as f:
+            meta_data["log"].append( {"run":input_run_number, "sensor":input_sensor_name, "start":start_row_in_merge, "end":end_row_in_merge} )
+            json.dump(meta_data, f)
 
 
 def parseINIToExcel(fname="_results.ini"):
@@ -194,5 +220,13 @@ def parseINIToExcel(fname="_results.ini"):
 
     mergeExcel("_results.xlsx")
 
+if __name__=="__main__":
+    import argparse
+    cml_parser = argparse.ArgumentParser()
+    cml_parser.add_argument("--task", dest="task", nargs="?", default="parse", type=int, help="no help!")
+    argv = cml_parser.parse_args()
 
-parseINIToExcel()
+    if argv.task == "parse":
+        parseINIToExcel()
+    elif argv.task=="merge":
+        mergeExcel()

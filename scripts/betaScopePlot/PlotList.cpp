@@ -4,8 +4,8 @@ std::vector<PlotList> create_job()
 {
   BookPlot my_booked_plot;
 
-  my_booked_plot.book_plot( 2, "pmax2", "Pmax_Ch2", "Pmax ch-2", "pmax2[0]", "Pmax Ch2 [mV]", "LanGaus", 100, 0, 500);
-  my_booked_plot.book_plot( 3, "pmax3", "Pmax_Ch3", "Pmax ch-3", "pmax3[0]", "Pmax Ch3 [mV]", "LanGaus", 100, 0, 500);
+  my_booked_plot.book_plot( 2, "pmax2", "Pmax_Ch2", "Pmax ch-2", "pmax2[0]", "Pmax Ch2 [mV]", "LanGaus", 100, 0, 400);
+  my_booked_plot.book_plot( 3, "pmax3", "Pmax_Ch3", "Pmax ch-3", "pmax3[0]", "Pmax Ch3 [mV]", "LanGaus", 60, 0, 400);
 
   my_booked_plot.book_plot( 2, "rms2", "RMS_Ch2", "RMS ch-2", "rms2[0]", "Noise Ch2 [mV]", "gaus", 100, 0, 10);
   my_booked_plot.book_plot( 3, "rms3", "RMS_Ch3", "RMS ch-3", "rms3[0]", "Noise Ch3 [mV]", "gaus", 100, 0, 10);

@@ -115,14 +115,13 @@ void getResults(std::string plotConfig_fname, std::string outDir = "Results/" )
 	if(dir_check == 0){printf("Directory is created. \n");}
 	else{printf("Directory already exists! Previous data will be replaced...\n");}
 	std::string mv_png = "mv *.png " + outDir;
-	std::string mv_results_txt = "mv *_results.txt " + outDir;
 	std::string mv_results_ini = "mv *_results.ini " + outDir;
 	std::string mv_results_xlsx = "mv *_results.xlsx " + outDir;
 	system( "python  $BETASCOPE_SCRIPTS/betaScope_pyScript/parseBetaResultsToExcel.py");
 	system( mv_png.c_str() );
-	system( mv_results_txt.c_str() );
 	system( mv_results_ini.c_str() );
 	system( mv_results_xlsx.c_str());
+  system( "cp *Description*.ini "+outDir.c_str() );
 
 	printf( "output is in the %s directory. \n", outDir.c_str() );
 	printf("\n");
