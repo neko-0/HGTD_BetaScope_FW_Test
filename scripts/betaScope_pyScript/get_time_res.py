@@ -80,11 +80,16 @@ if __name__ == "__main__":
     sensor_name = config_file["header"]["sensor"]
     dut_ch = config_file["header"]["dut_channel"]
     trig_ch = config_file["header"]["trigger_channel"]
+    run_num = ""
 
     output = []
     for runIndex in range(int(num_files)):
 
         fileName = file_prefix + config_file["run%s"%runIndex]["file_name"]
+
+        if not run_num:
+            run_num = fileName.split("Sr_Run")[1].split("_")[0]
+
         bias = int(config_file["run%s"%runIndex]["bias"].split("V")[0])
         try:
             temperature = config_file["run%s"%runIndex]["temperature"]
@@ -100,7 +105,7 @@ if __name__ == "__main__":
         dut_time_res = math.sqrt( math.pow(result["sigma"],2) - math.pow(trigger_resolution,2) )
         dut_time_res_err = math.sqrt( math.pow(result["sigma"],2)/(math.pow(result["sigma"],2) - math.pow(trigger_resolution,2))*math.pow(result["sigma_err"],2) + math.pow(trigger_resolution,2)/(math.pow(result["sigma"],2) - math.pow(trigger_resolution,2))*math.pow(trigger_resolution_err, 2))
 
-        output.append("%s,%s,%s,%s"%(temperature, bias, dut_time_res,dut_time_res_err))
+        output.append("%s,%s,%s,%s,%s"%(run_num, temperature, bias, dut_time_res,dut_time_res_err))
 
         #saving plots
         result["histo"].GetXaxis().SetTitle("Time Difference")
@@ -111,6 +116,9 @@ if __name__ == "__main__":
 
 
     print("Sensor: %s"%sensor_name)
-    print("Temp,Bias,Res,ResErr")
+    print("Run,Temp,Bias,Res,ResErr")
     for o in output:
         print(o)
+    with open("res{}.txt".format(argv.CFD),"w") as f:
+        for o in output:
+            f.write("{}\n".format(o) )

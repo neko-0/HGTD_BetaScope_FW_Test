@@ -50,6 +50,11 @@ par_dict = {
 "FallTime" : "DG",
 "FallTime_Error" : "DH",
 "cycle" : "F"
+"CFD50Time" : "BW",
+"CFD50Time_Err" : "BX",
+"CFD20Time" : "DD",
+"CFD20Time" : "DE",
+"Leakage" : "C"
 }
 
 def mergeExcel(fname="_results.xlxs"):
@@ -101,10 +106,10 @@ def mergeExcel(fname="_results.xlxs"):
     if os.path.exists("{}/user_data/merged_log.json".format(output_dir))
         with open("{}/user_data/merged_log.json".format(output_dir)) as f:
             meta_data = json.load(f)
-            meta_data["log"].append( {"run":input_run_number, "sensor":input_sensor_name, "start":start_row_in_merge, "end":end_row_in_merge} )
+            meta_data["log"].append( {"run":str(input_run_number), "sensor":str(input_sensor_name), "start":start_row_in_merge, "end":end_row_in_merge} )
     else:
         with open("{}/user_data/merged_log.json".format(output_dir), "w") as f:
-            meta_data["log"].append( {"run":input_run_number, "sensor":input_sensor_name, "start":start_row_in_merge, "end":end_row_in_merge} )
+            meta_data["log"].append( {"run":str(input_run_number), "sensor":str(input_sensor_name), "start":start_row_in_merge, "end":end_row_in_merge} )
             json.dump(meta_data, f)
 
 
@@ -220,13 +225,81 @@ def parseINIToExcel(fname="_results.ini"):
 
     mergeExcel("_results.xlsx")
 
+#===============================================================================
+def injectData( paramName ):
+    import subprocess
+
+    start_row = None
+    end_row = None
+    meta_data = None
+    src_wb = None
+
+    if os.path.exists("{}/user_data/merged_log.json".format(output_dir)):
+        with open("{}/user_data/merged_log.json".format(output_dir)) as f:
+            meta_data = json.load(f)
+        src_wb = load_workbook("{}/user_data/merged_beta_results.xlsx".format(os.environ["BETASCOPE_SCRIPTS"]) )
+    else:
+        print("Cannot find merge excel file location")
+        return -1
+
+    if paramName=="timing":
+        p = subprocess.call("python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/get_time_res.py --CFD 50")
+        p = subprocess.call("python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/get_time_res.py --CFD 20")
+
+        with open("res50.txt") as f:
+            for line in f.readlines():
+                raw_txt_data = line.split(",")
+                if start_row == None:
+                    for data in meta_data["log"]:
+                        if raw_txt_data[0] in data["run"]:
+                            start_row = data["start"]
+                            break
+                src_wb["DUT"][par_dict["CFD50Time"]+str(start_row)] = line[3] # stroing timing res
+                src_wb["DUT"][par_dict["CFD50Time_Err"]+str(start_row)] = line[4]
+
+        with open("res20.txt") as f:
+            for line in f.readlines():
+                raw_txt_data = line.split(",")
+                if start_row == None:
+                    for data in meta_data["log"]:
+                        if raw_txt_data[0] in data["run"]:
+                            start_row = data["start"]
+                            break
+                src_wb["DUT"][par_dict["CFD20Time"]+str(start_row)] = line[3] # stroing timing res
+                src_wb["DUT"][par_dict["CFD20Time_Err"]+str(start_row)] = line[4]
+                start_row+=1
+        src_wb.save("{}/user_data/merged_beta_results.xlsx".format(os.environ["BETASCOPE_SCRIPTS"]) )
+
+    if paramName=="leakage":
+        p = subprocess.call("python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/read_current.py")
+        with open("leakage.txt") as f:
+            for line in f.readlines():
+                raw_txt_data = line.split(",")
+                if start_row == None:
+                    for data in meta_data["log"]:
+                        if raw_txt_data[0] in data["run"]:
+                            start_row = data["start"]
+                            break
+                src_wb["DUT"][par_dict["Leakage"]+str(start_row)] = line[3] # stroing timing res
+                start_row+=1
+        src_wb.save("{}/user_data/merged_beta_results.xlsx".format(os.environ["BETASCOPE_SCRIPTS"]) )
+
+
+
+
+#===============================================================================
 if __name__=="__main__":
     import argparse
     cml_parser = argparse.ArgumentParser()
-    cml_parser.add_argument("--task", dest="task", nargs="?", default="parse", type=int, help="no help!")
+    cml_parser.add_argument("-task", dest="task", nargs="?", default="parse", type=str, help="no help!")
+    cml_parser.add_argument("-param", dest="param", nargs="?", default="timing", type=str, help="parameters name!")
     argv = cml_parser.parse_args()
 
     if argv.task == "parse":
         parseINIToExcel()
+        injectData("timing")
+        injectData("leakage")
     elif argv.task=="merge":
         mergeExcel()
+    else:
+        parseINIToExcel()
