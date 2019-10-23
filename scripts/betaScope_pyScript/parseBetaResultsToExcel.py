@@ -49,11 +49,11 @@ par_dict = {
 "NewPulseArea_Error" : "CB",
 "FallTime" : "DG",
 "FallTime_Error" : "DH",
-"cycle" : "F"
+"cycle" : "F",
 "CFD50Time" : "BW",
 "CFD50Time_Err" : "BX",
 "CFD20Time" : "DD",
-"CFD20Time" : "DE",
+"CFD20Time_Err" : "DE",
 "Leakage" : "C"
 }
 
@@ -103,12 +103,17 @@ def mergeExcel(fname="_results.xlxs"):
 
     src_wb.save("{}/user_data/merged_beta_results.xlsx".format(output_dir))
 
-    if os.path.exists("{}/user_data/merged_log.json".format(output_dir))
+    if os.path.exists("{}/user_data/merged_log.json".format(output_dir)):
         with open("{}/user_data/merged_log.json".format(output_dir)) as f:
+            print(f)
             meta_data = json.load(f)
             meta_data["log"].append( {"run":str(input_run_number), "sensor":str(input_sensor_name), "start":start_row_in_merge, "end":end_row_in_merge} )
+        with open("{}/user_data/merged_log.json".format(output_dir),"w") as newf:
+            json.dump(meta_data,newf)
     else:
         with open("{}/user_data/merged_log.json".format(output_dir), "w") as f:
+            meta_data = {}
+            meta_data["log"] = []
             meta_data["log"].append( {"run":str(input_run_number), "sensor":str(input_sensor_name), "start":start_row_in_merge, "end":end_row_in_merge} )
             json.dump(meta_data, f)
 
@@ -229,10 +234,10 @@ def parseINIToExcel(fname="_results.ini"):
 def injectData( paramName ):
     import subprocess
 
-    start_row = None
-    end_row = None
     meta_data = None
     src_wb = None
+
+    output_dir = os.environ["BETASCOPE_SCRIPTS"]
 
     if os.path.exists("{}/user_data/merged_log.json".format(output_dir)):
         with open("{}/user_data/merged_log.json".format(output_dir)) as f:
@@ -243,10 +248,12 @@ def injectData( paramName ):
         return -1
 
     if paramName=="timing":
-        p = subprocess.call("python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/get_time_res.py --CFD 50")
-        p = subprocess.call("python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/get_time_res.py --CFD 20")
+        p = subprocess.call("python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/get_time_res.py --CFD 50", shell=True)
+        p = subprocess.call("python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/get_time_res.py --CFD 20", shell=True)
 
         with open("res50.txt") as f:
+            start_row = None
+            end_row = None
             for line in f.readlines():
                 raw_txt_data = line.split(",")
                 if start_row == None:
@@ -254,10 +261,13 @@ def injectData( paramName ):
                         if raw_txt_data[0] in data["run"]:
                             start_row = data["start"]
                             break
-                src_wb["DUT"][par_dict["CFD50Time"]+str(start_row)] = line[3] # stroing timing res
-                src_wb["DUT"][par_dict["CFD50Time_Err"]+str(start_row)] = line[4]
+                src_wb["DUT"][par_dict["CFD50Time"]+str(start_row)] = float(raw_txt_data[3]) # stroing timing res
+                src_wb["DUT"][par_dict["CFD50Time_Err"]+str(start_row)] = float(raw_txt_data[4])
+                start_row+=1
 
         with open("res20.txt") as f:
+            start_row = None
+            end_row = None
             for line in f.readlines():
                 raw_txt_data = line.split(",")
                 if start_row == None:
@@ -265,14 +275,16 @@ def injectData( paramName ):
                         if raw_txt_data[0] in data["run"]:
                             start_row = data["start"]
                             break
-                src_wb["DUT"][par_dict["CFD20Time"]+str(start_row)] = line[3] # stroing timing res
-                src_wb["DUT"][par_dict["CFD20Time_Err"]+str(start_row)] = line[4]
+                src_wb["DUT"][par_dict["CFD20Time"]+str(start_row)] = float(raw_txt_data[3]) # stroing timing res
+                src_wb["DUT"][par_dict["CFD20Time_Err"]+str(start_row)] = float(raw_txt_data[4])
                 start_row+=1
         src_wb.save("{}/user_data/merged_beta_results.xlsx".format(os.environ["BETASCOPE_SCRIPTS"]) )
 
     if paramName=="leakage":
-        p = subprocess.call("python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/read_current.py")
+        p = subprocess.call("python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/read_current.py", shell=True)
         with open("leakage.txt") as f:
+            start_row = None
+            end_row = None
             for line in f.readlines():
                 raw_txt_data = line.split(",")
                 if start_row == None:
@@ -280,7 +292,8 @@ def injectData( paramName ):
                         if raw_txt_data[0] in data["run"]:
                             start_row = data["start"]
                             break
-                src_wb["DUT"][par_dict["Leakage"]+str(start_row)] = line[3] # stroing timing res
+                src_wb["DUT"][par_dict["Leakage"]+str(start_row)] = float(raw_txt_data[3]) # stroing timing res
+                #print(raw_txt_data[3])
                 start_row+=1
         src_wb.save("{}/user_data/merged_beta_results.xlsx".format(os.environ["BETASCOPE_SCRIPTS"]) )
 
@@ -301,5 +314,7 @@ if __name__=="__main__":
         injectData("leakage")
     elif argv.task=="merge":
         mergeExcel()
+    elif argv.task=="inject":
+        injectData(argv.param)
     else:
         parseINIToExcel()

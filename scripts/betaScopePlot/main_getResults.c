@@ -117,11 +117,12 @@ void getResults(std::string plotConfig_fname, std::string outDir = "Results/" )
 	std::string mv_png = "mv *.png " + outDir;
 	std::string mv_results_ini = "mv *_results.ini " + outDir;
 	std::string mv_results_xlsx = "mv *_results.xlsx " + outDir;
+  std::string cp_description = "cp *Description*.ini "+outDir;
 	system( "python  $BETASCOPE_SCRIPTS/betaScope_pyScript/parseBetaResultsToExcel.py");
 	system( mv_png.c_str() );
 	system( mv_results_ini.c_str() );
 	system( mv_results_xlsx.c_str());
-  system( "cp *Description*.ini "+outDir.c_str() );
+  system( cp_description.c_str() );
 
 	printf( "output is in the %s directory. \n", outDir.c_str() );
 	printf("\n");

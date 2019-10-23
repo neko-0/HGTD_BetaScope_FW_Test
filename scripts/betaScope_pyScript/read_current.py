@@ -56,4 +56,5 @@ if __name__ == "__main__":
         print("%s,%s,%s,%s"%(item[4],item[1], item[2],item[3]*1000.0))
 
     with open("leakage.txt","w") as f:
-        f.write("%s,%s,%s,%s\n"%(item[4],item[1], item[2],item[3]*1000.0))
+        for item in current_data:
+            f.write("%s,%s,%s,%s\n"%(item[4],item[1], item[2],item[3]*1000.0))
