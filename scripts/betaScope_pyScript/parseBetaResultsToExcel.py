@@ -67,10 +67,11 @@ def mergeExcel(fname="_results.xlxs"):
     for sheet in sheets:
         src_ws = src_wb[sheet]
         input_ws = input_wb[sheet]
+        input_max_row = input_ws.max_row
         max_row = src_ws.max_row
         for par in par_list:
             rowCounter = 2
-            for row in range(1,max_row+1):
+            for row in range(1,input_max_row+1):
                 input_cell = par_dict[par] + str(row)
                 src_cell = par_dict[par] + str(max_row+rowCounter)
                 src_ws[src_cell] = input_ws[input_cell].value
