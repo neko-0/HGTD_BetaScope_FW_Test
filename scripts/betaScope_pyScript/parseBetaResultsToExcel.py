@@ -65,14 +65,16 @@ def mergeExcel(fname="_results.xlxs"):
 
     sheets = ["DUT", "TRIG"]
     for sheet in sheets:
-        rowCounter = 2
         src_ws = src_wb[sheet]
         input_ws = input_wb[sheet]
         max_row = src_ws.max_row
         for par in par_list:
-            input_cell = par_dict[par] + str(rowCounter-1)
-            src_cell = par_dict[par] + str(max_row+rowCounter)
-            src_ws[src_cell] = input_ws[input_cell].value
+            rowCounter = 2
+            for row in range(1,max_row+1)
+                input_cell = par_dict[par] + str(row)
+                src_cell = par_dict[par] + str(max_row+rowCounter)
+                src_ws[src_cell] = input_ws[input_cell].value
+                rowCounter+=1
 
     if no_merge_file:
         src_wb.save("/tmp/merged_beta_results.xlsx")
