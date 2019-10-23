@@ -282,7 +282,7 @@ if __name__ == '__main__':
     commandline_ArgsParser.add_argument("--trigCh", dest="trigCh", type=str, nargs="?", default=3, help="Trigger Channel")
     commandline_ArgsParser.add_argument("--runNum", dest="runNum", type=int, help="Run number")
     commandline_ArgsParser.add_argument("--configFile", dest="configFile", nargs="?", default="run_info_v08022018.ini", type=str, help="Configuration file")
-    commandline_ArgsParser.add_argument("--trigFixedCut", dest="trigFixedCut", nargs="?", default="200 500 70 375", type=str, help="Preset trigger cut")
+    commandline_ArgsParser.add_argument("--trigFixedCut", dest="trigFixedCut", nargs="?", default="200 500 70 360", type=str, help="Preset trigger cut")
     commandline_ArgsParser.add_argument("--tmax_minB", dest="tmax_minB", nargs="?", default=-2000, type=int, help="dut tmax min bound")
     commandline_ArgsParser.add_argument("--tmax_maxB", dest="tmax_maxB", nargs="?", default=2000, type=int, help="dut tmax max bound")
     argv = commandline_ArgsParser.parse_args()
