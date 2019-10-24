@@ -167,9 +167,9 @@ class Lgad(cmd.Cmd, object):
 
     def do_show_ana_progress(self, opt=""):
         if "persist" in opt:
-            os.system("watch --color tail $BETASCOPE_SCRIPTS/nohup.log")
+            os.system("watch --color tail /tmp/betaPlot_nohup.log")
         else:
-            os.system("tail $BETASCOPE_SCRIPTS/nohup.log")
+            os.system("tail /tmp/betaPlot_nohup.log")
 
     def do_auto_cut( self, run="" ):
         if not hasattr(self,"current_run"):
