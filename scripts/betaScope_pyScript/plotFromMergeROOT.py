@@ -21,7 +21,7 @@ data_prep = [
 
 run_range = [500,600]
 
-def searchRun( regExpress="HPK|2[xX]2|3[eE]15", run_range):
+def searchRun( regExpress, run_range):
     user_data_dir = os.environ["BETASCOPE_SCRIPTS"]
     user_data_dir += "/user_data/"
     tfile = ROOT.TFile.Open("{}/merged.root".format(user_data_dir) )
@@ -39,7 +39,7 @@ def searchRun( regExpress="HPK|2[xX]2|3[eE]15", run_range):
     for r in matched_run:
         print(r)
 
-searchRun()
+searchRun("HPK|2[xX]2|3[eE]15", run_range)
 '''
 def plotFromMergeROOT(data_prep, odir, run_range):
     user_data_dir = os.environ["BETASCOPE_SCRIPTS"]
