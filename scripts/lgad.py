@@ -264,10 +264,10 @@ class Lgad(cmd.Cmd, object):
                             p = subprocess.Popen("{nohup} $BETASCOPE_SCRIPTS/betaScopePlot/bin/getResults run_info_v08022018.ini {nohup_log}".format(nohup=nohup, nohup_log=nohup_log), shell=True)
                             p.wait()
 
-                #job = threading.Thread(name="nohupRun", target=nohupRun, args=(mode,) )
-                job = mp.Process(target=nohupRun, args=(mode,) )
-                job.daemon = True
-                job.start()
+                    #job = threading.Thread(name="nohupRun", target=nohupRun, args=(mode,) )
+                    job = mp.Process(target=nohupRun, args=(mode,) )
+                    job.daemon = True
+                    job.start()
 
 
 if __name__ == "__main__":
