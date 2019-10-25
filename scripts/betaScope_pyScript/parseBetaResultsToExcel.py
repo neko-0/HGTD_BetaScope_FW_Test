@@ -325,7 +325,7 @@ def toROOT():
         branches = {}
         for par in par_dict.keys():
             if "SensorName" in par:
-                branches[par] = array("c", "".join( list(src_ws[par_dict[par]+str(start_row)].value)[1:-1])+"\0" )
+                branches[par] = array("c", str(src_ws[par_dict[par]+str(start_row)].value))
                 ttree.Branch(par, branches[par], "{}/C".format(par) )
             elif "runNumber" in par:
                 continue
@@ -337,7 +337,8 @@ def toROOT():
                 if "SensorName" in par or "runNumber" in par:
                     continue
                 else:
-                    branches[par][0] = src_ws[par_dict[par]+str(row)].value
+                    print(src_ws[par_dict[par]+str(row)].value)
+                    branches[par][0] = float(src_ws[par_dict[par]+str(row)].value)
             ttree.Fill()
         ttree.Write(key, ROOT.TObject.kOverwrite)
     tfile.Close()
