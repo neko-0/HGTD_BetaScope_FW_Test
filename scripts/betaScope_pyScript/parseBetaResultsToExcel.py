@@ -110,7 +110,7 @@ def mergeExcel(fname="_results.xlxs"):
             keyName = "run"+str(input_run_number)
             duplicate = 2
             while keyName in meta_data.keys():
-                keyName = keyName.spliit("p")[0]+"p{}".format(duplicate)
+                keyName = keyName.split("p")[0]+"p{}".format(duplicate)
                 duplicate+=1
             meta_data[keyName] = {"sensor":str(input_sensor_name), "start":start_row_in_merge, "end":end_row_in_merge}
         with open("{}/user_data/merged_log.json".format(output_dir),"w") as newf:
