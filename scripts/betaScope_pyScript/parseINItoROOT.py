@@ -1,4 +1,5 @@
 import ROOT
+from array import array
 from parseBetaResultsToExcel import *
 
 def parseINItoROOT(fname="_results.ini"):
