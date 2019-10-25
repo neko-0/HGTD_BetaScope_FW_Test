@@ -291,7 +291,8 @@ def injectData( paramName ):
             for line in f.readlines():
                 raw_txt_data = line.split(",")
                 if start_row == None:
-                    print(raw_txt_data)
+                    print(meta_data.keys())
+                    print(raw_txt_data[0])
                     if str(raw_txt_data[0]) in meta_data.keys():
                         start_row = meta_data["run"+str(raw_txt_data[0])]["start"]
                         print("starting row {}".format(start_row))
