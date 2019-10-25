@@ -316,7 +316,7 @@ def toROOT():
         return -1
 
     src_ws = src_wb["DUT"]
-    tfile = ROOT.TFile("{}/user_data/merged.root", "UPDATE")
+    tfile = ROOT.TFile("{}/user_data/merged.root".format(output_dir), "UPDATE")
     tfile.cd()
     for key in meta_data.keys():
         start_row = meta_data[key]["start"]
