@@ -262,9 +262,10 @@ def injectData( paramName ):
             for line in f.readlines():
                 raw_txt_data = line.split(",")
                 if start_row == None:
-                    if raw_txt_data[0] in meta_data.keys():
-                        start_row = meta_data["run"+str(raw_txt_data[0])]["start"]
-                        break
+                    for key in meta_data.keys():
+                        if raw_txt_data[0] in key:
+                            start_row = meta_data["run"+str(raw_txt_data[0])]["start"]
+                            break
                 src_wb["DUT"][par_dict["CFD50Time"]+str(start_row)] = float(raw_txt_data[3]) # stroing timing res
                 src_wb["DUT"][par_dict["CFD50Time_Err"]+str(start_row)] = float(raw_txt_data[4])
                 start_row+=1
@@ -275,9 +276,10 @@ def injectData( paramName ):
             for line in f.readlines():
                 raw_txt_data = line.split(",")
                 if start_row == None:
-                    if raw_txt_data[0] in meta_data.keys():
-                        start_row = meta_data["run"+str(raw_txt_data[0])]["start"]
-                        break
+                    for key in meta_data.keys():
+                        if raw_txt_data[0] in key:
+                            start_row = meta_data["run"+str(raw_txt_data[0])]["start"]
+                            break
                 src_wb["DUT"][par_dict["CFD20Time"]+str(start_row)] = float(raw_txt_data[3]) # stroing timing res
                 src_wb["DUT"][par_dict["CFD20Time_Err"]+str(start_row)] = float(raw_txt_data[4])
                 start_row+=1
@@ -293,10 +295,11 @@ def injectData( paramName ):
                 if start_row == None:
                     print(meta_data.keys())
                     print(raw_txt_data[0])
-                    if str(raw_txt_data[0]) in meta_data.keys():
-                        start_row = meta_data["run"+str(raw_txt_data[0])]["start"]
-                        print("starting row {}".format(start_row))
-                        break
+                    for key in meta_data.keys():
+                        if str(raw_txt_data[0]) in key:
+                            start_row = meta_data["run"+str(raw_txt_data[0])]["start"]
+                            print("starting row {}".format(start_row))
+                            break
                     if start_row==None:
                         print("cannot find starting row")
                         return -1
