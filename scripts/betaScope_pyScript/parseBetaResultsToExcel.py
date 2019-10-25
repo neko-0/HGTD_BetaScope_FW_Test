@@ -107,14 +107,18 @@ def mergeExcel(fname="_results.xlxs"):
         with open("{}/user_data/merged_log.json".format(output_dir)) as f:
             print(f)
             meta_data = json.load(f)
-            meta_data["log"].append( {"run":str(input_run_number), "sensor":str(input_sensor_name), "start":start_row_in_merge, "end":end_row_in_merge} )
+            keyName = "run"+str(input_run_number)
+            duplicate = 2
+            while keyName in meta_data.keys():
+                keyName = keyName.spliit("p")[0]+"p{}".format(duplicate)
+                duplicate+=1
+            meta_data[keyName] = {"sensor":str(input_sensor_name), "start":start_row_in_merge, "end":end_row_in_merge}
         with open("{}/user_data/merged_log.json".format(output_dir),"w") as newf:
             json.dump(meta_data,newf)
     else:
         with open("{}/user_data/merged_log.json".format(output_dir), "w") as f:
             meta_data = {}
-            meta_data["log"] = []
-            meta_data["log"].append( {"run":str(input_run_number), "sensor":str(input_sensor_name), "start":start_row_in_merge, "end":end_row_in_merge} )
+            meta_data["run"+str(input_run_number)] = {"sensor":str(input_sensor_name), "start":start_row_in_merge, "end":end_row_in_merge}
             json.dump(meta_data, f)
 
 
@@ -257,10 +261,9 @@ def injectData( paramName ):
             for line in f.readlines():
                 raw_txt_data = line.split(",")
                 if start_row == None:
-                    for data in meta_data["log"]:
-                        if raw_txt_data[0] in data["run"]:
-                            start_row = data["start"]
-                            break
+                    if raw_txt_data[0] in meta_data.keys():
+                        start_row = meta_data["run"+str(raw_txt_data[0])]["start"]
+                        break
                 src_wb["DUT"][par_dict["CFD50Time"]+str(start_row)] = float(raw_txt_data[3]) # stroing timing res
                 src_wb["DUT"][par_dict["CFD50Time_Err"]+str(start_row)] = float(raw_txt_data[4])
                 start_row+=1

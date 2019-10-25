@@ -12,6 +12,7 @@ import sys
 import cmd
 import subprocess
 import threading
+import time
 import multiprocessing as mp
 from shutil import copyfile, copy
 from colorStringFormating import *
@@ -37,6 +38,10 @@ class Lgad(cmd.Cmd, object):
         self.raw_dir.append( predefined_path["__raw"] )
         self.raw_dir.append( predefined_path["__raw2"] )
         self.files = os.listdir(os.getcwd())
+        self.package_dir = os.environ['BETASCOPE_SCRIPTS']
+        try:
+            copyfile.("{}/user_data/merged_beta_results.xlsx".format(self.package_dir), "{}/user_data/bkup/merged_beta_results_{}.xlsx".format(self.package_dir, str(time.time()))
+            copyfile.("{}/user_data/merged_log.json".format(self.package_dir), "{}/user_data/bkup/merged_log_{}.json".format(self.package_dir, str(time.time()))
         cmd.Cmd.__init__(self)
 
     def cmdloop(self, intro=None):
@@ -125,6 +130,7 @@ class Lgad(cmd.Cmd, object):
                 self.current_run = self.output_dir + "/" + self.runNum_dir
                 colorString.sysError("direcotry {} is already there".format(self.current_run) )
             copyfile(rawDir+self.runNum_dir+"/fromDAQ/Sr_Run_{}_Description.ini".format(self.runNum), self.current_run+"/Sr_Run_{}_Description.ini".format(self.runNum))
+            self.do_cd_current_run()
         else:
             colorString.sysError("No run number {}".format(runNum) )
 
