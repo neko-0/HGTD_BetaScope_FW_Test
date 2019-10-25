@@ -23,6 +23,9 @@ cd betaScopePlot
 make
 
 cd ${current_path}
+echo "creating user data direcotry"
+mkdir user_data
+mkdir user_data/bkup
 echo "setting up alias"
 alias run_WaveformConfig='${BETASCOPE_SCRIPTS}/../BetaScope_Ana/BetaScopeWaveformAna/bin/GenerateWaveformConfig'
 alias run_WaveformAna='${BETASCOPE_SCRIPTS}/../BetaScope_Ana/BetaScopeWaveformAna/bin/Run_WaveformAna WaveformAnaConfig.ini --skipWaveform'
