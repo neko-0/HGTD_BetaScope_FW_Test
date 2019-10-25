@@ -109,7 +109,7 @@ def parseINItoROOT(fname="_results.ini"):
                         branches[par][0] = float(config[bias][par])
             ttree.Fill()
 
-        ttree.Write(key, ROOT.TObject.kOverwrite)
+        ttree.Write("run"+str(RunNum), ROOT.TObject.kOverwrite)
         tfile.Close()
 
 if __name__=="__main__":
