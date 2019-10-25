@@ -246,6 +246,7 @@ def injectData( paramName ):
     if os.path.exists("{}/user_data/merged_log.json".format(output_dir)):
         with open("{}/user_data/merged_log.json".format(output_dir)) as f:
             meta_data = json.load(f)
+            print(meta_data)
         src_wb = load_workbook("{}/user_data/merged_beta_results.xlsx".format(os.environ["BETASCOPE_SCRIPTS"]) )
     else:
         print("Cannot find merge excel file location")
@@ -290,8 +291,7 @@ def injectData( paramName ):
             for line in f.readlines():
                 raw_txt_data = line.split(",")
                 if start_row == None:
-                    if raw_txt_data[0] in meta_data.keys():
-                        print(meta_data.keys())
+                    if str(raw_txt_data[0]) in meta_data.keys():
                         start_row = meta_data["run"+str(raw_txt_data[0])]["start"]
                         break
                 src_wb["DUT"][par_dict["Leakage"]+str(start_row)] = float(raw_txt_data[3]) # stroing timing res
