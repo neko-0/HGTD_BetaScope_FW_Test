@@ -52,7 +52,7 @@ def parseINItoROOT(fname="_results.ini"):
         ttree = ROOT.TTree("run"+str(RunNum),"from _results.ini")
         for par in par_dict.keys():
             if "SensorName" in par:
-                branches[par] = array("c", SensorName)
+                branches[par] = array("c", str(SensorName))
                 ttree.Branch(par, branches[par], "{}/C".format(par) )
             elif "runNumber" in par:
                 continue
