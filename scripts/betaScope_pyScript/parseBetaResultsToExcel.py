@@ -218,7 +218,7 @@ def parseINIToExcel(fname="_results.ini"):
                     elif (par == "Bias"):
                         cell = par_dict[par] + str(rowCounter)
                         ws[cell] = float(Bias)
-                        if cycle:
+                    elif par=="cycle":
                             cell = par_dict["cycle"] + str(rowCounter)
                             ws[cell] = int(cycle)
                     elif (par == "Resistance"):
@@ -337,7 +337,8 @@ def toROOT():
                 if "SensorName" in par or "runNumber" in par:
                     continue
                 else:
-                    print(src_ws[par_dict[par]+str(row)].value)
+                    if src_ws[par_dict[par]+str(row)].value == None:
+                        src_ws[par_dict[par]+str(row)].value = -99999999999999
                     branches[par][0] = float(src_ws[par_dict[par]+str(row)].value)
             ttree.Fill()
         ttree.Write(key, ROOT.TObject.kOverwrite)
