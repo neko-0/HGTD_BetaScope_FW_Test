@@ -29,17 +29,17 @@ def searchRun( regExpress, run_range):
     for run in range(run_range[0], run_range[1]):
         try:
             ttree = getattr(tfile, "run"+str(run))
-            ttree.GetEntry(0)
-            print(ttree.SensorName)
-            match_result = re.findall(regExpress, str(ttree.SensorName), re.DOTALL)
-            print(match_result)
-            for match in match_result:
-                if match:
-                    print(match)
-                    continue
+            check_dupli = 2
+            while True:
+                if hasattr(tfile,"run"+str(run)+"p"+str(check_dupli)):
+                    ttree = getattr(tfile,"run"+str(run)+"p"+str(check_dupli))
+                    check_dupli+=1
                 else:
-                    raise
-            matched_run.append(run)
+                    break
+            ttree.GetEntry(0)
+            #print(ttree.SensorName)
+            if bool(re.search(regExpress, str(ttree.SensorName))):
+                 matched_run.append(run)
         except Exception as e:
             #print(e)
             continue
@@ -48,7 +48,7 @@ def searchRun( regExpress, run_range):
     for r in matched_run:
         print(r)
 
-searchRun("(HPK)(2[xX]2)(3[eE]15)(UCSC)", run_range)
+searchRun("(HPK)(.*)(2[xX]2)(.*)(3[eE]15)(.*)(UCSC)(.?)", run_range)
 '''
 def plotFromMergeROOT(data_prep, odir, run_range):
     user_data_dir = os.environ["BETASCOPE_SCRIPTS"]
