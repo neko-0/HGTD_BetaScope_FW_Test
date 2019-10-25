@@ -41,7 +41,7 @@ class Lgad(cmd.Cmd, object):
         self.package_dir = os.environ['BETASCOPE_SCRIPTS']
         try:
             copyfile.("{}/user_data/merged_beta_results.xlsx".format(self.package_dir), "{}/user_data/bkup/merged_beta_results_{}.xlsx".format(self.package_dir, str(time.time()))
-            copyfile.("{}/user_data/merged_log.json".format(self.package_dir), "{}/user_data/bkup/merged_log_{}.json".format(self.package_dir, str(time.time()))
+            copyfile.("{}/user_data/merged_log.json".format(self.package_dir), "{}/user_data/bkup/merged_log_{}.json".format(self.package_dir, time.time()))
         cmd.Cmd.__init__(self)
 
     def cmdloop(self, intro=None):
