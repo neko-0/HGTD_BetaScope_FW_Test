@@ -274,10 +274,9 @@ def injectData( paramName ):
             for line in f.readlines():
                 raw_txt_data = line.split(",")
                 if start_row == None:
-                    for data in meta_data["log"]:
-                        if raw_txt_data[0] in data["run"]:
-                            start_row = data["start"]
-                            break
+                    if raw_txt_data[0] in meta_data.keys():
+                        start_row = meta_data["run"+str(raw_txt_data[0])]["start"]
+                        break
                 src_wb["DUT"][par_dict["CFD20Time"]+str(start_row)] = float(raw_txt_data[3]) # stroing timing res
                 src_wb["DUT"][par_dict["CFD20Time_Err"]+str(start_row)] = float(raw_txt_data[4])
                 start_row+=1
@@ -301,6 +300,45 @@ def injectData( paramName ):
         src_wb.save("{}/user_data/merged_beta_results.xlsx".format(os.environ["BETASCOPE_SCRIPTS"]) )
 
 
+#===============================================================================
+def toROOT():
+    import ROOT
+    from array import array
+
+    src_wb = None
+    output_dir = os.environ["BETASCOPE_SCRIPTS"]
+    if os.path.exists("{}/user_data/merged_log.json".format(output_dir)):
+        with open("{}/user_data/merged_log.json".format(output_dir)) as f:
+            meta_data = json.load(f)
+        src_wb = load_workbook("{}/user_data/merged_beta_results.xlsx".format(os.environ["BETASCOPE_SCRIPTS"]) )
+    else:
+        print("Cannot find merge excel file location")
+        return -1
+
+    src_ws = src_wb["DUT"]
+    tfile = ROOT.TFile("{}/user_data/merged.root", "UPDATE")
+    tfile.cd()
+    for key in meta_data.keys():
+        start_row = meta_data[key]["start"]
+        end_row = meta_data[key]["end"]
+        ttree = ROOT.TTree(key,"from merged excel")
+        branches = {}
+        for par in par_dict.keys():
+            if "SensorName" in par or "runNumber" in par:
+                branches[par] = array("c", "".join( list(src_ws[par_dict[par]+str(start_row)].value)[1:-1]+"\0" ) )
+                ttree.Branch(par, branches[par], "{}/C".format(par) )
+            else:
+                branches[par] = array("d", [0])
+                ttree.Branch(par, branches[par], "{}/D".format(par) )
+        for row in range(start_row,end_row+1):
+            for par in par_dict.keys():
+                if "SensorName" in par or "runNumber" in par:
+                    continue
+                else:
+                    branches[par][0] = src_ws[par_dict[par]+str(row)].value
+            ttree.Fill()
+        ttree.Write(key, ROOT.TObject.kOverwrite)
+    tfile.Close()
 
 
 #===============================================================================
@@ -319,5 +357,7 @@ if __name__=="__main__":
         mergeExcel()
     elif argv.task=="inject":
         injectData(argv.param)
+    elif argv.task=="toROOT":
+        toROOT()
     else:
         parseINIToExcel()
