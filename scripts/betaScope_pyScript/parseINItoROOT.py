@@ -98,7 +98,7 @@ def parseINItoROOT(fname="_results.ini"):
                             Temp = config[bias]["temperature"]
                         except:
                             Temp = "-30"
-                        branches[par][0]=Temp
+                        branches[par][0]=float(Temp)
                     elif (par == "Bias"):
                         branches[par][0] = float(Bias)
                     elif par=="cycle":
