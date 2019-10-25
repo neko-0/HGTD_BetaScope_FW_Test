@@ -17,7 +17,7 @@ def parseINItoROOT(fname="_results.ini"):
 
     dut_trig = ["DUT"]
 
-    tfile = ROOT.TFile("_results.root".format(output_dir), "RECREATE")
+    tfile = ROOT.TFile("_results.root", "RECREATE")
     tfile.cd()
     branches = {}
 
