@@ -293,7 +293,7 @@ def injectData( paramName ):
                     if raw_txt_data[0] in meta_data.keys():
                         start_row = meta_data["run"+str(raw_txt_data[0])]["start"]
                         break
-                src_wb["DUT"].cell(par_dict["Leakage"]+str(start_row)]) = float(raw_txt_data[3]) # stroing timing res
+                src_wb["DUT"].cell(par_dict["Leakage"]+str(start_row)) = float(raw_txt_data[3]) # stroing timing res
                 #print(raw_txt_data[3])
                 start_row+=1
         src_wb.save("{}/user_data/merged_beta_results.xlsx".format(os.environ["BETASCOPE_SCRIPTS"]) )
