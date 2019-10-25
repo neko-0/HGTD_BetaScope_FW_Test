@@ -290,10 +290,9 @@ def injectData( paramName ):
             for line in f.readlines():
                 raw_txt_data = line.split(",")
                 if start_row == None:
-                    for data in meta_data["log"]:
-                        if raw_txt_data[0] in data["run"]:
-                            start_row = data["start"]
-                            break
+                    if raw_txt_data[0] in meta_data.keys():
+                        start_row = meta_data["run"+str(raw_txt_data[0])]["start"]
+                        break
                 src_wb["DUT"][par_dict["Leakage"]+str(start_row)] = float(raw_txt_data[3]) # stroing timing res
                 #print(raw_txt_data[3])
                 start_row+=1
