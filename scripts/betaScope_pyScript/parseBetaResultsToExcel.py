@@ -293,7 +293,11 @@ def injectData( paramName ):
                 if start_row == None:
                     if str(raw_txt_data[0]) in meta_data.keys():
                         start_row = meta_data["run"+str(raw_txt_data[0])]["start"]
+                        print("starting row {}".format(start_row))
                         break
+                    if start_row==None:
+                        print("cannot find starting row")
+                        return -1
                 src_wb["DUT"][par_dict["Leakage"]+str(start_row)] = float(raw_txt_data[3]) # stroing timing res
                 #print(raw_txt_data[3])
                 start_row+=1
