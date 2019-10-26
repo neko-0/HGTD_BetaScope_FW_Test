@@ -268,12 +268,12 @@ def injectData( paramName ):
                             if "p" in key:
                                 duplicated = 2
                                 while True:
-                                    run = "run"+str(raw_txt_data[0])+"p"+duplicated
+                                    run = "run"+str(raw_txt_data[0])+"p"+str(duplicated)
                                     if run in key:
                                         duplicated+=1
                                     else:
                                         duplicate-=1
-                                        run = "run"+str(raw_txt_data[0])+"p"+duplicated
+                                        run = "run"+str(raw_txt_data[0])+"p"+str(duplicated)
                                         break
                             start_row = meta_data[run]["start"]
                             break
@@ -293,12 +293,12 @@ def injectData( paramName ):
                             if "p" in key:
                                 duplicated = 2
                                 while True:
-                                    run = "run"+str(raw_txt_data[0])+"p"+duplicated
+                                    run = "run"+str(raw_txt_data[0])+"p"+str(duplicated)
                                     if run in key:
                                         duplicated+=1
                                     else:
                                         duplicate-=1
-                                        run = "run"+str(raw_txt_data[0])+"p"+duplicated
+                                        run = "run"+str(raw_txt_data[0])+"p"+str(duplicated)
                                         break
                             start_row = meta_data[run]["start"]
                             break
@@ -323,12 +323,12 @@ def injectData( paramName ):
                             if "p" in key:
                                 duplicated = 2
                                 while True:
-                                    run = "run"+str(raw_txt_data[0])+"p"+duplicated
+                                    run = "run"+str(raw_txt_data[0])+"p"+str(duplicated)
                                     if run in key:
                                         duplicated+=1
                                     else:
                                         duplicate-=1
-                                        run = "run"+str(raw_txt_data[0])+"p"+duplicated
+                                        run = "run"+str(raw_txt_data[0])+"p"+str(duplicated)
                                         break
                             start_row = meta_data[run]["start"]
                             break
