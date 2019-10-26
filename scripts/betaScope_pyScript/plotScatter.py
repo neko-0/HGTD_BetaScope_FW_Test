@@ -7,18 +7,23 @@ import os
 
 ROOT.gROOT.SetBatch(True)
 
-def plotScatter(fname, cuts, x, y, xtitle, ytitle):
+def plotScatter(fname, cuts, x, y, xtitle, ytitle, title):
     tfile = ROOT.TFile.Open(fname)
     ttree = tfile.wfm
     expre = "{}:{}".format(y,x)
-    histo2D = ROOT.TH2D("histo2D", "", 200, 0, 1000, 200, 0, 1000)
+    histo2D = ROOT.TH2D("histo2D", title, 150, 0, 1500, 150, 0, 1500)
     histo2D.GetXaxis().SetTitle(xtitle)
     histo2D.GetYaxis().SetTitle(ytitle)
-    histo2D.SetMarkerStyle(7)
+    histo2D.SetMarkerStyle(20)
+    #print(cuts)
+    #print(expre)
     ttree.Project("histo2D", expre, cuts)
-    canvas = ROOT.TCanas("c", "", 1920,1080)
+    canvas = ROOT.TCanvas("c", "", 800,600)
     canvas.cd()
-    histo2D.Draw()
+    histo2D.Print()
+    histo2D.Draw("col")
+    canvas.Update()
+    #raw_input()
     canvas.SaveAs("scatter/{}_{}_vs_{}.pdf".format(fname,x,y))
     tfile.Close()
 
@@ -51,7 +56,10 @@ if __name__ == "__main__":
     trig_ch = config_file["header"]["trigger_channel"]
     run_num = ""
 
-    os.makedirs("scatter")
+    try:
+        os.makedirs("scatter")
+    except:
+        pass
     for runIndex in range(int(num_files)):
         fileName = file_prefix + config_file["run%s"%runIndex]["file_name"]
         raw_cut = config_file["run%s"%runIndex]["cut_%s"%dut_ch].split(" ")
