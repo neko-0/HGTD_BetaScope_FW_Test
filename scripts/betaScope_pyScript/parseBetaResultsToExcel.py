@@ -264,7 +264,18 @@ def injectData( paramName ):
                 if start_row == None:
                     for key in meta_data.keys():
                         if raw_txt_data[0] in key:
-                            start_row = meta_data["run"+str(raw_txt_data[0])]["start"]
+                            run = "run"+str(raw_txt_data[0])
+                            if "p" in key:
+                                duplicated = 2
+                                while True:
+                                    run = "run"+str(raw_txt_data[0])+"p"+duplicated
+                                    if run in key:
+                                        duplicated+=1
+                                    else:
+                                        duplicate-=1
+                                        run = "run"+str(raw_txt_data[0])+"p"+duplicated
+                                        break
+                            start_row = meta_data[run]["start"]
                             break
                 src_wb["DUT"][par_dict["CFD50Time"]+str(start_row)] = float(raw_txt_data[3]) # stroing timing res
                 src_wb["DUT"][par_dict["CFD50Time_Err"]+str(start_row)] = float(raw_txt_data[4])
@@ -278,7 +289,18 @@ def injectData( paramName ):
                 if start_row == None:
                     for key in meta_data.keys():
                         if raw_txt_data[0] in key:
-                            start_row = meta_data["run"+str(raw_txt_data[0])]["start"]
+                            run = "run"+str(raw_txt_data[0])
+                            if "p" in key:
+                                duplicated = 2
+                                while True:
+                                    run = "run"+str(raw_txt_data[0])+"p"+duplicated
+                                    if run in key:
+                                        duplicated+=1
+                                    else:
+                                        duplicate-=1
+                                        run = "run"+str(raw_txt_data[0])+"p"+duplicated
+                                        break
+                            start_row = meta_data[run]["start"]
                             break
                 src_wb["DUT"][par_dict["CFD20Time"]+str(start_row)] = float(raw_txt_data[3]) # stroing timing res
                 src_wb["DUT"][par_dict["CFD20Time_Err"]+str(start_row)] = float(raw_txt_data[4])
@@ -297,8 +319,18 @@ def injectData( paramName ):
                     print(raw_txt_data[0])
                     for key in meta_data.keys():
                         if str(raw_txt_data[0]) in key:
-                            start_row = meta_data["run"+str(raw_txt_data[0])]["start"]
-                            print("starting row {}".format(start_row))
+                            run = "run"+str(raw_txt_data[0])
+                            if "p" in key:
+                                duplicated = 2
+                                while True:
+                                    run = "run"+str(raw_txt_data[0])+"p"+duplicated
+                                    if run in key:
+                                        duplicated+=1
+                                    else:
+                                        duplicate-=1
+                                        run = "run"+str(raw_txt_data[0])+"p"+duplicated
+                                        break
+                            start_row = meta_data[run]["start"]
                             break
                     if start_row==None:
                         print("cannot find starting row")
