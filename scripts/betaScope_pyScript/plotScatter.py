@@ -25,6 +25,7 @@ def plotScatter(fname, cuts, x, y, xtitle, ytitle, title):
     canvas.Update()
     #raw_input()
     canvas.SaveAs("scatter/{}_{}_vs_{}.pdf".format(fname,x,y))
+    canvas.SaveAs("scatter/{}_{}_vs_{}.png".format(fname,x,y))
     tfile.Close()
 
 
@@ -66,4 +67,4 @@ if __name__ == "__main__":
         dut_cut = "tmax%s[0]-cfd3[20] > %s && tmax%s[0]-cfd3[20] < %s && pmax%s[0] > %s && pmax%s[0] < %s"%(dut_ch, raw_cut[0], dut_ch, raw_cut[1], dut_ch, raw_cut[2], dut_ch, raw_cut[3] )
         trig_cut = "tmax%s[0]-cfd3[20] > %s && tmax%s[0]-cfd3[20] < %s && pmax%s[0] > %s && pmax%s[0] < %s"%(trig_ch, raw_cut[4], trig_ch, raw_cut[5], trig_ch, raw_cut[6], trig_ch, raw_cut[7] )
         cuts = dut_cut + " && "+ trig_cut
-        plotScatter(fileName, cuts, argv.x, argv.y, argv.xtitle, argv.ytitle)
+        plotScatter(fileName, cuts, argv.x, argv.y, argv.xtitle, argv.ytitle, config_file["run%s"%runIndex]["bias"])
