@@ -24,7 +24,8 @@ par_list = [
 "NewPulseArea",
 "NewPulseArea_Error",
 "FallTime",
-"FallTime_Error"
+"FallTime_Error",
+"cycle"
 ]
 
 par_dict = {
