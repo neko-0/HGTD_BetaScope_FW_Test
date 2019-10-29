@@ -16,7 +16,8 @@ import re
 
 odir = "testPlot/"
 data_prep = [
-{"reg":"HPK|2[xX]2|3[eE]15", "color":ROOT.kRed, "style":20, "matched":False }
+{"reg":"(HPK)(.*)(2[xX]2)(.*)(3[eE]15)(.*)(UCSC)(.*)(.?)", "style":20, "matched":False, "matched_runs":[] }
+{"reg":"(HPK)(.*)(2[xX]2)(.*)(3[eE]15)(.*)(Tori)(.*)(.?)", "style":21, "matched":False, "matched_runs":[] }
 ]
 
 run_range = [500,700]
@@ -27,19 +28,21 @@ def searchRun( regExpress, run_range):
     tfile = ROOT.TFile.Open("{}/merged.root".format(user_data_dir) )
     matched_run = []
     for run in range(run_range[0], run_range[1]):
+        run_tag = "run"+str(run)
         try:
-            ttree = getattr(tfile, "run"+str(run))
-            check_dupli = 2
+            ttree = getattr(tfile, run_tag)
+            check_ptag = 2
             while True:
-                if hasattr(tfile,"run"+str(run)+"p"+str(check_dupli)):
-                    ttree = getattr(tfile,"run"+str(run)+"p"+str(check_dupli))
-                    check_dupli+=1
+                my_run_tag = run_tag+"p"+str(check_ptag)
+                if hasattr(tfile, my_run_tag):
+                    run_tag = my_run_tag
+                    ttree = getattr(tfile, my_run_tag)
+                    check_ptag+=1
                 else:
                     break
             ttree.GetEntry(0)
-            #print(ttree.SensorName)
             if bool(re.search(regExpress, str(ttree.SensorName))):
-                 matched_run.append(run)
+                 matched_run.append(run_tag)
         except Exception as e:
             #print(e)
             continue
@@ -48,8 +51,10 @@ def searchRun( regExpress, run_range):
     for r in matched_run:
         print(r)
 
-searchRun("(HPK)(.*)(2[xX]2)(.*)(3[eE]15)(.*)(UCSC)(.?)", run_range)
-'''
+#searchRun("(HPK)(.*)(2[xX]2)(.*)(3[eE]15)(.*)(.?)", run_range)
+
+
+
 def plotFromMergeROOT(data_prep, odir, run_range):
     user_data_dir = os.environ["BETASCOPE_SCRIPTS"]
     user_data_dir += "/user_data/"
@@ -63,18 +68,13 @@ def plotFromMergeROOT(data_prep, odir, run_range):
         ["Pmax:Bias", "Pulse Maximum [mV]"]
     ]
 
+    for data in data_prep:
+        my_matched_runs = searchRun( data["reg"], [500,800] )
+        for run in my_matched_runs:
+            data["matched_runs"].append(run)
+
     for param in params:
         param["x"] = array("d")
         param["y"] = array("d")
 
-        for run in range(run_range[0], run_range[1]):
-            try:
-                ttree = tfile.Get("run"+run)
-                ttree.GetEntry(0)
-                for data in data_prep:
-                    data["data"] = []
-                    if bool(re.search(data["reg"], str(ttree.SensorName))):
-
-            except:
-                continue
-'''
+        
