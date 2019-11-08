@@ -1,5 +1,6 @@
 import configparser
 import pickle
+from copy import deepcopy
 
 class BetaScopeResult(object):
     def __init__(self):
@@ -7,7 +8,7 @@ class BetaScopeResult(object):
 
     def add_run(self, beta_run):
         if not beta_run.run_number in self.beta_runs:
-            self.beta_runs[beta_run.run_number]( beta_run )
+            self.beta_runs[beta_run.run_number] = deepcopy(beta_run)
         else:
             pass
 
@@ -27,12 +28,12 @@ class BetaRun(object):
     def __init__(self, run_number, name):
         self.run_number = run_number
         self.name = name
-        self.fit_results = []
+        self.fit_results = None
         self.cv_results = None
         self.daq_info = None
 
     def add_fit_result(self, fit_result):
-        self.fit_results.append(fit_result)
+        self.fit_results = deepcopy(fit_result)
 
     def add_cv_result(self):
         pass
@@ -57,6 +58,7 @@ class FitResult(object):
         self.dvdt = None
         self.cycle = 1
         self.time_resolution = None
+        self.leakage = None
 
 class DAQInfo(object):
 

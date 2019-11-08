@@ -9,7 +9,8 @@ import os
 
 beta_scope = BetaScopeResult()
 
-dirlist = os.listdir(".")
+mdir = "/media/mnt/gunter/betaAna2/"
+dirlist = os.listdir(mdir)
 runlist = ["614", "672", "673", "674", "675", "676", "677"]
 
 for run in runlist:
@@ -18,9 +19,10 @@ for run in runlist:
             beta_run = BetaRun(run, fold)
 
             fit_reader = BetaResultReader()
-            fit_result = fit_reader.read_ini_result(fold + "/Results/_results.ini")
-
-            beta_run.add_fit_result(fit_result)
+            fit_results = fit_reader.read_ini_result(mdir+"/"+fold+"/Results/_results.ini")
+            beta_run.add_fit_result(fit_results)
+            
+            beta_scope.add_run(beta_run)
 
 
 
