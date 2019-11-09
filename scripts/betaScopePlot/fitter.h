@@ -48,6 +48,33 @@
 
 #include "histoPackage.h"
 
+struct FitResult
+{
+  double param;
+  double param_err;
+  double xmin;
+  double xmax;
+  double ndf;
+  double chi_square;
+  double prob;
+
+  FitResult(){};
+  
+  FitResult(double param, double param_err, double xmin, double xmax, double ndf, double chi, double prob)
+  {
+      this->param = param;
+      this->param_err = param;
+      this->xmin = xmin;
+      this->xmax = xmax;
+      this->ndf = ndf;
+      this->chi_square = chi;
+      this->prob = prob;
+  };
+
+  ~FitResult(){};
+
+};
+
 class Fitter
 {
   private:
@@ -64,9 +91,9 @@ class Fitter
 
     void set_param( int param, double iValue ){ this->fitter->SetParameter(param, iValue); }
 
-    std::tuple<double,double,double,double> fitter_RooLanGausArea( HistoPackage &i_hist, HistoPackage frontBaseArea, HistoPackage backBaseArea, bool savePlot=true);
-    std::tuple<double,double,double,double> fitter_RooLanGaus( HistoPackage &i_hist, bool savePlot=true);
-    std::tuple<double,double,double,double> fitter_fit( HistoPackage &i_hist, bool savePlot=true);
+    FitResult fitter_RooLanGausArea( HistoPackage &i_hist, HistoPackage frontBaseArea, HistoPackage backBaseArea, bool savePlot=true);
+    FitResult fitter_RooLanGaus( HistoPackage &i_hist, bool savePlot=true);
+    FitResult fitter_fit( HistoPackage &i_hist, bool savePlot=true);
 };
 
 #endif

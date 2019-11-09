@@ -39,7 +39,7 @@ void getResults(std::string plotConfig_fname, std::string outDir = "Results/" )
     DataSelection *selection = new DataSelection(my_cut_v, dut_channel, trigger_channel );
 
     // output result ;
-    std::map<std::string, std::pair<double,double>> oData;
+    std::map<std::string, FitResult> oData;
 
     // getting booked plot list
     std::vector<PlotList> my_plot_jobs = create_job(); // from plotList.cpp
@@ -52,7 +52,7 @@ void getResults(std::string plotConfig_fname, std::string outDir = "Results/" )
       myHisto.set_min( job.x_min );
       myHisto.set_max( job.x_max );
 
-      std::tuple<double,double,double,double> fitResult;
+      FitResult fitResult;
       Fitter my_fitter;
       bool savePlot = false;
       // fit multiple times for better ranges;
@@ -83,8 +83,8 @@ void getResults(std::string plotConfig_fname, std::string outDir = "Results/" )
         }
         myHisto.clean();
       }
-      std::pair<double,double> oParams = std::make_pair( std::get<0>(fitResult), std::get<1>(fitResult) );
-      oData.insert( std::pair<std::string, std::pair<double,double>>(job.tag, oParams) );
+      //std::pair<double,double> oParams = std::make_pair( std::get<0>(fitResult), std::get<1>(fitResult) );
+      oData.insert( std::pair<std::string, FitResult>(job.tag, fitResult) );
     }
 
     // output data;

@@ -1,6 +1,6 @@
 #include "fitter.h"
 
-std::tuple<double,double,double,double> Fitter::fitter_RooLanGausArea( HistoPackage &i_histo, HistoPackage frontBaseArea, HistoPackage backBaseArea, bool savePlot)
+FitResult Fitter::fitter_RooLanGausArea( HistoPackage &i_histo, HistoPackage frontBaseArea, HistoPackage backBaseArea, bool savePlot)
 {
   gStyle->SetStatW(0.125);
   gStyle->SetStatH(0.125);
@@ -116,6 +116,12 @@ std::tuple<double,double,double,double> Fitter::fitter_RooLanGausArea( HistoPack
     if( oCanvas != NULL ) delete oCanvas;
   }
 
+  double ndf = lxg_tf->GetNDF();
+  double chi_square = lxg_tf->GetChisquare();
+  double prob = lxg_tf->GetProb();
+
+  FitResult fitResult(Par, ParErr, range_min, range_max, ndf, chi_square, prob);
+
   if( roo_gaus != NULL ) delete roo_gaus;
   if( roo_gaus_mean != NULL ) delete roo_gaus_mean;
   if( roo_gaus_sigma != NULL ) delete roo_gaus_sigma;
@@ -123,10 +129,10 @@ std::tuple<double,double,double,double> Fitter::fitter_RooLanGausArea( HistoPack
   if( roo_landau_mean != NULL ) delete roo_landau_mean;
   if( roo_landau_sigma != NULL ) delete roo_landau_sigma;
 
-  return std::make_tuple( Par, ParErr, range_min, range_max );
+  return fitResult; //std::make_tuple( Par, ParErr, range_min, range_max );
 }
 
-std::tuple<double,double,double,double> Fitter::fitter_RooLanGaus( HistoPackage &i_histo, bool savePlot)
+FitResult Fitter::fitter_RooLanGaus( HistoPackage &i_histo, bool savePlot)
 {
   gStyle->SetStatW(0.125);
   gStyle->SetStatH(0.125);
@@ -199,7 +205,7 @@ std::tuple<double,double,double,double> Fitter::fitter_RooLanGaus( HistoPackage 
     //if(i_histo.get_histo()->GetEntries() > 700 && i_histo.get_histo()->GetEntries() < 2000 ) i_histo.get_histo()->GetYaxis()->SetRangeUser(0, 400);
     //else if( i_histo.get_histo()->GetEntries() > 2000 ) i_histo.get_histo()->GetYaxis()->SetRangeUser(0, peak*2);
     //else i_histo.get_histo()->GetYaxis()->SetRangeUser(0, 50);
-     i_histo.get_histo()->GetYaxis()->SetRangeUser(0, i_histo.get_max_bin_value()*1.5);
+    i_histo.get_histo()->GetYaxis()->SetRangeUser(0, i_histo.get_max_bin_value()*1.5);
     i_histo.get_histo()->Draw("same");
 
     dataHist.plotOn( frame );//, Normalization(histo->GetEntries(), RooAbsReal::NumEvent));
@@ -225,6 +231,12 @@ std::tuple<double,double,double,double> Fitter::fitter_RooLanGaus( HistoPackage 
     if( oCanvas != NULL ) delete oCanvas;
   }
 
+  double ndf = lxg_tf->GetNDF();
+  double chi_square = lxg_tf->GetChisquare();
+  double prob = lxg_tf->GetProb();
+
+  FitResult fitResult(Par, ParErr, range_min, range_max, ndf, chi_square, prob);
+
   if( roo_gaus != NULL ) delete roo_gaus;
   if( roo_gaus_mean != NULL ) delete roo_gaus_mean;
   if( roo_gaus_sigma != NULL ) delete roo_gaus_sigma;
@@ -232,10 +244,10 @@ std::tuple<double,double,double,double> Fitter::fitter_RooLanGaus( HistoPackage 
   if( roo_landau_mean != NULL ) delete roo_landau_mean;
   if( roo_landau_sigma != NULL ) delete roo_landau_sigma;
 
-  return std::make_tuple( Par, ParErr, range_min, range_max );
+  return fitResult; //std::make_tuple( Par, ParErr, range_min, range_max );
 }
 
-std::tuple<double,double,double,double> Fitter::fitter_fit( HistoPackage &i_histo, bool savePlot)
+FitResult Fitter::fitter_fit( HistoPackage &i_histo, bool savePlot)
 {
   double sampleMean = i_histo.get_histo()->GetMean();
   double sampleSigma = i_histo.get_histo()->GetStdDev();
@@ -268,5 +280,10 @@ std::tuple<double,double,double,double> Fitter::fitter_fit( HistoPackage &i_hist
     delete oCanvas;
   }
 
-  return std::make_tuple( Par, ParErr, range_min, range_max );
+  double ndf = this->fitter->GetNDF();
+  double chi_square = this->fitter->GetChisquare();
+  double prob = this->fitter->GetProb();
+
+  FitResult fitResult(Par, ParErr, range_min, range_max, ndf, chi_square, prob);
+  return fitResult; //std::make_tuple( Par, ParErr, range_min, range_max );
 }

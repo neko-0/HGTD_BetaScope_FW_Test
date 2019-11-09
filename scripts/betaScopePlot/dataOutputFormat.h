@@ -10,6 +10,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "fitter.h"
+
 class DataOutputFormat{
 
   std::ofstream ofile;
@@ -29,7 +31,7 @@ class DataOutputFormat{
 
     void CreateBetaScopeOutputFile(
       std::string biasVoltage,
-      std::map<std::string,std::pair<double,double>> outData,
+      std::map<std::string, FitResult> outData,
       int temperatur = 20,
       int trigger_bias = 390
     );
