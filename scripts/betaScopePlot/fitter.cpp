@@ -119,7 +119,7 @@ FitResult Fitter::fitter_RooLanGausArea( HistoPackage &i_histo, HistoPackage fro
   double ndf = lxg_tf->GetNDF();
   double chi_square = lxg_tf->GetChisquare();
   double prob = lxg_tf->GetProb();
-  double chi_ndf = frame->chiSquare("lxg", "dataHist");
+  double chi_ndf = frame->chiSquare();
 
   FitResult fitResult(Par, ParErr, range_min, range_max, ndf, chi_square, prob, chi_ndf);
 
@@ -235,7 +235,7 @@ FitResult Fitter::fitter_RooLanGaus( HistoPackage &i_histo, bool savePlot)
   double ndf = lxg_tf->GetNDF();
   double chi_square = lxg_tf->GetChisquare();
   double prob = lxg_tf->GetProb();
-  double chi_ndf = frame->chiSquare("lxg", "dataHist");
+  double chi_ndf = frame->chiSquare();
 
   FitResult fitResult(Par, ParErr, range_min, range_max, ndf, chi_square, prob, chi_ndf);
 
