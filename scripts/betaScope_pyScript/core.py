@@ -8,11 +8,14 @@ class BetaScopeResult(object):
         if fname:
             self.load(fname)
 
-    def add_run(self, beta_run):
-        if not beta_run.run_number in self.beta_runs:
-            self.beta_runs[beta_run.run_number] = deepcopy(beta_run)
+    def run_exists(self, beta_run):
+        if beta_run.run_number in self.beta_runs:
+            return True
         else:
-            pass
+            return False
+
+    def add_run(self, beta_run):
+        self.beta_runs[beta_run.run_number] = deepcopy(beta_run)
 
     def save(self, out_path):
         with open(out_path, "wb") as f:
@@ -66,16 +69,22 @@ class FitResult(object):
         self.leakage = None
 
     def update_time_resolution(self, fname, cfd):
-        with open(fname, "r") as f:
-            for line in f.readlines():
-                line_split = line.split(",")
-                if self.cycle == int(line_split[5] and self.bias == int(line_split[2] ):
-                    if cfd==50:
-                        self.time_resolution_50 = float(line_split[3])
-                        self.time_resolution_err_50 = float(line_split[4])
-                    if cfd==20:
-                        self.time_resolution_20 = float(line_split[3])
-                        self.time_resolution_err_20 = float(line_split[4])
+        try:
+            with open(fname, "r") as f:
+                for line in f.readlines():
+                    line_split = line.split(",")
+                    #print(type(self.cycle))
+                    #print(line_split[2])
+                    if(str(self.cycle) in str(line_split[5]).split("\n")[0] and str(self.bias_voltage) in str(line_split[2])):
+                        if cfd==50:
+                            self.time_resolution_50 = float(line_split[3])
+                            self.time_resolution_err_50 = float(line_split[4])
+                        if cfd==20:
+                            self.time_resolution_20 = float(line_split[3])
+                            self.time_resolution_err_20 = float(line_split[4])
+                        #print(self.time_resolution_50)
+        except:
+            pass
 
 class DAQInfo(object):
 
@@ -99,4 +108,5 @@ class DAQInfo(object):
                 self.dut_board_number = self.daq_description["Run_Description"]["DUT_Readout_Board_Number"]
                 self.dut_fluence_type = self.daq_description["Run_Description"]["DUT_Fluence_Type"]
                 self.dut_fluence = self.daq_description["Run_Description"]["DUT_Fluence"]
-            raise IOError
+            except:            
+                raise IOError

@@ -31,7 +31,7 @@ class BetaResultReader(object):
                             fit_result.bias_voltage = sec[sec.find("_")+1:sec.find("V")]
                             fit_result.cycle = sec.split("..")[1]
                             if "_" in fit_result.cycle:
-                                fit_result.cycle = fit_result.cycle.split("_")[0]
+                                fit_result.cycle = int(fit_result.cycle.split("_")[0])
                         else:
                             fit_result.bias_voltage = sec[sec.find("_")+1:sec.find("V")]
                             fit_result.cycle = 1
@@ -41,7 +41,7 @@ class BetaResultReader(object):
                             if ".." in sec:
                                 fit_result.cycle = sec.split("..")[1]
                                 if "_" in fit_result.cycle:
-                                    fit_result.cycle = fit_result.cycle.split("_")[0]
+                                    fit_result.cycle = int(fit_result.cycle.split("_")[0])
                             else:
                                 fit_result.cycle = 1
                         except:
