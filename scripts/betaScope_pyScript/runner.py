@@ -25,6 +25,7 @@ for run in runlist:
             os.chdir(mdir+"/"+fold)
             #p = subprocess.call("python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/get_time_res.py --CFD 50", shell=True)
             #p = subprocess.call("python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/get_time_res.py --CFD 20", shell=True)
+            p = subprocess.call("python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/read_current.py", shell=True)
             os.chdir(pwd)
             beta_run = BetaRun(run, fold)
 
@@ -33,6 +34,7 @@ for run in runlist:
             for fit in fit_results:
                 fit.update_time_resolution(mdir+"/"+fold+"/res50.txt", 50)
                 fit.update_time_resolution(mdir+"/"+fold+"/res20.txt", 20)
+                fit.update_leakage(mdir+"/"+"leakage.txt")
             beta_run.add_fit_result(fit_results)
 
             try:

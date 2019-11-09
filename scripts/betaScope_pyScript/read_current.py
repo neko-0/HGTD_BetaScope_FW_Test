@@ -15,6 +15,9 @@ def read_current( config ):
     run_num = ""
     for runIndex in range(int(num_file)):
         fileName = file_prefix + config_file["run%s"%runIndex]["file_name"]
+        cycle = 1
+        if "root." in fileName:
+            cycle = int(fileName.split("root.")[1])
         if not run_num:
             run_num = fileName.split("Sr_Run")[1].split("_")[0]
         bias = config_file["run%s"%runIndex]["bias"]
@@ -29,7 +32,7 @@ def read_current( config ):
         histo = ROOT.TH1D("histo", "", 100, 1, 1)
         ttree.Project("histo", "current")
         current = histo.GetMean()
-        output.append( [config_file["header"]["sensor"], temperature, bias, current, run_num] )
+        output.append( [config_file["header"]["sensor"], temperature, bias, current, run_num, cycle] )
 
     return output
 
@@ -51,10 +54,10 @@ if __name__ == "__main__":
 
     current_data = read_current(argv.configFile)
     print("Sensor: %s"%current_data[0][0])
-    print("Run,Temp,Bias,Current[uA]")
+    print("Run,Temp,Bias,Current[uA],cycle")
     for item in current_data:
-        print("%s,%s,%s,%s"%(item[4],item[1], item[2],item[3]*1000.0))
+        print("%s,%s,%s,%s,%s"%(item[4],item[1], item[2],item[3]*1000.0, item[4]))
 
     with open("leakage.txt","w") as f:
         for item in current_data:
-            f.write("%s,%s,%s,%s\n"%(item[4],item[1], item[2],item[3]*1000.0))
+            f.write("%s,%s,%s,%s\n"%(item[4],item[1], item[2],item[3]*1000.0, item[4]))

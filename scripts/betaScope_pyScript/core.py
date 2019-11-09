@@ -86,6 +86,16 @@ class FitResult(object):
         except:
             pass
 
+    def update_leakage(self, fname):
+        try:
+            with open(fname, "r") as f:
+                for line in f.readlines():
+                    line_split = line.split(",")
+                    if(str(self.cycle) in str(line_split[4]).split("\n")[0] and str(self.bias_voltage) in str(line_split[2])):
+                        self.leakage = float(line_split[3])
+        except:
+            pass
+
 class DAQInfo(object):
 
     def __init__(self, run_number, daq_description_name=""):
@@ -108,5 +118,5 @@ class DAQInfo(object):
                 self.dut_board_number = self.daq_description["Run_Description"]["DUT_Readout_Board_Number"]
                 self.dut_fluence_type = self.daq_description["Run_Description"]["DUT_Fluence_Type"]
                 self.dut_fluence = self.daq_description["Run_Description"]["DUT_Fluence"]
-            except:            
+            except:
                 raise IOError
