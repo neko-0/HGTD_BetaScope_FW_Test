@@ -13,8 +13,11 @@ class BetaResultReader(object):
 
     def read_ini_result(self, fname):
         fit_result_file = configparser.ConfigParser()
-        fit_result_file.read(fname)
-        fit_result_file_section = fit_result_file.sections()
+        try:
+            fit_result_file.read(fname)
+            fit_result_file_section = fit_result_file.sections()
+        except:
+            return []
 
         dut_trig = ["DUT"]
 

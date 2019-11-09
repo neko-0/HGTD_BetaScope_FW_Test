@@ -87,6 +87,10 @@ if __name__ == "__main__":
 
         fileName = file_prefix + config_file["run%s"%runIndex]["file_name"]
 
+        cycle = 1
+        if "root." in fileName:
+            cycle = int(fileName.split("root.")[1])
+
         if not run_num:
             run_num = fileName.split("Sr_Run")[1].split("_")[0]
 
@@ -105,7 +109,7 @@ if __name__ == "__main__":
         dut_time_res = math.sqrt( math.pow(result["sigma"],2) - math.pow(trigger_resolution,2) )
         dut_time_res_err = math.sqrt( math.pow(result["sigma"],2)/(math.pow(result["sigma"],2) - math.pow(trigger_resolution,2))*math.pow(result["sigma_err"],2) + math.pow(trigger_resolution,2)/(math.pow(result["sigma"],2) - math.pow(trigger_resolution,2))*math.pow(trigger_resolution_err, 2))
 
-        output.append("%s,%s,%s,%s,%s"%(run_num, temperature, bias, dut_time_res,dut_time_res_err))
+        output.append("%s,%s,%s,%s,%s,%s"%(run_num, temperature, bias, dut_time_res,dut_time_res_err,cycle))
 
         #saving plots
         result["histo"].GetXaxis().SetTitle("Time Difference")
@@ -116,7 +120,7 @@ if __name__ == "__main__":
 
 
     print("Sensor: %s"%sensor_name)
-    print("Run,Temp,Bias,Res,ResErr")
+    print("Run,Temp,Bias,Res,ResErr,cycle")
     for o in output:
         print(o)
     with open("res{}.txt".format(argv.CFD),"w") as f:

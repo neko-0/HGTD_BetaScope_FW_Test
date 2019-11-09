@@ -3,8 +3,10 @@ import pickle
 from copy import deepcopy
 
 class BetaScopeResult(object):
-    def __init__(self):
+    def __init__(self, fname=""):
         self.beta_runs = {}
+        if fname:
+            self.load(fname)
 
     def add_run(self, beta_run):
         if not beta_run.run_number in self.beta_runs:
@@ -57,8 +59,23 @@ class FitResult(object):
         self.temperature = None
         self.dvdt = None
         self.cycle = 1
-        self.time_resolution = None
+        self.time_resolution_50 = None
+        self.time_resolution_err_50 = None
+        self.time_resolution_20 = None
+        self.time_resolution_err_20 = None
         self.leakage = None
+
+    def update_time_resolution(self, fname, cfd):
+        with open(fname, "r") as f:
+            for line in f.readlines():
+                line_split = line.split(",")
+                if self.cycle == int(line_split[5] and self.bias == int(line_split[2] ):
+                    if cfd==50:
+                        self.time_resolution_50 = float(line_split[3])
+                        self.time_resolution_err_50 = float(line_split[4])
+                    if cfd==20:
+                        self.time_resolution_20 = float(line_split[3])
+                        self.time_resolution_err_20 = float(line_split[4])
 
 class DAQInfo(object):
 
@@ -82,5 +99,4 @@ class DAQInfo(object):
                 self.dut_board_number = self.daq_description["Run_Description"]["DUT_Readout_Board_Number"]
                 self.dut_fluence_type = self.daq_description["Run_Description"]["DUT_Fluence_Type"]
                 self.dut_fluence = self.daq_description["Run_Description"]["DUT_Fluence"]
-            except Exception as e:
-                print(e)
+            raise IOError
