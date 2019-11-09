@@ -57,10 +57,11 @@ struct FitResult
   double ndf;
   double chi_square;
   double prob;
+  double chi_ndf;
 
   FitResult(){};
-  
-  FitResult(double param, double param_err, double xmin, double xmax, double ndf, double chi, double prob)
+
+  FitResult(double param, double param_err, double xmin, double xmax, double ndf, double chi, double prob, double chi_ndf)
   {
       this->param = param;
       this->param_err = param;
@@ -69,6 +70,7 @@ struct FitResult
       this->ndf = ndf;
       this->chi_square = chi;
       this->prob = prob;
+      this->chi_ndf = chi_ndf;
   };
 
   ~FitResult(){};

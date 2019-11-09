@@ -119,8 +119,9 @@ FitResult Fitter::fitter_RooLanGausArea( HistoPackage &i_histo, HistoPackage fro
   double ndf = lxg_tf->GetNDF();
   double chi_square = lxg_tf->GetChisquare();
   double prob = lxg_tf->GetProb();
+  double chi_ndf = frame->chiSquare("lxg", "dataHist");
 
-  FitResult fitResult(Par, ParErr, range_min, range_max, ndf, chi_square, prob);
+  FitResult fitResult(Par, ParErr, range_min, range_max, ndf, chi_square, prob, chi_ndf);
 
   if( roo_gaus != NULL ) delete roo_gaus;
   if( roo_gaus_mean != NULL ) delete roo_gaus_mean;
@@ -234,8 +235,9 @@ FitResult Fitter::fitter_RooLanGaus( HistoPackage &i_histo, bool savePlot)
   double ndf = lxg_tf->GetNDF();
   double chi_square = lxg_tf->GetChisquare();
   double prob = lxg_tf->GetProb();
+  double chi_ndf = frame->chiSquare("lxg", "dataHist");
 
-  FitResult fitResult(Par, ParErr, range_min, range_max, ndf, chi_square, prob);
+  FitResult fitResult(Par, ParErr, range_min, range_max, ndf, chi_square, prob, chi_ndf);
 
   if( roo_gaus != NULL ) delete roo_gaus;
   if( roo_gaus_mean != NULL ) delete roo_gaus_mean;
@@ -283,7 +285,8 @@ FitResult Fitter::fitter_fit( HistoPackage &i_histo, bool savePlot)
   double ndf = this->fitter->GetNDF();
   double chi_square = this->fitter->GetChisquare();
   double prob = this->fitter->GetProb();
+  double chi_ndf = chi_square/ndf;
 
-  FitResult fitResult(Par, ParErr, range_min, range_max, ndf, chi_square, prob);
+  FitResult fitResult(Par, ParErr, range_min, range_max, ndf, chi_square, prob, chi_ndf);
   return fitResult; //std::make_tuple( Par, ParErr, range_min, range_max );
 }
