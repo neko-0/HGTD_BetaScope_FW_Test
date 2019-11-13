@@ -93,9 +93,9 @@ FitResult Fitter::fitter_RooLanGausArea( HistoPackage &i_histo, HistoPackage fro
     i_histo.get_histo()->GetYaxis()->SetRangeUser(0, i_histo.get_max_bin_value()*1.5);
     i_histo.get_histo()->Draw("same");
 
-    dataHist.plotOn( frame, Name="dataHist" );//, Normalization(histo->GetEntries(), RooAbsReal::NumEvent));
+    dataHist.plotOn( frame, RooFit::Name="dataHist" );//, Normalization(histo->GetEntries(), RooAbsReal::NumEvent));
     dataHist.statOn(frame, RooFit::Layout(0.45,0.90,0.6));
-    lxg.plotOn( frame, Name="lxg" );//, Normalization(histo->GetEntries(), RooAbsReal::NumEvent));
+    lxg.plotOn( frame, RooFit::Name="lxg" );//, Normalization(histo->GetEntries(), RooAbsReal::NumEvent));
     lxg.paramOn(frame, RooFit::Layout(0.45, 0.90, 0.4));
     roo_landau->plotOn( frame, RooFit::LineStyle(kDashed), RooFit::LineColor(kOrange) );//, Normalization(histo->GetEntries(),RooAbsReal::NumEvent) );
     roo_gaus->plotOn( frame, RooFit::LineStyle(kDashed), RooFit::LineColor(kPink) );
@@ -209,9 +209,9 @@ FitResult Fitter::fitter_RooLanGaus( HistoPackage &i_histo, bool savePlot)
     i_histo.get_histo()->GetYaxis()->SetRangeUser(0, i_histo.get_max_bin_value()*1.5);
     i_histo.get_histo()->Draw("same");
 
-    dataHist.plotOn( frame, Name="dataHist");//, Normalization(histo->GetEntries(), RooAbsReal::NumEvent));
+    dataHist.plotOn( frame, RooFit::Name="dataHist");//, Normalization(histo->GetEntries(), RooAbsReal::NumEvent));
     dataHist.statOn(frame, RooFit::Layout(0.45,0.90,0.6));
-    lxg.plotOn( frame, Name="lxg");//, Normalization(histo->GetEntries(), RooAbsReal::NumEvent));
+    lxg.plotOn( frame, RooFit::Name="lxg");//, Normalization(histo->GetEntries(), RooAbsReal::NumEvent));
     lxg.paramOn(frame, RooFit::Layout(0.45, 0.90, 0.4));
     roo_landau->plotOn( frame,  RooFit::LineStyle(kDashed),  RooFit::LineColor(kOrange) );//, Normalization(histo->GetEntries(),RooAbsReal::NumEvent) );
     roo_gaus->plotOn( frame,  RooFit::LineStyle(kDashed),  RooFit::LineColor(kPink) );
