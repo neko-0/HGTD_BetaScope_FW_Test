@@ -49,12 +49,20 @@ class BetaResultReader(object):
                             fit_result.cycle = 1
 
                     fit_result.pulase_area = float(fit_result_file[sec]["pulseArea"])
+                    fit_result.pulase_area_chi = float(fit_result_file[sec]["pulseArea_CHI_NDF"])
                     fit_result.pmax = float(fit_result_file[sec]["Pmax"])
+                    fit_result.pmax_chi = float(fit_result_file[sec]["Pmax_CHI_NDF"])
                     fit_result.rms = float(fit_result_file[sec]["RMS"])
+                    fit_result.rms_chi = float(fit_result_file[sec]["RMS_CHI_NDF"])
                     fit_result.rise_time = float(fit_result_file[sec]["Rise_Time"])
+                    fit_result.rise_time_chi = float(fit_result_file[sec]["Rise_Time_CHI_NDF"])
                     fit_result.dvdt = float(fit_result_file[sec]["dvdt"])
+                    fit_result.dvdt_chi = float(fit_result_file[sec]["dvdt_CHI_NDF"])
                     fit_result.fwhm = float(fit_result_file[sec]["FWHM"])
+                    fit_result.fwhm_chi = float(fit_result_file[sec]["FWHM_CHI_NDF"])
                     fit_result.new_pulse_area = float(fit_result_file[sec]["NewPulseArea"])
+                    fit_result.new_pulse_area_chi = float(fit_result_file[sec]["NewPulseArea_CHI_NDF"])
                     fit_result.fall_time = float(fit_result_file[sec]["FallTime"])
+                    fit_result.fall_time_chi = float(fit_result_file[sec]["FallTime_CHI_NDF"])
                     fit_results.append(fit_result)
         return fit_results

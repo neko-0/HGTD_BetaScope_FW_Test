@@ -29,6 +29,17 @@ class BetaScopeResult(object):
         except:
             pass
 
+    def to_root(self, ofile_name):
+        import ROOT
+        from array import array
+        if self.beta_runs:
+            ofile = ROOT.TFile(ofile_name, "RECREATE" )
+            ofile.cd()
+            for run,run_item in self.beta_runs:
+                ttree = ROOT.TTree(run, "{}".format(run_item.name) )
+                ttree.Branch("pmax")
+
+
 class BetaRun(object):
     def __init__(self, run_number, name):
         self.run_number = run_number
@@ -52,20 +63,30 @@ class FitResult(object):
         self.channel = channel
         self.bias_voltage = None
         self.pulse_area = None
+        self.pulse_area_chi = None
         self.pmax = None
+        self.pmax_chi = None
         self.rms = None
+        self.rms_chi = None
         self.rise_time = None
+        self.rise_time_chi = None
         self.fwhm = None
+        self.fwhm_chi = None
         self.fall_time = None
+        self.fall_time_chi = None
         self.new_pulse_area = None
+        self.new_pulse_area_chi = None
         self.resistance = None
         self.temperature = None
         self.dvdt = None
+        self.dvdt_chi = None
         self.cycle = 1
         self.time_resolution_50 = None
         self.time_resolution_err_50 = None
+        self.time_resolution_50_chi = None
         self.time_resolution_20 = None
         self.time_resolution_err_20 = None
+        self.time_resolution_20_chi = None
         self.leakage = None
 
     def update_time_resolution(self, fname, cfd):
@@ -93,7 +114,8 @@ class FitResult(object):
                     line_split = line.split(",")
                     if(str(self.cycle) in str(line_split[4]).split("\n")[0] and str(self.bias_voltage) in str(line_split[2])):
                         self.leakage = float(line_split[3])
-        except:
+        except Exception as e:
+            print("update leakge catch {}".format(e))
             pass
 
 class DAQInfo(object):
