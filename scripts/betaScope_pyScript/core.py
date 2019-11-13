@@ -154,6 +154,7 @@ class FitResult(object):
                     line_split = line.split(",")
                     if(str(self.cycle) in str(line_split[4]).split("\n")[0] and str(self.bias_voltage) in str(line_split[2])):
                         self.leakage = float(line_split[3])
+                        self.temperature float(line_split[1])
         except Exception as e:
             print("update leakge catch {}".format(e))
             pass
