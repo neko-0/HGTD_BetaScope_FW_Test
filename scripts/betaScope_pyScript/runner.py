@@ -27,15 +27,17 @@ for run in runlist:
             #p = subprocess.call("python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/get_time_res.py --CFD 50", shell=True)
             #p = subprocess.call("python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/get_time_res.py --CFD 20", shell=True)
             #p = subprocess.call("python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/read_current.py", shell=True)
-            p = subprocess.Popen("$BETASCOPE_SCRIPTS/betaScopePlot//bin/getResults run_info_v08022018.ini", shell=True)
+            #p = subprocess.Popen("$BETASCOPE_SCRIPTS/betaScopePlot//bin/getResults run_info_v08022018.ini", shell=True)
+            '''
             pList.append(p)
             if len(pList)==12:
                 for pp in pList:
                     pp.wait()
                 pList  = []
-            os.chdir(pwd)
-
             '''
+            os.chdir(pwd)
+        
+            
             beta_run = BetaRun(run, fold)
 
             fit_reader = BetaResultReader()
@@ -54,7 +56,7 @@ for run in runlist:
             beta_run.update_daq_info(daq_info)
 
             beta_scope.add_run(beta_run)
-            '''
+            
 
 
 beta_scope.save("test.pkl")
