@@ -10,7 +10,7 @@ import subprocess
 
 pwd = os.getcwd()
 
-beta_scope = BetaScopeResult("test.pickle")
+beta_scope = BetaScopeResult()
 
 mdir = "/media/mnt/gunter/betaAna2/"
 dirlist = os.listdir(mdir)

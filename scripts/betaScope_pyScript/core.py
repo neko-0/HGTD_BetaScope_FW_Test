@@ -37,13 +37,13 @@ class BetaScopeResult(object):
         "bias_voltage",
         "resistance",
         "pulse_area",
-        "pulse_area_Error",
+        "pulse_area_chi",
         "pmax",
         "pmax_chi",
         "rms",
         "rms_chi",
         "rise_time",
-        "tise_time_chi",
+        "rise_time_chi",
         "dvdt",
         "dvdt_chi",
         "fwhm",
@@ -72,10 +72,11 @@ class BetaScopeResult(object):
                             if my_value is None:
                                 array_dict[par][0] = -9999
                             else:
-                                array_dict[par][0] = my_value
+                                array_dict[par][0] = float(my_value)
                         ttree.Fill()
                     else:
                         continue
+                ttree.Write()
             ofile.Close()
 
 
