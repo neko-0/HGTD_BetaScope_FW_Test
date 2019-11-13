@@ -68,7 +68,11 @@ class BetaScopeResult(object):
                 for fit in run_item.fit_results:
                     if "DUT" in fit.channel:
                         for par in par_list:
-                            array_dict[par][0] = getattr(fit, par)
+                            my_value = getattr(fit, par)
+                            if my_value is None:
+                                array_dict[par][0] = -9999
+                            else:
+                                array_dict[par][0] = my_value
                         ttree.Fill()
                     else:
                         continue
