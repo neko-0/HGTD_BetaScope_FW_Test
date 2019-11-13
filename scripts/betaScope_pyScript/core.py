@@ -59,7 +59,7 @@ class BetaScopeResult(object):
         if self.beta_runs:
             ofile = ROOT.TFile(ofile_name, "RECREATE" )
             ofile.cd()
-            for run,run_item in self.beta_runs:
+            for run,run_item in self.beta_runs.items():
                 ttree = ROOT.TTree(run, "{}".format(run_item.name) )
                 array_dict = {}
                 for par in par_list:
