@@ -47,4 +47,5 @@ for run in runlist:
             beta_scope.add_run(beta_run)
 
 
-beta_scope.save("test.pickle")
+beta_scope.save("test.pkl")
+beta_scope.to_root("test_run.root")

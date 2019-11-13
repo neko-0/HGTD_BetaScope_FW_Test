@@ -32,12 +32,47 @@ class BetaScopeResult(object):
     def to_root(self, ofile_name):
         import ROOT
         from array import array
+        par_list = [
+        "temperature",
+        "bias_voltage",
+        "resistance",
+        "pulse_area",
+        "pulse_area_Error",
+        "pmax",
+        "pmax_chi",
+        "rms",
+        "rms_chi",
+        "rise_time",
+        "tise_time_chi",
+        "dvdt",
+        "dvdt_chi",
+        "fwhm",
+        "fwhm_chi",
+        "new_pulse_area",
+        "new_pulse_area_chi",
+        "fall_time",
+        "fall_time_chi",
+        "time_resolution_50",
+        "time_resolution_20",
+        "cycle"
+        ]
         if self.beta_runs:
             ofile = ROOT.TFile(ofile_name, "RECREATE" )
             ofile.cd()
             for run,run_item in self.beta_runs:
                 ttree = ROOT.TTree(run, "{}".format(run_item.name) )
-                ttree.Branch("pmax")
+                array_dict = {}
+                for par in par_list:
+                    array_dict[par] = array("d",[0])
+                    ttree.Branch(par,array_dict[par], "{}/D".format(par) )
+                for fit in run_item.fit_results:
+                    if "DUT" in fit.channel:
+                        for par in par_list:
+                            array_dict[par][0] = getattr(fit, par)
+                        ttree.Fill()
+                    else:
+                        continue
+            ofile.Close()
 
 
 class BetaRun(object):
