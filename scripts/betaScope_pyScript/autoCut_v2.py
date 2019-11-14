@@ -261,6 +261,8 @@ def generate_cuts( dutCh, trigCh, runNum, configFileName, trigFixedCut, tmax_min
         except:
             temperature = "-273"
         trigger_bias = betaRunConfig[runNum]["file_name"].split("_trig")[1].split("V_")[0]
+        if "V.root" in trigger_bias:
+            trigger_bias = trigger_bias.split("V.root")[0]
         betaRunConfig.set( runNum, "temperature", temperature )
         betaRunConfig.set( runNum, "trigger_bias", trigger_bias )
 
