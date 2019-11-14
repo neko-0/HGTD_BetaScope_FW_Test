@@ -48,8 +48,8 @@ class BetaResultReader(object):
                             fit_result.bias_voltage = -390
                             fit_result.cycle = 1
 
-                    fit_result.pulase_area = float(fit_result_file[sec]["PulseArea"])
-                    fit_result.pulase_area_chi = float(fit_result_file[sec]["PulseArea_CHI_NDF"])
+                    fit_result.pulse_area = float(fit_result_file[sec]["PulseArea"])
+                    fit_result.pulse_area_chi = float(fit_result_file[sec]["PulseArea_CHI_NDF"])
                     fit_result.pmax = float(fit_result_file[sec]["Pmax"])
                     fit_result.pmax_chi = float(fit_result_file[sec]["Pmax_CHI_NDF"])
                     fit_result.rms = float(fit_result_file[sec]["RMS"])
