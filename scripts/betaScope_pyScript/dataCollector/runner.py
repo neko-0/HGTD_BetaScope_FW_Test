@@ -12,17 +12,20 @@ pwd = os.getcwd()
 
 beta_scope = BetaScopeResult()
 
-mdir = ["/media/mnt/gunter/betaAna2/", "/media/mnt/BigHD/BetaScope_Data/Analyzed_YZ/"]
+mdir_list = ["/media/mnt/gunter/betaAna2/", "/media/mnt/BigHD/BetaScope_Data/Analyzed_YZ/"]
 
-top_dirlist = [os.listdir(mdir[0]), os.listdir(mdir[1]) ]
+dirlist = [x for x in os.listdir(mdir_list[0]) ]
+dirlist2 = [y for y in os.listdir(mdir_list[1]) ]
+dirlist += dirlist2
 
 runlist = []
 for i in range(500,700):
     runlist.append("Sr_Run{}".format(i) )
 
 pList = []
-for run in runlist:
-    for dirlist in top_dirlist:
+for mdir in mdir_list:
+    dirlist = os.listdir(mdir)
+    for run in runlist:
         for fold in dirlist:
             if run in fold:
                 os.chdir(mdir+"/"+fold)
