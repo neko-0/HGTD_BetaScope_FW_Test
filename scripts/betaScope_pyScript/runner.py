@@ -12,8 +12,10 @@ pwd = os.getcwd()
 
 beta_scope = BetaScopeResult()
 
-mdir = "/media/mnt/gunter/betaAna2/"
-dirlist = os.listdir(mdir)
+mdir = ["/media/mnt/gunter/betaAna2/", "/media/mnt/BigHD/BetaScope_Data/Analyzed_YZ/"]
+
+dirlist = os.listdir(mdir[0])
+dirlist += os.listdir(mdir[1])
 
 runlist = []
 for i in range(500,700):
@@ -36,8 +38,8 @@ for run in runlist:
                 pList  = []
             '''
             os.chdir(pwd)
-        
-            
+
+
             beta_run = BetaRun(run, fold)
 
             fit_reader = BetaResultReader()
@@ -56,7 +58,7 @@ for run in runlist:
             beta_run.update_daq_info(daq_info)
 
             beta_scope.add_run(beta_run)
-            
+
 
 
 beta_scope.save("test.pkl")
