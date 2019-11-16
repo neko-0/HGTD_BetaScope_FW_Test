@@ -5,6 +5,7 @@ from copy import deepcopy
 class BetaScopeResult(object):
     def __init__(self, fname=""):
         self.beta_runs = {}
+        self.user_data_dir = "./user_data/"
         if fname:
             self.load(fname)
 
@@ -13,6 +14,18 @@ class BetaScopeResult(object):
             return True
         else:
             return False
+
+    def fetchRun(self, run_list):
+        output = []
+        for run_num, run in run_list:
+            output.append( self.beta_runs[run_num] )
+        return output
+
+    def generate_run_list(self):
+        run_list = []
+        for run_num,run in self.beta_runs.items():
+            run_list.append( [run_num, run.name] )
+        return run_list
 
     def add_run(self, beta_run):
         self.beta_runs[beta_run.run_number] = deepcopy(beta_run)
