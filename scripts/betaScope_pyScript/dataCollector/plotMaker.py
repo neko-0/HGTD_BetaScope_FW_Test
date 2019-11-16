@@ -77,18 +77,19 @@ class PlotMaker(PlotMakerBase):
         self.sensor_list = {}
 
     def fetchRun(self, run_info_list):
+        copy_self = deepcopy(self)
         for run_info in run_info_list:
-            matched = runMatch(run_info["reg"], self.runlist)
-            if self.backend is "root":
-                tfile = ROOT.TFile.Open(self.filename, "r")
+            matched = runMatch(run_info["reg"], copy_self.runlist)
+            if copy_self.backend is "root":
+                tfile = ROOT.TFile.Open(copy_self.filename, "r")
             else:
                 tfile = ""
             if matched:
-                self.sensor_list[run_info["nick_name"]] = []
+                copy_self.sensor_list[run_info["nick_name"]] = []
                 color = 2
                 for run, run_name in matched:
                     sensor = PlotSensor(run_name)
-                    self.sensor_list[run_info["nick_name"]].append(sensor)
+                    copy_self.sensor_list[run_info["nick_name"]].append(sensor)
                     ttree = tfile.Get(run)
                     for par_name,par in param.items():
                         plotdata = PlotData(par_name, par["xtitle"], par["ytitle"], run_info["style"], run_info["color"])
@@ -114,7 +115,7 @@ class PlotMaker(PlotMakerBase):
                         plotdata.max = max
                         sensor.add_plot_data(par_name,plotdata)
                     color+=1
-        return deepcopy(self)
+        return copy_self
 
 
     def makePlots(self, output_name=""):
