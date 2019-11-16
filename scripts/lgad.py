@@ -270,7 +270,8 @@ class Lgad(cmd.Cmd, object):
                     job.daemon = True
                     job.start()
 
-    def do_batch(self, txtFile, name_pattern):
+    def do_batch(self, txtFile):
+        name_pattern = "S8664"
         with open(txtFile, "r") as f:
             for line in f.readlines():
                 if name_pattern in line:
