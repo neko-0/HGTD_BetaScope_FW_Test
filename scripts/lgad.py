@@ -270,16 +270,16 @@ class Lgad(cmd.Cmd, object):
                     job.daemon = True
                     job.start()
 
-        def do_batch(self, txtFile, name_pattern):
-            with open(txtFile, "r") as f:
-                for line in f.readlines():
-                    if name_pattern in line:
-                        run_num = line.split("Sr_Run")[1]
-                        run_num = int(run_num.split("_")[0])
-                        self.do_set_run(run_num)
-                        self.do_generate_config()
-                        self.do_set_default_config()
-                        self.do_run_analysis("full")
+    def do_batch(self, txtFile, name_pattern):
+        with open(txtFile, "r") as f:
+            for line in f.readlines():
+                if name_pattern in line:
+                    run_num = line.split("Sr_Run")[1]
+                    run_num = int(run_num.split("_")[0])
+                    self.do_set_run(run_num)
+                    self.do_generate_config()
+                    self.do_set_default_config()
+                    self.do_run_analysis("full")
 
 if __name__ == "__main__":
     interface = Lgad()
