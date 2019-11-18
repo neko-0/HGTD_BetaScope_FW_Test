@@ -1,5 +1,6 @@
 #include "BetaScope_Driver/include/BetaScope_Class.h"
 #include "BetaScope_Driver/include/BetaScopeExt_Class.h"
+#include "BetaScope_Driver/include/BetaScopeExt_Templates.tpp"
 #include "BetaScope_Driver/include/BetaScope_AnaFramework.h"
 #include "General/Colorful_Cout/include/Colorful_Cout.h"
 #include <string>
@@ -22,7 +23,7 @@ class ArgoneXrayAna : public BetaScope_AnaFramework<BetaScope_Ext>
     void initialize();
     void loopEvents();
     void finalize(){
-      beta_scope.oFile->cd();
+      beta_scope.get_ofile()->cd();
       ArgoneXrayAna::_finalize();
     };
     void _finalize();

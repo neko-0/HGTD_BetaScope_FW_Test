@@ -4,8 +4,29 @@
 #include <string>
 #include <iostream>
 
+struct AnaParam{
+  bool limiting_search_region_OnOff;
+  double pmaxSearchRange[2];
+};
+
 class BetaScopeWaveformAna : public BetaScope_AnaFramework<BetaScope>
 {
+  private:
+
+    bool isProcessing = false;
+    bool has_daq_current = false;
+    bool has_daq_timestamp = false;
+    bool has_daq_temperature = false;
+    bool has_daq_humidity = false;
+    bool has_daq_eventNum = false;
+    bool has_daq_cycle = false;
+    bool has_daq_bias = false;
+
+    bool resample_time = true;
+    double dt = 0.0;
+    double xorigin = 0.0;
+
+  public:
   //this is are required.
   std::string ifile;
 
@@ -56,6 +77,7 @@ class BetaScopeWaveformAna : public BetaScope_AnaFramework<BetaScope>
   TTreeReaderValue<double> *i_current;
   TTreeReaderValue<double> *i_timestamp;
 
+  AnaParam my_anaParam;
 
   public:
     BetaScopeWaveformAna(){};
@@ -68,8 +90,19 @@ class BetaScopeWaveformAna : public BetaScope_AnaFramework<BetaScope>
 
     //required, user can add more to the existing methods;
     void initialize();
+    void analysis();
     void loopEvents();
     void finalize();
+
+    void run()
+    {
+      initialize();
+      loopEvents();
+      finalize();
+    };
+
+
+    void thread_it( int ch );
 
     //custom methods.
     void readWaveformConfig(std::string configName);

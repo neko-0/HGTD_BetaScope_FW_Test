@@ -1,4 +1,5 @@
 #include "BetaScope_Driver/include/BetaScope_Class.h"
+#include "BetaScope_Driver/include/BetaScope_Templates.h"
 
 #include "Colorful_Cout/include/Colorful_Cout.h"
 
@@ -64,25 +65,16 @@ bool BetaScope::newTreeMaker( std::string additional_branch_list )
 
         if( data_type.compare("VD")==0 )
         {
-          branch_checker = makeBranch<std::vector<double>>(this->oTree, Form("%s%i", std::get<2>(br).c_str(), ch), Form("%s%i", std::get<3>(br).c_str(), ch), &this->oTreeVecDoubleMap, this->oTreeVecDouble[branch_counter], branch_counter, &this->oTreeVecDoubleMapIndex );
-          this->oTreeVecDouble[branch_counter-1]->reserve(1000000);
-          this->newBranchCounterKeeper = branch_counter;
-          if(branch_checker)
-          {
-            ColorCout::print("  Successful type VD: ", std::get<2>(br)+std::to_string(ch), CYAN);
-          }
+          branch_checker = BetaScope::buildPrimitiveBranch<std::vector<double>>( Form("%s%i", std::get<2>(br).c_str(), ch) );
+
+          if(branch_checker)ColorCout::print("  Successful type VD: ", std::get<2>(br)+std::to_string(ch), CYAN);
         }
         else if( data_type.compare("D")==0 )
         {
-          branch_checker = makeBranch<double>(this->oTree, Form("%s%i", std::get<2>(br).c_str(), ch), Form("%s%i", std::get<3>(br).c_str(), ch), &this->oTreeDoubleMap, this->oTreeDouble[branch_counter], branch_counter, &this->oTreeDoubleMapIndex  );
-          this->newBranchCounterKeeper = branch_counter;
-          if(branch_checker)
-          {
-            ColorCout::print("  Successful: type D ", std::get<2>(br)+std::to_string(ch), CYAN);
-          }
+          branch_checker = BetaScope::buildPrimitiveBranch<double>( Form("%s%i", std::get<2>(br).c_str(), ch) );
+
+          if(branch_checker)ColorCout::print("  Successful: type D ", std::get<2>(br)+std::to_string(ch), CYAN);
         }
-
-
         else
         {
           ColorCout::print("  Fail: type ? ", std::get<2>(br)+std::to_string(ch), RED);
@@ -95,21 +87,15 @@ bool BetaScope::newTreeMaker( std::string additional_branch_list )
       std::string data_type = std::get<1>(br);
       if( data_type.compare("VD")==0 )
       {
-        branch_checker = makeBranch<std::vector<double>>(this->oTree, Form("%s", std::get<2>(br).c_str()), Form("%s", std::get<3>(br).c_str()), &this->oTreeVecDoubleMap, this->oTreeVecDouble[branch_counter], branch_counter, &this->oTreeVecDoubleMapIndex );
-        this->newBranchCounterKeeper = branch_counter;
-        if(branch_checker)
-        {
-          ColorCout::print("  Successful type VD: ", std::get<2>(br), CYAN);
-        }
+        branch_checker = BetaScope::buildPrimitiveBranch<std::vector<double>>( Form("%s", std::get<2>(br).c_str()) );
+
+        if(branch_checker)ColorCout::print("  Successful type VD: ", std::get<2>(br), CYAN);
       }
       else if( data_type.compare("D")==0 )
       {
-        branch_checker = makeBranch<double>(this->oTree, Form("%s", std::get<2>(br).c_str()), Form("%s", std::get<3>(br).c_str()), &this->oTreeDoubleMap, this->oTreeDouble[branch_counter], branch_counter, &this->oTreeDoubleMapIndex );
-        this->newBranchCounterKeeper = branch_counter;
-        if(branch_checker)
-        {
-          ColorCout::print("  Successful: type D ", std::get<2>(br), CYAN);
-        }
+        branch_checker = BetaScope::buildPrimitiveBranch<double>( Form("%s", std::get<2>(br).c_str()) );
+
+        if(branch_checker)ColorCout::print("  Successful: type D ", std::get<2>(br), CYAN);
       }
       else
       {

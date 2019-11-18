@@ -20,8 +20,12 @@ def generate_cuts( dutCh, trigCh, runNum, configFileName, trigFixedCut, tmax_min
     for i in range(int(num_file)):
         runNum = "run"+str(i)
         fileName = betaRunConfig[runNum]["file_name"]
-        spliter = "stats_Sr_Run"+str(betaRunNum)+"_"
-        biasVoltage = fileName.split(spliter)[1].split("_trig")[0]
+        try:
+            spliter = "stats_Sr_Run"+str(betaRunNum)+"_"
+            biasVoltage = fileName.split(spliter)[1].split("_trig")[0]
+        except:
+            spliter = "stats_unseg_Sr_Run"+str(betaRunNum)+"_"
+            biasVoltage = fileName.split(spliter)[1].split("_trig")[0]
         betaRunConfig.set( runNum, "bias", biasVoltage)
 
         tfile = ROOT.TFile.Open(fileName)
@@ -257,6 +261,8 @@ def generate_cuts( dutCh, trigCh, runNum, configFileName, trigFixedCut, tmax_min
         except:
             temperature = "-273"
         trigger_bias = betaRunConfig[runNum]["file_name"].split("_trig")[1].split("V_")[0]
+        if "V.root" in trigger_bias:
+            trigger_bias = trigger_bias.split("V.root")[0]
         betaRunConfig.set( runNum, "temperature", temperature )
         betaRunConfig.set( runNum, "trigger_bias", trigger_bias )
 
@@ -278,7 +284,7 @@ if __name__ == '__main__':
     commandline_ArgsParser.add_argument("--trigCh", dest="trigCh", type=str, nargs="?", default=3, help="Trigger Channel")
     commandline_ArgsParser.add_argument("--runNum", dest="runNum", type=int, help="Run number")
     commandline_ArgsParser.add_argument("--configFile", dest="configFile", nargs="?", default="run_info_v08022018.ini", type=str, help="Configuration file")
-    commandline_ArgsParser.add_argument("--trigFixedCut", dest="trigFixedCut", nargs="?", default="200 500 70 375", type=str, help="Preset trigger cut")
+    commandline_ArgsParser.add_argument("--trigFixedCut", dest="trigFixedCut", nargs="?", default="200 500 70 360", type=str, help="Preset trigger cut")
     commandline_ArgsParser.add_argument("--tmax_minB", dest="tmax_minB", nargs="?", default=-2000, type=int, help="dut tmax min bound")
     commandline_ArgsParser.add_argument("--tmax_maxB", dest="tmax_maxB", nargs="?", default=2000, type=int, help="dut tmax max bound")
     argv = commandline_ArgsParser.parse_args()

@@ -48,6 +48,7 @@ if __name__ == "__main__":
     import argparse
     cml_parser = argparse.ArgumentParser()
     cml_parser.add_argument("--CFD", dest="CFD", nargs="?", default="50", type=int, help="CFD")
+    cml_parser.add_argument("--scope", dest="scope", nargs="?", default="lecroy", type=str, help="scope")
 
     argv = cml_parser.parse_args()
 
@@ -55,8 +56,12 @@ if __name__ == "__main__":
     ROOT.gROOT.SetBatch(True)
     ROOT.gStyle.SetOptFit(1)
 
-    trigger_resolution = 16.7 #ps
-    trigger_resolution_err = 0.7
+    if "keysight" in argv.scope:
+        trigger_resolution = 14.8 #ps 14.8+-0.1 for keysight 16.7 for lecroy
+        trigger_resolution_err = 0.1
+    else:
+        trigger_resolution = 16.7 #ps 14.8+-0.1 for keysight 16.7 for lecroy
+        trigger_resolution_err = 0.7
 
     import configparser
     config_file = configparser.ConfigParser()
@@ -75,11 +80,20 @@ if __name__ == "__main__":
     sensor_name = config_file["header"]["sensor"]
     dut_ch = config_file["header"]["dut_channel"]
     trig_ch = config_file["header"]["trigger_channel"]
+    run_num = ""
 
     output = []
     for runIndex in range(int(num_files)):
 
         fileName = file_prefix + config_file["run%s"%runIndex]["file_name"]
+
+        cycle = 1
+        if "root." in fileName:
+            cycle = int(fileName.split("root.")[1])
+
+        if not run_num:
+            run_num = fileName.split("Sr_Run")[1].split("_")[0]
+
         bias = int(config_file["run%s"%runIndex]["bias"].split("V")[0])
         try:
             temperature = config_file["run%s"%runIndex]["temperature"]
@@ -95,7 +109,7 @@ if __name__ == "__main__":
         dut_time_res = math.sqrt( math.pow(result["sigma"],2) - math.pow(trigger_resolution,2) )
         dut_time_res_err = math.sqrt( math.pow(result["sigma"],2)/(math.pow(result["sigma"],2) - math.pow(trigger_resolution,2))*math.pow(result["sigma_err"],2) + math.pow(trigger_resolution,2)/(math.pow(result["sigma"],2) - math.pow(trigger_resolution,2))*math.pow(trigger_resolution_err, 2))
 
-        output.append("%s,%s,%s,%s"%(temperature, bias, dut_time_res,dut_time_res_err))
+        output.append("%s,%s,%s,%s,%s,%s"%(run_num, temperature, bias, dut_time_res,dut_time_res_err,cycle))
 
         #saving plots
         result["histo"].GetXaxis().SetTitle("Time Difference")
@@ -103,9 +117,12 @@ if __name__ == "__main__":
         c.cd()
         result["histo"].Draw()
         c.SaveAs("bias_%s_temp_%sC_tdiff_fit_CFD%s.png"%(bias, temperature, argv.CFD))
-        
+
 
     print("Sensor: %s"%sensor_name)
-    print("Temp,Bias,Res,ResErr")
+    print("Run,Temp,Bias,Res,ResErr,cycle")
     for o in output:
         print(o)
+    with open("res{}.txt".format(argv.CFD),"w") as f:
+        for o in output:
+            f.write("{}\n".format(o) )

@@ -1,4 +1,5 @@
 #include "BetaScope_Driver/include/BetaScope_Class.h"
+#include "BetaScope_Driver/include/BetaScope_Templates.h"
 
 #include <tuple>
 #include <boost/property_tree/ptree.hpp>

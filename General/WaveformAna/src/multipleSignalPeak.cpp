@@ -237,7 +237,7 @@ void WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Singal(
         pmax = voltageVec.at(i);
         pmax_index = i;
       }
-      else if( (voltageVec.at(i) < assist_threshold) && (assist_threshold - voltageVec.at(i)) <= (assist_threshold/scale) )
+      else if( (voltageVec.at(i) < assist_threshold) && (assist_threshold - abs(voltageVec.at(i)) ) <= (assist_threshold/scale) )
       {
         multiple_singal_pmax_v.push_back( pmax );
         multiple_singal_tmax_v.push_back( timeVec.at(pmax_index) );
@@ -245,6 +245,12 @@ void WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Singal(
         pmax = voltageVec.at(i);
         pmax_index = i;
         candidate_signal = false;
+      }
+      else if( i==npoints-1)
+      {
+        multiple_singal_pmax_v.push_back( pmax );
+        multiple_singal_tmax_v.push_back( timeVec.at(pmax_index) );
+        indexing_v.push_back( pmax_index );
       }
       else{}
     }
@@ -255,12 +261,29 @@ void WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Singal(
     multiple_singal_pmax_v.push_back( 10e11 ); //default value if nothing is found.
     multiple_singal_tmax_v.push_back( 10e11 );
     indexing_v.push_back( 0 );
-    if(!this->supressNoisy)ColorCout::WarningMsg(function_name, "Noisy"); //if too many "Noisy", there might be a problem.
+    if(!this->supressNoisy)
+    {
+      this->mu.lock();
+      ColorCout::WarningMsg(function_name, "Noisy"); //if too many "Noisy", there might be a problem.
+      this->mu.unlock(); 
+    }
     this->supressNoisyCounter++;
     if(this->supressNoisyCounter==100)
     {
-      ColorCout::WarningMsg(function_name, "supressNoisyCounter reaches 100");
+      this->mu.lock(); ColorCout::WarningMsg(function_name, "supressNoisyCounter reaches 100"); this->mu.unlock();
       this->supressNoisy=true;
+    }
+  }
+  else if( multiple_singal_pmax_v.size()==0 )
+  {
+    multiple_singal_pmax_v.push_back( 10e11 ); //default value if nothing is found.
+    multiple_singal_tmax_v.push_back( 10e11 );
+    indexing_v.push_back( 0 );
+    if(!this->supressNoisy)
+    {
+      this->mu.lock();
+      ColorCout::WarningMsg(function_name, "Method fail, the output size is 0. Assigning default value"); //if too many "Noisy", there might be a problem.
+      this->mu.unlock();
     }
   }
 }

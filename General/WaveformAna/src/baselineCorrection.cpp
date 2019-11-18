@@ -141,8 +141,8 @@ bool WaveformAnalysis::Correct_Baseline4(
   std::string function_name = "WaveformAnalysis::Correct_Baseline4";
 
   //check to see if pmax and tmax are empty or different size.
-  if( pmax.size() != tmax.size() ){ std::cout<< function_name << " pmax and tmax size dose not match!" << std::endl; return false; }
-  if( pmax.size()==0 ){ std::cout<< function_name << " pmax or tmax is empty!" << std::endl; return false; }
+  if( pmax.size() != tmax.size() ){ ColorCout::ErrorMsg( __func__, " pmax and tmax size dose not match!"); return false; }
+  if( pmax.size()==0 ){ ColorCout::ErrorMsg( __func__, " pmax or tmax is empty!" ); return false; }
 
   double mean =0;
   int counter =0;
