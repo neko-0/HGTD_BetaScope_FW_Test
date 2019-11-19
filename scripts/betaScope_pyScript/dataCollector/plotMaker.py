@@ -76,6 +76,11 @@ class PlotMaker(PlotMakerBase):
             self.runlist = runlist_from_root(self.filename)
         self.sensor_list = {}
 
+    def show_sensors(self):
+        for run,run_name in self.runlist:
+            print("{} {}".format(run,run_name))
+        print("total {}".format(len(self.runlist)))
+
     def fetchRun(self, run_info_list):
         copy_self = deepcopy(self)
         for run_info in run_info_list:
@@ -115,6 +120,7 @@ class PlotMaker(PlotMakerBase):
                         plotdata.max = max
                         sensor.add_plot_data(par_name,plotdata)
                     color+=1
+        copy_self.runlist = matched
         return copy_self
 
 
