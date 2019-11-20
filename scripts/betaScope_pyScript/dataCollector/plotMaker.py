@@ -100,6 +100,7 @@ class PlotMaker(PlotMakerBase):
                         plotdata = PlotData(par_name, par["xtitle"], par["ytitle"], run_info["style"], run_info["color"])
                         n = ttree.Draw(par["expr"], "", "goff")
                         if n <= 0:
+                            print("no points!")
                             continue
                         d = ttree.GetV2()
                         max = 0

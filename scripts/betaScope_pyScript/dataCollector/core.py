@@ -28,7 +28,10 @@ class BetaScopeResult(object):
         return run_list
 
     def add_run(self, beta_run):
-        self.beta_runs[beta_run.run_number] = deepcopy(beta_run)
+        if beta_run.run_number in self.beta_runs:
+            pass
+        else:
+            self.beta_runs[beta_run.run_number] = deepcopy(beta_run)
 
     def save(self, out_path):
         with open(out_path, "wb") as f:
