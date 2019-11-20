@@ -75,11 +75,30 @@ class PlotMaker(PlotMakerBase):
             from array import array
             self.runlist = runlist_from_root(self.filename)
         self.sensor_list = {}
+        self.matched_runs = {}
 
     def show_sensors(self):
         for run,run_name in self.runlist:
             print("{} {}".format(run,run_name))
         print("total {}".format(len(self.runlist)))
+
+    def show(self, name_tag):
+        for run,run_name in self.matched_runs[name_tag]:
+            print("{} {}".format(run,run_name))
+        print("total {}".format(len(self.matched_runs[name_tag])))
+
+    def filter(self, name_tag, name_pattern):
+        if not name_tag in self.matched_runs:
+            self.matched_runs[name_tag] = []
+            runlist_for_compare = self.runlist
+        else:
+            runlist_for_compare = self.matched_runs[name_tag]
+        matched = runMatch(name_pattern, runlist_for_compare)
+        self.matched_runs[name_tag] = [(run,run_name) for run,run_name in matched]
+        return deepcopy(self)
+
+    def get_matehced_runs(self, name_tag):
+        return self.matched_runs[name_tag]
 
     def fetchRun(self, run_info_list):
         copy_self = deepcopy(self)

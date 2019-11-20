@@ -9,17 +9,23 @@ data_prep = [
 # (?!abc)
 plot = PlotMaker("test_run.root")
 
-fetched_data = plot.fetchRun(data_prep)
+filtered_data = plot.filter("hpk", "(.*)(HPK)(.*)")
+filtered_data.filter("hpk", "^((?!2[xX]2).)*$")
+filtered_data.filter("hpk", "^((?!FBK).)*$")
+filtered_data.filter("hpk", "(.*)(8664)(.*)")
 
-fetched_data.show_sensors()
+_1e15 = filtered_data.filter("1e15","(.*)(3p?2)(.*)(1[eE]15)")
+_3e15 = filtered_data.filter("3e15","(.*)(3p?2)(.*)(3[eE]15)")
+
+_1e15.show("1e15")
 raw_input()
+_3e15.show("3e15")
 
-data_prep = [
-{"nick_name":"HPK" ,"reg":"^((?!2[xX]2).)*$", "style":20, "color":2, "matched_runs":[] },
-]
+'''
 
 fetched_data = fetched_data.fetchRun(data_prep)
-fetched_data.show_sensors()
+fetched_data.show()
+
 raw_input()
 
 data_prep = [
@@ -42,3 +48,4 @@ raw_input()
 
 
 fetched_data.makePlots("my_exmaple")
+'''
