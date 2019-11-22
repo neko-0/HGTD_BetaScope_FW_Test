@@ -67,7 +67,8 @@ class BetaScopeResult(object):
         "fall_time_chi",
         "time_resolution_50",
         "time_resolution_20",
-        "cycle"
+        "cycle",
+        "leakage"
         ]
         if self.beta_runs:
             ofile = ROOT.TFile(ofile_name, "RECREATE" )

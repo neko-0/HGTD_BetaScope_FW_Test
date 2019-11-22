@@ -76,6 +76,10 @@ class PlotMaker(PlotMakerBase):
             self.runlist = runlist_from_root(self.filename)
         self.sensor_list = {}
         self.matched_runs = {}
+        self.fit_value = {}
+
+    def get_all(self):
+        return self.sensor_list
 
     def show_sensors(self):
         for run,run_name in self.runlist:
@@ -100,6 +104,98 @@ class PlotMaker(PlotMakerBase):
     def get_matehced_runs(self, name_tag):
         return self.matched_runs[name_tag]
 
+    def prepare_plot(self, name_tag, marker, fitter={}, calc_at=4):
+        # fitter={"param":"expre"}
+        if self.backend is "root":
+            tfile = ROOT.TFile.Open(self.filename, "r")
+        else:
+            return None
+
+        self.sensor_list[name_tag] = []
+        color = 2
+        for run,run_name in self.matched_runs[name_tag]:
+            ttree = tfile.Get(run)
+            sensor = PlotSensor(run_name)
+            for par_name,par in param.items():
+                if par_name in fitter:
+                    fitFunc = self.make_fit(par_name,fitter[par_name])
+                    if not name_tag in self.fit_value:
+                        self.fit_value[name_tag] = {}
+                        self.fit_value[name_tag][par_name] = []
+                    else:
+                        if not par_name in self.fit_value[name_tag]:
+                            self.fit_value[name_tag][par_name] = []
+                else:
+                    fitFunc = None
+                plotdata = PlotData(par_name, par["xtitle"], par["ytitle"], marker, color)
+                n = ttree.Draw(par["expr"], "", "goff")
+                if n <= 0:
+                    continue
+                d = ttree.GetV2()
+                dd = ttree.GetV1()
+                max = 0
+                xmax = 0
+                i = 0
+                while i < 100:
+                    if d[i]:
+                        if max < d[i]:max=d[i]
+                        if xmax < dd[i]:xmax=dd[i]
+                        i+=1
+                    else:
+                        break
+                g = ROOT.TGraph(n, ttree.GetV1(), ttree.GetV2() )
+                if not fitFunc is None:
+                    fit = fitFunc(0,max)
+                    fit.SetLineColor(color)
+                    g.Fit(fit)
+                    self.fit_value[name_tag][par_name].append(fit.GetX(calc_at))
+
+                g.GetXaxis().SetTitle(par["xtitle"])
+                g.GetYaxis().SetTitle(par["ytitle"])
+                g.SetMarkerColor(color)
+                g.SetMarkerStyle(marker)
+                g.SetLineColor(color)
+                g.SetName(run)
+                plotdata.add_plot(g)
+                plotdata.max = max
+                plotdata.xmax = xmax
+                sensor.add_plot_data(par_name,plotdata)
+            self.sensor_list[name_tag].append(sensor)
+            color+=1
+
+    def make_plots(self, name_tag_list, output_name=""):
+        #ROOT.gROOT.SetBatch(True)
+        if output_name:
+            try:
+                os.makedirs("./user_data/{}".format(output_name))
+            except:
+                pass
+        for entry, param_name in enumerate(param.keys()):
+            leg = ROOT.TLegend(0.19,0.65,0.7,0.95)
+            leg.SetTextSize(0.02)
+            canvas = ROOT.TCanvas("canvas", "canvas", 1800, 1200)
+            canvas.cd()
+            first_draw = 0
+            for name_tag in name_tag_list:
+                for sensor in self.sensor_list[name_tag]:
+                    if not param_name in sensor.plot_data:
+                        continue
+                    if first_draw==0:
+                        first_draw = 1
+                        sensor.plot_data[param_name].plot.GetYaxis().SetRangeUser(0, sensor.plot_data[param_name].max*3)
+                        sensor.plot_data[param_name].plot.GetXaxis().SetRangeUser(0, sensor.plot_data[param_name].xmax*3)
+                        sensor.plot_data[param_name].plot.Draw("ap")
+                        leg.AddEntry(sensor.plot_data[param_name].plot, sensor.sensor_name.split("_Trig")[0])
+                    else:
+                        sensor.plot_data[param_name].plot.GetYaxis().SetRangeUser(0, sensor.plot_data[param_name].max*3)
+                        sensor.plot_data[param_name].plot.GetXaxis().SetRangeUser(0, sensor.plot_data[param_name].xmax*3)
+                        sensor.plot_data[param_name].plot.Draw("psame")
+                        leg.AddEntry(sensor.plot_data[param_name].plot, sensor.sensor_name.split("_Trig")[0])
+            leg.Draw()
+            raw_input()
+            canvas.SaveAs("./user_data/{}/{}.png".format(output_name, param_name))
+
+
     def fetchRun(self, run_info_list):
         copy_self = deepcopy(self)
         for run_info in run_info_list:
@@ -121,11 +217,14 @@ class PlotMaker(PlotMakerBase):
                         if n <= 0:
                             continue
                         d = ttree.GetV2()
+                        dd = tree.GetV1()
                         max = 0
+                        xmax = 0
                         i = 0
                         while i < 100:
                             if d[i]:
                                 if max < d[i]:max=d[i]
+                                if xmax < dd[i]:xmax=dd[i]
                                 i+=1
                             else:
                                 break
@@ -137,6 +236,7 @@ class PlotMaker(PlotMakerBase):
                         g.SetLineColor(color)
                         plotdata.add_plot(g)
                         plotdata.max = max
+                        plotdata.xmax = xmax
                         sensor.add_plot_data(par_name,plotdata)
                     color+=1
         copy_self.runlist = matched
@@ -156,26 +256,36 @@ class PlotMaker(PlotMakerBase):
             canvas = ROOT.TCanvas("canvas", "canvas", 1800, 1200)
             canvas.cd()
             first_draw = 0
+            max_buffer = 0.0
+            xmax_buffer = 0.0
             for nick, sensors in self.sensor_list.items():
                 for sensor in sensors:
+                    if max_buffer < sensor.plot_data[param_name].max:
+                        max_buffer = sensor.plot_data[param_name].max
+                    if xmax_buffer < sensor.plot_data[param_name].xmax:
+                        xmax_buffer = sensor.plot_data[param_name].xmax
                     if not param_name in sensor.plot_data:
                         continue
                     if first_draw==0:
                         first_draw = 1
                         sensor.plot_data[param_name].plot.GetYaxis().SetRangeUser(0, sensor.plot_data[param_name].max*3)
+                        sensor.plot_data[param_name].plot.GetXaxis().SetRangeUser(0, sensor.plot_data[param_name].xmax*3)
                         sensor.plot_data[param_name].plot.Draw("ap")
                         leg.AddEntry(sensor.plot_data[param_name].plot, sensor.sensor_name.split("_Trig")[0])
                     else:
+                        sensor.plot_data[param_name].plot.GetYaxis().SetRangeUser(0, sensor.plot_data[param_name].max*3)
+                        sensor.plot_data[param_name].plot.GetXaxis().SetRangeUser(0, sensor.plot_data[param_name].xmax*3)
                         sensor.plot_data[param_name].plot.Draw("psame")
                         leg.AddEntry(sensor.plot_data[param_name].plot, sensor.sensor_name.split("_Trig")[0])
             leg.Draw()
             canvas.SaveAs("./user_data/{}/{}.png".format(output_name, param_name))
 
-
-
-
-
-
+    def make_fit(self, name, expr):
+        def fit(xmin, xmax):
+            # "0.5+expo(x)"
+            f = ROOT.TF1("fitCC"+name, expr, xmin, 1.2*xmax)
+            return f
+        return fit
 
 
 
