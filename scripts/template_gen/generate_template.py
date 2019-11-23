@@ -1,5 +1,5 @@
 from template_generator import *
 
 
-example = TemplateGen("TestTemplate", "BetaScope")
+example = TemplateGen("ACLGAD", "BetaScope_Ext")
 example.generate_template()
