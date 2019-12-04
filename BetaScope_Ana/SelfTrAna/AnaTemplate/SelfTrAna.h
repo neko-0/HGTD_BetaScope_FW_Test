@@ -28,16 +28,16 @@ class SelfTrAna : public BetaScope_AnaFramework<BetaScope_Ext>
     };
     void _finalize();
 
-    std::vector<double> *w[16];
+    std::vector<double> *w[2];
     std::vector<double> *t;
 
-    std::vector<double> *pmax[16];
-    std::vector<double> *tmax[16];
-    std::vector<int> *max_indexing[16];
+    std::vector<double> *pmax[2];
+    std::vector<double> *tmax[2];
+    std::vector<int> *max_indexing[2];
 
-    std::vector<double> *pulseArea[16];
-    std::vector<double> *negPmax[16];
-    std::vector<double> *negTmax[16];
+    std::vector<double> *pulseArea[2];
+    std::vector<double> *negPmax[2];
+    std::vector<double> *negTmax[2];
 
     //example of filling standalone histograms
     TH1D standAloneHisto = TH1D("standAloneHisto", "standAloneHisto", 100, 1 ,1);
