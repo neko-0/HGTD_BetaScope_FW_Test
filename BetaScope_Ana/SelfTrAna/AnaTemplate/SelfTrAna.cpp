@@ -89,7 +89,24 @@ void SelfTrAna::initialize( )
     this->pulseArea[i] = this->beta_scope.get_oTreeBranch<std::vector<double>>(Form("pulseArea%i",i));
   }
   */
+  for( int i =0; i < 10; i++)
+  {
+    br_check = this->beta_scope.buildPrimitiveBranch<std::vector<double>>(Form("pmax%i",i));
+    br_check = this->beta_scope.buildPrimitiveBranch<std::vector<double>>(Form("tmax%i",i));
+    br_check = this->beta_scope.buildPrimitiveBranch<std::vector<int>>(Form("max_indexing%i",i));
+    this->pmax[i] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>(Form("pmax%i",i));
+    this->tmax[i] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>(Form("tmax%i",i));
+    this->max_indexing[i] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<int>>(Form("max_indexing%i",i));
+  }
 
+  br_check = this->beta_scope.buildPrimitiveBranch<std::vector<double>>("rate");
+  br_check = this->beta_scope.buildPrimitiveBranch<std::vector<double>>("npulses");
+  br_check = this->beta_scope.buildPrimitiveBranch<std::vector<double>>("thresholds");
+
+  this->rate = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>("rate");
+  this->npulses = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>("npulses");
+  this->threshold = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>("thresholds");
+  /*
   for( int i = 2; i <= 3; i++)
   {
     br_check = this->beta_scope.buildPrimitiveBranch<std::vector<double>>( Form("pmax%i",i) );
@@ -107,7 +124,7 @@ void SelfTrAna::initialize( )
     this->negPmax[i] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( Form("negPmax%i",i));
     this->negTmax[i] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( Form("negTmax%i",i));
   }
-
+  */
   br_check = this->beta_scope.buildPrimitiveBranch<int>("counter");
 
   this->beta_scope.buildTH1Branch<TH1D>("counter_histo");
@@ -117,7 +134,7 @@ void SelfTrAna::initialize( )
 
   this->standAloneHisto_ptr = new TH1D("standAloneHisto_ptr", "standAloneHisto_ptr", 100, 1, 1);
 
-  std::cout << "END INITIALIZE";
+  //std::cout << "END INITIALIZE";
 
 }
 
@@ -134,16 +151,21 @@ void SelfTrAna::loopEvents()
   double horiScaler = 1.0;
 
   WaveformAnalysis WaveAna;
-  double assistThreshold = 100.0;
 
+  int nevents = 0;
 
   while( this->beta_scope.get_treeReader()->Next() )
   {
+    nevents += 1;
+    if(nevents > 10) break;
+
     for(int i = 0, max = this->beta_scope.get_iBranch<TTreeReaderArray, double>(Form("w2"))->GetSize(); i<max; i++)
     {
       w[0]->push_back( this->beta_scope.get_iBranch<TTreeReaderArray, double>("w2")->At(i) * verScaler );
       w[1]->push_back( this->beta_scope.get_iBranch<TTreeReaderArray, double>("w3")->At(i) * verScaler );
       t->push_back( this->beta_scope.get_iBranch<TTreeReaderArray, double>("t2")->At(i) * horiScaler );
+      //std::cout<<this->beta_scope.get_iBranch<TTreeReaderArray, double>("t2")->At(i) * horiScaler<<" "<<\
+      //        this->beta_scope.get_iBranch<TTreeReaderArray, double>("w2")->At(i) * verScaler<<std::endl;
     }
 
 
@@ -190,8 +212,30 @@ void SelfTrAna::loopEvents()
 
     //Analysis:================================================================
 
+    //WaveAna.Correct_Baseline2(*this->w[0], 0.30);
+    float thresholds[10] = {0.001, 0.003, 0.005, 0.07, 0.01, 0.02, 0.03, 0.04, 0.05, 0.1};
+    for(int th = 0; th < 10; th++){
+      float thres = thresholds[th];
+      WaveAna.Get_PmaxTmax_Of_Multiple_Singal(thres, *this->w[0], *this->t, *this->pmax[th], *this->tmax[th], *this->max_indexing[th], 1.0 );
+      std::cout<<"NPEAKS "<<thres<<": "<<this->pmax[th]->size()<<std::endl;
+
+      threshold->push_back(thres);
+      npulses->push_back(this->pmax[th]->size());
+      rate->push_back((this->pmax[th]->size()-1)/1e-4);
+      /*WaveAna.Get_PmaxTmax_Of_Multiple_Singal(0.01, *this->w[0], *this->t, *this->pmax[1], *this->tmax[1], *this->max_indexing[1], 1.0 );
+      std::cout<<"NPEAKS 10mV: "<<this->pmax->size()<<std::endl;
+      WaveAna.Get_PmaxTmax_Of_Multiple_Singal(0.03, *this->w[0], *this->t, *this->pmax, *this->tmax, *this->max_indexing, 1.0 );
+      std::cout<<"NPEAKS 30mV: "<<this->pmax->size()<<std::endl;
+      WaveAna.Get_PmaxTmax_Of_Multiple_Singal(0.05, *this->w[0], *this->t, *this->pmax, *this->tmax, *this->max_indexing, 1.0 );
+      std::cout<<"NPEAKS 50mV: "<<this->pmax->size()<<std::endl;
+      WaveAna.Get_PmaxTmax_Of_Multiple_Singal(0.1, *this->w[0], *this->t, *this->pmax, *this->tmax, *this->max_indexing, 1.0 );
+      std::cout<<"NPEAKS 100mV: "<<this->pmax->size()<<std::endl;*/
+    }
+    //std::cout<<"POS[0]: "<<this->pmax->at(0)<<" "<<this->tmax->at(0)<<std::endl;
+    std::cout<<"+++++++"<<std::endl;
+
     /*
-    for( int i =0; i < 16; i++)
+    for( int i = 0; i < 2; i++)
     {
       WaveAna.Correct_Baseline2(*this->w[i], 0.30);
       WaveAna.Get_PmaxTmax_Of_Multiple_Singal(assistThreshold, *this->w[i], *this->t, *this->pmax[i], *this->tmax[i], *this->max_indexing[i], 1.0 );
@@ -258,8 +302,8 @@ void SelfTrAna::loopEvents()
 void SelfTrAna::_finalize()
 {
   //do your own stuffs here
-  this->standAloneHisto.Write( );
-  this->standAloneHisto_ptr->Write();
+  //this->standAloneHisto.Write( );
+  //this->standAloneHisto_ptr->Write();
 
   BetaScope_AnaFramework::finalize();
 }
