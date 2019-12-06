@@ -198,6 +198,12 @@ class WaveformAnalysis
       const double scale = 2.0
     );
 
+    int Get_Number_Of_Multiple_Signals(
+      const double        assist_threshold,
+      std::vector<double> voltageVec,
+      std::vector<double> timeVec,
+      const double scale = 2.0
+    );
     int Signal_Peak_Counter(
       std::vector<double> &voltageVec,
       std::vector<double> timeVec,

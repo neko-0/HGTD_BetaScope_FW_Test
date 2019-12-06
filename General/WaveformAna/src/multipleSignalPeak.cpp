@@ -166,6 +166,92 @@ std::pair <double, unsigned int> WaveformAnalysis::Find_Identical_Peak(
 }
 
 
+/*==============================================================================
+void
+  WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Singal
+
+  usage: get pmax and tmax pair for multiple signals on as time window.
+  A threadhold is require to help with dientifying signals
+
+  const double
+    assist_threshold := threshold use for detecting signals.
+
+  std::vector<double>
+    voltageVec := voltage vector
+
+  std::vector<double>
+    timeVec := time vector
+
+  std::vector<dohble> &
+    multiple_singal_pmax_v := vector for holding all of the detected signal peak
+
+  std::vector<dohble> &
+    multiple_singal_tmax_v := time assiciated with the signal peak
+
+  std::vector<int>  &
+    indexing_v := vector for keeping track of the index of found signal peaks
+
+  return : no return
+
+==============================================================================*/
+//find all the pmax for multiple signals
+
+int WaveformAnalysis::Get_Number_Of_Multiple_Signals(
+  const double        assist_threshold,
+  std::vector<double> voltageVec,
+  std::vector<double> timeVec,
+  const double scale //by default scale = 1.0
+)
+{
+  std::string function_name = "WaveformAnalysis::Get_Number_Of_Multiple_Signals";
+
+  double pmax = 0.0;
+  int pmax_index = 0;
+  bool candidate_signal = false;
+  bool noisy_event = true;
+  std::size_t npoints = voltageVec.size();
+  int num_pulses = 0;
+
+  for( unsigned int i = 0; i < npoints; i++ )
+  {
+    if( !candidate_signal )
+    {
+      if( voltageVec.at(i) >= assist_threshold )
+      {
+        if( voltageVec.at(i) > pmax )
+        {
+          pmax = voltageVec.at(i);
+          pmax_index = i;
+          candidate_signal = true;
+          if( noisy_event ) noisy_event = false;
+        }
+      }
+    }
+    else
+    {
+      if( voltageVec.at(i) > pmax )
+      {
+        pmax = voltageVec.at(i);
+        pmax_index = i;
+      }
+      else if( (voltageVec.at(i) < assist_threshold) && (assist_threshold - abs(voltageVec.at(i)) ) <= (assist_threshold/scale) )
+      {
+        num_pulses++;
+        pmax = voltageVec.at(i);
+        pmax_index = i;
+        candidate_signal = false;
+      }
+      else if( i==npoints-1)
+      {
+        num_pulses++;
+      }
+      else{}
+    }
+  }
+  return num_pulses;
+}
+
+
 
 /*==============================================================================
 void
@@ -265,7 +351,7 @@ void WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Singal(
     {
       this->mu.lock();
       ColorCout::WarningMsg(function_name, "Noisy"); //if too many "Noisy", there might be a problem.
-      this->mu.unlock(); 
+      this->mu.unlock();
     }
     this->supressNoisyCounter++;
     if(this->supressNoisyCounter==100)

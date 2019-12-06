@@ -28,29 +28,21 @@ class SelfTrAna : public BetaScope_AnaFramework<BetaScope_Ext>
     };
     void _finalize();
 
-    std::vector<double> *w[2];
-    std::vector<double> *t;
+    std::vector<double> *w2;
+    std::vector<double> *t2;
 
     std::vector<double> *threshold;
     std::vector<double> *npulses;
     std::vector<double> *rate;
 
-    std::vector<double> *pmax[10];
-    std::vector<double> *tmax[10];
-    std::vector<int> *max_indexing[10];
-
-    //std::vector<double> *pulseArea[2];
-    //std::vector<double> *negPmax[2];
-    //std::vector<double> *negTmax[2];
+    double* timestamp;
 
     //example of filling standalone histograms
-    TH1D standAloneHisto = TH1D("standAloneHisto", "standAloneHisto", 100, 1 ,1);
-    TH1D *standAloneHisto_ptr = 0;
+    //TH1D standAloneHisto = TH1D("standAloneHisto", "standAloneHisto", 100, 1 ,1);
+    //TH1D *standAloneHisto_ptr = 0;
 
     //template <typename o_type, typename i_type>
     //void copyTTreeReaderArrayToVector( o_type *output_v, TTreeReaderArray<i_type> *input_v);
-
-
 
 };
 
