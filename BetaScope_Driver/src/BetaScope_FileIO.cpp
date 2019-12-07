@@ -61,7 +61,7 @@ void BetaScope::fileIO_Close()
 
   for( auto const& val : this->iTree_branch )
   {
-    delete val;
+    //delete val;
   }
 
   ColorCout::print(coutPrefix, "Finished, extiting", BOLDGREEN);

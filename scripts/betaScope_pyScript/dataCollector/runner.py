@@ -21,7 +21,7 @@ mdir_list = [
 dirlist = [[x for x in os.listdir(mdir_list[i])] for i in range(len(mdir_list)) ]
 
 runlist = []
-for i in range(100,700):
+for i in range(100,1000):
     runlist.append("Sr_Run{}".format(i) )
 
 pList = []
