@@ -82,8 +82,8 @@ void SelfTrAna::loopEvents()
   WaveformAnalysis WaveAna;
 
   int nevents = 0;
-  float thresholds[22] = {-0.1, -0.05, -0.04, -0.03, -0.02, -0.01, -0.007, -0.005, -0.003, -0.002, -0.001,
-                          0.001, 0.002, 0.003, 0.005, 0.007, 0.01, 0.02, 0.03, 0.04, 0.05, 0.1};
+  float thresholds[24] = {-0.2, -0.1, -0.05, -0.04, -0.03, -0.02, -0.01, -0.007, -0.005, -0.003, -0.002, -0.001,
+                          0.001, 0.002, 0.003, 0.005, 0.007, 0.01, 0.02, 0.03, 0.04, 0.05, 0.1, 0.2};
 
   while( this->beta_scope.get_treeReader()->Next() )
   {
@@ -109,7 +109,7 @@ void SelfTrAna::loopEvents()
     //Analysis:================================================================
 
     //WaveAna.Correct_Baseline2(*this->w[0], 0.30);
-    for(int th = 0; th < 22; th++){
+    for(int th = 0; th < 24; th++){
       float thres = thresholds[th];
       int num_pulses = WaveAna.Get_Number_Of_Multiple_Signals(thres, w, t);
       //std::cout<<"NPEAKS "<<thres<<": "<<num_pulses<<std::endl;
