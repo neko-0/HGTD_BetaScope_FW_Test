@@ -16,7 +16,13 @@ void BetaScope_Ext::FillEvent()
       if(this->oTree_TH1I[i]){int cap = this->oTree_TH1I[i]->size();this->oTree_TH1I[i]->clear();this->oTree_TH1I[i]->reserve(cap);}
     }
     */
-    for( auto &i : this->oTree_TH1I_Array ){if(i)i->clear(); }
-    for( auto &i : this->oTree_TH1F_Array ){if(i)i->clear(); }
-    for( auto &i : this->oTree_TH1D_Array ){if(i)i->clear(); }
+    for( auto &i : this->oTree_TH1I_Array ) {
+        if(i)i->clear();
+    }
+    for( auto &i : this->oTree_TH1F_Array ) {
+        if(i)i->clear();
+    }
+    for( auto &i : this->oTree_TH1D_Array ) {
+        if(i)i->clear();
+    }
 }
