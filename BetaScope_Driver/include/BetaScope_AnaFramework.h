@@ -20,56 +20,56 @@ class BetaScope_AnaFramework
     BetaScope_AnaFramework(){};
     virtual ~BetaScope_AnaFramework(){};
 
-    virtual void initialize( std::string addBranches="BetaScope_Driver/src/additionalBranches.ini", std::string rawBranches="" );
-    virtual void analysis(){  ColorCout::Msg("BetaScope_AnaFramework::analysis",  " this is a virtual analysis()." ); };
-    virtual void loopEvents( void (BetaScope_AnaFramework::*func)() );
-    virtual void finalize( );
-    virtual void filldata( );
+    virtual void Initialize( std::string addBranches="BetaScope_Driver/src/additionalBranches.ini", std::string rawBranches="" );
+    virtual void Analysis(){  ColorCout::Msg("BetaScope_AnaFramework::analysis",  " this is a virtual analysis()." ); };
+    virtual void LoopEvents( void (BetaScope_AnaFramework::*func)() );
+    virtual void Finalize( );
+    virtual void FillData( );
 
-    virtual void run()
+    virtual void Run()
     {
-      BetaScope_AnaFramework::initialize();
-      BetaScope_AnaFramework::loopEvents( &BetaScope_AnaFramework::analysis );
-      BetaScope_AnaFramework::finalize();
+      BetaScope_AnaFramework::Initialize();
+      BetaScope_AnaFramework::LoopEvents( &BetaScope_AnaFramework::Analysis );
+      BetaScope_AnaFramework::Finalize();
     };
 
 };
 
 
 template <typename beta_scope_type>
-void BetaScope_AnaFramework<beta_scope_type>::initialize( std::string addBranches, std::string rawBranches )
+void BetaScope_AnaFramework<beta_scope_type>::Initialize( std::string addBranches, std::string rawBranches )
 {
-  this->beta_scope.rawTreeReader();
-  if( addBranches.compare("")!=0 )this->beta_scope.newTreeMaker( addBranches );
+  this->beta_scope.RawTreeReader();
+  if( addBranches.compare("")!=0 )this->beta_scope.NewTreeMaker( addBranches );
 }
 
 template <typename beta_scope_type>
-void BetaScope_AnaFramework<beta_scope_type>::loopEvents( void (BetaScope_AnaFramework::*func)() )
+void BetaScope_AnaFramework<beta_scope_type>::LoopEvents( void (BetaScope_AnaFramework::*func)() )
 {
   std::string function_name = "BetaScope_AnaFramework::loopEvents";
   ColorCout::Msg(function_name,  " is used for driving event looping." );
-  while( this->beta_scope.get_treeReader()->Next() )
+  while( this->beta_scope.GetInTreeReader()->Next() )
   {
     (this->*func)();
-    BetaScope_AnaFramework<beta_scope_type>::filldata();
+    BetaScope_AnaFramework<beta_scope_type>::FillData();
   }
 }
 
 template <typename beta_scope_type>
-void BetaScope_AnaFramework<beta_scope_type>::filldata()
+void BetaScope_AnaFramework<beta_scope_type>::FillData()
 {
   this->event_counter++;
-  this->beta_scope.fillEvent();
+  this->beta_scope.FillEvent();
   if(this->event_counter%1000==0 || (this->event_counter%10==0 && this->event_counter <= 100) )
   {
-    ColorCout::print( "   " + this->beta_scope.get_ifile_nickName(), " Proccessed events: "+std::to_string(this->event_counter)+" /" + std::to_string(this->beta_scope.get_iNumEvent()), BOLDYELLOW);
+    ColorCout::print( "   " + this->beta_scope.GetInFileNickName(), " Proccessed events: "+std::to_string(this->event_counter)+" /" + std::to_string(this->beta_scope.GetInNumEvent()), BOLDYELLOW);
   }
 }
 
 template <typename beta_scope_type>
-void BetaScope_AnaFramework<beta_scope_type>::finalize()
+void BetaScope_AnaFramework<beta_scope_type>::Finalize()
 {
-  this->beta_scope.fileIO_Close();
+  this->beta_scope.FileClose();
 }
 
 

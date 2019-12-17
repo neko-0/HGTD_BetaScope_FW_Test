@@ -2,6 +2,8 @@ echo "Setting up BetaScope Framwork"
 
 current_path=`pwd`
 export BETASCOPE_SCRIPTS=${current_path}
+export BETASCOPE_ANALYSIS_DIR=${current_path}/../BetaScope_Ana/
+export BETASCOPE=${current_path}/../
 
 echo "going to General folder"
 cd ../General

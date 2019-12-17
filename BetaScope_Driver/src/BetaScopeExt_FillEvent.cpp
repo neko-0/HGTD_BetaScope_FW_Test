@@ -4,9 +4,9 @@
 #include <iostream>
 
 
-void BetaScope_Ext::fillEvent()
+void BetaScope_Ext::FillEvent()
 {
-    BetaScope::fillEvent();
+    BetaScope::FillEvent();
 
     /*
     for(int i =0;i<100;i++)

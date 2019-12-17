@@ -12,9 +12,9 @@
 void runAna( std::string fileName )
 {
   ArgoneXrayAna doAna(fileName);
-  doAna.initialize();
-  doAna.loopEvents();
-  doAna.finalize();
+  doAna.Initialize();
+  doAna.LoopEvents();
+  doAna.Finalize();
 }
 
 int main(int argc, char **argv)

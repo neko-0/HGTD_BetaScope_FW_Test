@@ -5,8 +5,8 @@
 #include <iostream>
 
 
-void BetaScope::fillEvent()
+void BetaScope::FillEvent()
 {
-    this->oTree->Fill();
-    BetaScope::_clearVecBuffer("default");
+    this->output_ttree_->Fill();
+    BetaScope::_ClearVecBuffer("default");
 }

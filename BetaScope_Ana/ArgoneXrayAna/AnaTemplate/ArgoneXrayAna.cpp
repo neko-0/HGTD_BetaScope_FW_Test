@@ -42,33 +42,33 @@ void loopHelper(WaveformAnalysis *WaveAna,
 
 //---------------
 
-void ArgoneXrayAna::initialize( )
+void ArgoneXrayAna::Initialize( )
 {
-  this->beta_scope.fileIO_Open( this->ifile.c_str() );
+  this->beta_scope.FileOpen( this->ifile.c_str() );
 
   char *check_path = getenv("BETASCOPE_SCRIPTS");
   if(check_path!=NULL)
   {
     std::string beta_scope_path(getenv("BETASCOPE_SCRIPTS"));
-    BetaScope_AnaFramework::initialize( beta_scope_path + "/../BetaScope_Ana/ArgoneXrayAna/AnaTemplate/myOwnTree.ini" );
+    BetaScope_AnaFramework::Initialize( beta_scope_path + "/../BetaScope_Ana/ArgoneXrayAna/AnaTemplate/myOwnTree.ini" );
   }
   else
   {
-    BetaScope_AnaFramework::initialize("");
+    BetaScope_AnaFramework::Initialize("");
   }
 
   //do your own stuffs here
   for(int ch = 0; ch < 16; ch++)
   {
-    auto br_check = this->beta_scope.setBranch( "TTreeReaderArray<double>", Form("w%i",ch), Form("w%i",ch) );
+    auto br_check = this->beta_scope.SetInBranch<TTreeReaderArray,double>(Form("w%i",ch), Form("w%i",ch) );
 
-    br_check = this->beta_scope.buildPrimitiveBranch< std::vector<double> >(Form("w%i", ch ));
-    w[ch] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>(Form("w%i",ch));
+    br_check = this->beta_scope.BuildOutBranch< std::vector<double> >(Form("w%i", ch ));
+    w[ch] = this->beta_scope.GetOutBranch<std::vector<double>>(Form("w%i",ch));
 
     if(ch==0){
-      br_check = this->beta_scope.setBranch( "TTreeReaderArray<double>", "t", "t");
-      br_check = this->beta_scope.buildPrimitiveBranch< std::vector<double> >("t");
-      t = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>("t");
+      br_check = this->beta_scope.SetInBranch<TTreeReaderArray,double>("t", "t");
+      br_check = this->beta_scope.BuildOutBranch< std::vector<double> >("t");
+      t = this->beta_scope.GetOutBranch<std::vector<double>>("t");
     }
   }
 
@@ -95,28 +95,28 @@ void ArgoneXrayAna::initialize( )
 
   for( int i =0; i < 16; i++)
   {
-    auto br_check = this->beta_scope.buildPrimitiveBranch<std::vector<double>>( Form("pmax%i",i) );
-    br_check = this->beta_scope.buildPrimitiveBranch<std::vector<double>>( Form("tmax%i",i) );
-    br_check = this->beta_scope.buildPrimitiveBranch<std::vector<int>>( Form("max_indexing%i",i) );
-    br_check = this->beta_scope.buildPrimitiveBranch<std::vector<double>>(Form("pulseArea%i",i) );
-    br_check = this->beta_scope.buildPrimitiveBranch<std::vector<double>>( Form("negPmax%i",i) );
-    br_check = this->beta_scope.buildPrimitiveBranch<std::vector<double>>( Form("negTmax%i",i) );
+    auto br_check = this->beta_scope.BuildBranch<std::vector<double>>( Form("pmax%i",i) );
+    br_check = this->beta_scope.BuildOutBranch<std::vector<double>>( Form("tmax%i",i) );
+    br_check = this->beta_scope.BuildOutBranch<std::vector<int>>( Form("max_indexing%i",i) );
+    br_check = this->beta_scope.BuildOutBranch<std::vector<double>>(Form("pulseArea%i",i) );
+    br_check = this->beta_scope.BuildOutBranch<std::vector<double>>( Form("negPmax%i",i) );
+    br_check = this->beta_scope.BuildOutBranch<std::vector<double>>( Form("negTmax%i",i) );
 
 
-    this->pmax[i] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( Form("pmax%i",i));
-    this->tmax[i] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>(Form("tmax%i",i));
-    this->max_indexing[i] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<int>>(Form("max_indexing%i",i));
-    this->pulseArea[i] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>(Form("pulseArea%i",i));
-    this->negPmax[i] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( Form("negPmax%i",i));
-    this->negTmax[i] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( Form("negTmax%i",i));
+    this->pmax[i] = this->beta_scope.GetOutBranch<std::vector<double>>( Form("pmax%i",i));
+    this->tmax[i] = this->beta_scope.GetOutBranch<std::vector<double>>(Form("tmax%i",i));
+    this->max_indexing[i] = this->beta_scope.GetOutBranch<std::vector<int>>(Form("max_indexing%i",i));
+    this->pulseArea[i] = this->beta_scope.GetOutBranch<std::vector<double>>(Form("pulseArea%i",i));
+    this->negPmax[i] = this->beta_scope.GetOutBranch<std::vector<double>>( Form("negPmax%i",i));
+    this->negTmax[i] = this->beta_scope.GetOutBranch<std::vector<double>>( Form("negTmax%i",i));
   }
 
-  auto br_check = this->beta_scope.buildPrimitiveBranch<int>("counter");
+  auto br_check = this->beta_scope.BuildOutBranch<int>("counter");
 
-  this->beta_scope.buildTH1Branch<TH1D>("counter_histo");
+  this->beta_scope.BuildTH1Branch<TH1D>("counter_histo");
 
-  this->beta_scope.buildTH1Branch<TH1D>("counter");
-  this->beta_scope.buildTH1Branch<TH2D>("counter2D");
+  this->beta_scope.BuildTH1Branch<TH1D>("counter");
+  this->beta_scope.BuildTH1Branch<TH2D>("counter2D");
 
   this->standAloneHisto_ptr = new TH1D("standAloneHisto_ptr", "standAloneHisto_ptr", 100, 1, 1);
 
@@ -126,7 +126,7 @@ void ArgoneXrayAna::initialize( )
 //==============================================================================
 //==============================================================================
 
-void ArgoneXrayAna::loopEvents()
+void ArgoneXrayAna::LoopEvents()
 {
   //double *d = this->beta_scope.get<double>("ws0", "vector<double?");
   int count = 0;
@@ -137,28 +137,28 @@ void ArgoneXrayAna::loopEvents()
   WaveformAnalysis WaveAna;
   double assistThreshold = 100.0;
 
-  while( this->beta_scope.get_treeReader()->Next() )
+  while( this->beta_scope.GetInTreeReader()->Next() )
   {
     ///*
-    for(int i = 0, max = this->beta_scope.get_iBranch<TTreeReaderArray, double>(Form("w0"))->GetSize(); i<max; i++)
+    for(int i = 0, max = this->beta_scope.GetInBranch<TTreeReaderArray, double>(Form("w0"))->GetSize(); i<max; i++)
     {
-      w[0]->push_back( this->beta_scope.get_iBranch<TTreeReaderArray, double>("w0")->At(i) * verScaler );
-      w[1]->push_back( this->beta_scope.get_iBranch<TTreeReaderArray, double>("w1")->At(i) * verScaler );
-      w[2]->push_back( this->beta_scope.get_iBranch<TTreeReaderArray, double>("w2")->At(i) * verScaler );
-      w[3]->push_back( this->beta_scope.get_iBranch<TTreeReaderArray, double>("w3")->At(i) * verScaler );
-      w[4]->push_back( this->beta_scope.get_iBranch<TTreeReaderArray, double>("w4")->At(i) * verScaler );
-      w[5]->push_back( this->beta_scope.get_iBranch<TTreeReaderArray, double>("w5")->At(i) * verScaler );
-      w[6]->push_back( this->beta_scope.get_iBranch<TTreeReaderArray, double>("w6")->At(i) * verScaler );
-      w[7]->push_back( this->beta_scope.get_iBranch<TTreeReaderArray, double>("w7")->At(i) * verScaler );
-      w[8]->push_back( this->beta_scope.get_iBranch<TTreeReaderArray, double>("w8")->At(i) * verScaler );
-      w[9]->push_back( this->beta_scope.get_iBranch<TTreeReaderArray, double>("w9")->At(i) * verScaler );
-      w[10]->push_back( this->beta_scope.get_iBranch<TTreeReaderArray, double>("w10")->At(i) * verScaler );
-      w[11]->push_back( this->beta_scope.get_iBranch<TTreeReaderArray, double>("w11")->At(i) * verScaler );
-      w[12]->push_back( this->beta_scope.get_iBranch<TTreeReaderArray, double>("w12")->At(i) * verScaler );
-      w[13]->push_back( this->beta_scope.get_iBranch<TTreeReaderArray, double>("w13")->At(i) * verScaler );
-      w[14]->push_back( this->beta_scope.get_iBranch<TTreeReaderArray, double>("w14")->At(i) * verScaler );
-      w[15]->push_back( this->beta_scope.get_iBranch<TTreeReaderArray, double>("w15")->At(i) * verScaler );
-      t->push_back( this->beta_scope.get_iBranch<TTreeReaderArray, double>("t")->At(i) * horiScaler );
+      w[0]->push_back( this->beta_scope.GetInBranch<TTreeReaderArray, double>("w0")->At(i) * verScaler );
+      w[1]->push_back( this->beta_scope.GetInBranch<TTreeReaderArray, double>("w1")->At(i) * verScaler );
+      w[2]->push_back( this->beta_scope.GetInBranch<TTreeReaderArray, double>("w2")->At(i) * verScaler );
+      w[3]->push_back( this->beta_scope.GetInBranch<TTreeReaderArray, double>("w3")->At(i) * verScaler );
+      w[4]->push_back( this->beta_scope.GetInBranch<TTreeReaderArray, double>("w4")->At(i) * verScaler );
+      w[5]->push_back( this->beta_scope.GetInBranch<TTreeReaderArray, double>("w5")->At(i) * verScaler );
+      w[6]->push_back( this->beta_scope.GetInBranch<TTreeReaderArray, double>("w6")->At(i) * verScaler );
+      w[7]->push_back( this->beta_scope.GetInBranch<TTreeReaderArray, double>("w7")->At(i) * verScaler );
+      w[8]->push_back( this->beta_scope.GetInBranch<TTreeReaderArray, double>("w8")->At(i) * verScaler );
+      w[9]->push_back( this->beta_scope.GetInBranch<TTreeReaderArray, double>("w9")->At(i) * verScaler );
+      w[10]->push_back( this->beta_scope.GetInBranch<TTreeReaderArray, double>("w10")->At(i) * verScaler );
+      w[11]->push_back( this->beta_scope.GetInBranch<TTreeReaderArray, double>("w11")->At(i) * verScaler );
+      w[12]->push_back( this->beta_scope.GetInBranch<TTreeReaderArray, double>("w12")->At(i) * verScaler );
+      w[13]->push_back( this->beta_scope.GetInBranch<TTreeReaderArray, double>("w13")->At(i) * verScaler );
+      w[14]->push_back( this->beta_scope.GetInBranch<TTreeReaderArray, double>("w14")->At(i) * verScaler );
+      w[15]->push_back( this->beta_scope.GetInBranch<TTreeReaderArray, double>("w15")->At(i) * verScaler );
+      t->push_back( this->beta_scope.GetInBranch<TTreeReaderArray, double>("t")->At(i) * horiScaler );
     }
     //*/
 
@@ -241,26 +241,26 @@ void ArgoneXrayAna::loopEvents()
 
     TH1D tmp(Form("tmp%i",count), "", 100, 1, 1);
     tmp.Fill(count);
-    *this->beta_scope.get_oHisto1D<TH1D>("counter_histo") = tmp;
+    *this->beta_scope.GetOutTH1<TH1D>("counter_histo") = tmp;
 
     TH1D tmp2(Form("tmp2%i",count), "", 100, 1, 1);
     tmp2.Fill(count);
     //*static_cast<TH1_Container<TH1D>*>(this->beta_scope.oTree_TH1_Map["counter"])->get() = tmp2;
-    *this->beta_scope.get_oHisto1D<TH1D>("counter") = tmp2;
+    *this->beta_scope.GetOutTH1<TH1D>("counter") = tmp2;
 
     TH2D tmp3(Form("tmp3%i",count), "", 100, 0, 5000, 100, 0, 5000);
     tmp3.Fill(count, count);
-    *this->beta_scope.get_oHisto1D<TH2D>("counter2D") = tmp3;
+    *this->beta_scope.GetOutTH1<TH2D>("counter2D") = tmp3;
 
     this->standAloneHisto.Fill(count*2.0);
     this->standAloneHisto_ptr->Fill(count*2.0);
 
 
-    *this->beta_scope.get_oTree_PrimitiveBranch<int>("counter") = count;
+    *this->beta_scope.GetOutBranch<int>("counter") = count;
     count++;
 
 
-    BetaScope_AnaFramework::filldata();
+    BetaScope_AnaFramework::FillData();
 
     //this->beta_scope.oTree_TH1D_Map["counter_histo"]->Reset();
   }
@@ -270,11 +270,11 @@ void ArgoneXrayAna::loopEvents()
 //==============================================================================
 //==============================================================================
 
-void ArgoneXrayAna::_finalize()
+void ArgoneXrayAna::_Finalize()
 {
   //do your own stuffs here
   this->standAloneHisto.Write( );
   this->standAloneHisto_ptr->Write();
 
-  BetaScope_AnaFramework::finalize();
+  BetaScope_AnaFramework::Finalize();
 }

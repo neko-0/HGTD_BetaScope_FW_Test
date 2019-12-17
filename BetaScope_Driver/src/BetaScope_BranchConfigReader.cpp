@@ -10,7 +10,7 @@ std::vector<
     int, std::string, std::string, std::string
   >
 >
-  BetaScope::branchConfigReader( std::string configName )
+  BetaScope::BranchConfigReader( std::string configName )
   {
     boost::property_tree::ptree pt;
     boost::property_tree::ini_parser::read_ini(configName, pt);

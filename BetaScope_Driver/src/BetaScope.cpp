@@ -16,7 +16,7 @@ void BetaScope::copyTTreeReaderArrayToVector<std::vector<double>>( std::string o
   //std::cout<< this->iTreeDoubleArrayMap[iBranchName]->GetSize() << std::endl;
   //TThread::Lock();
   //TTreeReaderArray<double> *mylocalArray = this->iTreeDoubleArrayMap[iBranchName];
-  TTreeReader *mylocalReader =  new TTreeReader( "wfm", this->iFile );
+  TTreeReader *mylocalReader =  new TTreeReader( "wfm", this->input_tfile_ );
   TTreeReaderArray<double> *mylocalArray = new TTreeReaderArray<double>( *mylocalReader, iBranchName.c_str());
   mylocalReader->SetEntry(entry);
   //std::cout << "local reader " << entry  << std::endl;
@@ -31,9 +31,9 @@ void BetaScope::copyTTreeReaderArrayToVector<std::vector<double>>( std::string o
   delete mylocalReader;
 }
 
-bool BetaScope::isBranchExists( const char* branchName )
+bool BetaScope::IsBranchExists( const char* branchName )
 {
-  auto branch_checker = ((TTree *) this->iFile->Get(iTreeName.c_str()))->GetListOfBranches()->FindObject( branchName );
+  auto branch_checker = ((TTree *) this->input_tfile_->Get(this->input_tree_name_.c_str()))->GetListOfBranches()->FindObject( branchName );
   if( branch_checker!=NULL )return true;
   else return false;
 }

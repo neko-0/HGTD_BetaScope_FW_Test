@@ -1,6 +1,8 @@
 from runMatch import runlist_from_root, runMatch
 from copy import deepcopy
 import os
+import numpy
+import math
 import ROOT
 
 class PlotSensor(object):
@@ -59,6 +61,12 @@ param = {
         "xtitle":"Bias Voltage [V]",
         "ytitle":"Time Resolution [ps]"
     },
+"charge_vs_res50":
+    {
+        "expr":"new_pulse_area/4700.0:time_resolution_50",
+        "xtitle":"Charge [fC]",
+        "ytitle":"Time Resolution [ps]"
+    },
 }
 
 class PlotMaker(PlotMakerBase):
@@ -104,7 +112,7 @@ class PlotMaker(PlotMakerBase):
     def get_matehced_runs(self, name_tag):
         return self.matched_runs[name_tag]
 
-    def prepare_plot(self, name_tag, marker, fitter={}, calc_at=4):
+    def prepare_plot(self, name_tag, marker, fitter={}, calc_at=10.0):
         # fitter={"param":"expre"}
         if self.backend is "root":
             tfile = ROOT.TFile.Open(self.filename, "r")
@@ -122,9 +130,15 @@ class PlotMaker(PlotMakerBase):
                     if not name_tag in self.fit_value:
                         self.fit_value[name_tag] = {}
                         self.fit_value[name_tag][par_name] = []
+                        if not isinstance(calc_at, list):
+                            self.fit_value[name_tag][par_name].append( ([],calc_at) )
+                        else:
+                            for calc in calc_at:
+                                self.fit_value[name_tag][par_name].append( ([],calc) )
                     else:
                         if not par_name in self.fit_value[name_tag]:
-                            self.fit_value[name_tag][par_name] = []
+                            self.fit_value[name_tag][par_name]= []
+                            self.fit_value[name_tag][par_name].append( ([],calc_at) )
                 else:
                     fitFunc = None
                 plotdata = PlotData(par_name, par["xtitle"], par["ytitle"], marker, color)
@@ -145,10 +159,11 @@ class PlotMaker(PlotMakerBase):
                         break
                 g = ROOT.TGraph(n, ttree.GetV1(), ttree.GetV2() )
                 if not fitFunc is None:
-                    fit = fitFunc(0,max)
+                    fit = fitFunc(0,xmax)
                     fit.SetLineColor(color)
                     g.Fit(fit)
-                    self.fit_value[name_tag][par_name].append(fit.GetX(calc_at))
+                    for fit_calc in self.fit_value[name_tag][par_name]:
+                        fit_calc[0].append(fit.GetX(fit_calc[1]))
 
                 g.GetXaxis().SetTitle(par["xtitle"])
                 g.GetYaxis().SetTitle(par["ytitle"])
@@ -163,8 +178,9 @@ class PlotMaker(PlotMakerBase):
             self.sensor_list[name_tag].append(sensor)
             color+=1
 
-    def make_plots(self, name_tag_list, output_name=""):
-        #ROOT.gROOT.SetBatch(True)
+
+    def make_plots(self, name_tag_list, output_name="", attach_fit_var = True, var_at_calc=""):
+        ROOT.gROOT.SetBatch(True)
         if output_name:
             try:
                 os.makedirs("./user_data/{}".format(output_name))
@@ -183,16 +199,38 @@ class PlotMaker(PlotMakerBase):
                     if first_draw==0:
                         first_draw = 1
                         sensor.plot_data[param_name].plot.GetYaxis().SetRangeUser(0, sensor.plot_data[param_name].max*3)
-                        sensor.plot_data[param_name].plot.GetXaxis().SetRangeUser(0, sensor.plot_data[param_name].xmax*3)
+                        sensor.plot_data[param_name].plot.GetXaxis().SetRangeUser(0, sensor.plot_data[param_name].xmax*1.2)
+                        sensor.plot_data[param_name].plot.GetXaxis().SetLimits(0, sensor.plot_data[param_name].xmax*1.2)
                         sensor.plot_data[param_name].plot.Draw("ap")
                         leg.AddEntry(sensor.plot_data[param_name].plot, sensor.sensor_name.split("_Trig")[0])
                     else:
                         sensor.plot_data[param_name].plot.GetYaxis().SetRangeUser(0, sensor.plot_data[param_name].max*3)
-                        sensor.plot_data[param_name].plot.GetXaxis().SetRangeUser(0, sensor.plot_data[param_name].xmax*3)
+                        sensor.plot_data[param_name].plot.GetXaxis().SetRangeUser(0, sensor.plot_data[param_name].xmax*1.2)
+                        sensor.plot_data[param_name].plot.GetXaxis().SetLimits(0, sensor.plot_data[param_name].xmax*1.2)
                         sensor.plot_data[param_name].plot.Draw("psame")
                         leg.AddEntry(sensor.plot_data[param_name].plot, sensor.sensor_name.split("_Trig")[0])
+
+                if attach_fit_var:
+                    if not param_name in self.fit_value[name_tag]:
+                        pass
+                    else:
+                        if self.fit_value[name_tag][param_name][0]:
+                            leg2 = ROOT.TLegend(0.17, 0.3, 0.6, 0.4)
+                            leg2.SetBorderSize(0)
+                            leg2.SetFillColorAlpha(0, 0.5)
+                            for fit_calc in self.fit_value[name_tag][param_name]:
+                                fitted_value = [value for value in fit_calc[0] if not math.isnan(value) ]
+                                fitted_value_at = fit_calc[1]
+                                #print(fitted_value)
+                                #gerror = ROOT.TGraphErrors(len(fitted_value))
+                                #gerror.SetPoint(i, numpy.mean(fitted_value), fitted_value_at) for i in len(fitted_value)
+                                #gerror.SetPointError(i, numpy.std(fitted_value), 0)
+                                leg2.AddEntry(0, "V for %.1f %s: %.1f #pm %.1f, Variation: %.1f%%" %( fitted_value_at, var_at_calc,numpy.mean(fitted_value),numpy.std(fitted_value), 100*numpy.std(fitted_value)/numpy.mean(fitted_value)), "")
+                                #gerror.Draw("sameP>")
+                            leg2.Draw()
             leg.Draw()
-            raw_input()
+            #raw_input()
+            canvas.Update()
             canvas.SaveAs("./user_data/{}/{}.png".format(output_name, param_name))
 
 

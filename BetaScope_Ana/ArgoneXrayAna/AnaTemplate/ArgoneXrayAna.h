@@ -20,13 +20,13 @@ class ArgoneXrayAna : public BetaScope_AnaFramework<BetaScope_Ext>
     ~ArgoneXrayAna(){};
 
     //required, user can add more to the existing methods;
-    void initialize();
-    void loopEvents();
-    void finalize(){
-      beta_scope.get_ofile()->cd();
-      ArgoneXrayAna::_finalize();
+    void Initialize();
+    void LoopEvents();
+    void Finalize(){
+      beta_scope.GetOutFile()->cd();
+      ArgoneXrayAna::_Finalize();
     };
-    void _finalize();
+    void _Finalize();
 
     std::vector<double> *w[16];
     std::vector<double> *t;
@@ -50,4 +50,4 @@ class ArgoneXrayAna : public BetaScope_AnaFramework<BetaScope_Ext>
 
 };
 
-int runAnalysis(std::string ifile);
+int RunAnalysis(std::string ifile);

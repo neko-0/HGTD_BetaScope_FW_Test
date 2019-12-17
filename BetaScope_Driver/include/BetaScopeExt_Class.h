@@ -46,42 +46,42 @@ class BetaScope_Ext : public BetaScope
   private:
 
     std::string class_name = "BetaScope_Ext";
-    int newTHBranchCounter = 0;
+    int new_th_branch_counter_ = 0;
 
-    int iTreeBranchCounter=0;
-    int newBranchCounterKeeper=0;
+    int input_branch_counter_ = 0;
+    int new_branch_counter_keeper_ = 0;
 
     //TH1 for input
-    TTreeReaderArray<TH1I> *iTree_TH1I_Array[numCh] = {};
-    TTreeReaderArray<TH1F> *iTree_TH1F_Array[numCh] = {};
-    TTreeReaderArray<TH1D> *iTree_TH1D_Array[numCh] = {};
+    TTreeReaderArray<TH1I> *iTree_TH1I_Array[kNumChannels] = {};
+    TTreeReaderArray<TH1F> *iTree_TH1F_Array[kNumChannels] = {};
+    TTreeReaderArray<TH1D> *iTree_TH1D_Array[kNumChannels] = {};
 
     std::map<std::string, TTreeReaderArray<TH1I>*> iTree_TH1I_Array_Map;
     std::map<std::string, TTreeReaderArray<TH1F>*> iTree_TH1F_Array_Map;
     std::map<std::string, TTreeReaderArray<TH1D>*> iTree_TH1D_Array_Map;
 
-    TTreeReaderValue<TH1I> *iTree_TH1I[numCh] = {};
-    TTreeReaderValue<TH1F> *iTree_TH1F[numCh] = {};
-    TTreeReaderValue<TH1D> *iTree_TH1D[numCh] = {};
+    TTreeReaderValue<TH1I> *iTree_TH1I[kNumChannels] = {};
+    TTreeReaderValue<TH1F> *iTree_TH1F[kNumChannels] = {};
+    TTreeReaderValue<TH1D> *iTree_TH1D[kNumChannels] = {};
 
     std::map<std::string, TTreeReaderValue<TH1I>*> iTree_TH1I_Map;
     std::map<std::string, TTreeReaderValue<TH1F>*> iTree_TH1F_Map;
     std::map<std::string, TTreeReaderValue<TH1D>*> iTree_TH1D_Map;
 
     //TH1 for output
-    std::vector<TH1I> *oTree_TH1I_Array[numCh] = {};
-    std::vector<TH1F> *oTree_TH1F_Array[numCh] = {};
-    std::vector<TH1D> *oTree_TH1D_Array[numCh] = {};
+    std::vector<TH1I> *oTree_TH1I_Array[kNumChannels] = {};
+    std::vector<TH1F> *oTree_TH1F_Array[kNumChannels] = {};
+    std::vector<TH1D> *oTree_TH1D_Array[kNumChannels] = {};
 
     std::map<std::string, std::vector<TH1I>*> oTree_TH1I_Array_Map;
     std::map<std::string, std::vector<TH1F>*> oTree_TH1F_Array_Map;
     std::map<std::string, std::vector<TH1D>*> oTree_TH1D_Array_Map;
 
-    TH1I *oTree_TH1I[numCh] = {};
-    TH1F *oTree_TH1F[numCh] = {};
-    TH1D *oTree_TH1D[numCh] = {};
+    TH1I *oTree_TH1I[kNumChannels] = {};
+    TH1F *oTree_TH1F[kNumChannels] = {};
+    TH1D *oTree_TH1D[kNumChannels] = {};
 
-    TH_BaseContainer *oTree_TH[numCh] = {};
+    TH_BaseContainer *oTree_TH[kNumChannels] = {};
     std::map<std::string, TH_BaseContainer* > oTree_TH_Map;
 
     std::map<std::string, TH1I* > oTree_TH1I_Map;
@@ -96,21 +96,21 @@ class BetaScope_Ext : public BetaScope
       ColorCout::Msg(this->class_name, "call destructor at");
     };
 
-    void fillEvent();
+    void FillEvent();
 
     template <typename dtype>
-    bool buildBranch(std::string branchName );
+    bool BuildBranch(std::string branchName );
 
     template <typename TH1_Type>
-    bool buildTH1Branch(std::string branchName );
+    bool BuildTH1Branch(std::string branchName );
 
-    bool setBranch( std::string typeName, std::string key, std::string branchName);
+    bool SetBranch( std::string typeName, std::string key, std::string branchName);
 
     template <typename TH1_Type>
-    typename DataType<TH1_Type>::type *get_oHisto1D( std::string branchName );
+    typename DataType<TH1_Type>::type *GetOutTH1( std::string branchName );
 
     template <typename th1_type>
-    int fill_oHisto1D( double value );
+    int FillOutTH1( double value );
 
     //void test();
     //oTree_TH1[0] = new TH1_Container<TH1D>;
