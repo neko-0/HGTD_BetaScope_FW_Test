@@ -1,5 +1,5 @@
 
-#include "BetaScope_Ana/ArgoneXrayAna/AnaTemplate/ArgoneXrayAna.h"
+#include "ArgoneXrayAna/AnaTemplate/ArgoneXrayAna.h"
 
 #include "General/utilities/include/dir.h"
 

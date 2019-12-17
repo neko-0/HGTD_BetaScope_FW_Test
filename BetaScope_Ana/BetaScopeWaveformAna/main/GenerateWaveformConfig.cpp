@@ -1,4 +1,4 @@
-#include "BetaScope_Ana/BetaScopeWaveformAna/AnaTemplate/BetaScopeWaveformAna.h"
+#include "BetaScopeWaveformAna/AnaTemplate/BetaScopeWaveformAna.h"
 
 int main(int argc, const char **argv) {
   BetaScopeWaveformAna::generateWaveformConfig();

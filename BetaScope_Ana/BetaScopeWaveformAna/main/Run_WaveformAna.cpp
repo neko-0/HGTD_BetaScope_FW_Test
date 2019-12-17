@@ -1,4 +1,4 @@
-#include "BetaScope_Ana/BetaScopeWaveformAna/AnaTemplate/BetaScopeWaveformAna.h"
+#include "BetaScopeWaveformAna/AnaTemplate/BetaScopeWaveformAna.h"
 
 #include <string>
 #include <vector>
