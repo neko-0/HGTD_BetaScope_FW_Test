@@ -18,6 +18,7 @@ cd ${current_path}
 echo "going to BetaScope Ana folder"
 cd ../BetaScope_Ana
 make -j
+source */setup.sh
 cd ${current_path}
 
 echo "going to betaScopePlot folder"
@@ -29,8 +30,6 @@ echo "creating user data direcotry"
 mkdir user_data
 mkdir user_data/bkup
 echo "setting up alias"
-alias run_WaveformConfig='${BETASCOPE_SCRIPTS}/../BetaScope_Ana/BetaScopeWaveformAna/bin/GenerateWaveformConfig'
-alias run_WaveformAna='${BETASCOPE_SCRIPTS}/../BetaScope_Ana/BetaScopeWaveformAna/bin/Run_WaveformAna WaveformAnaConfig.ini --skipWaveform'
 alias run_RunConfig='${BETASCOPE_SCRIPTS}/betaScopePlot/bin/genPlotConfig'
 alias run_GetResults='${BETASCOPE_SCRIPTS}/betaScopePlot/bin/getResults run_info_v08022018.ini'
 alias run_beta_excel='python2 ${BETASCOPE_SCRIPTS}/betaScope_pyScript/parseBetaResultsToExcel.py -task '
