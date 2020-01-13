@@ -64,7 +64,7 @@ struct FitResult
   FitResult(double param, double param_err, double xmin, double xmax, double ndf, double chi, double prob, double chi_ndf)
   {
       this->param = param;
-      this->param_err = param;
+      this->param_err = param_err;
       this->xmin = xmin;
       this->xmax = xmax;
       this->ndf = ndf;
