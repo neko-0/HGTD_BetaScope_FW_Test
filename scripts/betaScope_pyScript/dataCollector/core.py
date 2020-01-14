@@ -54,8 +54,10 @@ class BetaResult(object):
                                 self.time_resolution_20 = float(line_split[3])
                                 self.time_resolution_err_20 = float(line_split[4])
             except Exception as e:
-                log.critical(
-                    "error encounter during time resolution. Error: {}".format(e)
+                log.warning(
+                    "{}-> Error encounter during time resolution. Error: {}".format(
+                        self.__class__.__name__, e
+                    )
                 )
 
         def load_leakage(self, fname):
@@ -69,7 +71,11 @@ class BetaResult(object):
                             self.leakage = float(line_split[3])
                             self.temperature = float(line_split[1])
             except Exception as e:
-                log.critical("error entounter during leakage. Error: {}".format(e))
+                log.warning(
+                    "{}-> Error entounter during leakage. Error: {}".format(
+                        self.__class__.__name__, e
+                    )
+                )
 
     # ===========================================================================
     # ===========================================================================
@@ -106,7 +112,11 @@ class BetaResult(object):
                         "DUT_Fluence"
                     ]
                 except Exception as e:
-                    log.critical("Error in reading DAQ info: {}".format(e))
+                    log.warning(
+                        "{}-> Error in reading DAQ info. Error: {}".format(
+                            self.__class__.__name__, e
+                        )
+                    )
 
     # ===========================================================================
     # ===========================================================================
@@ -125,27 +135,35 @@ class BetaResult(object):
         try:
             parser.read(result_file_ini)
         except Exception as e:
-            log.critical("cannot load result file. Error: {}".format(e))
+            log.critical(
+                "{}-> Cannot load result file. Error: {}".format(
+                    self.__class__.__name__, e
+                )
+            )
             return {}
 
         if not (tag in self.fit_result):
             self.fit_result[tag] = []
 
-        fit_result = BetaResult.FitResult(tag)
         for sec in parser.sections():
+            fit_result = BetaResult.FitResult(tag)
             if tag in sec:
                 if tag != "Trig":
                     if ".." in sec:
-                        fit_result.bias_voltage = sec[sec.find("_") + 1 : sec.find("V")]
+                        fit_result.bias_voltage = int(
+                            sec[sec.find("_") + 1 : sec.find("V")]
+                        )
                         fit_result.cycle = sec.split("..")[1]
                         if "_" in fit_result.cycle:
                             fit_result.cycle = int(fit_result.cycle.split("_")[0])
                     else:
-                        fit_result.bias_voltage = sec[sec.find("_") + 1 : sec.find("V")]
+                        fit_result.bias_voltage = int(
+                            sec[sec.find("_") + 1 : sec.find("V")]
+                        )
                         fit_result.cycle = 1
                 else:
                     try:
-                        fit_result.bias_voltage = parser[sec]["trigger_bias"]
+                        fit_result.bias_voltage = int(parser[sec]["trigger_bias"])
                         if ".." in sec:
                             fit_result.cycle = sec.split("..")[1]
                             if "_" in fit_result.cycle:
@@ -176,12 +194,16 @@ class BetaResult(object):
                     )
                     fit_result.fall_time_chi = float(parser[sec]["FallTime_CHI_NDF"])
                 except Exception as e:
-                    log.critical("Error in loading fit results: {}".format(e))
-        for time_res_file, cfd in time_res_file_list:
-            fit_result.load_time_resolution(time_res_file, cfd)
-        fit_result.load_leakage(leakage_file)
+                    log.warning(
+                        "{}-> Error in loading fit results: {}".format(
+                            self.__class__.__name__, e
+                        )
+                    )
+            for time_res_file, cfd in time_res_file_list:
+                fit_result.load_time_resolution(time_res_file, cfd)
+            fit_result.load_leakage(leakage_file)
 
-        self.fit_result[tag].append(fit_result)
+            self.fit_result[tag].append(fit_result)
 
     def load_daq_info(self, run_number, daq_description_name):
         self.daq_info = BetaResult.DAQInfo(run_number, daq_description_name)
@@ -226,7 +248,7 @@ class BetaCollector(object):
         return run_list
 
     def add_run(self, beta_run):
-        self.beta_runs[beta_run.run_number] = deepcopy(beta_run)
+        self.beta_runs[beta_run.run_number] = beta_run
 
     def save(self, out_path):
         with open(out_path, "wb") as f:
@@ -238,11 +260,12 @@ class BetaCollector(object):
             ofile.cd()
             for run_num, run_item in self.beta_runs.items():
                 for tag, result in run_item.fit_result.items():
+                    if len(result) == 0:
+                        continue
                     ttree = ROOT.TTree(
                         "{run_num}_{tag}".format(run_num=run_num, tag=tag),
                         "{}".format(run_item.name),
                     )
-
                     array_dict = {}
                     obj_attr = inspect.getmembers(
                         result[0], lambda a: not (inspect.isroutine(a))
@@ -252,13 +275,16 @@ class BetaCollector(object):
                         for a in obj_attr
                         if not (a[0].startswith("__") and a[0].endswith("__"))
                     ]
-                    for par in obj_var:
-                        if not isinstance(result[0].__ditc__[par], str):
-                            array_dict[par] = array("d", [0])
-                            ttree.Branch(par, array_dict[par], "{}/D".format(par))
+                    for var_name, var_value in obj_var:
+                        if not isinstance(var_value, str):
+                            array_dict[var_name] = array("d", [0])
+                            ttree.Branch(
+                                var_name, array_dict[var_name], "{}/D".format(var_name)
+                            )
                     for r in result:
-                        for par in obj_var:
-                            array_dict[par][0] = getattr(r, par)
+                        for var_name, var_value in obj_var:
+                            if var_name in array_dict and var_name in r.__dict__:
+                                array_dict[var_name][0] = r.__dict__[var_name]
                         ttree.Fill()
                     ttree.Write()
             ofile.Close()

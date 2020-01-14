@@ -55,7 +55,7 @@ for mdir in mdir_list:
                 beta_run.load_result(
                     fit_result_file, time_res_file, leakage_file, "Trig"
                 )
-                beta_run.load_daq_info(run, mdir + "/" + fold + "Description.ini")
+                beta_run.load_daq_info(run, mdir + "/" + fold + "/Description.ini")
 
                 beta_scope.add_run(beta_run)
 
