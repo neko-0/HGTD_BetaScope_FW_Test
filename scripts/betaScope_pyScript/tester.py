@@ -1,6 +1,6 @@
-from core import BetaScopeResult
-from runMatch import runMatch, runlist_from_root
-from plotMaker import PlotMaker
+#from dataCollector.core import BetaScopeResult
+from plotMaker.runMatch import runMatch, runlist_from_root
+from plotMaker.plotMaker import PlotMaker
 
 data_prep = [
     {
@@ -33,6 +33,6 @@ for o in match:
     print(o)
 """
 
-plot = PlotMaker("test_run.root")
+plot = PlotMaker("./dataCollector/test_run.root")
 hi = plot.fetchRun(data_prep)
 hi.makePlots()

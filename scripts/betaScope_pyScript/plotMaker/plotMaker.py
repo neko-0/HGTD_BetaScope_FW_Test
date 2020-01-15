@@ -1,4 +1,4 @@
-from runMatch import runlist_from_root, runMatch
+from .runMatch import runlist_from_root, runMatch
 from copy import deepcopy
 import os
 import numpy
@@ -150,6 +150,8 @@ class PlotMaker(PlotMakerBase):
                     continue
                 d = ttree.GetV2()
                 dd = ttree.GetV1()
+                v2 = numpy.ndarray(n, 'd', d)
+                v1 = numpy.ndarray(n, 'd', dd)
                 max = 0
                 xmax = 0
                 i = 0
@@ -162,7 +164,7 @@ class PlotMaker(PlotMakerBase):
                         i += 1
                     else:
                         break
-                g = ROOT.TGraph(n, ttree.GetV1(), ttree.GetV2())
+                g = ROOT.TGraph(n, v1, v2)
                 if not fitFunc is None:
                     fit = fitFunc(0, xmax)
                     fit.SetLineColor(color)
@@ -301,7 +303,9 @@ class PlotMaker(PlotMakerBase):
                         if n <= 0:
                             continue
                         d = ttree.GetV2()
-                        dd = tree.GetV1()
+                        dd = ttree.GetV1()
+                        v2 = numpy.ndarray(n, 'd', d)
+                        v1 = numpy.ndarray(n, 'd', dd)
                         max = 0
                         xmax = 0
                         i = 0
@@ -314,7 +318,7 @@ class PlotMaker(PlotMakerBase):
                                 i += 1
                             else:
                                 break
-                        g = ROOT.TGraph(n, ttree.GetV1(), ttree.GetV2())
+                        g = ROOT.TGraph(n, v1, v2)
                         g.GetXaxis().SetTitle(par["xtitle"])
                         g.GetYaxis().SetTitle(par["ytitle"])
                         g.SetMarkerColor(color)
