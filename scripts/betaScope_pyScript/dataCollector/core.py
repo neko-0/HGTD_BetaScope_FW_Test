@@ -9,7 +9,6 @@ coloredlogs.install(level="INFO", logger=log)
 
 import configparser
 import pickle
-from copy import deepcopy
 
 import ROOT
 from array import array
@@ -254,6 +253,42 @@ class BetaCollector(object):
         with open(out_path, "wb") as f:
             pickle.dump(self, f, 2)
 
+    @staticmethod
+    def _roottree_setup(run_num, tag, name, fit_result_cls_obj, branch_holder):
+        """
+        setup output ttree. automatically create branch from the fit results object.
+
+        param:
+            run_num := run number, integer value
+            tag := name tag for lookup in the fit result INI file. 'DUT' or 'Trig' for example
+            name := description for full file name. Use for reference for plotting.
+            fit_result_cls_obj := class object from BetaResult.FitResult
+
+        return:
+            ttree
+        """
+        tree_name = "{}_{}".format(run_num, tag)
+        description = name
+        ttree = ROOT.TTree(tree_name, description)
+        """
+        Found on stackover-flow. Get the variables out of a class object
+        """
+        obj_attr = inspect.getmembers(
+            fit_result_cls_obj, lambda a: not (inspect.isroutine(a))
+        )
+        obj_vars = [
+            attr
+            for attr in obj_attr
+            if not (attr[0].startswith("__") and attr[0].endswith("__"))
+        ]
+
+        for var_name, var_value in obj_vars:
+            if not isinstance(var_value, str):
+                branch_holder[var_name] = array("d", [0])
+                ttree.Branch(var_name, branch_holder[var_name], "{}/D".format(var_name))
+
+        return (ttree, obj_vars)
+
     def to_root(self, ofile_name):
         if self.beta_runs:
             ofile = ROOT.TFile(ofile_name, "RECREATE")
@@ -262,29 +297,15 @@ class BetaCollector(object):
                 for tag, result in run_item.fit_result.items():
                     if len(result) == 0:
                         continue
-                    ttree = ROOT.TTree(
-                        "{run_num}_{tag}".format(run_num=run_num, tag=tag),
-                        "{}".format(run_item.name),
+                    branch_dict = {}
+                    ttree, obj_vars = self._roottree_setup(
+                        run_num, tag, run_item.name, result[0], branch_dict
                     )
-                    array_dict = {}
-                    obj_attr = inspect.getmembers(
-                        result[0], lambda a: not (inspect.isroutine(a))
-                    )
-                    obj_var = [
-                        a
-                        for a in obj_attr
-                        if not (a[0].startswith("__") and a[0].endswith("__"))
-                    ]
-                    for var_name, var_value in obj_var:
-                        if not isinstance(var_value, str):
-                            array_dict[var_name] = array("d", [0])
-                            ttree.Branch(
-                                var_name, array_dict[var_name], "{}/D".format(var_name)
-                            )
+
                     for r in result:
-                        for var_name, var_value in obj_var:
-                            if var_name in array_dict and var_name in r.__dict__:
-                                array_dict[var_name][0] = r.__dict__[var_name]
+                        for var_name, _ in obj_vars:
+                            if var_name in branch_dict and var_name in r.__dict__:
+                                branch_dict[var_name][0] = r.__dict__[var_name]
                         ttree.Fill()
                     ttree.Write()
             ofile.Close()
