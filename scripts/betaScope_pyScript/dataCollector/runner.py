@@ -15,7 +15,7 @@ dirlist = [[x for x in os.listdir(mdir_list[i])] for i in range(len(mdir_list))]
 
 runlist = []
 for i in range(1, 1000):
-    runlist.append("Sr_Run{}".format(i))
+    runlist.append("Sr_Run{}_".format(i))
 
 beta_scope = BetaCollector()
 
