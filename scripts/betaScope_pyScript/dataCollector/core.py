@@ -12,6 +12,7 @@ import pickle
 
 import ROOT
 from array import array
+from copy import deepcopy
 
 import inspect
 
@@ -247,6 +248,9 @@ class BetaCollector(object):
         return run_list
 
     def add_run(self, beta_run):
+        '''
+        beta_run should be class instance of BetaResult
+        '''
         self.beta_runs[beta_run.run_number] = beta_run
 
     def save(self, out_path):
@@ -294,7 +298,14 @@ class BetaCollector(object):
             ofile = ROOT.TFile(ofile_name, "RECREATE")
             ofile.cd()
             for run_num, run_item in self.beta_runs.items():
+                '''
+                run_num is the run number,
+                run_item is class instance of BetaResult
+                '''
                 for tag, result in run_item.fit_result.items():
+                    '''
+                    tag in here is just a label for 'DUT' or 'Trig' in fit result file or ttree
+                    '''
                     if len(result) == 0:
                         continue
                     branch_dict = {}
@@ -302,10 +313,49 @@ class BetaCollector(object):
                         run_num, tag, run_item.name, result[0], branch_dict
                     )
 
+                    sort_buffer = {}
+                    for r in result:
+                        for var_name, _ in obj_vars:
+                            if var_name in branch_dict and var_name in r.__dict__:
+                                if not(var_name in sort_buffer):
+                                    sort_buffer[var_name] = []
+                                sort_buffer[var_name].append(r.__dict__[var_name])
+
+                    sort_against_key = "bias_voltage"
+                    if sort_against_key in sort_buffer:
+                        sort_against_list = deepcopy(sort_buffer[sort_against_key])
+                        for key, l in sort_buffer.items():
+                            if key != sort_against_key:
+                                #print(tag)
+                                #if key=="pmax" and "Run643" in run_item.name:print("before {}".format(l))
+                                sort_buffer[key] = [x for _,x in sorted(zip(sort_against_list, l))]
+                                #if key=="pmax" and "Run643" in run_item.name:print("after {}".format(l))
+                        #if "Run643" in run_item.name:print("before {}".format(sort_buffer[sort_against_key]))
+                        sort_buffer[sort_against_key] = sorted(sort_buffer[sort_against_key])
+                        #if "Run643" in run_item.name:print("after {}".format(sort_buffer[sort_against_key]))
+                        #if "Run643" in run_item.name:print("after {}".format(sort_buffer["pmax"]))
+                    else:
+                        continue
+                    '''
                     for r in result:
                         for var_name, _ in obj_vars:
                             if var_name in branch_dict and var_name in r.__dict__:
                                 branch_dict[var_name][0] = r.__dict__[var_name]
+                    '''
+                    count = len(sort_buffer[sort_against_key])
+                    '''
+                    if "Run643" in run_item.name:
+                        print("{}\n{}".format(sort_buffer["bias_voltage"], sort_buffer["pmax"]))
+                    '''
+                    if count <= 0:
+                        continue
+                    for i in range(count):
+                        for var_name in sort_buffer.keys():
+                            if var_name in branch_dict:
+                                if len(sort_buffer[var_name])!=count:
+                                    log.critical("list size dose not match {}".format(var_name))
+                                else:
+                                    branch_dict[var_name][0] = sort_buffer[var_name][i]
                         ttree.Fill()
                     ttree.Write()
             ofile.Close()
