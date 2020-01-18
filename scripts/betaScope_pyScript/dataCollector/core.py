@@ -5,7 +5,7 @@ import logging, coloredlogs
 
 logging.basicConfig()
 log = logging.getLogger(__name__)
-coloredlogs.install(level="INFO", logger=log)
+coloredlogs.install(level="CRITICAL", logger=log)
 
 import configparser
 import pickle
@@ -38,6 +38,7 @@ class BetaResult(object):
 
         def __init__(self, channel):
             self.channel = channel
+            self.cycle = 1
 
         def load_time_resolution(self, fname, cfd):
             try:
@@ -199,11 +200,14 @@ class BetaResult(object):
                             self.__class__.__name__, e
                         )
                     )
-            for time_res_file, cfd in time_res_file_list:
-                fit_result.load_time_resolution(time_res_file, cfd)
-            fit_result.load_leakage(leakage_file)
 
             self.fit_result[tag].append(fit_result)
+
+        if tag != "Trig":
+            for fit_r in self.fit_result[tag]:
+                for time_res_file, cfd in time_res_file_list:
+                    fit_r.load_time_resolution(time_res_file, cfd)
+                fit_r.load_leakage(leakage_file)
 
     def load_daq_info(self, run_number, daq_description_name):
         self.daq_info = BetaResult.DAQInfo(run_number, daq_description_name)
@@ -247,10 +251,16 @@ class BetaCollector(object):
             run_list.append([run_num, run.name])
         return run_list
 
-    def add_run(self, beta_run):
+    def add_run(self, beta_run, icount=2):
         '''
         beta_run should be class instance of BetaResult
         '''
+        counter = icount
+        if beta_run.run_number in self.beta_runs:
+            if "add{}_".format(counter-1) in beta_run.run_number:
+                beta_run.run_number=beta_run.run_number.split("add{}_".format(counter-1))[1]
+            beta_run.run_number="add{}_".format(counter)+beta_run.run_number
+            self.add_run(beta_run, counter+1)
         self.beta_runs[beta_run.run_number] = beta_run
 
     def save(self, out_path):
@@ -353,7 +363,7 @@ class BetaCollector(object):
                         for var_name in sort_buffer.keys():
                             if var_name in branch_dict:
                                 if len(sort_buffer[var_name])!=count:
-                                    log.critical("list size dose not match {}".format(var_name))
+                                    log.critical("list size dose not match: {}->{}".format(run_item.name, var_name))
                                 else:
                                     branch_dict[var_name][0] = sort_buffer[var_name][i]
                         ttree.Fill()
