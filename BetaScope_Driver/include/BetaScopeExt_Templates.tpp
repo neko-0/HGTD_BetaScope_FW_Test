@@ -22,29 +22,30 @@ bool BetaScope_Ext::buildTH1Branch
     true if new branch is created. else return false.
 ==============================================================================*/
 template <typename TH_Type>
-bool BetaScope_Ext::BuildTH1Branch( std::string branchName )
-{
+bool BetaScope_Ext::BuildTH1Branch(std::string branchName) {
   std::string function_name = "BetaScope_Ext::buildTH1Branch";
 
-  try{
+  try {
     this->oTree_TH[this->new_th_branch_counter_] = new TH_Container<TH_Type>();
-    TH_Type *my_th = static_cast<TH_Container<TH_Type>*>(this->oTree_TH[this->new_th_branch_counter_])->get();
-    this->oTree_TH_Map.insert( std::pair<std::string, TH_BaseContainer*>( branchName, this->oTree_TH[this->new_th_branch_counter_]) );
-    this->output_ttree_->Branch( branchName.c_str(), my_th );
+    TH_Type *my_th = static_cast<TH_Container<TH_Type> *>(
+                         this->oTree_TH[this->new_th_branch_counter_])
+                         ->get();
+    this->oTree_TH_Map.insert(std::pair<std::string, TH_BaseContainer *>(
+        branchName, this->oTree_TH[this->new_th_branch_counter_]));
+    this->output_ttree_->Branch(branchName.c_str(), my_th);
     this->new_th_branch_counter_++;
-    ColorCout::Msg( function_name, "TH Branch " + branchName + " is created for ouput.");
+    ColorCout::Msg(function_name,
+                   "TH Branch " + branchName + " is created for ouput.");
     return true;
-  }
-  catch(...){
-    ColorCout::ErrorMsg( function_name, "Fail creating TH1 branch.");
+  } catch (...) {
+    ColorCout::ErrorMsg(function_name, "Fail creating TH1 branch.");
     return false;
   }
 }
 
-
-
 template <typename TH_Type>
-typename DataType<TH_Type>::type *BetaScope_Ext::GetOutTH1( std::string branchName )
-{
-  return static_cast<TH_Container<TH_Type>*>(this->oTree_TH_Map[branchName])->get();
+typename DataType<TH_Type>::type *
+BetaScope_Ext::GetOutTH1(std::string branchName) {
+  return static_cast<TH_Container<TH_Type> *>(this->oTree_TH_Map[branchName])
+      ->get();
 }

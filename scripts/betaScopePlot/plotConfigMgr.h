@@ -6,9 +6,8 @@
 
 void GenerateRunInfo();
 
-struct PlotConfigMgr
-{
-  //header section
+struct PlotConfigMgr {
+  // header section
   std::string sensor;
   std::string fluence;
   std::string temperature;
@@ -22,7 +21,7 @@ struct PlotConfigMgr
   int dut_channel;
   bool use_selected_events;
 
-  //file section
+  // file section
   std::vector<std::string> bias[1024];
   std::vector<std::string> file_name[1024];
   std::vector<std::string> cut[4][1024];
@@ -30,9 +29,9 @@ struct PlotConfigMgr
   std::vector<int> trigger_bias[1024];
   std::vector<int> run_temperature[1024];
 
-  PlotConfigMgr( std::string ifile );
+  PlotConfigMgr(std::string ifile);
   virtual ~PlotConfigMgr(){};
   void PrintContent();
 };
 
-#endif //BETASCOPE_MEASUREMENT_INFO_HPP_MEASUREMENT_INFO_H
+#endif // BETASCOPE_MEASUREMENT_INFO_HPP_MEASUREMENT_INFO_H
