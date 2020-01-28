@@ -29,6 +29,7 @@ BETASCOPE_DRIVER_DEPS = $(wildcard $(BETASCOPE_DRIVER)/build/*.o)
 
 WAVEFORM_ANA_INC = $(GENERAL_DIR)/WaveformAna/include/
 WAVEFORM_ANA_DEPS = $(wildcard $(GENERAL_DIR)/WaveformAna/build/*.o)
+WAVEFORM_ANA_DEPS += $(wildcard $(GENERAL_DIR)/WaveformAna/build/*.so)
 
 UTILITIES_INC = $(GENERAL_DIR)/utilities/include/
 UTILITIES_DEPS = $(wildcard $(GENERAL_DIR)/utilities/build/*.o)

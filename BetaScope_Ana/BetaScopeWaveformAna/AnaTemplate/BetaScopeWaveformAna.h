@@ -1,6 +1,7 @@
 #include "BetaScope_Driver/include/BetaScope_Class.h"
 #include "BetaScope_Driver/include/BetaScope_AnaFramework.h"
 #include "General/Colorful_Cout/include/Colorful_Cout.h"
+#include "General/WaveformAna/include/Waveform_Analysis.hpp"
 #include <string>
 #include <iostream>
 
@@ -67,6 +68,8 @@ public:
     std::vector<double> localW[8];
     std::vector<double> localT[8];
 
+    std::vector<WaveformAna<double,double>> *waveform_ana[8];
+
     double *current;
     double *timestamp;
 
@@ -102,7 +105,8 @@ public:
     };
 
 
-    void thread_it( int ch );
+    void event_ana( int ch );
+    void fill_worker(std::vector<double> *buffer, std::vector<double> input);
 
     //custom methods.
     void readWaveformConfig(std::string configName);

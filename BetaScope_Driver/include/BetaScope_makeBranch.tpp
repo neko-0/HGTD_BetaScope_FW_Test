@@ -23,31 +23,35 @@ bool BetaScope::BuildOutBranch( std::string branchName )
         this->output_int_vector_keeper_.push_back( static_cast<PrimitiveDataType_Container<std::vector<int>>*>(this->output_branches_buffer_[this->output_branch_counter_])->get() );
         this->output_vector_keeper_.push_back( static_cast<PrimitiveDataType_Container<std::vector<int>>*>(this->output_branches_buffer_[this->output_branch_counter_]) );
       }
-      if( std::is_same< v, std::vector<double>>::value )
+      else if( std::is_same< v, std::vector<double>>::value )
       {
         ColorCout::Msg(function_name, "Branch:" + branchName + " is std::vector<double>, Handle buffer internally" );
         this->output_double_vector_keeper_.push_back( static_cast<PrimitiveDataType_Container<std::vector<double>>*>(this->output_branches_buffer_[this->output_branch_counter_])->get() );
         this->output_vector_keeper_.push_back( static_cast<PrimitiveDataType_Container<std::vector<double>>*>(this->output_branches_buffer_[this->output_branch_counter_]) );
       }
-      if( std::is_same< v, std::vector<float>>::value)
+      else if( std::is_same< v, std::vector<float>>::value)
       {
         ColorCout::Msg(function_name, "Branch:" + branchName + " is std::vector<float>, Handle buffer internally" );
         this->output_float_vector_keeper_.push_back( static_cast<PrimitiveDataType_Container<std::vector<float>>*>(this->output_branches_buffer_[this->output_branch_counter_])->get() );
         this->output_vector_keeper_.push_back( static_cast<PrimitiveDataType_Container<std::vector<float>>*>(this->output_branches_buffer_[this->output_branch_counter_]) );
       }
-      if( std::is_same< v, std::vector<bool>>::value)
+      else if( std::is_same< v, std::vector<bool>>::value)
       {
         ColorCout::Msg(function_name, "Branch:" + branchName + " is std::vector<bool>, Handle buffer internally" );
         this->output_bool_vector_keeper_.push_back( static_cast<PrimitiveDataType_Container<std::vector<bool>>*>(this->output_branches_buffer_[this->output_branch_counter_])->get() );
         this->output_vector_keeper_.push_back( static_cast<PrimitiveDataType_Container<std::vector<bool>>*>(this->output_branches_buffer_[this->output_branch_counter_]) );
       }
-      if( std::is_same< v, std::vector<char>>::value)
+      else if( std::is_same< v, std::vector<char>>::value)
       {
         ColorCout::Msg(function_name, "Branch:" + branchName + " is std::vector<char>, Handle buffer internally" );
         this->output_char_vector_keeper_.push_back( static_cast<PrimitiveDataType_Container<std::vector<char>>*>(this->output_branches_buffer_[this->output_branch_counter_])->get() );
         this->output_vector_keeper_.push_back( static_cast<PrimitiveDataType_Container<std::vector<char>>*>(this->output_branches_buffer_[this->output_branch_counter_]) );
       }
-      //*/
+      else
+      {
+        ColorCout::Msg(function_name, "Branch:" + branchName + " is std::vector<" + typeid(dtype).name() + ">, Handle buffer internally" );
+        this->output_vector_keeper_.push_back( static_cast<PrimitiveDataType_Container<std::vector<dtype>>*>(this->output_branches_buffer_[this->output_branch_counter_]) );
+      }
     }
     else{
       ColorCout::Msg(function_name, "Branch:" + branchName + " is NOT std::vector. No action is needed." );

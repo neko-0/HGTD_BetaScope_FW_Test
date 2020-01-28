@@ -39,7 +39,7 @@ Baseline correction using point from 0 to N.
 
   return: None.
 =============================================================================*/
-void WaveformAnalysis::Correct_Baseline(
+double WaveformAnalysis::Correct_Baseline(
   std::vector<double>& voltageVec,
   int ptN)
 {
@@ -50,6 +50,8 @@ void WaveformAnalysis::Correct_Baseline(
   mean = mean/ptN;
 
   for(std::size_t j = 0, max = voltageVec.size(); j < max; j++){voltageVec.at(j) = voltageVec.at(j)- mean;}
+
+  return mean;
 }
 
 /*==============================================================================
@@ -60,7 +62,7 @@ Alternate implementation of baseline correction.(2)
 
   return: None.
 ==============================================================================*/
-void WaveformAnalysis::Correct_Baseline2( std::vector<double>& voltageVec, double fractional_pts )
+double WaveformAnalysis::Correct_Baseline2( std::vector<double>& voltageVec, double fractional_pts )
 {
   double mean =0;
 
@@ -71,6 +73,8 @@ void WaveformAnalysis::Correct_Baseline2( std::vector<double>& voltageVec, doubl
   mean = mean/noise_pts;
 
   for(std::size_t j = 0, max = voltageVec.size(); j < max; j++){ voltageVec.at(j) = voltageVec.at(j)- mean; }
+
+  return mean;
 }
 
 /*==============================================================================
@@ -81,7 +85,7 @@ Alternate implementation of baseline correction.(2)
 
   return: None.
 ==============================================================================*/
-void WaveformAnalysis::Correct_Baseline3(
+double WaveformAnalysis::Correct_Baseline3(
   std::vector<double>& voltageVec,
   std::vector<double> timeVec,
   double tRange[2]
@@ -106,6 +110,8 @@ void WaveformAnalysis::Correct_Baseline3(
     for(std::size_t j = 0; j < npoints; j++){ voltageVec.at(j) = voltageVec.at(j)- mean;}
   }
   else{ Correct_Baseline2(voltageVec, 0.3); }
+
+  return mean;
 }
 
 /*==============================================================================

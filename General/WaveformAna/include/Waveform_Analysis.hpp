@@ -6,6 +6,7 @@
 #include <mutex>
 
 #include "General/Colorful_Cout/include/Colorful_Cout.h"
+#include "WaveformAna/include/WaveformAna.hpp"
 
 
 class WaveformAnalysis
@@ -22,11 +23,15 @@ class WaveformAnalysis
     WaveformAnalysis(){};
     ~WaveformAnalysis(){};
 
+    WaveformAna<double,double> analyze_waveform(std::vector<double> *t, std::vector<double> *w, bool limiting_search_region_OnOff, double pmaxSearchRange[2]);
+    std::vector<double> loop_helper2( double (WaveformAnalysis::*func)(), WaveformAna<double, double> waveform, std::pair<double,unsigned int> pmaxHolder, int max);
+    std::vector<double> loop_helper1( double (WaveformAnalysis::*func)(), WaveformAna<double, double> waveform, std::pair<double,unsigned int> pmaxHolder, int max);
+
     //==========================================================================
     // Baseline Correction
-    void Correct_Baseline( std::vector<double> &voltageVec, int ptN );
-    void Correct_Baseline2( std::vector<double> &voltageVec, double fractional_pts );
-    void Correct_Baseline3( std::vector<double> &voltageVec, std::vector<double> timeVec, double tRange[2] ); //special treatment of ill-signal baseline.
+    double Correct_Baseline( std::vector<double> &voltageVec, int ptN );
+    double Correct_Baseline2( std::vector<double> &voltageVec, double fractional_pts );
+    double Correct_Baseline3( std::vector<double> &voltageVec, std::vector<double> timeVec, double tRange[2] ); //special treatment of ill-signal baseline.
     bool Correct_Baseline4( std::vector<double> &voltageVec, std::vector<double> timeVec, std::vector<double> &pmax, std::vector<double> tmax);
     void SSRL_Baseline( std::vector<double> &w, std::string workerID );
     void SSRL_Baseline( std::vector<double> &w, double &RMS);

@@ -6,111 +6,67 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/ini_parser.hpp>
 
-#include "General/WaveformAna/include/Waveform_Analysis.hpp"
 #include "General/WaveformAna/include/general.hpp"
 
 #include <ctime>
 #include <thread>
+#include <future>
 
+void fill_worker_here(std::vector<double> *buffer, std::vector<double> input )
+{
+  for(auto value: input){buffer->push_back(value); }
+}
 
-int THREAD_COUNT = 0;
-
-void BetaScopeWaveformAna::thread_it( int ch)
+void BetaScopeWaveformAna::event_ana( int ch )
 {
     WaveformAnalysis WaveAna;
-
-    if( THREAD_COUNT < 100) {
-        ColorCout::print("  Running thread_it: thread num ", std::to_string(THREAD_COUNT), CYAN);
-        THREAD_COUNT++;
-    }
-    // Base line
-    std::vector<double> front_temp_voltage = *this->w[ch];
-    std::vector<double> front_temp_time = *this->t[ch];
-
-    std::vector<double> back_temp_voltage = *this->w[ch];
-    std::vector<double> back_temp_time = *this->t[ch];
-
-    std::pair<double,unsigned int> pmax_before_baseline = WaveAna.Find_Singal_Maximum( *this->w[ch], *this->t[ch], this->my_anaParam.limiting_search_region_OnOff, this->my_anaParam.pmaxSearchRange);
-    double tmax_for_baseline = this->t[ch]->at(pmax_before_baseline.second);
-    double temp_riseTime = WaveAna.Find_Rise_Time( *this->w[ch], *this->t[ch], pmax_before_baseline, 0.1, 0.9 );
-
-    double temp_front_searchRange[2] = {tmax_for_baseline-temp_riseTime-15000.0, tmax_for_baseline-temp_riseTime-10000.0};
-    std::pair<double,unsigned int> front_baseline_pmax = WaveAna.Find_Singal_Maximum( *this->w[ch], *this->t[ch], true, temp_front_searchRange );
-    double front_baseline_tmax = this->t[ch]->at(front_baseline_pmax.second);
-    double front_baseline_riseTime = WaveAna.Find_Rise_Time( *this->w[ch], *this->t[ch], front_baseline_pmax, 0.1, 0.9 );
-    double temp_baselineRange[2] = {front_baseline_tmax-front_baseline_riseTime-5000.0, front_baseline_tmax+5000.0};
-    WaveAna.Correct_Baseline3(front_temp_voltage, front_temp_time, temp_baselineRange );
-    std::pair<double,unsigned int> front_baseline_pmax_corr = WaveAna.Find_Singal_Maximum( front_temp_voltage, front_temp_time, true, temp_front_searchRange );
-    this->frontBaselineInt_indepBaseCorr[ch]->push_back( WaveAna.Pulse_Integration_with_Fixed_Window_Size( front_temp_voltage, front_temp_time, front_baseline_pmax_corr, "Simpson", 1000.0, 3000.0) );
-
-
-    double temp_back_searchRange[2] = {tmax_for_baseline+10000.0, tmax_for_baseline+15000.0 };
-    std::pair<double,unsigned int> back_baseline_pmax = WaveAna.Find_Singal_Maximum ( *this->w[ch], *this->t[ch], true, temp_back_searchRange);
-    double back_baseline_tmax = this->t[ch]->at(back_baseline_pmax.second);
-    double back_baseline_riseTime = WaveAna.Find_Rise_Time( *this->w[ch], *this->t[ch], back_baseline_pmax, 0.1, 0.9 );
-    double temp_back_baselineRange[2] = {back_baseline_tmax-back_baseline_riseTime-5000.0, back_baseline_tmax+5000.0 };
-    WaveAna.Correct_Baseline3(back_temp_voltage, back_temp_time, temp_back_baselineRange );
-    std::pair<double,unsigned int> back_baseline_pmax_corr = WaveAna.Find_Singal_Maximum( back_temp_voltage, back_temp_time, true, temp_back_searchRange );
-    this->backBaselineInt_indepBaseCorr[ch]->push_back( WaveAna.Pulse_Integration_with_Fixed_Window_Size( back_temp_voltage, back_temp_time, back_baseline_pmax_corr, "Simpson", 1000.0, 3000.0) );
-
-    double baselineRange[2] = {tmax_for_baseline-temp_riseTime-3000.0, tmax_for_baseline-temp_riseTime-1000.0 };
-    WaveAna.Correct_Baseline3( *this->w[ch], *this->t[ch], baselineRange);
 
     if( ch == this->triggerCh )this->my_anaParam.limiting_search_region_OnOff=false;
     else this->my_anaParam.limiting_search_region_OnOff = true;
 
-    std::pair<double,unsigned int> pmaxHolder = WaveAna.Find_Singal_Maximum( *this->w[ch], *this->t[ch], this->my_anaParam.limiting_search_region_OnOff, this->my_anaParam.pmaxSearchRange );
-    std::pair<double,unsigned int> neg_pmaxHolder = WaveAna.Find_Negative_Signal_Maximum( *this->w[ch], *this->t[ch], this->my_anaParam.limiting_search_region_OnOff, this->my_anaParam.pmaxSearchRange);
+    WaveformAna<double,double> waveform = WaveAna.analyze_waveform(this->t[ch], this->w[ch], this->my_anaParam.limiting_search_region_OnOff, this->my_anaParam.pmaxSearchRange);
 
-    this->pmax[ch]->push_back( pmaxHolder.first );
-    this->neg_pmax[ch]->push_back( neg_pmaxHolder.first );
+    this->frontBaselineInt_indepBaseCorr[ch]->push_back( waveform.get_front_baseline_int() );
+    this->backBaselineInt_indepBaseCorr[ch]->push_back( waveform.get_back_baseline_int() );
+    this->pmax[ch]->push_back( waveform.get_pmax() );
+    this->neg_pmax[ch]->push_back( waveform.get_neg_pmax() );
 
-    for(int k =0; k<101; k++) {
-        double percentage = 1.0*k;
-        this->cfd[ch]->push_back( WaveAna.Rising_Edge_CFD_Time( percentage, *this->w[ch], *this->t[ch], pmaxHolder ) );
-    }
+    this->tmax[ch]->push_back( waveform.get_tmax() );
+    this->neg_tmax[ch]->push_back( waveform.get_neg_tmax() );
 
-    for(int k =0; k<101; k++) {
-        this->cfd_fall[ch]->push_back( WaveAna.Falling_Edge_CFD_Time( k, *this->w[ch], *this->t[ch], pmaxHolder ) );
-    }
+    this->rms[ch]->push_back( waveform.get_rms() );
 
-    for( int step = 0; step < 500; step++ ) {
-        double percentage = 0.2 * step;
-        this->fineCFDRise[ch]->push_back( WaveAna.Rising_Edge_CFD_Time( percentage, *this->w[ch], *this->t[ch], pmaxHolder ) );
-    }
+    this->pulseArea_withUndershoot[ch]->push_back( waveform.get_pulse_area_undershoot() );
+    this->pulseArea_withZeroCross[ch]->push_back( waveform.get_pulse_area() );
 
-    //========================================================================
-    //Filling Tmax
-    this->tmax[ch]->push_back( WaveAna.Get_Tmax( *this->t[ch], pmaxHolder) );
-    this->neg_tmax[ch]->push_back( WaveAna.Get_Tmax( *this->t[ch], neg_pmaxHolder) );
+    this->riseTime[ch]->push_back( waveform.get_rise_time() );
 
-    this->rms[ch]->push_back( WaveAna.Find_Noise( *this->w[ch], 0.25*this->w[ch]->size() ) );
+    //std::vector<std::thread*> workers;
+    //std::vector<std::future<void>> workers;
 
-    this->pulseArea_withUndershoot[ch]->push_back( WaveAna.Pulse_Integration_with_Fixed_Window_Size( *this->w[ch], *this->t[ch], pmaxHolder, "Simpson", 1000.0, 3000.0) );
-    this->pulseArea_withZeroCross[ch]->push_back( WaveAna.Find_Pulse_Area( *this->w[ch], *this->t[ch], pmaxHolder) );
+    /*
+    workers.push_back( std::async( fill_worker_here, this->cfd[ch], waveform.get_cfd() ) );
+    workers.push_back( std::async( fill_worker_here, this->cfd_fall[ch], waveform.get_cfd_fall() ) );
+    workers.push_back( std::async( fill_worker_here, this->dvdt[ch], waveform.get_dvdt() ) );
+    workers.push_back( std::async( fill_worker_here, this->thTime[ch], waveform.get_threshold_time() ) );
+    workers.push_back( std::async( fill_worker_here, this->fineCFDRise[ch], waveform.get_fine_cfd() ) );
+    */
 
-    //this->frontBaselineInt[b]->push_back( WaveAna.Pulse_Integration_with_Fixed_Window_Size( this->w[ch], this->t[ch], pmaxHolder, "Simpson", 12000.0, -8000.0) );
-    //this->backBaselineInt[b]->push_back( WaveAna.Pulse_Integration_with_Fixed_Window_Size( this->w[ch], this->t[ch], pmaxHolder, "Simpson", -8000.0, 12000.0) );
+    ///*
+    for(auto value : waveform.get_cfd() ){ this->cfd[ch]->push_back(value); }
+    for(auto value : waveform.get_cfd_fall() ){ this->cfd_fall[ch]->push_back(value); }
+    for(auto value : waveform.get_dvdt() ){ this->dvdt[ch]->push_back(value); }
+    for(auto value : waveform.get_threshold_time() ){ this->thTime[ch]->push_back(value); }
+    for(auto value : waveform.get_fine_cfd() ){ this->fineCFDRise[ch]->push_back(value); }
+    //*/
 
-    //------------------Rise Time 10 to 90---------------------------------------------------------
-
-    this->riseTime[ch]->push_back( WaveAna.Find_Rise_Time( *this->w[ch], *this->t[ch], pmaxHolder, 0.1, 0.9 ) );
-
-    //--------------------------------------------------------------------------------------------
-
-    for(int d =0; d<101; d++) {
-        this->dvdt[ch]->push_back( WaveAna.Find_Dvdt( d, 0, *this->w[ch], *this->t[ch], pmaxHolder ) );
-    }
-
-    for(int k = 0; k < 2000; k++) {
-        this->thTime[ch]->push_back( WaveAna.Find_Time_At_Threshold( double(k), *this->w[ch], *this->t[ch], pmaxHolder ) );
-    }
 
     if( !this->skipWaveform )
     {
-        for( unsigned int invI = 0; invI < this->w[ch]->size(); invI++) {
-            this->w[ch]->at(invI) = -1.0 * this->w[ch]->at(invI);
-        }
+      for(auto value : waveform.get_v2() ){ this->w[ch]->push_back(-value); }
+      for(auto value : waveform.get_v1() ){ this->t[ch]->push_back(value); }
+      //workers.push_back( std::async( fill_worker_here, this->w[ch], waveform.get_v2() ) );
+      //workers.push_back( std::async( fill_worker_here, this->t[ch], waveform.get_v1() ) );
     }
     else
     {
@@ -118,6 +74,16 @@ void BetaScopeWaveformAna::thread_it( int ch)
         this->t[ch]->clear();
     }
 
+    /*
+    for(std::size_t id=0; id < workers.size(); id++ )
+    {
+        workers[id].wait();
+        //workers[id]->join();
+        //delete workers[id];
+    }
+    */
+
+    this->waveform_ana[ch]->push_back(waveform);
 }
 
 void BetaScopeWaveformAna::Analysis()
@@ -136,7 +102,8 @@ void BetaScopeWaveformAna::Analysis()
 
     //std::time_t t1 = std::time(nullptr);
     //loop through all the possible channels
-    std::vector<std::thread*> workers;
+    //std::vector<std::thread*> workers;
+    std::vector<std::future<void>> workers;
     for(int chh = 0; chh < this->activeChannels.size(); chh ++)
     {
         int ch = this->activeChannels.at(chh);
@@ -190,7 +157,8 @@ void BetaScopeWaveformAna::Analysis()
                 //this->xorigin = 0.0;
                 //this->dt = 0.0;
 
-                workers.push_back( new std::thread( &BetaScopeWaveformAna::thread_it, this, ch) );
+                //workers.push_back( new std::thread( &BetaScopeWaveformAna::event_ana, this, ch) );
+                workers.push_back(  std::async( &BetaScopeWaveformAna::event_ana, this, ch) );
 
             }
         }
@@ -198,8 +166,9 @@ void BetaScopeWaveformAna::Analysis()
 
     for(std::size_t id=0; id < workers.size(); id++ )
     {
-        workers[id]->join();
-        delete workers[id];
+        //workers[id]->join();
+        //delete workers[id];
+        workers[id].wait();
     }
 
     // filling value that's indep of scope channels
@@ -315,6 +284,8 @@ void BetaScopeWaveformAna::Initialize()
             std::cout<<this->i_w[ch]<<std::endl;
             std::cout<<this->beta_scope.GetInBranch<TTreeReaderArray,double>("w"+std::to_string(ch) )<<std::endl;
         }
+        this->beta_scope.BuildOutBranch<std::vector<WaveformAna<double,double>>>("waveform"+std::to_string(ch) );
+        this->waveform_ana[ch] = this->beta_scope.GetOutBranch<std::vector<WaveformAna<double,double>>>("waveform"+std::to_string(ch));
     }
 
     if( beta_scope.IsBranchExists("ievent") )
