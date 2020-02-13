@@ -81,12 +81,14 @@ public:
   AnaParam my_anaParam;
 
 public:
+
   BetaScopeWaveformAna(){};
-  BetaScopeWaveformAna(std::string ifile) {
+
+  BetaScopeWaveformAna(std::string ifile) : this->ifile(ifile) {
     std::cout << "Using user template: "
               << "BetaScopeWaveformAna" << std::endl;
-    this->ifile = ifile;
   };
+
   ~BetaScopeWaveformAna(){};
 
   // required, user can add more to the existing methods;
