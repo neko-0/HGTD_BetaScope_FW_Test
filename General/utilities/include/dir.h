@@ -19,8 +19,7 @@ class Dir {
 public:
   static std::vector<std::string>
   _getFiles(const char *directory, std::string pattern = ""); // old method
-  static std::vector<std::string> getFiles(std::string directory,
-                                           std::string pattern = "");
+  static std::vector<std::string> getFiles(std::string directory, std::string pattern = "");
 };
 } // namespace BetaScope_Utilities
 

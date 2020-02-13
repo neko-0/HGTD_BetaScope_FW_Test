@@ -30,21 +30,25 @@ Find the noise of a signal baseline.
 
   return noise
 ==============================================================================*/
-double WaveformAnalysis::Find_Noise(std::vector<double> voltageVec,
-                                    const unsigned int inoise) {
-  double rms = 0.0, mean = 0.0, var = 0.0;
+double WaveformAnalysis::Find_Noise(
+    const std::vector<double> &voltageVec,
+    const unsigned int &inoise
+)
+{
+    double rms = 0.0, mean = 0.0, var = 0.0;
 
-  for (unsigned int j = 0; j < inoise; j++) {
-    rms += voltageVec.at(j) * voltageVec.at(j);
-    mean += voltageVec.at(j);
-  }
+    for (unsigned int j = 0; j < inoise; j++)
+    {
+        rms += voltageVec.at(j) * voltageVec.at(j);
+        mean += voltageVec.at(j);
+    }
 
-  mean = mean / inoise;
-  rms = rms / inoise;
-  var = rms - mean * mean;
-  rms = pow(var, 0.5);
+    mean = mean / inoise;
+    rms = rms / inoise;
+    var = rms - mean * mean;
+    rms = pow(var, 0.5);
 
-  return rms;
+    return rms;
 }
 
 /*==============================================================================
@@ -54,23 +58,28 @@ points of the waveform for the noise calculation.
 
   return noise
 ==============================================================================*/
-double WaveformAnalysis::Find_Noise2(std::vector<double> voltageVec,
-                                     const double fractional_pts) {
-  double rms = 0.0, mean = 0.0, var = 0.0;
+double WaveformAnalysis::Find_Noise2(
+    const std::vector<double> &voltageVec,
+    const double &fractional_pts
+)
+{
+    double rms = 0.0, mean = 0.0, var = 0.0;
 
-  int inoise = fractional_pts * voltageVec.size();
+    int inoise = fractional_pts * voltageVec.size();
 
-  for (std::size_t j = 0, max = inoise; j < max; j++) {
-    rms += voltageVec.at(j) * voltageVec.at(j);
-    mean += voltageVec.at(j);
-  }
+    for (std::size_t j = 0, max = inoise; j < max;
+            j++)
+    {
+        rms += voltageVec.at(j) * voltageVec.at(j);
+        mean += voltageVec.at(j);
+    }
 
-  mean = mean / inoise;
-  rms = rms / inoise;
-  var = rms - mean * mean;
-  rms = pow(var, 0.5);
+    mean = mean / inoise;
+    rms = rms / inoise;
+    var = rms - mean * mean;
+    rms = pow(var, 0.5);
 
-  return rms;
+    return rms;
 }
 
 /*==============================================================================
@@ -84,23 +93,29 @@ Find the noise of a signal on the back baseline.
   return noise on the back baseline
 ==============================================================================*/
 double WaveformAnalysis::Find_Noise_On_Back_Baseline(
-    std::vector<double> voltageVec, std::vector<double> timeVec,
-    double start_time, double end_time) {
-  double rms = 0.0, mean = 0.0, var = 0.0;
-  int counter = 0;
-  std::size_t npoints = voltageVec.size();
+    const std::vector<double> &voltageVec,
+    const std::vector<double> &timeVec,
+    const double &start_time,
+    const double &end_time
+)
+{
+    double rms = 0.0, mean = 0.0, var = 0.0;
+    int counter = 0;
+    std::size_t npoints = voltageVec.size();
 
-  for (unsigned int j = 0; j < npoints; j++) {
-    if (start_time <= timeVec.at(j) && timeVec.at(j) <= end_time) {
-      rms += voltageVec.at(j) * voltageVec.at(j);
-      mean += voltageVec.at(j);
-      counter++;
+    for (unsigned int j = 0; j < npoints; j++)
+    {
+        if (start_time <= timeVec.at(j) && timeVec.at(j) <= end_time)
+        {
+            rms += voltageVec.at(j) * voltageVec.at(j);
+            mean += voltageVec.at(j);
+            counter++;
+        }
     }
-  }
 
-  mean = mean / counter;
-  rms = rms / counter;
-  var = rms - mean * mean;
-  rms = pow(var, 0.5);
-  return rms;
+    mean = mean / counter;
+    rms = rms / counter;
+    var = rms - mean * mean;
+    rms = pow(var, 0.5);
+    return rms;
 }

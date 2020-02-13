@@ -1,8 +1,8 @@
 #include "utilities/include/dir.h"
 
 std::vector<std::string>
-BetaScope_Utilities::Dir::_getFiles(const char *directory,
-                                    std::string pattern) {
+BetaScope_Utilities::Dir::_getFiles(const char *directory, std::string pattern)
+{
   DIR *dir;
   struct dirent *ent;
   std::vector<std::string> content = {};
@@ -10,8 +10,7 @@ BetaScope_Utilities::Dir::_getFiles(const char *directory,
     /* print all the files and directories within directory */
     while ((ent = readdir(dir)) != NULL) {
       std::string ifileName = ent->d_name;
-      if (ifileName.find(pattern) !=
-          std::string::npos) // && !(rootfiles.at(ifileName).compare(".") == 0)
+      if (ifileName.find(pattern) != std::string::npos) // && !(rootfiles.at(ifileName).compare(".") == 0)
                              // && !(rootfiles.at(ifileName).compare("..") == 0)
                              // )
       {
@@ -40,13 +39,15 @@ BetaScope_Utilities::Dir::_getFiles(const char *directory,
 New method
 ===============================================================================*/
 std::vector<std::string>
-BetaScope_Utilities::Dir::getFiles(std::string directory, std::string pattern) {
+BetaScope_Utilities::Dir::getFiles(std::string directory, std::string pattern)
+{
   namespace fs = std::experimental::filesystem;
 
   std::vector<std::string> content = {};
 
   // looping through all of the files under directory
-  for (const auto &entry : fs::directory_iterator(directory.c_str())) {
+  for (const auto &entry : fs::directory_iterator(directory.c_str()))
+  {
     // removing the directory part
     std::string my_fileName = entry.path();
     my_fileName.erase(0, my_fileName.find(directory) + directory.length());
@@ -56,11 +57,12 @@ BetaScope_Utilities::Dir::getFiles(std::string directory, std::string pattern) {
     std::string my_pattern_copy = pattern;
     std::string wildcard_delimiter = "*";
     int pos = 0;
-    while ((pos = my_pattern_copy.find(wildcard_delimiter)) !=
-           std::string::npos) {
+    while ((pos = my_pattern_copy.find(wildcard_delimiter)) != std::string::npos)
+    {
       std::string my_pattern_fragment = my_pattern_copy.substr(0, pos);
       my_pattern_copy.erase(0, pos + wildcard_delimiter.length());
     }
+
     pattern_fragment.push_back(my_pattern_copy);
 
     bool matched = false;
