@@ -32,9 +32,10 @@ pmaxHolder ) );
 
 WaveformAna<double, double>
 WaveformAnalysis::analyze_waveform(
-    std::vector<double> *t, std::vector<double> *w,
-    bool limiting_search_region_OnOff,
-    double pmaxSearchRange[2])
+  std::vector<double> *t,
+  std::vector<double> *w,
+  bool limiting_search_region_OnOff,
+  double pmaxSearchRange[2])
 {
     WaveformAna<double, double> waveform(t, w);
 

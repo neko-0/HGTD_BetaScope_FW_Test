@@ -103,7 +103,7 @@ Alternate implementation of baseline correction.(2)
 double WaveformAnalysis::Correct_Baseline3(
     std::vector<double> &voltageVec,
     const std::vector<double> &timeVec,
-    const double (&tRange)[2]
+    const double tRange[2]
 )
 {
     double mean = 0;
