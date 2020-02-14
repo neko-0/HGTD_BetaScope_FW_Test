@@ -21,7 +21,7 @@ TH Base container for TH1 and TH2 histograms from ROOT.
 ==============================================================================*/
 struct TH_BaseContainer {
   TH_BaseContainer(){};
-  virtual ~TH_BaseContainer(){};
+  virtual ~TH_BaseContainer();
 };
 
 template <typename TH_Type> struct TH_Container : public TH_BaseContainer {
@@ -30,7 +30,7 @@ private:
 
 public:
   TH_Container(){};
-  virtual ~TH_Container() {
+  ~TH_Container() {
     if (this->th)
       delete th;
   };

@@ -36,12 +36,14 @@
 
 // helper function from stack overflow
 
-template <class N> struct is_vector {
+template <class N> struct is_vector
+{
   static const bool value = false;
   using T = N;
 };
 
-template <class N, class A> struct is_vector<std::vector<N, A>> {
+template <class N, class A> struct is_vector<std::vector<N, A>>
+{
   static const bool value = true;
   using T = std::vector<N, A>;
 };
@@ -49,8 +51,8 @@ template <class N, class A> struct is_vector<std::vector<N, A>> {
 //==============================================================================
 
 template <typename T> struct DataType { using type = T; };
-
-struct PrimitiveDataType_BaseContainer {
+struct PrimitiveDataType_BaseContainer
+{
   PrimitiveDataType_BaseContainer(){};
   virtual ~PrimitiveDataType_BaseContainer(){};
 
@@ -58,14 +60,16 @@ struct PrimitiveDataType_BaseContainer {
 };
 
 template <typename dtype>
-struct PrimitiveDataType_Container : public PrimitiveDataType_BaseContainer {
+struct PrimitiveDataType_Container : public PrimitiveDataType_BaseContainer
+{
 private:
   dtype *data_type = new dtype;
   is_vector<dtype> _isVec;
   bool __isVec = _isVec.value;
 
   template <class vClass>
-  typename std::enable_if<is_vector<vClass>::value>::type _clear() {
+  typename std::enable_if<is_vector<vClass>::value>::type _clear()
+  {
     this->data_type->clear();
   };
 
@@ -74,8 +78,10 @@ private:
 
 public:
   PrimitiveDataType_Container(){};
-  virtual ~PrimitiveDataType_Container() {
-    if (this->data_type) {
+  ~PrimitiveDataType_Container()
+  {
+    if (this->data_type)
+    {
       delete this->data_type;
     }
   };
@@ -91,30 +97,35 @@ public:
 };
 
 template <template <class> class c, typename dtype>
-struct PrimitiveDataType_TemplateContainer
-    : public PrimitiveDataType_BaseContainer {
+struct PrimitiveDataType_TemplateContainer : public PrimitiveDataType_BaseContainer
+{
 private:
   c<dtype> *data_type;
   std::string class_name = "PrimitiveDataType_TemplateContainer";
 
 public:
   PrimitiveDataType_TemplateContainer(){};
-  virtual ~PrimitiveDataType_TemplateContainer() {
+  ~PrimitiveDataType_TemplateContainer()
+  {
     ColorCout::print(class_name, "clean up.", YELLOW);
-    if (this->data_type) {
+    if (this->data_type)
+    {
       delete this->data_type;
     }
   };
 
   c<dtype> *get() { return this->data_type; };
-  void set(TTreeReader *itree, std::string branchName) {
+  void set(TTreeReader *itree, std::string branchName)
+  {
     this->data_type = new c<dtype>(*itree, branchName.c_str());
   };
 
   dtype GetValue() { return **this->data_type; }
 
-  void del() {
-    if (this->data_type) {
+  void del()
+  {
+    if (this->data_type)
+    {
       delete this->data_type;
     }
   };
@@ -181,9 +192,9 @@ public:
   BetaScope(const char *ipath);
   BetaScope(const char *ipath, const char *iTreeBranch_config,
             const char *oTreeBranch_config);
-  ~BetaScope() {
-    std::cout << this << " call destructor at " << this->object_location_
-              << std::endl;
+  ~BetaScope()
+  {
+    std::cout << this << " call destructor at " << this->object_location_ << std::endl;
     // delete this->iTree;
     // delete this->iFile;
     // delete this->oTree;

@@ -30,12 +30,12 @@ pmaxHolder ) );
 }
 */
 
-WaveformAna<double, double>
-WaveformAnalysis::analyze_waveform(
+WaveformAna<double, double> WaveformAnalysis::analyze_waveform(
   std::vector<double> *t,
   std::vector<double> *w,
   bool limiting_search_region_OnOff,
-  double pmaxSearchRange[2])
+  double pmaxSearchRange[2]
+)
 {
     WaveformAna<double, double> waveform(t, w);
 
@@ -174,4 +174,56 @@ WaveformAnalysis::analyze_waveform(
     */
 
     return waveform;
+}
+
+int WaveformAnalysis::Get_Number_Of_Multiple_Signals(
+  const double &threshold,
+  const std::vector<double> &voltageVec,
+  const double &scale
+)
+{
+  std::string function_name = "WaveformAnalysis::Get_Number_Of_Multiple_Signals";
+
+  double pmax = 0.0;
+  double pmax_i = 0;
+  bool candidate_signal = false;
+  bool noisy_event = true;
+  int num_pulses = 0;
+
+  int index = 0;
+  for( const auto &val : voltageVec )
+  {
+    if( !candidate_signal )
+    {
+      if( val >= threshold )
+      {
+        pmax = val;
+        pmax_i = index;
+        candidate_signal = true;
+        noisy_event ? noisy_event = false : 0;
+      }
+    }
+    else
+    {
+      if( val > pmax )
+      {
+        pmax = val;
+        pmax_i = index;
+      }
+      else if(
+        (val < threshold) &&
+        (threshold - abs(val) <= threshold)
+      )
+      {
+        num_pulses++;
+        pmax = val;
+        pmax_i = index;
+        candidate_signal = false;
+      }
+      else{}
+    }
+    index++;
+  }
+    candidate_signal ? num_pulses++ : 0;
+    return num_pulses;
 }

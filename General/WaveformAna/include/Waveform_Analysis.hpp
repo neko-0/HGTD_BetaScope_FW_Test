@@ -238,6 +238,12 @@ public:
         const double &assisting_threshold
     );
 
+    int Get_Number_Of_Multiple_Signals(
+      const double &threshold,
+      const std::vector<double> &voltageVec,
+      const double &scale = 1.0
+    );
+
     //==========================================================================
     // time at threshold
     double Find_Time_At_Threshold(

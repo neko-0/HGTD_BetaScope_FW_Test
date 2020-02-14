@@ -5,6 +5,7 @@
 #define WAVEFORM_H
 
 #include <TObject.h>
+#include <TTreeReaderArray.h>
 #include <string>
 #include <vector>
 
@@ -29,6 +30,10 @@ public:
     Waveform(input_type amp[], input_type t[]);
 
     Waveform(input_type amp[]);
+
+    Waveform(TTreeReaderArray<input_type> *amp, TTreeReaderArray<input_type> *t);
+
+    int size(){ return this->v1_.size(); }
 
     std::vector<data_type> get_v1()
     {
@@ -70,8 +75,7 @@ public:
 };
 
 template <class data_type, class input_type>
-Waveform<data_type, input_type>::Waveform(std::vector<input_type> *amp,
-        std::vector<input_type> *t)
+Waveform<data_type, input_type>::Waveform(std::vector<input_type> *amp, std::vector<input_type> *t)
 {
     if (amp->size() != t->size())
     {
@@ -86,8 +90,7 @@ Waveform<data_type, input_type>::Waveform(std::vector<input_type> *amp,
 };
 
 template <class data_type, class input_type>
-Waveform<data_type, input_type>::Waveform(std::vector<input_type> amp,
-        std::vector<input_type> t)
+Waveform<data_type, input_type>::Waveform(std::vector<input_type> amp, std::vector<input_type> t)
 {
     if (amp.size() != t.size())
     {
@@ -128,6 +131,16 @@ Waveform<data_type, input_type>::Waveform(input_type amp[])
     {
         this->v1_.push_back(i);
         this->v2_.push_back(amp[i]);
+    }
+};
+
+template <class data_type, class input_type>
+Waveform<data_type, input_type>::Waveform( TTreeReaderArray<input_type> *amp, TTreeReaderArray<input_type> *t )
+{
+    for(std::size_t i = 0, max = amp->GetSize(); i < max; i++)
+    {
+        this->v1_.push_back( t->At(i) );
+        this->v2_.push_back( amp->At(i) );
     }
 };
 

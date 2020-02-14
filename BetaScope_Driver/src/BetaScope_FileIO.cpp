@@ -33,12 +33,9 @@ bool BetaScope::FileOpen(const char *ifile_path) {
   this->input_file_nick_name_ = this->output_file_name_;
 
   ColorCout::print(cout_prefix, "Create output file", YELLOW);
-  ColorCout::print(
-      cout_prefix,
-      "compressionLevel: " + std::to_string(this->compression_level_), YELLOW);
+  ColorCout::print(cout_prefix, "compressionLevel: " + std::to_string(this->compression_level_), YELLOW);
 
-  this->output_tfile_ = new TFile(this->output_file_name_.c_str(), "RECREATE",
-                                  "", this->compression_level_);
+  this->output_tfile_ = new TFile(this->output_file_name_.c_str(), "RECREATE", "", this->compression_level_);
   this->output_tfile_->cd();
 
   ColorCout::print(cout_prefix, "Fininished, exiting", BOLDGREEN);
@@ -61,10 +58,16 @@ void BetaScope::FileClose() {
 
   ColorCout::print(cout_prefix, "Clean up allocated memory", YELLOW);
 
-  for (auto const &val : this->input_branches_buffer_) {
-    if (val) {
+  int counter = 0;
+  for(const auto &val : this->input_branches_buffer_)
+  {
+    if(val)
+    {
+      ColorCout::print(cout_prefix, "Calling delete", YELLOW);
       delete val;
     }
+    counter++;
+    if(counter == this->input_branch_counter_){break;}
   }
 
   ColorCout::print(cout_prefix, "Finished, extiting", BOLDGREEN);

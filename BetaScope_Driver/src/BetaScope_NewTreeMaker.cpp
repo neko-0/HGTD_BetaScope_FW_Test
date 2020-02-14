@@ -59,59 +59,71 @@ bool BetaScope::NewTreeMaker(std::string additional_branch_list) {
     this->output_ttree_->Print();
 
   ColorCout::print(cout_prefix, "Creating custom branches", YELLOW);
-  auto additonal_branches =
-      BetaScope::BranchConfigReader(additional_branch_list);
+  if (additional_branch_list.compare("") != 0)
+  {
 
-  for (auto br : additonal_branches) {
-    if (std::get<0>(br) == 0) {
-      ColorCout::print("  > ", "mode 0, create for all channels", YELLOW);
-      for (auto ch : this->channel) {
-        std::string data_type = std::get<1>(br);
 
-        if (data_type.compare("VD") == 0) {
-          branch_checker = BetaScope::BuildOutBranch<std::vector<double>>(
-              Form("%s%i", std::get<2>(br).c_str(), ch));
+    auto additonal_branches = BetaScope::BranchConfigReader(additional_branch_list);
 
-          if (branch_checker)
-            ColorCout::print("  Successful type VD: ",
-                             std::get<2>(br) + std::to_string(ch), CYAN);
-        } else if (data_type.compare("D") == 0) {
-          branch_checker = BetaScope::BuildOutBranch<double>(
-              Form("%s%i", std::get<2>(br).c_str(), ch));
+    for (auto br : additonal_branches)
+    {
+      if (std::get<0>(br) == 0)
+      {
+        ColorCout::print("  > ", "mode 0, create for all channels", YELLOW);
+        for (auto ch : this->channel)
+        {
+          std::string data_type = std::get<1>(br);
 
-          if (branch_checker)
-            ColorCout::print("  Successful: type D ",
-                             std::get<2>(br) + std::to_string(ch), CYAN);
-        } else {
-          ColorCout::print("  Fail: type ? ",
-                           std::get<2>(br) + std::to_string(ch), RED);
+          if (data_type.compare("VD") == 0)
+          {
+            branch_checker = BetaScope::BuildOutBranch<std::vector<double>>( Form("%s%i", std::get<2>(br).c_str(), ch));
+
+            if (branch_checker)
+              ColorCout::print("  Successful type VD: ", std::get<2>(br) + std::to_string(ch), CYAN);
+          }
+          else if (data_type.compare("D") == 0)
+          {
+            branch_checker = BetaScope::BuildOutBranch<double>( Form("%s%i", std::get<2>(br).c_str(), ch));
+
+            if (branch_checker)
+              ColorCout::print("  Successful: type D ", std::get<2>(br) + std::to_string(ch), CYAN);
+          }
+          else
+          {
+            ColorCout::print("  Fail: type ? ", std::get<2>(br) + std::to_string(ch), RED);
+          }
         }
       }
-    } else {
-      ColorCout::print("  > ", "mode !0, create single branch", YELLOW);
-      std::string data_type = std::get<1>(br);
-      if (data_type.compare("VD") == 0) {
-        branch_checker = BetaScope::BuildOutBranch<std::vector<double>>(
-            Form("%s", std::get<2>(br).c_str()));
+      else
+      {
+        ColorCout::print("  > ", "mode !0, create single branch", YELLOW);
+        std::string data_type = std::get<1>(br);
+        if (data_type.compare("VD") == 0)
+        {
+          branch_checker = BetaScope::BuildOutBranch<std::vector<double>>( Form("%s", std::get<2>(br).c_str()));
 
-        if (branch_checker)
-          ColorCout::print("  Successful type VD: ", std::get<2>(br), CYAN);
-      } else if (data_type.compare("D") == 0) {
-        branch_checker = BetaScope::BuildOutBranch<double>(
-            Form("%s", std::get<2>(br).c_str()));
+          if (branch_checker)
+            ColorCout::print("  Successful type VD: ", std::get<2>(br), CYAN);
+        }
+        else if (data_type.compare("D") == 0)
+        {
+          branch_checker = BetaScope::BuildOutBranch<double>(Form("%s", std::get<2>(br).c_str()));
 
-        if (branch_checker)
-          ColorCout::print("  Successful: type D ", std::get<2>(br), CYAN);
-      } else {
-        ColorCout::print("  Fail: type ? ", std::get<2>(br), RED);
+          if (branch_checker)
+            ColorCout::print("  Successful: type D ", std::get<2>(br), CYAN);
+        }
+        else
+        {
+          ColorCout::print("  Fail: type ? ", std::get<2>(br), RED);
+        }
       }
     }
+
+    if (VERBOSITY != 0)
+      this->output_ttree_->Print();
+
+    ColorCout::print(cout_prefix, "Fininished, exiting", BOLDGREEN);
   }
-
-  if (VERBOSITY != 0)
-    this->output_ttree_->Print();
-
-  ColorCout::print(cout_prefix, "Fininished, exiting", BOLDGREEN);
 
   // TThread::UnLock();
 

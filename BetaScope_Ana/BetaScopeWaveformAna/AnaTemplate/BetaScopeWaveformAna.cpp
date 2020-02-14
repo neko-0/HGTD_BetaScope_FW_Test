@@ -329,29 +329,25 @@ void BetaScopeWaveformAna::Initialize() {
   if (beta_scope.IsBranchExists("temperature"))
   {
     this->has_daq_temperature = true;
-    this->beta_scope.SetInBranch<TTreeReaderValue, double>("temperature",
-                                                           "temperature");
+    this->beta_scope.SetInBranch<TTreeReaderValue, double>("temperature", "temperature");
     this->beta_scope.BuildOutBranch<double>("temperature");
   }
   if (beta_scope.IsBranchExists("humidity"))
   {
     this->has_daq_humidity = true;
-    this->beta_scope.SetInBranch<TTreeReaderValue, double>("humidity",
-                                                           "humidity");
+    this->beta_scope.SetInBranch<TTreeReaderValue, double>("humidity", "humidity");
     this->beta_scope.BuildOutBranch<double>("humidity");
   }
   if (beta_scope.IsBranchExists("i_timestamp"))
   {
     this->has_daq_timestamp = true;
-    this->beta_scope.SetInBranch<TTreeReaderValue, double>("i_timestamp",
-                                                           "timestamp");
+    this->beta_scope.SetInBranch<TTreeReaderValue, double>("i_timestamp", "timestamp");
     this->beta_scope.BuildOutBranch<double>("timestamp");
   }
   if (beta_scope.IsBranchExists("i_current"))
   {
     this->has_daq_current = true;
-    this->beta_scope.SetInBranch<TTreeReaderValue, double>("i_current",
-                                                           "current");
+    this->beta_scope.SetInBranch<TTreeReaderValue, double>("i_current", "current");
     this->beta_scope.BuildOutBranch<double>("current");
   }
   if (beta_scope.IsBranchExists("bias"))

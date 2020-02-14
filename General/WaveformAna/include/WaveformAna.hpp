@@ -36,6 +36,9 @@ public:
     WaveformAna(std::vector<input_type> *v1, std::vector<input_type> *v2)
       : Waveform<data_type, input_type>(v1, v2) {};
 
+    WaveformAna( TTreeReaderArray<input_type> *v1, TTreeReaderArray<input_type> *v2 ) : Waveform<data_type, input_type>(v1, v2){};
+
+
     void set_channel(int value)
     {
         this->channel_ = value;
