@@ -84,7 +84,7 @@ public:
 
   BetaScopeWaveformAna(){};
 
-  BetaScopeWaveformAna(std::string ifile) : this->ifile(ifile) {
+  BetaScopeWaveformAna(std::string ifile) : ifile(ifile) {
     std::cout << "Using user template: "
               << "BetaScopeWaveformAna" << std::endl;
   };

@@ -12,13 +12,16 @@
 #include <future>
 #include <thread>
 
-void fill_worker_here(std::vector<double> *buffer, std::vector<double> input) {
-  for (auto value : input) {
+void fill_worker_here(std::vector<double> *buffer, std::vector<double> input)
+{
+  for (auto value : input)
+  {
     buffer->push_back(value);
   }
 }
 
-void BetaScopeWaveformAna::event_ana(int ch) {
+void BetaScopeWaveformAna::event_ana(int ch)
+{
   WaveformAnalysis WaveAna;
 
   if (ch == this->triggerCh)
@@ -62,11 +65,11 @@ void BetaScopeWaveformAna::event_ana(int ch) {
   */
 
   ///*
-  for (auto value : waveform.get_cfd()) { this->cfd[ch]->push_back(value); }
-  for (auto value : waveform.get_cfd_fall()) { this->cfd_fall[ch]->push_back(value); }
-  for (auto value : waveform.get_dvdt()) { this->dvdt[ch]->push_back(value); }
-  for (auto value : waveform.get_threshold_time()) { this->thTime[ch]->push_back(value); }
-  for (auto value : waveform.get_fine_cfd()) { this->fineCFDRise[ch]->push_back(value); }
+  for (const auto &value : waveform.get_cfd()) { this->cfd[ch]->push_back(value); }
+  for (const auto &value : waveform.get_cfd_fall()) { this->cfd_fall[ch]->push_back(value); }
+  for (const auto &value : waveform.get_dvdt()) { this->dvdt[ch]->push_back(value); }
+  for (const auto &value : waveform.get_threshold_time()) { this->thTime[ch]->push_back(value); }
+  for (const auto &value : waveform.get_fine_cfd()) { this->fineCFDRise[ch]->push_back(value); }
   //*/
 
   if (!this->skipWaveform)

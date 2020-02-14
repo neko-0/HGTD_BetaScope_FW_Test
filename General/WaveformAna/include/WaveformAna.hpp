@@ -33,7 +33,8 @@ public:
     WaveformAna() {};
     ~WaveformAna() {};
 
-    WaveformAna(std::vector<input_type> *v1, std::vector<input_type> *v2);
+    WaveformAna(std::vector<input_type> *v1, std::vector<input_type> *v2)
+      : Waveform<data_type, input_type>(v1, v2) {};
 
     void set_channel(int value)
     {
@@ -200,9 +201,5 @@ public:
     ClassDef(WaveformAna, 1)
 };
 
-template <class data_type, class input_type>
-WaveformAna<data_type, input_type>::WaveformAna(std::vector<input_type> *v1,
-        std::vector<input_type> *v2)
-    : Waveform<data_type, input_type>(v1, v2) {};
 
 #endif // WAVEFORMANA_H
