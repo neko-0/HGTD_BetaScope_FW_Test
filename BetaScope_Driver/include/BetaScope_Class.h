@@ -235,7 +235,7 @@ public:
   //=========================================================================
   // building and getting branches methods for ouput ttree
 
-  template <typename dtype> bool BuildOutBranch(std::string branchName);
+  template <typename dtype> bool BuildOutBranch(std::string branchName, int size=2000);
 
   template <typename dtype>
   typename DataType<dtype>::type *GetOutBranch(std::string branchName);

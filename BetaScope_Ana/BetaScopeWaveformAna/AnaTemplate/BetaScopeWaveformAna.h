@@ -97,13 +97,14 @@ public:
   void LoopEvents();
   void Finalize();
 
-  void run() {
+  void run(){
     Initialize();
     LoopEvents();
     Finalize();
   };
 
-  void event_ana(int ch);
+  void event_ana(int ch, WaveformAna<double, double> waveform);
+
   void fill_worker(std::vector<double> *buffer, std::vector<double> input);
 
   // custom methods.

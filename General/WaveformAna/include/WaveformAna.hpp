@@ -38,6 +38,10 @@ public:
 
     WaveformAna( TTreeReaderArray<input_type> *v1, TTreeReaderArray<input_type> *v2 ) : Waveform<data_type, input_type>(v1, v2){};
 
+    WaveformAna(TTreeReaderArray<input_type> *v1, TTreeReaderArray<input_type> *v2,
+      const bool &invert, const float &ampFactor, const float &tFactor,
+      const bool &tResample, const float &xori, const float &dt
+    ) : Waveform<data_type, input_type>(v1, v2, invert, ampFactor, tFactor, tResample, xori, dt) {};
 
     void set_channel(int value)
     {

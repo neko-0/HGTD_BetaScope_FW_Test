@@ -110,8 +110,7 @@ double WaveformAnalysis::Correct_Baseline3(
     int counter = 0;
     std::size_t npoints = voltageVec.size();
 
-    for (std::size_t j = 0, max = npoints; j < max;
-            j++)
+    for(std::size_t j = 0, max = npoints; j < max; j++)
     {
         if (timeVec.at(j) >= tRange[0] && timeVec.at(j) <= tRange[1])
         {

@@ -14,190 +14,131 @@
 
 void fill_worker_here(std::vector<double> *buffer, std::vector<double> input)
 {
-  for (auto value : input)
-  {
-    buffer->push_back(value);
-  }
+  for (auto value : input){ buffer->emplace_back(value); }
 }
 
-void BetaScopeWaveformAna::event_ana(int ch)
+void BetaScopeWaveformAna::event_ana(int ch, WaveformAna<double, double> waveform)
 {
   WaveformAnalysis WaveAna;
 
-  if (ch == this->triggerCh)
-    this->my_anaParam.limiting_search_region_OnOff = false;
-  else
-    this->my_anaParam.limiting_search_region_OnOff = true;
+  if (ch == this->triggerCh){ this->my_anaParam.limiting_search_region_OnOff = false; }
+  else{ this->my_anaParam.limiting_search_region_OnOff = true; }
 
-  WaveformAna<double, double> waveform = WaveAna.analyze_waveform(
-    this->t[ch],
-    this->w[ch],
+  //WaveformAna<double, double> waveform =
+  WaveAna.analyze_waveform(
+    waveform,
     this->my_anaParam.limiting_search_region_OnOff,
     this->my_anaParam.pmaxSearchRange
   );
 
-  this->frontBaselineInt_indepBaseCorr[ch]->push_back(waveform.get_front_baseline_int());
-  this->backBaselineInt_indepBaseCorr[ch]->push_back(waveform.get_back_baseline_int());
-  this->pmax[ch]->push_back(waveform.get_pmax());
-  this->neg_pmax[ch]->push_back(waveform.get_neg_pmax());
+  this->frontBaselineInt_indepBaseCorr[ch]->emplace_back(waveform.get_front_baseline_int());
+  this->backBaselineInt_indepBaseCorr[ch]->emplace_back(waveform.get_back_baseline_int());
+  this->pmax[ch]->emplace_back(waveform.get_pmax());
+  this->neg_pmax[ch]->emplace_back(waveform.get_neg_pmax());
 
-  this->tmax[ch]->push_back(waveform.get_tmax());
-  this->neg_tmax[ch]->push_back(waveform.get_neg_tmax());
+  this->tmax[ch]->emplace_back(waveform.get_tmax());
+  this->neg_tmax[ch]->emplace_back(waveform.get_neg_tmax());
 
-  this->rms[ch]->push_back(waveform.get_rms());
+  this->rms[ch]->emplace_back(waveform.get_rms());
 
-  this->pulseArea_withUndershoot[ch]->push_back(waveform.get_pulse_area_undershoot());
-  this->pulseArea_withZeroCross[ch]->push_back(waveform.get_pulse_area());
+  this->pulseArea_withUndershoot[ch]->emplace_back(waveform.get_pulse_area_undershoot());
+  this->pulseArea_withZeroCross[ch]->emplace_back(waveform.get_pulse_area());
 
-  this->riseTime[ch]->push_back(waveform.get_rise_time());
-
-  // std::vector<std::thread*> workers;
-  // std::vector<std::future<void>> workers;
+  this->riseTime[ch]->emplace_back(waveform.get_rise_time());
 
   /*
-  workers.push_back( std::async( fill_worker_here, this->cfd[ch],
-  waveform.get_cfd() ) ); workers.push_back( std::async( fill_worker_here,
-  this->cfd_fall[ch], waveform.get_cfd_fall() ) ); workers.push_back(
-  std::async( fill_worker_here, this->dvdt[ch], waveform.get_dvdt() ) );
-  workers.push_back( std::async( fill_worker_here, this->thTime[ch],
-  waveform.get_threshold_time() ) ); workers.push_back( std::async(
-  fill_worker_here, this->fineCFDRise[ch], waveform.get_fine_cfd() ) );
+  for (const auto &value : waveform.get_cfd()) { this->cfd[ch]->emplace_back(value); }
+  for (const auto &value : waveform.get_cfd_fall()) { this->cfd_fall[ch]->emplace_back(value); }
+  for (const auto &value : waveform.get_dvdt()) { this->dvdt[ch]->emplace_back(value); }
+  for (const auto &value : waveform.get_threshold_time()) { this->thTime[ch]->emplace_back(value); }
+  for (const auto &value : waveform.get_fine_cfd()) { this->fineCFDRise[ch]->emplace_back(value); }
   */
 
-  ///*
-  for (const auto &value : waveform.get_cfd()) { this->cfd[ch]->push_back(value); }
-  for (const auto &value : waveform.get_cfd_fall()) { this->cfd_fall[ch]->push_back(value); }
-  for (const auto &value : waveform.get_dvdt()) { this->dvdt[ch]->push_back(value); }
-  for (const auto &value : waveform.get_threshold_time()) { this->thTime[ch]->push_back(value); }
-  for (const auto &value : waveform.get_fine_cfd()) { this->fineCFDRise[ch]->push_back(value); }
-  //*/
+  *this->cfd[ch] = waveform.get_cfd();
+  *this->cfd_fall[ch] = waveform.get_cfd_fall();
+  *this->dvdt[ch] = waveform.get_dvdt();
+  *this->thTime[ch] = waveform.get_threshold_time();
+  *this->fineCFDRise[ch] = waveform.get_fine_cfd();
 
-  if (!this->skipWaveform)
+  if( !this->skipWaveform )
   {
-    for (auto value : waveform.get_v2())
+    *this->w[ch] = waveform.get_v2();
+    *this->t[ch] = waveform.get_v1();
+  }
+
+  /*
+  if( !this->skipWaveform )
+  {
+    for( const auto &value : waveform.get_v2())
     {
-      this->w[ch]->push_back(-value);
+      this->w[ch]->emplace_back(-value);
     }
-    for (auto value : waveform.get_v1())
+    for( const auto &value : waveform.get_v1())
     {
-      this->t[ch]->push_back(value);
+      this->t[ch]->emplace_back(value);
     }
-    // workers.push_back( std::async( fill_worker_here, this->w[ch],
-    // waveform.get_v2() ) ); workers.push_back( std::async( fill_worker_here,
-    // this->t[ch], waveform.get_v1() ) );
   }
   else
   {
     this->w[ch]->clear();
     this->t[ch]->clear();
   }
-
-  /*
-  for(std::size_t id=0; id < workers.size(); id++ )
-  {
-      workers[id].wait();
-      //workers[id]->join();
-      //delete workers[id];
-  }
   */
 
-  this->waveform_ana[ch]->push_back(waveform);
+
+  //this->waveform_ana[ch]->emplace_back(waveform);
 }
 
-void BetaScopeWaveformAna::Analysis() {
-  // fill up your own analysis in the while loop
 
-  // WaveformAnalysis WaveAna;
+void BetaScopeWaveformAna::Analysis()
+{
+  // fill up your own analysis in the while loop
 
   if (!this->isProcessing)
   {
-    ColorCout::print(
-        "   " + beta_scope.GetInFileNickName(),
-        " BetaScopeWaveformAna::analysis: Start event processing: ",
-        BOLDYELLOW
-    );
+    ColorCout::print("   " + beta_scope.GetInFileNickName(), " BetaScopeWaveformAna::analysis: Start event processing: ", BOLDYELLOW);
     this->isProcessing = true;
   }
 
-  // if(this->beta_scope.ieventFromDAQ)*this->beta_scope.oTreeIntMap["ievent"] =
-  // **this->beta_scope.iTreeIntValueMap["ievent"];
-
-  // std::time_t t1 = std::time(nullptr);
   // loop through all the possible channels
-  // std::vector<std::thread*> workers;
+
+  //std::vector<std::thread> workers;
   std::vector<std::future<void>> workers;
   for (int chh = 0; chh < this->activeChannels.size(); chh++)
   {
     int ch = this->activeChannels.at(chh);
-    // if(std::find(this->activeChannels.begin(), this->activeChannels.end(),
-    // ch) != this->activeChannels.end())
-    if (this->resample_time && this->dt <= 0.0)
+
+    if( this->resample_time && this->dt <= 0.0)
     {
       this->xorigin = this->i_t[ch]->At(0);
       this->dt = this->i_t[ch]->At(1) - this->i_t[ch]->At(0);
     }
-    if (true)
-    {
-      // if( this->beta_scope.iTreeDoubleArrayMap.count("w"+std::to_string(ch)
-      // ))
-      if (true)
-      {
-        if (!this->i_w[ch])
-          std::cout << ch << std::endl;
-        for (std::size_t i = 0, max = this->i_w[ch]->GetSize(); i < max; i++)
-        {
-          // std::cout<<  <<std::endl;
-          // if( std::find(this->invertChannels.begin(),
-          // this->invertChannels.end(), ch) != this->invertChannels.end() )
-          if (this->invertChannels.at(chh) != 0)
-          {
-            this->w[ch]->push_back(this->i_w[ch]->At(i) * -1.0 * this->voltageMultiFactor);
-            // this->w[ch]->at(i) = this->i_w[ch]->At(i) * -1.0 *
-            // this->voltageMultiFactor;
-          }
-          else
-          {
-            this->w[ch]->push_back(this->i_w[ch]->At(i) * this->voltageMultiFactor);
-            // this->w[ch]->at(i) = this->i_w[ch]->At(i) *
-            // this->voltageMultiFactor;
-          }
 
-          if (this->resample_time)
-          {
-            this->t[ch]->push_back((this->xorigin + i * this->dt) * this->timeMultiFactor);
-            // this->xorigin = this->xorigin + this->dt;
-          }
-          else {
-            this->t[ch]->push_back(this->i_t[ch]->At(i) * this->timeMultiFactor);
-          }
-          // std::cout << this->w[ch]->at(5) << std::endl;
-          // std::cout << this->w[ch]->size() << std::endl;
+    // workers.emplace_back( new std::thread( &BetaScopeWaveformAna::event_ana, this, ch) );
+    WaveformAna<double, double> waveform(
+      this->i_w[ch],
+      this->i_t[ch],
+      this->invertChannels.at(chh),
+      this->voltageMultiFactor,
+      this->timeMultiFactor,
+      this->resample_time,
+      this->xorigin,
+      this->dt
+    );
 
-          // this->wRaw[ch]->push_back( this->i_w[ch]->At(i) *
-          // this->voltageMultiFactor ); this->tRaw[ch]->push_back(
-          // this->i_t[ch]->At(i) * this->timeMultiFactor );
-
-          /*
-          this->t[ch]->at(i) = this->i_t[ch]->At(i) * this->timeMultiFactor;
-          this->wRaw[ch]->at(i) = this->i_w[ch]->At(i) *
-          this->voltageMultiFactor; this->tRaw[ch]->at(i) = this->i_t[ch]->At(i)
-          * this->timeMultiFactor;
-          */
-        }
-        // this->xorigin = 0.0;
-        // this->dt = 0.0;
-
-        // workers.push_back( new std::thread( &BetaScopeWaveformAna::event_ana,
-        // this, ch) );
-        workers.push_back( std::async(&BetaScopeWaveformAna::event_ana, this, ch));
-      }
-    }
+    workers.emplace_back(
+        std::async(&BetaScopeWaveformAna::event_ana, this, ch, waveform)
+    );
   }
 
-  for (std::size_t id = 0; id < workers.size(); id++)
+    //BetaScopeWaveformAna::event_ana(ch, waveform);
+
+    //BetaScopeWaveformAna::event_ana(ch, this->invertChannels.at(chh),this->voltageMultiFactor,this->timeMultiFactor,this->resample_time,this->xorigin,this->dt);
+
+  for( std::size_t id = 0; id < workers.size(); id++ )
   {
-    // workers[id]->join();
-    // delete workers[id];
+     //workers[id].join();
+     //delete workers[id];
     workers[id].wait();
   }
 
@@ -231,6 +172,7 @@ void BetaScopeWaveformAna::Analysis() {
     this->beta_scope.SetOutBranchValue( "ievent", this->beta_scope.GetInBranchValue<TTreeReaderValue, int>("ievent"));
   }
 }
+
 
 void BetaScopeWaveformAna::Initialize() {
   // required
@@ -316,8 +258,8 @@ void BetaScopeWaveformAna::Initialize() {
       std::cout << this->i_w[ch] << std::endl;
       std::cout << this->beta_scope.GetInBranch<TTreeReaderArray, double>("w" + std::to_string(ch)) << std::endl;
     }
-    this->beta_scope.BuildOutBranch<std::vector<WaveformAna<double, double>>>("waveform" + std::to_string(ch));
-    this->waveform_ana[ch] = this->beta_scope.GetOutBranch<std::vector<WaveformAna<double, double>>>("waveform" + std::to_string(ch));
+    //this->beta_scope.BuildOutBranch<std::vector<WaveformAna<double, double>>>("waveform" + std::to_string(ch));
+    //this->waveform_ana[ch] = this->beta_scope.GetOutBranch<std::vector<WaveformAna<double, double>>>("waveform" + std::to_string(ch));
   }
 
   if (beta_scope.IsBranchExists("ievent"))
@@ -411,11 +353,11 @@ void BetaScopeWaveformAna::readWaveformConfig(std::string configName)
     std::string ch = "channel_" + std::to_string(i);
     if (pt.get<int>("Channel_Activation." + ch) != 0)
     {
-      this->activeChannels.push_back(i);
+      this->activeChannels.emplace_back(i);
       if (pt.get<int>("Channel_Invertion." + ch) != 0)
-        this->invertChannels.push_back(1);
+        this->invertChannels.emplace_back(1);
       else
-        this->invertChannels.push_back(0);
+        this->invertChannels.emplace_back(0);
     }
   }
 }

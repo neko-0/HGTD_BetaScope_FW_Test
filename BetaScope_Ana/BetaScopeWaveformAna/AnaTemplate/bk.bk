@@ -1,0 +1,119 @@
+void BetaScopeWaveformAna::Analysis()
+{
+  // fill up your own analysis in the while loop
+
+  if (!this->isProcessing)
+  {
+    ColorCout::print("   " + beta_scope.GetInFileNickName(), " BetaScopeWaveformAna::analysis: Start event processing: ", BOLDYELLOW);
+    this->isProcessing = true;
+  }
+
+  // loop through all the possible channels
+
+  // std::vector<std::thread*> workers;
+  std::vector<std::future<void>> workers;
+  for (int chh = 0; chh < this->activeChannels.size(); chh++)
+  {
+    int ch = this->activeChannels.at(chh);
+    // if(std::find(this->activeChannels.begin(), this->activeChannels.end(),
+    // ch) != this->activeChannels.end())
+    if (this->resample_time && this->dt <= 0.0)
+    {
+      this->xorigin = this->i_t[ch]->At(0);
+      this->dt = this->i_t[ch]->At(1) - this->i_t[ch]->At(0);
+    }
+    if (true)
+    {
+      // if( this->beta_scope.iTreeDoubleArrayMap.count("w"+std::to_string(ch)
+      // ))
+      if (true)
+      {
+        if (!this->i_w[ch])
+          std::cout << ch << std::endl;
+        for (std::size_t i = 0, max = this->i_w[ch]->GetSize(); i < max; i++)
+        {
+          // std::cout<<  <<std::endl;
+          // if( std::find(this->invertChannels.begin(),
+          // this->invertChannels.end(), ch) != this->invertChannels.end() )
+          if (this->invertChannels.at(chh) != 0)
+          {
+            this->w[ch]->emplace_back(this->i_w[ch]->At(i) * -1.0 * this->voltageMultiFactor);
+            // this->w[ch]->at(i) = this->i_w[ch]->At(i) * -1.0 *
+            // this->voltageMultiFactor;
+          }
+          else
+          {
+            this->w[ch]->emplace_back(this->i_w[ch]->At(i) * this->voltageMultiFactor);
+            // this->w[ch]->at(i) = this->i_w[ch]->At(i) *
+            // this->voltageMultiFactor;
+          }
+
+          if (this->resample_time)
+          {
+            this->t[ch]->emplace_back((this->xorigin + i * this->dt) * this->timeMultiFactor);
+            // this->xorigin = this->xorigin + this->dt;
+          }
+          else {
+            this->t[ch]->emplace_back(this->i_t[ch]->At(i) * this->timeMultiFactor);
+          }
+          // std::cout << this->w[ch]->at(5) << std::endl;
+          // std::cout << this->w[ch]->size() << std::endl;
+
+          // this->wRaw[ch]->emplace_back( this->i_w[ch]->At(i) *
+          // this->voltageMultiFactor ); this->tRaw[ch]->emplace_back(
+          // this->i_t[ch]->At(i) * this->timeMultiFactor );
+
+          /*
+          this->t[ch]->at(i) = this->i_t[ch]->At(i) * this->timeMultiFactor;
+          this->wRaw[ch]->at(i) = this->i_w[ch]->At(i) *
+          this->voltageMultiFactor; this->tRaw[ch]->at(i) = this->i_t[ch]->At(i)
+          * this->timeMultiFactor;
+          */
+        }
+        // this->xorigin = 0.0;
+        // this->dt = 0.0;
+
+        // workers.emplace_back( new std::thread( &BetaScopeWaveformAna::event_ana,
+        // this, ch) );
+        workers.emplace_back( std::async(&BetaScopeWaveformAna::event_ana, this, ch));
+      }
+    }
+  }
+
+  for (std::size_t id = 0; id < workers.size(); id++)
+  {
+    // workers[id]->join();
+    // delete workers[id];
+    workers[id].wait();
+  }
+
+  // filling value that's indep of scope channels
+  if (this->has_daq_cycle)
+  {
+    this->beta_scope.SetOutBranchValue( "cycle", this->beta_scope.GetInBranchValue<TTreeReaderValue, int>("cycle"));
+  }
+  if (this->has_daq_temperature)
+  {
+    this->beta_scope.SetOutBranchValue( "temperature", this->beta_scope.GetInBranchValue<TTreeReaderValue, double>("temperature"));
+  }
+  if (this->has_daq_humidity)
+  {
+    this->beta_scope.SetOutBranchValue( "humidity", this->beta_scope.GetInBranchValue<TTreeReaderValue, double>("humidity"));
+  }
+  if (this->has_daq_bias)
+  {
+    this->beta_scope.SetOutBranchValue( "bias", this->beta_scope.GetInBranchValue<TTreeReaderValue, double>("bias"));
+  }
+  if (this->has_daq_timestamp)
+  {
+    this->beta_scope.SetOutBranchValue("timestamp", this->beta_scope.GetInBranchValue<TTreeReaderValue, double>("timestamp"));
+  }
+  if (this->has_daq_current)
+  {
+    this->beta_scope.SetOutBranchValue("current", this->beta_scope.GetInBranchValue<TTreeReaderValue, double>("current"));
+  }
+  if (this->has_daq_eventNum)
+  {
+    this->beta_scope.SetOutBranchValue( "ievent", this->beta_scope.GetInBranchValue<TTreeReaderValue, int>("ievent"));
+  }
+}
