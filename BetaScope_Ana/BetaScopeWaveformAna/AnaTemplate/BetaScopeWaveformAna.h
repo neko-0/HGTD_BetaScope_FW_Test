@@ -103,7 +103,7 @@ public:
     Finalize();
   };
 
-  void event_ana(int ch, WaveformAna<double, double> &waveform);
+  void event_ana(int ch, WaveformAna<double, double> waveform);
 
   void fill_worker(std::vector<double> *buffer, std::vector<double> input);
 
