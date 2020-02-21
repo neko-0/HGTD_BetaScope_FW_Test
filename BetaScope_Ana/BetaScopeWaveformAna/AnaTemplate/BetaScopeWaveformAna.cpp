@@ -17,7 +17,7 @@ void fill_worker_here(std::vector<double> *buffer, std::vector<double> input)
   for (auto value : input){ buffer->emplace_back(value); }
 }
 
-void BetaScopeWaveformAna::event_ana(int ch, WaveformAna<double, double> waveform)
+void BetaScopeWaveformAna::event_ana(int ch, WaveformAna<double, double> &waveform)
 {
   WaveformAnalysis WaveAna;
 
@@ -127,7 +127,7 @@ void BetaScopeWaveformAna::Analysis()
     );
 
     workers.emplace_back(
-        std::async(&BetaScopeWaveformAna::event_ana, this, ch, waveform)
+        std::async(&BetaScopeWaveformAna::event_ana, this, ch, std::ref(waveform) )
     );
   }
 

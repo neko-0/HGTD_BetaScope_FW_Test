@@ -31,7 +31,7 @@ class PlotSensor(object):
 
 class PlotData(object):
     def __init__(
-        self, ttree, expression, name, xtitle, ytitle, marker_style, marker_color
+        self, ttree, expression, selection, name, xtitle, ytitle, marker_style, marker_color
     ):
         self.expression = expression
         self.name = name
@@ -43,7 +43,7 @@ class PlotData(object):
         self.ymax = None
         self.xmax = None
 
-        self.npt = ttree.Draw(expression, "", "goff")
+        self.npt = ttree.Draw(expression, selection, "goff")
         if self.npt > 0:
             self.raw_x = ttree.GetV1()
             self.raw_y = ttree.GetV2()
@@ -128,7 +128,7 @@ class PlotMaker(PlotMakerBase):
             runlist_for_compare = self.matched_runs[name_tag]
         matched = runMatch(name_pattern, runlist_for_compare)
         self.matched_runs[name_tag] = [(run, run_name) for run, run_name in matched if tree_tag in run]
-        #input(self.matched_runs[name_tag])
+        input(self.matched_runs[name_tag])
 
     # ===========================================================================
     # ===========================================================================
@@ -227,10 +227,15 @@ class PlotMaker(PlotMakerBase):
                 else:
                     fitFunc = None
                 # ---------------------------------------------------------------
+                if "selection" in par:
+                    selection = par["selection"]
+                else:
+                    selection = ""
 
                 plotdata = PlotData(
                     ttree,
                     par["expr"],
+                    selection,
                     par_name,
                     par["xtitle"],
                     par["ytitle"],
@@ -251,9 +256,12 @@ class PlotMaker(PlotMakerBase):
 
                 g.GetXaxis().SetTitle(par["xtitle"])
                 g.GetYaxis().SetTitle(par["ytitle"])
+                g.SetTitle("")
                 g.SetMarkerColor(color)
                 g.SetMarkerStyle(marker)
                 g.SetLineColor(color)
+                g.SetLineStyle(2)
+                g.SetLineWidth(5)
                 g.SetName(run)
                 plotdata.add_plot(g)
                 sensor.add_plot_data(par_name, plotdata)
@@ -261,16 +269,16 @@ class PlotMaker(PlotMakerBase):
             color += 1
 
     def make_plots(
-        self, plot_params, name_tag_list, output_name="", attach_fit_var=True, var_at_calc=""
+        self, plot_params, name_tag_list, output_dir, output_name="", attach_fit_var=True, var_at_calc=""
     ):
         ROOT.gROOT.SetBatch(True)
         if output_name:
             try:
-                os.makedirs("./user_data/{}".format(output_name))
+                os.makedirs("{odir}/{oname}".format(odir=output_dir, oname=output_name))
             except:
                 pass
         for entry, param_name in enumerate(plot_params.keys()):
-            leg = ROOT.TLegend(0.19, 0.65, 0.7, 0.95)
+            leg = ROOT.TLegend(0.15, 0.65, 0.70, 0.85)
             leg.SetTextSize(0.02)
             canvas = ROOT.TCanvas("canvas", "canvas", 1800, 1200)
             canvas.cd()
@@ -290,11 +298,7 @@ class PlotMaker(PlotMakerBase):
                         sensor.plot_data[param_name].plot.GetXaxis().SetLimits(
                             0, sensor.plot_data[param_name].xmax * 1.2
                         )
-                        sensor.plot_data[param_name].plot.Draw("ap")
-                        leg.AddEntry(
-                            sensor.plot_data[param_name].plot,
-                            sensor.sensor_name.split("_Trig")[0],
-                        )
+                        sensor.plot_data[param_name].plot.Draw("apl")
                     else:
                         sensor.plot_data[param_name].plot.GetYaxis().SetRangeUser(
                             0, sensor.plot_data[param_name].ymax * 3
@@ -305,11 +309,11 @@ class PlotMaker(PlotMakerBase):
                         sensor.plot_data[param_name].plot.GetXaxis().SetLimits(
                             0, sensor.plot_data[param_name].xmax * 1.2
                         )
-                        sensor.plot_data[param_name].plot.Draw("psame")
-                        leg.AddEntry(
-                            sensor.plot_data[param_name].plot,
-                            sensor.sensor_name.split("_Trig")[0],
-                        )
+                        sensor.plot_data[param_name].plot.Draw("plsame")
+                    leg.AddEntry(
+                        sensor.plot_data[param_name].plot,
+                        sensor.sensor_name.split("_Trig")[0].replace("_", " "),
+                    )
 
                 if attach_fit_var:
                     if not param_name in self.fit_value[name_tag]:
@@ -349,7 +353,7 @@ class PlotMaker(PlotMakerBase):
             leg.Draw()
             # raw_input()
             canvas.Update()
-            canvas.SaveAs("./user_data/{}/{}.png".format(output_name, param_name))
+            canvas.SaveAs("{}/{}/{}.png".format(output_dir, output_name, param_name))
 
     def fetchRun(self, run_info_list):
         copy_self = deepcopy(self)
@@ -374,7 +378,11 @@ class PlotMaker(PlotMakerBase):
                             run_info["style"],
                             run_info["color"],
                         )
-                        n = ttree.Draw(par["expr"], "", "goff")
+                        if "selection" in par:
+                            selection = par["selection"]
+                        else:
+                            selection = ""
+                        n = ttree.Draw(par["expr"], selection, "goff")
                         if n <= 0:
                             continue
                         d = ttree.GetV2()
@@ -394,10 +402,13 @@ class PlotMaker(PlotMakerBase):
                             else:
                                 break
                         g = ROOT.TGraph(n, v1, v2)
+                        g.SetTitle("")
                         g.GetXaxis().SetTitle(par["xtitle"])
                         g.GetYaxis().SetTitle(par["ytitle"])
                         g.SetMarkerColor(color)
                         g.SetMarkerStyle(run_info["style"])
+                        g.SetLineColor(color)
+                        g.SetLineStyle(2)
                         g.SetLineColor(color)
                         plotdata.add_plot(g)
                         plotdata.max = max
@@ -415,7 +426,7 @@ class PlotMaker(PlotMakerBase):
             except:
                 pass
         for entry, param_name in enumerate(param.keys()):
-            leg = ROOT.TLegend(0.19, 0.55, 0.7, 0.85)
+            leg = ROOT.TLegend(0.15, 0.45, 0.35, 0.65)
             leg.SetTextSize(0.02)
             canvas = ROOT.TCanvas("canvas", "canvas", 1800, 1200)
             canvas.cd()

@@ -18,7 +18,10 @@ cd ${current_path}
 echo "going to BetaScope Ana folder"
 cd ../BetaScope_Ana
 make -j
-source */setup.sh
+for f in */setup.sh
+  do
+    source $f
+done
 cd ${current_path}
 
 echo "going to betaScopePlot folder"
