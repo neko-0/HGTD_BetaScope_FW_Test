@@ -46,6 +46,8 @@ void BetaScopeWaveformAna::event_ana(int ch, WaveformAna<double, double> wavefor
 
   this->riseTime[ch]->emplace_back(waveform.get_rise_time());
 
+  this->beta_scope.SetOutBranchValue( Form("countTH50_%i", ch), WaveAna.Get_Number_Of_Multiple_Signals( 50, waveform.get_v2() ) );
+
   /*
   for (const auto &value : waveform.get_cfd()) { this->cfd[ch]->emplace_back(value); }
   for (const auto &value : waveform.get_cfd_fall()) { this->cfd_fall[ch]->emplace_back(value); }
@@ -62,8 +64,8 @@ void BetaScopeWaveformAna::event_ana(int ch, WaveformAna<double, double> wavefor
 
   if( !this->skipWaveform )
   {
-    *this->w[ch] = waveform.get_v2();
-    *this->t[ch] = waveform.get_v1();
+    *this->w[ch] = waveform.v2();
+    *this->t[ch] = waveform.v1();
   }
 
   /*
@@ -206,14 +208,17 @@ void BetaScopeWaveformAna::Initialize() {
       ColorCout::print("  CH:", std::to_string(ch), CYAN);
 
       ColorCout::print("  ", "Creating branches for storing scope channels: ", YELLOW);
-      branch_checker = this->beta_scope.BuildOutBranch<std::vector<double>>(Form("w%i", ch));
-
-      branch_checker = this->beta_scope.BuildOutBranch<std::vector<double>>(Form("t%i", ch));
-
-      if (branch_checker)
+      if( this->beta_scope.BuildOutBranch<std::vector<double>>(Form("w%i", ch)) )
       {
-        ColorCout::print("  Successful:", std::to_string(ch), CYAN);
+        ColorCout::print("  Successful: voltage ch-", std::to_string(ch), CYAN);
       }
+
+      if( this->beta_scope.BuildOutBranch<std::vector<double>>(Form("t%i", ch)) )
+      {
+        ColorCout::print("  Successful: time ch-", std::to_string(ch), CYAN);
+      }
+
+      this->beta_scope.BuildOutBranch<int>(Form("countTH50_%i", ch));
     }
   }
 

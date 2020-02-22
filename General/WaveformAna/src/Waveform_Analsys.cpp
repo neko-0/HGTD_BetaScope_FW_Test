@@ -194,11 +194,11 @@ WaveformAna<double, double> WaveformAnalysis::analyze_waveform(
         THREAD_COUNT++;
     }
     // Base line
-    std::vector<double> front_temp_voltage = waveform.get_copy_v2();
-    std::vector<double> front_temp_time = waveform.get_copy_v1();
+    std::vector<double> front_temp_voltage = waveform.v2();
+    std::vector<double> front_temp_time = waveform.v1();
 
-    std::vector<double> back_temp_voltage = waveform.get_copy_v2();
-    std::vector<double> back_temp_time = waveform.get_copy_v1();
+    std::vector<double> back_temp_voltage = waveform.v2();
+    std::vector<double> back_temp_time = waveform.v1();
 
     std::pair<double, unsigned int> pmax_before_baseline = WaveformAnalysis::Find_Singal_Maximum( waveform.get_v2(), waveform.get_v1(), limiting_search_region_OnOff, pmaxSearchRange);
     double tmax_for_baseline = waveform.get_v1_value(pmax_before_baseline.second);
