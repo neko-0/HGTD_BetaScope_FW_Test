@@ -46,7 +46,7 @@ void BetaScopeWaveformAna::event_ana(int ch, WaveformAna<double, double> wavefor
 
   this->riseTime[ch]->emplace_back(waveform.get_rise_time());
 
-  this->beta_scope.SetOutBranchValue( Form("countTH50_%i", ch), WaveAna.Get_Number_Of_Multiple_Signals( 50, waveform.get_v2() ) );
+  this->beta_scope.SetOutBranchValue( Form("countTH80_%i", ch), WaveAna.Get_Number_Of_Multiple_Signals( 80, waveform.get_v2() ) );
 
   /*
   for (const auto &value : waveform.get_cfd()) { this->cfd[ch]->emplace_back(value); }
