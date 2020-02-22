@@ -218,7 +218,7 @@ void BetaScopeWaveformAna::Initialize() {
         ColorCout::print("  Successful: time ch-", std::to_string(ch), CYAN);
       }
 
-      this->beta_scope.BuildOutBranch<int>(Form("countTH50_%i", ch));
+      this->beta_scope.BuildOutBranch<int>(Form("countTH80_%i", ch));
     }
   }
 
