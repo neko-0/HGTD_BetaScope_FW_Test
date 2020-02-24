@@ -30,13 +30,15 @@ void BetaScopeWaveformAna::event_ana(int ch, WaveformAna<double, double> wavefor
 {
   WaveformAnalysis WaveAna;
 
-  if (ch == this->triggerCh){ this->my_anaParam.limiting_search_region_OnOff = false; }
-  else{ this->my_anaParam.limiting_search_region_OnOff = true; }
+  bool confine_search;
+
+  if (ch == this->triggerCh){ confine_search = false; }
+  else{ confine_search = true; }
 
   //WaveformAna<double, double> waveform =
   WaveAna.analyze_waveform(
     waveform,
-    this->my_anaParam.limiting_search_region_OnOff,
+    confine_search,
     this->my_anaParam.pmaxSearchRange
   );
 
