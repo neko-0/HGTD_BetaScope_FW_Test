@@ -17,6 +17,15 @@ void fill_worker_here(std::vector<double> *buffer, std::vector<double> input)
   for (auto value : input){ buffer->emplace_back(value); }
 }
 
+bool BetaScopeWaveformAna::isGoodTrig( const WaveformAna<double,double> &waveform )
+{
+  if( waveform.get_pmax() >= 70 && waveform.get_pmax() < 350  && waveform.get_tmax() > 0 )
+  {
+    return true;
+  }
+  else{ return false; }
+}
+
 void BetaScopeWaveformAna::event_ana(int ch, WaveformAna<double, double> waveform)
 {
   WaveformAnalysis WaveAna;
@@ -46,15 +55,14 @@ void BetaScopeWaveformAna::event_ana(int ch, WaveformAna<double, double> wavefor
 
   this->riseTime[ch]->emplace_back(waveform.get_rise_time());
 
-  this->beta_scope.SetOutBranchValue( Form("countTH20_%i", ch), WaveAna.Get_Number_Of_Multiple_Signals( 20, waveform.get_v2() ) );
+  int thcount =  WaveAna.Get_Number_Of_Multiple_Signals( 20, waveform.get_v2() );
+  this->beta_scope.SetOutBranchValue( Form("countTH20_%i", ch), thcount );
+  double undershoot_pmax_range[2] = {waveform.get_tmax(), 5000};
+  auto undershoot_pmax = WaveAna.Find_Negative_Signal_Maximum( waveform.get_v2(), waveform.get_v1(), true, undershoot_pmax_range);
+  this->beta_scope.SetOutBranchValue( Form("undershoot_pmax%i", ch), undershoot_pmax.first );
+  this->beta_scope.SetOutBranchValue( Form("undershoot_tmax%i", ch), waveform.get_v1_value(undershoot_pmax.second) );
+  this->beta_scope.SetOutBranchValue( Form("isGoodTrig%i", ch), (isGoodTrig(waveform) && thcount<3) ? 1:0 );
 
-  /*
-  for (const auto &value : waveform.get_cfd()) { this->cfd[ch]->emplace_back(value); }
-  for (const auto &value : waveform.get_cfd_fall()) { this->cfd_fall[ch]->emplace_back(value); }
-  for (const auto &value : waveform.get_dvdt()) { this->dvdt[ch]->emplace_back(value); }
-  for (const auto &value : waveform.get_threshold_time()) { this->thTime[ch]->emplace_back(value); }
-  for (const auto &value : waveform.get_fine_cfd()) { this->fineCFDRise[ch]->emplace_back(value); }
-  */
 
   *this->cfd[ch] = waveform.get_cfd();
   *this->cfd_fall[ch] = waveform.get_cfd_fall();
@@ -218,7 +226,12 @@ void BetaScopeWaveformAna::Initialize() {
         ColorCout::print("  Successful: time ch-", std::to_string(ch), CYAN);
       }
 
+      // extra branches
       this->beta_scope.BuildOutBranch<int>(Form("countTH20_%i", ch));
+      this->beta_scope.BuildOutBranch<double>(Form("undershoot_pmax%i", ch) );
+      this->beta_scope.BuildOutBranch<double>(Form("undershoot_tmax%i", ch) );
+      this->beta_scope.BuildOutBranch<bool>(Form("isGoodTrig%i", ch) );
+
     }
   }
 

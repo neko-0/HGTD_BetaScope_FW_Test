@@ -107,6 +107,8 @@ public:
 
   void fill_worker(std::vector<double> *buffer, std::vector<double> input);
 
+  bool isGoodTrig( const WaveformAna<double,double> &waveform );
+
   // custom methods.
   void readWaveformConfig(std::string configName);
   static void generateWaveformConfig();
