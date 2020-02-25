@@ -12,14 +12,9 @@
 #include <future>
 #include <thread>
 
-void fill_worker_here(std::vector<double> *buffer, std::vector<double> input)
-{
-  for (auto value : input){ buffer->emplace_back(value); }
-}
-
 bool BetaScopeWaveformAna::isGoodTrig( const WaveformAna<double,double> &waveform )
 {
-  if( waveform.get_pmax() >= 70 && waveform.get_pmax() < 350  && waveform.get_tmax() > 0 )
+  if( waveform.pmax() >= 70 && waveform.pmax() < 350  && waveform.tmax() > 0 )
   {
     return true;
   }
@@ -42,35 +37,33 @@ void BetaScopeWaveformAna::event_ana(int ch, WaveformAna<double, double> wavefor
     this->my_anaParam.pmaxSearchRange
   );
 
-  this->frontBaselineInt_indepBaseCorr[ch]->emplace_back(waveform.get_front_baseline_int());
-  this->backBaselineInt_indepBaseCorr[ch]->emplace_back(waveform.get_back_baseline_int());
-  this->pmax[ch]->emplace_back(waveform.get_pmax());
-  this->neg_pmax[ch]->emplace_back(waveform.get_neg_pmax());
+  this->frontBaselineInt_indepBaseCorr[ch]->emplace_back(waveform.front_baseline_int());
+  this->backBaselineInt_indepBaseCorr[ch]->emplace_back(waveform.back_baseline_int());
+  this->pmax[ch]->emplace_back(waveform.pmax());
+  this->neg_pmax[ch]->emplace_back(waveform.neg_pmax());
 
-  this->tmax[ch]->emplace_back(waveform.get_tmax());
-  this->neg_tmax[ch]->emplace_back(waveform.get_neg_tmax());
+  this->tmax[ch]->emplace_back(waveform.tmax());
+  this->neg_tmax[ch]->emplace_back(waveform.neg_tmax());
 
-  this->rms[ch]->emplace_back(waveform.get_rms());
+  this->rms[ch]->emplace_back(waveform.rms());
 
-  this->pulseArea_withUndershoot[ch]->emplace_back(waveform.get_pulse_area_undershoot());
-  this->pulseArea_withZeroCross[ch]->emplace_back(waveform.get_pulse_area());
+  this->pulseArea_withUndershoot[ch]->emplace_back(waveform.pulse_area_undershoot());
+  this->pulseArea_withZeroCross[ch]->emplace_back(waveform.pulse_area());
 
-  this->riseTime[ch]->emplace_back(waveform.get_rise_time());
+  this->riseTime[ch]->emplace_back(waveform.rise_time());
 
   int thcount =  WaveAna.Get_Number_Of_Multiple_Signals( 20, waveform.get_v2() );
   this->beta_scope.SetOutBranchValue( Form("countTH20_%i", ch), thcount );
-  double undershoot_pmax_range[2] = {waveform.get_tmax(), 5000};
-  auto undershoot_pmax = WaveAna.Find_Negative_Signal_Maximum( waveform.get_v2(), waveform.get_v1(), true, undershoot_pmax_range);
-  this->beta_scope.SetOutBranchValue( Form("undershoot_pmax%i", ch), undershoot_pmax.first );
-  this->beta_scope.SetOutBranchValue( Form("undershoot_tmax%i", ch), waveform.get_v1_value(undershoot_pmax.second) );
+  this->beta_scope.SetOutBranchValue( Form("undershoot_pmax%i", ch), waveform.undershoot_pmax() );
+  this->beta_scope.SetOutBranchValue( Form("undershoot_tmax%i", ch), waveform.undershoot_tmax() );
   this->beta_scope.SetOutBranchValue( Form("isGoodTrig%i", ch), (isGoodTrig(waveform) && thcount<3) ? 1:0 );
 
 
-  *this->cfd[ch] = waveform.get_cfd();
-  *this->cfd_fall[ch] = waveform.get_cfd_fall();
-  *this->dvdt[ch] = waveform.get_dvdt();
-  *this->thTime[ch] = waveform.get_threshold_time();
-  *this->fineCFDRise[ch] = waveform.get_fine_cfd();
+  *this->cfd[ch] = waveform.cfd();
+  *this->cfd_fall[ch] = waveform.cfd_fall();
+  *this->dvdt[ch] = waveform.dvdt();
+  *this->thTime[ch] = waveform.threshold_time();
+  *this->fineCFDRise[ch] = waveform.fine_cfd();
 
   if( !this->skipWaveform )
   {
@@ -139,7 +132,7 @@ void BetaScopeWaveformAna::Analysis()
     );
 
     workers.emplace_back(
-        std::async( std::launch::async, &BetaScopeWaveformAna::event_ana, this, ch, waveform)
+        std::async( &BetaScopeWaveformAna::event_ana, this, ch, waveform)
     );
   }
 

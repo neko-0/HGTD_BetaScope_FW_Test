@@ -67,7 +67,7 @@ WaveformAna<double, double> WaveformAnalysis::analyze_waveform(
     double temp_baselineRange[2] = {front_baseline_tmax - front_baseline_riseTime - 5000.0, front_baseline_tmax + 5000.0 };
     WaveformAnalysis::Correct_Baseline3( front_temp_voltage, front_temp_time, temp_baselineRange);
     std::pair<double, unsigned int> front_baseline_pmax_corr = WaveformAnalysis::Find_Singal_Maximum( front_temp_voltage, front_temp_time,true, temp_front_searchRange);
-    waveform.set_front_baseline_int( WaveformAnalysis::Pulse_Integration_with_Fixed_Window_Size( front_temp_voltage, front_temp_time,front_baseline_pmax_corr, "Simpson", 1000.0, 3000.0));
+    waveform.front_baseline_int( WaveformAnalysis::Pulse_Integration_with_Fixed_Window_Size( front_temp_voltage, front_temp_time,front_baseline_pmax_corr, "Simpson", 1000.0, 3000.0));
 
     double temp_back_searchRange[2] = {
       tmax_for_baseline + 10000.0,
@@ -80,7 +80,7 @@ WaveformAna<double, double> WaveformAnalysis::analyze_waveform(
     double temp_back_baselineRange[2] = {back_baseline_tmax - back_baseline_riseTime - 5000.0, back_baseline_tmax + 5000.0};
     WaveformAnalysis::Correct_Baseline3( back_temp_voltage, back_temp_time, temp_back_baselineRange);
     std::pair<double, unsigned int> back_baseline_pmax_corr = WaveformAnalysis::Find_Singal_Maximum(back_temp_voltage, back_temp_time, true, temp_back_searchRange);
-    waveform.set_back_baseline_int( WaveformAnalysis::Pulse_Integration_with_Fixed_Window_Size( back_temp_voltage, back_temp_time, back_baseline_pmax_corr, "Simpson",1000.0, 3000.0));
+    waveform.back_baseline_int( WaveformAnalysis::Pulse_Integration_with_Fixed_Window_Size( back_temp_voltage, back_temp_time, back_baseline_pmax_corr, "Simpson",1000.0, 3000.0));
 
     double baselineRange[2] = {
       tmax_for_baseline - temp_riseTime - 3000.0,
@@ -98,18 +98,18 @@ WaveformAna<double, double> WaveformAnalysis::analyze_waveform(
     std::pair<double, unsigned int> pmaxHolder = WaveformAnalysis::Find_Singal_Maximum( waveform.get_v2(), waveform.get_v1(), limiting_search_region_OnOff, pmaxSearchRange);
     std::pair<double, unsigned int> neg_pmaxHolder = WaveformAnalysis::Find_Negative_Signal_Maximum( waveform.get_v2(), waveform.get_v1(), limiting_search_region_OnOff, pmaxSearchRange);
 
-    waveform.set_pmax(pmaxHolder.first);
-    waveform.set_tmax(waveform.get_v1_value( pmaxHolder.second));
-    waveform.set_max_index(pmaxHolder.second);
+    waveform.pmax(pmaxHolder.first);
+    waveform.tmax(waveform.get_v1_value( pmaxHolder.second));
+    waveform.max_index(pmaxHolder.second);
 
-    waveform.set_neg_pmax(neg_pmaxHolder.first);
-    waveform.set_neg_tmax(waveform.get_v1_value(neg_pmaxHolder.second));
-    waveform.set_neg_max_index(neg_pmaxHolder.second);
+    waveform.neg_pmax(neg_pmaxHolder.first);
+    waveform.neg_tmax(waveform.get_v1_value(neg_pmaxHolder.second));
+    waveform.neg_max_index(neg_pmaxHolder.second);
 
-    waveform.set_rms(WaveformAnalysis::Find_Noise( waveform.get_v2(), 0.25 * waveform.get_v2().size()));
+    waveform.rms(WaveformAnalysis::Find_Noise( waveform.get_v2(), 0.25 * waveform.get_v2().size()));
 
-    waveform.set_pulse_area_undershoot( WaveformAnalysis::Pulse_Integration_with_Fixed_Window_Size(waveform.get_v2(), waveform.get_v1(), pmaxHolder, "Simpson", 1000.0, 3000.0));
-    waveform.set_pulse_area( WaveformAnalysis::Find_Pulse_Area( waveform.get_v2(), waveform.get_v1(), pmaxHolder));
+    waveform.pulse_area_undershoot( WaveformAnalysis::Pulse_Integration_with_Fixed_Window_Size(waveform.get_v2(), waveform.get_v1(), pmaxHolder, "Simpson", 1000.0, 3000.0));
+    waveform.pulse_area( WaveformAnalysis::Find_Pulse_Area( waveform.get_v2(), waveform.get_v1(), pmaxHolder));
 
     // this->frontBaselineInt[b]->push_back(
     // WaveformAnalysis::Pulse_Integration_with_Fixed_Window_Size( this->w[ch],
@@ -121,7 +121,7 @@ WaveformAna<double, double> WaveformAnalysis::analyze_waveform(
     //------------------Rise Time 10 to
     //90---------------------------------------------------------
 
-    waveform.set_rise_time(WaveformAnalysis::Find_Rise_Time(waveform.get_v2(), waveform.get_v1(), pmaxHolder, 0.1, 0.9));
+    waveform.rise_time(WaveformAnalysis::Find_Rise_Time(waveform.get_v2(), waveform.get_v1(), pmaxHolder, 0.1, 0.9));
 
     //--------------------------------------------------------------------------------------------
 
@@ -131,21 +131,21 @@ WaveformAna<double, double> WaveformAnalysis::analyze_waveform(
         double percentage = 1.0 * k;
         cfd.push_back( WaveformAnalysis::Rising_Edge_CFD_Time( percentage, waveform.get_v2(), waveform.get_v1(), pmaxHolder));
     }
-    waveform.set_cfd(cfd);
+    waveform.cfd(cfd);
 
     std::vector<double> cfd_fall;
     for (int k = 0; k < 101; k++)
     {
         cfd_fall.push_back( WaveformAnalysis::Falling_Edge_CFD_Time(k, waveform.get_v2(), waveform.get_v1(), pmaxHolder));
     }
-    waveform.set_cfd_fall(cfd_fall);
+    waveform.cfd_fall(cfd_fall);
 
     std::vector<double> dvdt;
     for (int d = 0; d < 101; d++)
     {
         dvdt.push_back(WaveformAnalysis::Find_Dvdt(d, 0, waveform.get_v2(), waveform.get_v1(), pmaxHolder));
     }
-    waveform.set_dvdt(dvdt);
+    waveform.dvdt(dvdt);
 
     std::vector<double> fine_cfd;
     for (int step = 0; step < 500; step++)
@@ -153,14 +153,14 @@ WaveformAna<double, double> WaveformAnalysis::analyze_waveform(
         double percentage = 0.2 * step;
         fine_cfd.push_back( WaveformAnalysis::Rising_Edge_CFD_Time( percentage, waveform.get_v2(), waveform.get_v1(), pmaxHolder));
     }
-    waveform.set_fine_cfd(fine_cfd);
+    waveform.fine_cfd(fine_cfd);
 
     std::vector<double> thTime;
     for (int k = 0; k < 2000; k++)
     {
         thTime.push_back( WaveformAnalysis::Find_Time_At_Threshold( double(k), waveform.get_v2(), waveform.get_v1(), pmaxHolder));
     }
-    waveform.set_threashold_time(thTime);
+    waveform.threashold_time(thTime);
 
     /*
     waveform.set_cfd( loop_helper2( &WaveformAnalysis::Rising_Edge_CFD_Time,
@@ -216,7 +216,7 @@ WaveformAna<double, double> WaveformAnalysis::analyze_waveform(
     double temp_baselineRange[2] = {front_baseline_tmax - front_baseline_riseTime - 5000.0, front_baseline_tmax + 5000.0 };
     WaveformAnalysis::Correct_Baseline3( front_temp_voltage, front_temp_time, temp_baselineRange);
     std::pair<double, unsigned int> front_baseline_pmax_corr = WaveformAnalysis::Find_Singal_Maximum( front_temp_voltage, front_temp_time,true, temp_front_searchRange);
-    waveform.set_front_baseline_int( WaveformAnalysis::Pulse_Integration_with_Fixed_Window_Size( front_temp_voltage, front_temp_time,front_baseline_pmax_corr, "Simpson", 1000.0, 3000.0));
+    waveform.front_baseline_int( WaveformAnalysis::Pulse_Integration_with_Fixed_Window_Size( front_temp_voltage, front_temp_time,front_baseline_pmax_corr, "Simpson", 1000.0, 3000.0));
 
     double temp_back_searchRange[2] = {
       tmax_for_baseline + 10000.0,
@@ -229,7 +229,7 @@ WaveformAna<double, double> WaveformAnalysis::analyze_waveform(
     double temp_back_baselineRange[2] = {back_baseline_tmax - back_baseline_riseTime - 5000.0, back_baseline_tmax + 5000.0};
     WaveformAnalysis::Correct_Baseline3( back_temp_voltage, back_temp_time, temp_back_baselineRange);
     std::pair<double, unsigned int> back_baseline_pmax_corr = WaveformAnalysis::Find_Singal_Maximum(back_temp_voltage, back_temp_time, true, temp_back_searchRange);
-    waveform.set_back_baseline_int( WaveformAnalysis::Pulse_Integration_with_Fixed_Window_Size( back_temp_voltage, back_temp_time, back_baseline_pmax_corr, "Simpson",1000.0, 3000.0));
+    waveform.back_baseline_int( WaveformAnalysis::Pulse_Integration_with_Fixed_Window_Size( back_temp_voltage, back_temp_time, back_baseline_pmax_corr, "Simpson",1000.0, 3000.0));
 
     double baselineRange[2] = {
       tmax_for_baseline - temp_riseTime - 3000.0,
@@ -252,27 +252,35 @@ WaveformAna<double, double> WaveformAnalysis::analyze_waveform(
     std::pair<double, unsigned int> pmaxHolder = WaveformAnalysis::Find_Singal_Maximum( waveform.get_v2(), waveform.get_v1(), limiting_search_region_OnOff, pmaxSearchRange);
     std::pair<double, unsigned int> neg_pmaxHolder = WaveformAnalysis::Find_Negative_Signal_Maximum( waveform.get_v2(), waveform.get_v1(), limiting_search_region_OnOff, pmaxSearchRange);
 
-    waveform.set_pmax( pmaxHolder.first);
-    waveform.set_tmax( waveform.get_v1_value( pmaxHolder.second));
-    waveform.set_max_index( pmaxHolder.second);
+    waveform.pmax( pmaxHolder.first);
+    waveform.tmax( waveform.get_v1_value( pmaxHolder.second));
+    waveform.max_index( pmaxHolder.second);
 
-    waveform.set_neg_pmax( neg_pmaxHolder.first);
-    waveform.set_neg_tmax( waveform.get_v1_value(neg_pmaxHolder.second));
-    waveform.set_neg_max_index( neg_pmaxHolder.second);
+    waveform.neg_pmax( neg_pmaxHolder.first);
+    waveform.neg_tmax( waveform.get_v1_value(neg_pmaxHolder.second));
+    waveform.neg_max_index( neg_pmaxHolder.second);
 
-    waveform.set_rms( WaveformAnalysis::Find_Noise( waveform.get_v2(), 0.25 * waveform.get_v2().size()));
+    waveform.rms( WaveformAnalysis::Find_Noise( waveform.get_v2(), 0.25 * waveform.get_v2().size()));
 
-    waveform.set_pulse_area_undershoot( WaveformAnalysis::Pulse_Integration_with_Fixed_Window_Size(waveform.get_v2(), waveform.get_v1(), pmaxHolder, "Simpson", 1000.0, 3000.0));
-    waveform.set_pulse_area( WaveformAnalysis::Find_Pulse_Area( waveform.get_v2(), waveform.get_v1(), pmaxHolder));
+    waveform.pulse_area_undershoot( WaveformAnalysis::Pulse_Integration_with_Fixed_Window_Size(waveform.get_v2(), waveform.get_v1(), pmaxHolder, "Simpson", 1000.0, 3000.0));
+    waveform.pulse_area( WaveformAnalysis::Find_Pulse_Area( waveform.get_v2(), waveform.get_v1(), pmaxHolder));
 
     // this->frontBaselineInt[b]->push_back( WaveformAnalysis::Pulse_Integration_with_Fixed_Window_Size( this->w[ch], this->t[ch], pmaxHolder, "Simpson", 12000.0, -8000.0) );
     // this->backBaselineInt[b]->push_back( WaveformAnalysis::Pulse_Integration_with_Fixed_Window_Size( this->w[ch], this->t[ch], pmaxHolder, "Simpson", -8000.0, 12000.0) );
 
     //------------------Rise Time 10 to 90---------------------------------------------------------
 
-    waveform.set_rise_time(WaveformAnalysis::Find_Rise_Time(waveform.get_v2(), waveform.get_v1(), pmaxHolder, 0.1, 0.9));
+    waveform.rise_time(WaveformAnalysis::Find_Rise_Time(waveform.get_v2(), waveform.get_v1(), pmaxHolder, 0.1, 0.9));
 
     //--------------------------------------------------------------------------------------------
+
+    double undershoot_pmax_range[2] = {waveform.tmax(), 5000};
+    auto undershoot_pmax = WaveformAnalysis::Find_Negative_Signal_Maximum( waveform.get_v2(), waveform.get_v1(), true, undershoot_pmax_range);
+    waveform.undershoot_pmax( undershoot_pmax.first );
+    waveform.undershoot_tmax( waveform.get_v1_value(undershoot_pmax.second) );
+
+    //--------------------------------------------------------------------------------------------
+
 
     std::vector<double> cfd;
     for (int k = 0; k < 101; k++)
@@ -280,21 +288,21 @@ WaveformAna<double, double> WaveformAnalysis::analyze_waveform(
         double percentage = 1.0 * k;
         cfd.push_back( WaveformAnalysis::Rising_Edge_CFD_Time( percentage, waveform.get_v2(), waveform.get_v1(), pmaxHolder));
     }
-    waveform.set_cfd(cfd);
+    waveform.cfd(cfd);
 
     std::vector<double> cfd_fall;
     for (int k = 0; k < 101; k++)
     {
         cfd_fall.push_back( WaveformAnalysis::Falling_Edge_CFD_Time(k, waveform.get_v2(), waveform.get_v1(), pmaxHolder));
     }
-    waveform.set_cfd_fall(cfd_fall);
+    waveform.cfd_fall(cfd_fall);
 
     std::vector<double> dvdt;
     for (int d = 0; d < 101; d++)
     {
         dvdt.push_back(WaveformAnalysis::Find_Dvdt(d, 0, waveform.get_v2(), waveform.get_v1(), pmaxHolder));
     }
-    waveform.set_dvdt(dvdt);
+    waveform.dvdt(dvdt);
 
     std::vector<double> fine_cfd;
     for (int step = 0; step < 500; step++)
@@ -302,14 +310,14 @@ WaveformAna<double, double> WaveformAnalysis::analyze_waveform(
         double percentage = 0.2 * step;
         fine_cfd.push_back( WaveformAnalysis::Rising_Edge_CFD_Time( percentage, waveform.get_v2(), waveform.get_v1(), pmaxHolder));
     }
-    waveform.set_fine_cfd(fine_cfd);
+    waveform.fine_cfd(fine_cfd);
 
     std::vector<double> thTime;
     for (int k = 0; k < 2000; k++)
     {
         thTime.push_back( WaveformAnalysis::Find_Time_At_Threshold( double(k), waveform.get_v2(), waveform.get_v1(), pmaxHolder));
     }
-    waveform.set_threashold_time(thTime);
+    waveform.threashold_time(thTime);
 
     /*
     waveform.set_cfd( loop_helper2( &WaveformAnalysis::Rising_Edge_CFD_Time,
