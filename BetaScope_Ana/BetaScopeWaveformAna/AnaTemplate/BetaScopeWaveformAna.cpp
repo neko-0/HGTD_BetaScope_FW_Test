@@ -220,13 +220,6 @@ void BetaScopeWaveformAna::Initialize() {
       {
         ColorCout::print("  Successful: time ch-", std::to_string(ch), CYAN);
       }
-
-      // extra branches
-      this->beta_scope.BuildOutBranch<int>(Form("countTH20_%i", ch));
-      this->beta_scope.BuildOutBranch<double>(Form("undershoot_pmax%i", ch) );
-      this->beta_scope.BuildOutBranch<double>(Form("undershoot_tmax%i", ch) );
-      this->beta_scope.BuildOutBranch<bool>(Form("isGoodTrig%i", ch) );
-
     }
   }
 
@@ -248,6 +241,12 @@ void BetaScopeWaveformAna::Initialize() {
       this->t[ch] = &localT[ch]; // new std::vector<double>;
       this->t[ch]->reserve(10000);
     }
+
+    // build extra branches
+    this->beta_scope.BuildOutBranch<int>(Form("countTH20_%i", ch));
+    this->beta_scope.BuildOutBranch<double>(Form("undershoot_pmax%i", ch) );
+    this->beta_scope.BuildOutBranch<double>(Form("undershoot_tmax%i", ch) );
+    this->beta_scope.BuildOutBranch<bool>(Form("isGoodTrig%i", ch) );
 
     this->pmax[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("pmax" + std::to_string(ch));
     this->tmax[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("tmax" + std::to_string(ch));
