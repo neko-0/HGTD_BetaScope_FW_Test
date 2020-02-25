@@ -222,11 +222,11 @@ def generate_cuts( dutCh, trigCh, runNum, configFileName, trigFixedCut, tmax_min
         if find_good_threshold:
             pmaxCutLine_min = ROOT.TLine( apply_th_cut, graph.GetYaxis().GetXmin(), apply_th_cut, graph.GetYaxis().GetXmax() )
             pmaxCutLine_max = ROOT.TLine( 360, graph.GetYaxis().GetXmin(), 360, graph.GetYaxis().GetXmax() )
-            pmaxCut = "{} {} &&isGoodTrig3".format(apply_th_cut, 360)
+            pmaxCut = "{} {}".format(apply_th_cut, 360)
         else:
             pmaxCutLine_min = ROOT.TLine( typical_noise, graph.GetYaxis().GetXmin(), typical_noise, graph.GetYaxis().GetXmax() )
             pmaxCutLine_max = ROOT.TLine( 360, graph.GetYaxis().GetXmin(), 360, graph.GetYaxis().GetXmax() )
-            pmaxCut = "{} {} &&isGoodTrig3".format(typical_noise, 360)
+            pmaxCut = "{} {}".format(typical_noise, 360)
         '''
         else:
             if abs(noise_mean - pmax_peak) < 5.0:
@@ -252,7 +252,7 @@ def generate_cuts( dutCh, trigCh, runNum, configFileName, trigFixedCut, tmax_min
 
         #raw_input()
 
-        allCut = tCut + " " + pmaxCut + " " + trigger_preset
+        allCut = tCut + " " + pmaxCut + " " + trigger_preset + " &&isGoodTrig3"
         betaRunConfig.set( runNum, "cut_%s"%dutCh, allCut)
 
         #parse the temperature and trigger bias voltage, for temperatrue scan measurement.
