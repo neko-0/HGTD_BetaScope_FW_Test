@@ -47,7 +47,8 @@ void BetaScope_AnaFramework<beta_scope_type>::Initialize( std::string addBranche
 template <typename beta_scope_type>
 void BetaScope_AnaFramework<beta_scope_type>::LoopEvents( void (BetaScope_AnaFramework::*func)())
 {
-  logger.info( __func__, std::string(typeid(this).name()) + "is used for driving event looping." );
+  logger.info( __func__, " BetaScope_AnaFramework::LoopEvents is used for driving event looping." );
+  logger.info( __func__, " input method: " + std::string(typeid(this->*func).name()) );
   while (this->beta_scope.GetInTreeReader()->Next())
   {
     (this->*func)();
