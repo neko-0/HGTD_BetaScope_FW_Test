@@ -41,7 +41,7 @@ WaveformAna<double, double> WaveformAnalysis::analyze_waveform(
 
     if (THREAD_COUNT < 100)
     {
-        wave_logger.info( __PRETTY_FUNCTION__, boost::str(boost::format("thread count %1%") % THREAD_COUNT) );
+        wave_logger.info( __func__, boost::str(boost::format("thread count %1%") % THREAD_COUNT) );
         THREAD_COUNT++;
     }
     // Base line
@@ -190,7 +190,7 @@ WaveformAna<double, double> WaveformAnalysis::analyze_waveform(
 
     if (THREAD_COUNT < 100)
     {
-        wave_logger.info( __PRETTY_FUNCTION__, boost::str(boost::format("thread count %1%") % THREAD_COUNT) );
+        wave_logger.info( __func__, boost::str(boost::format("thread count %1%") % THREAD_COUNT) );
         THREAD_COUNT++;
     }
     // Base line

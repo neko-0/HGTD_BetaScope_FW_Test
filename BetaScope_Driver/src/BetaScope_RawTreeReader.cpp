@@ -11,15 +11,15 @@
 
 bool BetaScope::RawTreeReader(const char *itreeName) {
   std::string cout_prefix = "BetaScope::RawTreeReader => ";
-  logger.info(__PRETTY_FUNCTION__, "Entering");
-  logger.info(__PRETTY_FUNCTION__, "Preparing raw tree reader.");
+  logger.info(__func__, "Entering");
+  logger.info(__func__, "Preparing raw tree reader.");
 
   this->input_tree_reader_ = new TTreeReader(itreeName, this->input_tfile_);
   this->input_num_event_ = this->input_tree_reader_->GetEntries(true);
 
-  logger.info( __PRETTY_FUNCTION__, "Number of events: " + std::to_string(this->input_num_event_));
+  logger.info( __func__, "Number of events: " + std::to_string(this->input_num_event_));
 
-  logger.info(__PRETTY_FUNCTION__, "Looping through raw scope channels.");
+  logger.info(__func__, "Looping through raw scope channels.");
 
   // int branch_counter = 0;
   bool br_check;
@@ -34,7 +34,7 @@ bool BetaScope::RawTreeReader(const char *itreeName) {
     }
   }
 
-  logger.info(__PRETTY_FUNCTION__, "Finished, exiting");
+  logger.info(__func__, "Finished, exiting");
 
   return true;
 }

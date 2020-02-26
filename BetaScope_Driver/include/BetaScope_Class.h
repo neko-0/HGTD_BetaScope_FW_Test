@@ -109,7 +109,7 @@ public:
   PrimitiveDataType_TemplateContainer(){};
   ~PrimitiveDataType_TemplateContainer()
   {
-    logger.info( __PRETTY_FUNCTION__, "clean up." );
+    logger.info( __func__, "clean up." );
     if (this->data_type)
     {
       delete this->data_type;

@@ -57,7 +57,7 @@ class Logger
     std::string ct(std::ctime(&current_time));
     std::string date = ct.substr(0, ct.length() - 1);
 
-    std::string output_string = boost::str(boost::format("%1% [%2%] [%3%] [%4%] %5%: %6% %7%") % GREEN % date % name_ % prefix % RESET % content % contentColor);
+    std::string output_string = boost::str(boost::format("%1% [%2%] [%3%] [%4%] %5%: %6% %7% %8%") % GREEN % date % name_ % prefix % RESET % contentColor % content % RESET);
     std::cout << output_string << std::endl;
   }
 
