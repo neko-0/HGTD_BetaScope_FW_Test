@@ -63,7 +63,7 @@ class Logger
 
   void error(std::string prefix, std::string content){ Logger::print(prefix, content, RED); }
 
-  void info(std::string prefix, std::string content){ Logger::print(prefix, content, CYAN); }
+  void info(std::string prefix, std::string content){ Logger::print(prefix, content, BOLDCYAN); }
 
   void warning(std::string prefix, std::string content){ Logger::print(prefix, content, YELLOW); }
 };
