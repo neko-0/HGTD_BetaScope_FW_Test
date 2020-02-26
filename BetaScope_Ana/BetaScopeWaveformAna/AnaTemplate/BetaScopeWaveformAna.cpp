@@ -322,6 +322,7 @@ void BetaScopeWaveformAna::Initialize() {
 
 void BetaScopeWaveformAna::LoopEvents()
 {
+  logger.info( __func__, "running Derived class LoopEvents." );
   BetaScope_AnaFramework::LoopEvents(&BetaScope_AnaFramework::Analysis);
 }
 
