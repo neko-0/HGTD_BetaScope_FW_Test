@@ -1,8 +1,6 @@
 #include "BetaScope_Driver/include/BetaScope_Class.h"
 #include "BetaScope_Driver/include/BetaScope_Templates.h"
 
-#include "Colorful_Cout/include/Colorful_Cout.h"
-
 #include <iostream>
 #include <string>
 
@@ -13,15 +11,15 @@ bool BetaScope::FileOpen(const char *ifile_path) {
   // TThread::Lock();
 
   std::string cout_prefix = "BetaScope::FileOpen => ";
-  ColorCout::print(cout_prefix, "Entering", BOLDGREEN);
-  ColorCout::print(cout_prefix, "Preparing IO.", YELLOW);
+  logger.info(__PRETTY_FUNCTION__, "Entering" );
+  logger.info(__PRETTY_FUNCTION__, "Preparing IO." );
 
   this->input_tfile_ = new TFile(ifile_path);
   if (this->input_tfile_->IsZombie()) {
-    ColorCout::print(cout_prefix, "Zombie file. return false.", RED);
+    logger.error(__PRETTY_FUNCTION__, "Zombie file. return false.");
     return false;
   }
-  ColorCout::print(cout_prefix, "Input file looks fine. continue", YELLOW);
+  logger.info(__PRETTY_FUNCTION__, "Input file looks fine. continue");
 
   std::string delimiter = "/";
   std::string ofile_name = ifile_path;
@@ -32,13 +30,13 @@ bool BetaScope::FileOpen(const char *ifile_path) {
   this->input_file_name_ = ifile_path;
   this->input_file_nick_name_ = this->output_file_name_;
 
-  ColorCout::print(cout_prefix, "Create output file", YELLOW);
-  ColorCout::print(cout_prefix, "compressionLevel: " + std::to_string(this->compression_level_), YELLOW);
+  logger.info(__PRETTY_FUNCTION__, "Create output file");
+  logger.info(__PRETTY_FUNCTION__, "compressionLevel: " + std::to_string(this->compression_level_));
 
   this->output_tfile_ = new TFile(this->output_file_name_.c_str(), "RECREATE", "", this->compression_level_);
   this->output_tfile_->cd();
 
-  ColorCout::print(cout_prefix, "Fininished, exiting", BOLDGREEN);
+  logger.info(__PRETTY_FUNCTION__, "Fininished, exiting");
   // TThread::UnLock();
 
   return true;
@@ -50,35 +48,31 @@ bool BetaScope::FileOpen(const char *ifile_path) {
 void BetaScope::FileClose() {
   // TThread::Lock();
   std::string cout_prefix = "BetaScope::FileClose => ";
-  ColorCout::print(cout_prefix, "Entering", BOLDGREEN);
-  ColorCout::print(cout_prefix, "Writing output files.", YELLOW);
+  logger.info(__PRETTY_FUNCTION__, "Entering");
+  logger.info(__PRETTY_FUNCTION__, "Writing output files.");
 
   this->output_ttree_->Write();
   this->output_tfile_->Close();
 
-  ColorCout::print(cout_prefix, "Clean up allocated memory", YELLOW);
+  logger.info(__PRETTY_FUNCTION__, "Clean up allocated memory");
 
   int counter = 0;
   for(const auto &val : this->input_branches_buffer_)
   {
     if(val)
     {
-      ColorCout::print(cout_prefix, "Calling delete", YELLOW);
+      logger.info(__PRETTY_FUNCTION__, "Calling delete");
       delete val;
     }
     counter++;
     if(counter == this->input_branch_counter_){break;}
   }
 
-  ColorCout::print(cout_prefix, "Finished, extiting", BOLDGREEN);
+  logger.info(__PRETTY_FUNCTION__, "Finished, extiting");
   std::time_t _t_end_of_program = std::time(nullptr);
   std::time_t _t_end_of_program_cpu = std::clock();
   this->cpu_time = std::clock() - this->cpu_time;
-  ColorCout::print("  " + this->input_file_nick_name_ + " Wall Time used: ",
-                   std::to_string(_t_end_of_program - this->kTimeObjCreation),
-                   BOLDYELLOW);
-  ColorCout::print("  " + this->input_file_nick_name_ + " CPU Time used: ",
-                   std::to_string(_t_end_of_program_cpu - this->cpu_time),
-                   BOLDYELLOW);
+  logger.info(__PRETTY_FUNCTION__, this->input_file_nick_name_ + " Wall Time used: " + std::to_string(_t_end_of_program - this->kTimeObjCreation) );
+  logger.info(__PRETTY_FUNCTION__, this->input_file_nick_name_ + " CPU Time used: " + std::to_string(_t_end_of_program_cpu - this->cpu_time) );
   // TThread::UnLock();
 }

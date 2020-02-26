@@ -5,7 +5,7 @@
 #include "BetaScope_Driver/include/BetaScope_Templates.h"
 
 #include "BetaScope_Driver/include/BetaScopeExt_Class.h"
-#include "Colorful_Cout/include/Colorful_Cout.h"
+
 
 template <typename beta_scope_type> class BetaScope_AnaFramework {
   int event_counter = 0;
@@ -21,7 +21,7 @@ public:
 
   virtual void Analysis()
   {
-    ColorCout::Msg("BetaScope_AnaFramework::analysis", " this is a virtual analysis().");
+    logger.info(__PRETTY_FUNCTION__, "this is a virtual analysis().");
   };
 
   virtual void LoopEvents(void (BetaScope_AnaFramework::*func)());
@@ -47,14 +47,13 @@ void BetaScope_AnaFramework<beta_scope_type>::Initialize( std::string addBranche
 template <typename beta_scope_type>
 void BetaScope_AnaFramework<beta_scope_type>::LoopEvents( void (BetaScope_AnaFramework::*func)())
 {
-  std::string function_name = "BetaScope_AnaFramework::loopEvents";
-  ColorCout::Msg(function_name, " is used for driving event looping.");
+  logger.info( __PRETTY_FUNCTION__, "is used for driving event looping." );
   while (this->beta_scope.GetInTreeReader()->Next())
   {
     (this->*func)();
     BetaScope_AnaFramework<beta_scope_type>::FillData();
   }
-  ColorCout::Msg(function_name, " Finished loopEvents.");
+  logger.info( __PRETTY_FUNCTION__, "Finished loopEvents.");
 }
 
 template <typename beta_scope_type>
@@ -64,7 +63,7 @@ void BetaScope_AnaFramework<beta_scope_type>::FillData()
   this->beta_scope.FillEvent();
   if(this->event_counter % 1000 == 0 || (this->event_counter % 10 == 0 &&  this->event_counter <= 100) )
   {
-    ColorCout::print("   " + this->beta_scope.GetInFileNickName(), " Proccessed events: " + std::to_string(this->event_counter) + " /" + std::to_string(this->beta_scope.GetInNumEvent()), BOLDYELLOW);
+    logger.info(__PRETTY_FUNCTION__, this->beta_scope.GetInFileNickName() + " Proccessed events: " + std::to_string(this->event_counter) + " /" + std::to_string(this->beta_scope.GetInNumEvent()) );
   }
 }
 

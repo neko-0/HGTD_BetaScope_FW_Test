@@ -12,6 +12,7 @@
 #include <future>
 #include <thread>
 
+
 bool BetaScopeWaveformAna::isGoodTrig( const WaveformAna<double,double> &waveform )
 {
   if( waveform.pmax() >= 70 && waveform.pmax() < 350  && waveform.tmax() > 0 )
@@ -101,7 +102,7 @@ void BetaScopeWaveformAna::Analysis()
 
   if (!this->isProcessing)
   {
-    ColorCout::print("   " + beta_scope.GetInFileNickName(), " BetaScopeWaveformAna::analysis: Start event processing: ", BOLDYELLOW);
+    logger.info(__PRETTY_FUNCTION__, beta_scope.GetInFileNickName() + " BetaScopeWaveformAna::analysis: Start event processing: ");
     this->isProcessing = true;
   }
 
@@ -181,19 +182,18 @@ void BetaScopeWaveformAna::Analysis()
 
 void BetaScopeWaveformAna::Initialize() {
   // required
-  std::string function_name = "BetaScopeWaveformAna::initialize";
   this->beta_scope.FileOpen(ifile.c_str());
 
   char *check_path = getenv("BETASCOPE_SCRIPTS");
   if (check_path != NULL)
   {
-    ColorCout::Msg(function_name, "Found myOwnTree.ini");
+    logger.info( __PRETTY_FUNCTION__, "Found myOwnTree.ini");
     std::string beta_scope_path(getenv("BETASCOPE_SCRIPTS"));
     BetaScope_AnaFramework::Initialize( beta_scope_path + "/../BetaScope_Ana/BetaScopeWaveformAna/AnaTemplate/myOwnTree.ini");
   }
   else
   {
-    ColorCout::Msg(function_name, "Did not find myOwnTree.ini");
+    logger.warning(__PRETTY_FUNCTION__, "Did not find myOwnTree.ini");
     BetaScope_AnaFramework::Initialize("");
   }
 
@@ -208,17 +208,17 @@ void BetaScopeWaveformAna::Initialize() {
     {
       bool branch_checker;
       int branch_counter = 0;
-      ColorCout::print("  CH:", std::to_string(ch), CYAN);
+      logger.info(__PRETTY_FUNCTION__, "CH:"+std::to_string(ch) );
 
-      ColorCout::print("  ", "Creating branches for storing scope channels: ", YELLOW);
+      logger.info(__PRETTY_FUNCTION__, "Creating branches for storing scope channels: " );
       if( this->beta_scope.BuildOutBranch<std::vector<double>>(Form("w%i", ch)) )
       {
-        ColorCout::print("  Successful: voltage ch-", std::to_string(ch), CYAN);
+        logger.info(__PRETTY_FUNCTION__, "Successful: voltage ch-" + std::to_string(ch) );
       }
 
       if( this->beta_scope.BuildOutBranch<std::vector<double>>(Form("t%i", ch)) )
       {
-        ColorCout::print("  Successful: time ch-", std::to_string(ch), CYAN);
+        logger.info(__PRETTY_FUNCTION__, "Successful: time ch-" + std::to_string(ch) );
       }
     }
   }

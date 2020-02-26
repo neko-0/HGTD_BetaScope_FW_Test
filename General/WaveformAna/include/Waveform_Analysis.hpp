@@ -5,8 +5,12 @@
 #include <string>
 #include <vector>
 
-#include "General/Colorful_Cout/include/Colorful_Cout.h"
+#include "General/logger/include/logger.h"
 #include "WaveformAna/include/WaveformAna.hpp"
+
+static Logger wave_logger("Waveform_Analysis");
+
+
 
 class WaveformAnalysis
 {

@@ -41,7 +41,7 @@ WaveformAna<double, double> WaveformAnalysis::analyze_waveform(
 
     if (THREAD_COUNT < 100)
     {
-        ColorCout::print("  Running thread_it: thread num ", std::to_string(THREAD_COUNT), CYAN);
+        wave_logger.info( __PRETTY_FUNCTION__, boost::str(boost::format("thread count %1%") % THREAD_COUNT) );
         THREAD_COUNT++;
     }
     // Base line
@@ -190,7 +190,7 @@ WaveformAna<double, double> WaveformAnalysis::analyze_waveform(
 
     if (THREAD_COUNT < 100)
     {
-        ColorCout::print("  Running thread_it: thread num ", std::to_string(THREAD_COUNT), CYAN);
+        wave_logger.info( __PRETTY_FUNCTION__, boost::str(boost::format("thread count %1%") % THREAD_COUNT) );
         THREAD_COUNT++;
     }
     // Base line

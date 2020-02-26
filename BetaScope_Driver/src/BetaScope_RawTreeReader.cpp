@@ -1,8 +1,6 @@
 #include "BetaScope_Driver/include/BetaScope_Class.h"
 #include "BetaScope_Driver/include/BetaScope_Templates.h"
 
-#include "Colorful_Cout/include/Colorful_Cout.h"
-
 #include <iostream>
 #include <string>
 
@@ -13,15 +11,15 @@
 
 bool BetaScope::RawTreeReader(const char *itreeName) {
   std::string cout_prefix = "BetaScope::RawTreeReader => ";
-  ColorCout::print(cout_prefix, "Entering", BOLDGREEN);
-  ColorCout::print(cout_prefix, "Preparing raw tree reader.", YELLOW);
+  logger.info(__PRETTY_FUNCTION__, "Entering");
+  logger.info(__PRETTY_FUNCTION__, "Preparing raw tree reader.");
 
   this->input_tree_reader_ = new TTreeReader(itreeName, this->input_tfile_);
   this->input_num_event_ = this->input_tree_reader_->GetEntries(true);
 
-  ColorCout::print( cout_prefix, "Number of events: " + std::to_string(this->input_num_event_), YELLOW);
+  logger.info( __PRETTY_FUNCTION__, "Number of events: " + std::to_string(this->input_num_event_));
 
-  ColorCout::print(cout_prefix, "Looping through raw scope channels.", YELLOW);
+  logger.info(__PRETTY_FUNCTION__, "Looping through raw scope channels.");
 
   // int branch_counter = 0;
   bool br_check;
@@ -36,7 +34,7 @@ bool BetaScope::RawTreeReader(const char *itreeName) {
     }
   }
 
-  ColorCout::print(cout_prefix, "Finished, exiting", BOLDGREEN);
+  logger.info(__PRETTY_FUNCTION__, "Finished, exiting");
 
   return true;
 }

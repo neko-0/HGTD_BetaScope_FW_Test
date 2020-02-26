@@ -1,6 +1,6 @@
 #include "BetaScope_Driver/include/BetaScope_AnaFramework.h"
 #include "BetaScope_Driver/include/BetaScope_Class.h"
-#include "General/Colorful_Cout/include/Colorful_Cout.h"
+#include "General/logger/include/logger.h"
 #include "General/WaveformAna/include/Waveform_Analysis.hpp"
 #include <iostream>
 #include <string>
@@ -85,8 +85,7 @@ public:
   BetaScopeWaveformAna(){};
 
   BetaScopeWaveformAna(std::string ifile) : ifile(ifile) {
-    std::cout << "Using user template: "
-              << "BetaScopeWaveformAna" << std::endl;
+    logger.info(__PRETTY_FUNCTION__, "Using user template: BetaScopeWaveformAna");
   };
 
   ~BetaScopeWaveformAna(){};

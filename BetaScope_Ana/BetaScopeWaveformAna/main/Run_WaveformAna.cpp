@@ -58,18 +58,15 @@ void runAna(std::string fileName, std::string config = "WaveformAnaConfig.ini",
 
 int main(int argc, char **argv) {
 
-  ColorCout::Msg("Run_WaveformAna", " Starting beta scope analysis");
+  logger.info( __PRETTY_FUNCTION__, " Starting beta scope analysis");
 
   std::time_t main_time = std::time(nullptr);
 
-  ColorCout::Msg("Preparation", " Thread configuration.");
+  logger.info(__PRETTY_FUNCTION__, "Preparation: Thread configuration.");
   ROOT::EnableThreadSafety();
   ROOT::EnableImplicitMT(16);
   unsigned concurentThreadsSupported = std::thread::hardware_concurrency();
-  ColorCout::Msg("Preparation",
-                 " Thread number " + std::to_string(concurentThreadsSupported));
-
-  ColorCout::Msg("Preparation", " Preparing workers.");
+  logger.info(__PRETTY_FUNCTION__, " Preparing workers.");
   BetaScopeWaveformAna doAna_temp;
   doAna_temp.readWaveformConfig(argv[1]);
   std::vector<std::string> fileList = getFiles(doAna_temp.rawFilesDir.c_str());
@@ -103,9 +100,7 @@ int main(int argc, char **argv) {
     }
   }
 
-  ColorCout::Msg("Run_WaveformAna",
-                 " Finished. Time cost: " +
-                     std::to_string(std::time(nullptr) - main_time));
+  logger.info(__PRETTY_FUNCTION__, "Finished. Time cost: " + std::to_string(std::time(nullptr) - main_time));
 
   return 0;
 }

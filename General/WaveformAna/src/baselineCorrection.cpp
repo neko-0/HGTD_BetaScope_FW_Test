@@ -164,17 +164,15 @@ bool WaveformAnalysis::Correct_Baseline4(
     std::vector<double> &pmax,
     const std::vector<double> &tmax)
 {
-    std::string function_name = "WaveformAnalysis::Correct_Baseline4";
-
     // check to see if pmax and tmax are empty or different size.
-    if (pmax.size() != tmax.size())
+    if( pmax.size() != tmax.size())
     {
-        ColorCout::ErrorMsg(__func__, " pmax and tmax size dose not match!");
+        wave_logger.error( __PRETTY_FUNCTION__, "pmax and tmax size dose not match!" );
         return false;
     }
-    if (pmax.size() == 0)
+    if( pmax.size() == 0)
     {
-        ColorCout::ErrorMsg(__func__, " pmax or tmax is empty!");
+        wave_logger.error( __PRETTY_FUNCTION__, " pmax or tmax is empty!" );
         return false;
     }
 
@@ -184,14 +182,12 @@ bool WaveformAnalysis::Correct_Baseline4(
 
     // getting the first and last point of tmax and time vector.
     double fpt_of_timeVec = timeVec.at(0);
-    double lpt_of_timeVec = timeVec.at(
-                                timeVec.size() - 1);
+    double lpt_of_timeVec = timeVec.at(timeVec.size() - 1);
     double fpt_of_tmax = tmax.at(0);
     double lpt_of_tmax = tmax.at(tmax.size() - 1);
 
     // compare to see which region has more points for baseline correction
-    double shifter =
-        0.0; // amount in time to shift the region away from the tmax
+    double shifter = 0.0; // amount in time to shift the region away from the tmax
     double f_delta = (fpt_of_tmax - shifter) -fpt_of_timeVec;
     double l_delta = lpt_of_timeVec - (lpt_of_tmax + shifter);
 
@@ -220,11 +216,11 @@ bool WaveformAnalysis::Correct_Baseline4(
     if (counter != 0)
     {
         mean = mean / counter;
-        for (std::size_t j = 0; j < npoints; j++)
+        for( std::size_t j = 0; j < npoints; j++)
         {
             voltageVec.at(j) = voltageVec.at(j) - mean;
         }
-        for (std::size_t p = 0, max = pmax.size(); p < max; p++)
+        for( std::size_t p = 0, max = pmax.size(); p < max; p++)
         {
             pmax.at(p) = pmax.at(p) - mean;
         }

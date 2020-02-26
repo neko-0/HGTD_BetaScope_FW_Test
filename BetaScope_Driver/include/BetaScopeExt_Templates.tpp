@@ -23,7 +23,6 @@ bool BetaScope_Ext::buildTH1Branch
 ==============================================================================*/
 template <typename TH_Type>
 bool BetaScope_Ext::BuildTH1Branch(std::string branchName) {
-  std::string function_name = "BetaScope_Ext::buildTH1Branch";
 
   try {
     this->oTree_TH[this->new_th_branch_counter_] = new TH_Container<TH_Type>();
@@ -34,11 +33,12 @@ bool BetaScope_Ext::BuildTH1Branch(std::string branchName) {
         branchName, this->oTree_TH[this->new_th_branch_counter_]));
     this->output_ttree_->Branch(branchName.c_str(), my_th);
     this->new_th_branch_counter_++;
-    ColorCout::Msg(function_name,
-                   "TH Branch " + branchName + " is created for ouput.");
+    logger.info(__PRETTY_FUNCTION__, "TH Branch " + branchName + " is created for ouput.");
     return true;
-  } catch (...) {
-    ColorCout::ErrorMsg(function_name, "Fail creating TH1 branch.");
+  }
+  catch (...)
+  {
+    logger.error( __PRETTY_FUNCTION__, "Fail creating TH1 branch.");
     return false;
   }
 }

@@ -21,6 +21,7 @@
 #include <string>
 #include <vector>
 
+
 /*==============================================================================
 std::pair <double, unsigned int>
   WaveformAnalysis::Find_Identical_Peak
@@ -267,14 +268,14 @@ void WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Singal(
         if (!this->supressNoisy)
         {
             this->mu.lock();
-            ColorCout::WarningMsg(function_name,"Noisy"); // if too many "Noisy", there might be a problem.
+            wave_logger.warning( __PRETTY_FUNCTION__, "Noisy"); // if too many "Noisy", there might be a problem.
             this->mu.unlock();
         }
         this->supressNoisyCounter++;
         if (this->supressNoisyCounter == 100)
         {
             this->mu.lock();
-            ColorCout::WarningMsg(function_name,"supressNoisyCounter reaches 100");
+            wave_logger.warning( __PRETTY_FUNCTION__, "supressNoisyCounter reaches 100");
             this->mu.unlock();
             this->supressNoisy = true;
         }
@@ -287,7 +288,7 @@ void WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Singal(
         if (!this->supressNoisy)
         {
             this->mu.lock();
-            ColorCout::WarningMsg(function_name,"Method fail, the output size is 0. Assigning ""default value"); // if too many "Noisy", there
+            wave_logger.warning( __PRETTY_FUNCTION__, "Method fail, the output size is 0. Assigning ""default value"); // if too many "Noisy", there
             // might be a problem.
             this->mu.unlock();
         }

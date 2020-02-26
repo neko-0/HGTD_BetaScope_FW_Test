@@ -7,7 +7,7 @@
 #ifndef BETACOPE_H
 #define BETACOPE_H
 
-#include "General/Colorful_Cout/include/Colorful_Cout.h"
+#include "General/logger/include/logger.h"
 
 //-------c++----------------//
 #include <ctime>
@@ -33,6 +33,8 @@
 #include <TTreeReaderValue.h>
 
 #define VERBOSITY 0
+
+static Logger logger("Logger");
 
 // helper function from stack overflow
 
@@ -107,7 +109,7 @@ public:
   PrimitiveDataType_TemplateContainer(){};
   ~PrimitiveDataType_TemplateContainer()
   {
-    ColorCout::print(class_name, "clean up.", YELLOW);
+    logger.info( __PRETTY_FUNCTION__, "clean up." );
     if (this->data_type)
     {
       delete this->data_type;

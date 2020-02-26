@@ -1,8 +1,6 @@
 #include "BetaScope_Driver/include/BetaScope_Class.h"
 #include "BetaScope_Driver/include/BetaScope_Templates.h"
 
-#include "Colorful_Cout/include/Colorful_Cout.h"
-
 #include <iostream>
 #include <map>
 #include <string>
@@ -21,8 +19,7 @@ void BetaScope::copyTTreeReaderArrayToVector<std::vector<double>>(
   // TTreeReaderArray<double> *mylocalArray =
   // this->iTreeDoubleArrayMap[iBranchName];
   TTreeReader *mylocalReader = new TTreeReader("wfm", this->input_tfile_);
-  TTreeReaderArray<double> *mylocalArray =
-      new TTreeReaderArray<double>(*mylocalReader, iBranchName.c_str());
+  TTreeReaderArray<double> *mylocalArray = new TTreeReaderArray<double>(*mylocalReader, iBranchName.c_str());
   mylocalReader->SetEntry(entry);
   // std::cout << "local reader " << entry  << std::endl;
   for (int i = 0, max = mylocalArray->GetSize(); i < max; i++) {
@@ -37,10 +34,7 @@ void BetaScope::copyTTreeReaderArrayToVector<std::vector<double>>(
 }
 
 bool BetaScope::IsBranchExists(const char *branchName) {
-  auto branch_checker =
-      ((TTree *)this->input_tfile_->Get(this->input_tree_name_.c_str()))
-          ->GetListOfBranches()
-          ->FindObject(branchName);
+  auto branch_checker = ((TTree *)this->input_tfile_->Get(this->input_tree_name_.c_str()))->GetListOfBranches()->FindObject(branchName);
   if (branch_checker != NULL)
     return true;
   else

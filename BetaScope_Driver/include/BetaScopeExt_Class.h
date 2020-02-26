@@ -88,7 +88,7 @@ private:
 
 public:
   BetaScope_Ext() { std::cout << this->class_name << std::endl; };
-  ~BetaScope_Ext() { ColorCout::Msg(this->class_name, "call destructor at"); };
+  ~BetaScope_Ext() { std::cout << this->class_name << "call destructor at"; };
 
   void FillEvent();
 

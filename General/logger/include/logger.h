@@ -1,10 +1,11 @@
-#ifndef COLORFUL_COUT_H
-#define COLORFUL_COUT_H
+#ifndef LOGGER_H
+#define LOGGER_H
 
 #include <chrono>
 #include <ctime>
 #include <iostream>
 #include <string>
+#include <boost/format.hpp>
 
 /*
 From stack-overflow:
@@ -30,34 +31,41 @@ https://stackoverflow.com/questions/9158150/colored-output-in-c
 #define BOLDCYAN "\033[1m\033[36m"    /* Bold Cyan */
 #define BOLDWHITE "\033[1m\033[37m"   /* Bold White */
 
-class ColorCout {
-  ColorCout(){};
-  ~ColorCout(){};
+class Logger
+{
+  private:
+    int verbosity_ = 0;
+    std::string name_ = "Logger";
 
-public:
-  static void print(std::string prefix, std::string content,
-                    std::string contentColor) {
+  public:
+
+    Logger( std::string name, int verbosity = 0 )
+      : verbosity_(verbosity)
+    {
+      name_ = name;
+    };
+    ~Logger(){};
+
+  void print(
+    std::string prefix,
+    std::string content,
+    std::string contentColor
+  )
+  {
     auto now = std::chrono::system_clock::now();
     std::time_t current_time = std::chrono::system_clock::to_time_t(now);
     std::string ct(std::ctime(&current_time));
     std::string date = ct.substr(0, ct.length() - 1);
 
-    std::cout << "[" << date << "]"
-              << "   " << GREEN << prefix << RESET << " " << contentColor
-              << content << RESET << std::endl;
+    std::string output_string = boost::str(boost::format("%1% [%2%] [%3%] [] %4%: %5% %6%") % GREEN % date % name_ % prefix % RESET % content % contentColor);
+    std::cout << output_string << std::endl;
   }
 
-  static void ErrorMsg(std::string func_name, std::string content) {
-    ColorCout::print(func_name, content, RED);
-  }
+  void error(std::string prefix, std::string content){ Logger::print(prefix, content, RED); }
 
-  static void Msg(std::string func_name, std::string content) {
-    ColorCout::print(func_name, content, CYAN);
-  }
+  void info(std::string prefix, std::string content){ Logger::print(prefix, content, CYAN); }
 
-  static void WarningMsg(std::string func_name, std::string content) {
-    ColorCout::print(func_name, content, YELLOW);
-  }
+  void warning(std::string prefix, std::string content){ Logger::print(prefix, content, YELLOW); }
 };
 
-#endif // COLORFUL_COUT_H
+#endif // LOGGER_H

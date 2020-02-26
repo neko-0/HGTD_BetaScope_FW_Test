@@ -15,14 +15,12 @@
 
 int main(int argc, char **argv) {
 
-  ColorCout::Msg("Run_SelfTrigger", " Starting analysis");
-
   std::time_t main_time = std::time(nullptr);
 
   SelfTrigger self_trigger( argv[1] );
   self_trigger.run();
 
-  ColorCout::Msg("Run_SelfTrigger"," Finished. Time cost: " + std::to_string(std::time(nullptr) - main_time));
+  std::cout << "Run_SelfTrigger" << " Finished. Time cost: " + std::to_string(std::time(nullptr) - main_time) << std::endl;
 
   return 0;
 }

@@ -1,7 +1,6 @@
 #include "BetaScope_Driver/include/BetaScope_AnaFramework.h"
 #include "BetaScope_Driver/include/BetaScope_Class.h"
 #include "BetaScope_Driver/include/BetaScope_Templates.h"
-#include "Colorful_Cout/include/Colorful_Cout.h"
 
 /*
 template <typename beta_scope_type>

@@ -1,5 +1,6 @@
 #include "BetaScope_Class.h"
 
+
 template <template <class> class ibranchType, typename dtype>
 bool BetaScope::SetInBranch(std::string branchName, std::string key)
 {
@@ -13,7 +14,7 @@ bool BetaScope::SetInBranch(std::string branchName, std::string key)
     ibranchType<dtype> *my_ibranch = BetaScope::GetInBranch<ibranchType, dtype>(key);
     if (my_ibranch)
     {
-      ColorCout::Msg(function_name, "Branch: " + branchName + " is read.");
+      logger.info( __PRETTY_FUNCTION__, "Branch: " + branchName + " is read.");
     }
     this->input_branch_map_index_.insert( std::pair<std::string, int>(key, this->input_branch_counter_));
     this->input_branch_counter_ += 1;

@@ -34,7 +34,7 @@ WAVEFORM_ANA_DEPS += $(wildcard $(GENERAL_DIR)/WaveformAna/build/*.so)
 UTILITIES_INC = $(GENERAL_DIR)/utilities/include/
 UTILITIES_DEPS = $(wildcard $(GENERAL_DIR)/utilities/build/*.o)
 
-COLORFUL_COUT_INC = $(GENERAL_DIR)/Colorful_Cout/include/
+LOGGER_INC = $(GENERAL_DIR)/logger/include/
 
 DEPS = $(BETASCOPE_DRIVER_DEPS)
 DEPS += $(WAVEFORM_ANA_DEPS)

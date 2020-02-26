@@ -4,7 +4,7 @@
 
 ########## defaut ##########
 
-CC      = g++ -std=c++17 -lstdc++fs -fPIC -no-pie
+CC      = g++ -std=c++17 -std=c++2a -fPIC -no-pie
 DEBUG   = -g -Wall
 CFLAGS  = -c
 CFLAGS_NO_C  = -Wall $(DEBUG)
@@ -23,16 +23,16 @@ BOOST_LIB    = -L/usr/include/boost/property_tree -L/usr/include/boost/ -lboost_
 
 
 ################################################################################
-# Colorful_Cout
+# LOGGER
 ################################################################################
-COLORFUL_COUT_DIR = Colorful_Cout/
-COLORFUL_COUT_SRC_DIR = $(COLORFUL_COUT_DIR)src/
-COLORFUL_COUT_BUILD_DIR = $(COLORFUL_COUT_DIR)build/
-COLORFUL_COUT_INC_DIR = $(COLORFUL_COUT_DIR)include/
-COLORFUL_COUT_SRC_FILES = $(wildcard $(COLORFUL_COUT_SRC_DIR)/*.cpp)
-COLORFUL_COUT_SRC_FILES += $(wildcard $(COLORFUL_COUT_SRC_DIR)/*.c)
-COLORFUL_COUT_DEP = $(patsubst $(COLORFUL_COUT_SRC_DIR)/%.cpp, $(COLORFUL_COUT_BUILD_DIR)/%.o, $(COLORFUL_COUT_SRC_FILES))
-#COLORFUL_COUT_DEP += $(patsubst $(COLORFUL_COUT_SRC_DIR)/%.c, $(COLORFUL_COUT_BUILD_DIR)/%.o, $(COLORFUL_COUT_SRC_FILES))
+LOGGER_DIR = logger/
+LOGGER_SRC_DIR = $(LOGGER_DIR)src/
+LOGGER_BUILD_DIR = $(LOGGER_DIR)build/
+LOGGER_INC_DIR = $(LOGGER_DIR)include/
+LOGGER_SRC_FILES = $(wildcard $(LOGGER_SRC_DIR)/*.cpp)
+LOGGER_SRC_FILES += $(wildcard $(LOGGER_SRC_DIR)/*.c)
+LOGGER_DEP = $(patsubst $(LOGGER_SRC_DIR)/%.cpp, $(LOGGER_BUILD_DIR)/%.o, $(LOGGER_SRC_FILES))
+#LOGGER_DEP += $(patsubst $(LOGGER_SRC_DIR)/%.c, $(LOGGER_BUILD_DIR)/%.o, $(LOGGER_SRC_FILES))
 
 ################################################################################
 # utilities
@@ -44,7 +44,7 @@ UTILITIES_INC_DIR = $(UTILITIES_DIR)include/
 UTILITIES_SRC_FILES = $(wildcard $(UTILITIES_SRC_DIR)/*.cpp)
 UTILITIES_SRC_FILES += $(wildcard $(UTILITIES_SRC_DIR)/*.c)
 UTILITIES_DEP = $(patsubst $(UTILITIES_SRC_DIR)/%.cpp, $(UTILITIES_BUILD_DIR)/%.o, $(UTILITIES_SRC_FILES))
-#COLORFUL_COUT_DEP += $(patsubst $(COLORFUL_COUT_SRC_DIR)/%.c, $(COLORFUL_COUT_BUILD_DIR)/%.o, $(COLORFUL_COUT_SRC_FILES))
+#LOGGER_DEP += $(patsubst $(LOGGER_SRC_DIR)/%.c, $(LOGGER_BUILD_DIR)/%.o, $(LOGGER_SRC_FILES))
 
 
 ################################################################################
@@ -78,7 +78,7 @@ WAVEFORM_SLIB_DICT_FILES = $(patsubst $(WAVEFORM_ANA_SRC_DIR)/%.cxx, $(WAVEFORM_
 ################################################################################
 
 all:$(WAVEFORM_ANA_DEP)\
-	$(COLORFUL_COUT_DEP)\
+	$(LOGGER_DEP)\
 	$(UTILITIES_DEP)
 
 
@@ -86,26 +86,26 @@ $(WAVEFORM_ANA_BUILD_DIR)/%.Dict.cxx: $(WAVEFORM_ANA_INC_DIR)/%.hpp $(WAVEFORM_A
 	rootcint -f $@ -c $^
 
 $(WAVEFORM_ANA_BUILD_DIR)/%.o: $(WAVEFORM_ANA_SLIB_SRC_FILES)/%.cxx
-	$(CC) $(DEBUG) -I./ -I../ -I$(COLORFUL_COUT_INC_DIR) -I$(WAVEFORM_ANA_DIR) -c $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOT_INCLUDE) $(BOOST_LIB)
+	$(CC) $(DEBUG) -I./ -I../ -I$(LOGGER_INC_DIR) -I$(WAVEFORM_ANA_DIR) -c $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOT_INCLUDE) $(BOOST_LIB)
 
 $(WAVEFORM_ANA_BUILD_DIR)/%.Dict: $(WAVEFORM_ANA_BUILD_DIR)/%.Dict.cxx
-	$(CC) $(DEBUG) -I./ -I../ -I$(COLORFUL_COUT_INC_DIR) -I$(WAVEFORM_ANA_DIR) -c $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOT_INCLUDE) $(BOOST_LIB)
+	$(CC) $(DEBUG) -I./ -I../ -I$(LOGGER_INC_DIR) -I$(WAVEFORM_ANA_DIR) -c $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOT_INCLUDE) $(BOOST_LIB)
 
 $(WAVEFORM_ANA_BUILD_DIR)/%.Dict.so: $(WAVEFORM_ANA_BUILD_DIR)/%.o $(WAVEFORM_ANA_BUILD_DIR)/%.Dict
-	$(CC) -shared $(DEBUG) -I./ -I../ -I$(COLORFUL_COUT_INC_DIR) -I$(WAVEFORM_ANA_DIR)  $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOT_INCLUDE) $(BOOST_LIB)
+	$(CC) -shared $(DEBUG) -I./ -I../ -I$(LOGGER_INC_DIR) -I$(WAVEFORM_ANA_DIR)  $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOT_INCLUDE) $(BOOST_LIB)
 
 
 $(WAVEFORM_ANA_BUILD_DIR)/%.o: $(WAVEFORM_ANA_SRC_DIR)/%.cpp
-	$(CC) $(DEBUG) -I./ -I../ -I$(COLORFUL_COUT_INC_DIR) -I$(WAVEFORM_ANA_DIR) -I$(WAVEFORM_ANA_INC_DIR) -c $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOT_INCLUDE) $(BOOST_LIB)
+	$(CC) $(DEBUG) -I./ -I../ -I$(LOGGER_INC_DIR) -I$(WAVEFORM_ANA_DIR) -I$(WAVEFORM_ANA_INC_DIR) -c $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOT_INCLUDE) $(BOOST_LIB)
 
 $(WAVEFORM_ANA_BUILD_DIR)/%.o: $(WAVEFORM_ANA_SRC_DIR)/%.cxx
-	$(CC) $(DEBUG) -I./ -I../ -I$(COLORFUL_COUT_INC_DIR) -I$(WAVEFORM_ANA_DIR) -I$(WAVEFORM_ANA_INC_DIR) -c $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOT_INCLUDE) $(BOOST_LIB)
+	$(CC) $(DEBUG) -I./ -I../ -I$(LOGGER_INC_DIR) -I$(WAVEFORM_ANA_DIR) -I$(WAVEFORM_ANA_INC_DIR) -c $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOT_INCLUDE) $(BOOST_LIB)
 
 
 
 
-$(COLORFUL_COUT_BUILD_DIR)/%.o: $(COLORFUL_COUT_SRC_DIR)/%.cpp
-	$(CC) $(DEBUG) -I./ -I../ -I$(COLORFUL_COUT_INC_DIR) -I$(WAVEFORM_ANA_DIR) -c $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOT_INCLUDE) $(BOOST_LIB)
+$(LOGGER_BUILD_DIR)/%.o: $(LOGGER_SRC_DIR)/%.cpp
+	$(CC) $(DEBUG) -I./ -I../ -I$(LOGGER_INC_DIR) -I$(WAVEFORM_ANA_DIR) -c $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOT_INCLUDE) $(BOOST_LIB)
 
 $(UTILITIES_BUILD_DIR)/%.o: $(UTILITIES_SRC_DIR)/%.cpp
 	$(CC) $(DEBUG) -I./ -I../ -I$(UTILITIES_INC_DIR) -I$(UTILITIES_DIR) -c $^ -o $@
