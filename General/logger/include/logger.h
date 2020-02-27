@@ -58,12 +58,14 @@ namespace BETA_LOG
         const std::string &func_name
       )
       {
-        if(file_name.find("/") != std::string::npos )
+        std::string output_file_name = file_name;
+        std::string deli = "/";
+        if(output_file_name.find(deli) != std::string::npos )
         {
-          file_name.erase(0, file_name.find("/")+std::string("/").length() );
+          output_file_name.erase(0, output_file_name.find(deli)+deli.length() );
         }
         std::string prefix =  boost::str(boost::format("(%1%)%2%[%3%] [%4%] [%5%] [%6%] %7%")
-                              %this->line_counter_% BETA_LOG::BOLDGREEN % timestamp % file_name % line_num % func_name % BETA_LOG::RESET);
+                              %this->line_counter_% BETA_LOG::BOLDGREEN % timestamp % output_file_name % line_num % func_name % BETA_LOG::RESET);
 
         this->line_counter_++;
         return prefix;
