@@ -23,6 +23,7 @@
 #include <unordered_map>
 
 #include <boost/type_traits/is_same.hpp>
+#include <boost/format.h>
 
 //------ROOT----------------//
 #include <TFile.h>
@@ -194,7 +195,7 @@ public:
             const char *oTreeBranch_config);
   ~BetaScope()
   {
-    std::cout << this << " call destructor at " << this->object_location_ << std::endl;
+    LOG_INFO( boost::str(boost::format("%1% call destructor at location %2%")%this%this->object_location_ ) );
     // delete this->iTree;
     // delete this->iFile;
     // delete this->oTree;
