@@ -16,15 +16,15 @@ bool BetaScope::NewTreeMaker(std::string additional_branch_list) {
   // TThread::Lock();
 
   std::string cout_prefix = "BetaScope::NewTreeMaker => ";
-  logger.info(__func__, "Entering");
-  logger.info(__func__, "Preparing new tree. Default name: wfm" );
+  LOG_INFO("Entering");
+  LOG_INFO("Preparing new tree. Default name: wfm" );
 
   int branch_counter = 0;
 
   this->output_ttree_ = new TTree("wfm", "BetaScope waveform ana.");
   this->output_ttree_->SetDirectory(this->output_tfile_);
 
-  logger.info(__func__, "Creating default branches");
+  LOG_INFO("Creating default branches");
 
   bool branch_checker;
 
@@ -56,7 +56,7 @@ bool BetaScope::NewTreeMaker(std::string additional_branch_list) {
   if (VERBOSITY != 0)
     this->output_ttree_->Print();
 
-  logger.info(__func__, "Creating custom branches" );
+  LOG_INFO("Creating custom branches" );
   if (additional_branch_list.compare("") != 0)
   {
 
@@ -67,7 +67,7 @@ bool BetaScope::NewTreeMaker(std::string additional_branch_list) {
     {
       if (std::get<0>(br) == 0)
       {
-        logger.info(__func__ , "mode 0, create for all channels");
+        LOG_INFO("mode 0, create for all channels");
         for (auto ch : this->channel)
         {
           std::string data_type = std::get<1>(br);
@@ -77,42 +77,42 @@ bool BetaScope::NewTreeMaker(std::string additional_branch_list) {
             branch_checker = BetaScope::BuildOutBranch<std::vector<double>>( Form("%s%i", std::get<2>(br).c_str(), ch));
 
             if (branch_checker)
-              logger.info(__func__, "Successful type VD: " + std::get<2>(br) + std::to_string(ch) );
+              LOG_INFO("Successful type VD: " + std::get<2>(br) + std::to_string(ch) );
           }
           else if (data_type.compare("D") == 0)
           {
             branch_checker = BetaScope::BuildOutBranch<double>( Form("%s%i", std::get<2>(br).c_str(), ch));
 
             if (branch_checker)
-              logger.info(__func__, "Successful: type D " + std::get<2>(br) + std::to_string(ch) );
+              LOG_WARNING("Successful: type D " + std::get<2>(br) + std::to_string(ch) );
           }
           else
           {
-            logger.warning(__func__, "  Fail: type ? " + std::get<2>(br) + std::to_string(ch) );
+            LOG_WARNING( "  Fail: type ? " + std::get<2>(br) + std::to_string(ch) );
           }
         }
       }
       else
       {
-        logger.info(__func__, " mode !0, create single branch");
+        LOG_INFO( " mode !0, create single branch");
         std::string data_type = std::get<1>(br);
         if (data_type.compare("VD") == 0)
         {
           branch_checker = BetaScope::BuildOutBranch<std::vector<double>>( Form("%s", std::get<2>(br).c_str()));
 
           if (branch_checker)
-            logger.info(__func__, "  Successful type VD: " + std::get<2>(br) );
+            LOG_INFO( "  Successful type VD: " + std::get<2>(br) );
         }
         else if (data_type.compare("D") == 0)
         {
           branch_checker = BetaScope::BuildOutBranch<double>(Form("%s", std::get<2>(br).c_str()));
 
           if (branch_checker)
-            logger.info(__func__, " Successful: type D " + std::get<2>(br));
+            LOG_INFO( " Successful: type D " + std::get<2>(br));
         }
         else
         {
-          logger.info(__func__, "  Fail: type ? "+ std::get<2>(br));
+          LOG_INFO( "  Fail: type ? "+ std::get<2>(br));
         }
       }
     }
@@ -120,7 +120,7 @@ bool BetaScope::NewTreeMaker(std::string additional_branch_list) {
     if (VERBOSITY != 0)
       this->output_ttree_->Print();
 
-    logger.info(__func__, "Fininished, exiting" );
+    LOG_INFO("Fininished, exiting" );
   }
 
   // TThread::UnLock();

@@ -167,12 +167,12 @@ bool WaveformAnalysis::Correct_Baseline4(
     // check to see if pmax and tmax are empty or different size.
     if( pmax.size() != tmax.size())
     {
-        wave_logger.error( __func__, "pmax and tmax size dose not match!" );
+        LOG_ERROR("pmax and tmax size dose not match!" );
         return false;
     }
     if( pmax.size() == 0)
     {
-        wave_logger.error( __func__, " pmax or tmax is empty!" );
+        LOG_ERROR(" pmax or tmax is empty!" );
         return false;
     }
 

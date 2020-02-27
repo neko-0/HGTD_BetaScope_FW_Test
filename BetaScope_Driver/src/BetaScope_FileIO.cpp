@@ -11,15 +11,15 @@ bool BetaScope::FileOpen(const char *ifile_path) {
   // TThread::Lock();
 
   std::string cout_prefix = "BetaScope::FileOpen => ";
-  logger.info(__func__, "Entering" );
-  logger.info(__func__, "Preparing IO." );
+  LOG_INFO("Entering" );
+  LOG_INFO("Preparing IO." );
 
   this->input_tfile_ = new TFile(ifile_path);
   if (this->input_tfile_->IsZombie()) {
-    logger.error(__func__, "Zombie file. return false.");
+    LOG_ERROR("Zombie file. return false.");
     return false;
   }
-  logger.info(__func__, "Input file looks fine. continue");
+  LOG_INFO("Input file looks fine. continue");
 
   std::string delimiter = "/";
   std::string ofile_name = ifile_path;
@@ -30,13 +30,13 @@ bool BetaScope::FileOpen(const char *ifile_path) {
   this->input_file_name_ = ifile_path;
   this->input_file_nick_name_ = this->output_file_name_;
 
-  logger.info(__func__, "Create output file");
-  logger.info(__func__, "compressionLevel: " + std::to_string(this->compression_level_));
+  LOG_INFO( "Create output file");
+  LOG_INFO( "compressionLevel: " + std::to_string(this->compression_level_));
 
   this->output_tfile_ = new TFile(this->output_file_name_.c_str(), "RECREATE", "", this->compression_level_);
   this->output_tfile_->cd();
 
-  logger.info(__func__, "Fininished, exiting");
+  LOG_INFO("Fininished, exiting");
   // TThread::UnLock();
 
   return true;
@@ -48,31 +48,31 @@ bool BetaScope::FileOpen(const char *ifile_path) {
 void BetaScope::FileClose() {
   // TThread::Lock();
   std::string cout_prefix = "BetaScope::FileClose => ";
-  logger.info(__func__, "Entering");
-  logger.info(__func__, "Writing output files.");
+  LOG_INFO("Entering");
+  LOG_INFO("Writing output files.");
 
   this->output_ttree_->Write();
   this->output_tfile_->Close();
 
-  logger.info(__func__, "Clean up allocated memory");
+  LOG_INFO("Clean up allocated memory");
 
   int counter = 0;
   for(const auto &val : this->input_branches_buffer_)
   {
     if(val)
     {
-      logger.info(__func__, "Calling delete");
+      LOG_INFO("Calling delete");
       delete val;
     }
     counter++;
     if(counter == this->input_branch_counter_){break;}
   }
 
-  logger.info(__func__, "Finished, extiting");
+  LOG_INFO("Finished, extiting");
   std::time_t _t_end_of_program = std::time(nullptr);
   std::time_t _t_end_of_program_cpu = std::clock();
   this->cpu_time = std::clock() - this->cpu_time;
-  logger.info(__func__, this->input_file_nick_name_ + " Wall Time used: " + std::to_string(_t_end_of_program - this->kTimeObjCreation) );
-  logger.info(__func__, this->input_file_nick_name_ + " CPU Time used: " + std::to_string(_t_end_of_program_cpu - this->cpu_time) );
+  LOG_INFO(this->input_file_nick_name_ + " Wall Time used: " + std::to_string(_t_end_of_program - this->kTimeObjCreation) );
+  LOG_INFO(this->input_file_nick_name_ + " CPU Time used: " + std::to_string(_t_end_of_program_cpu - this->cpu_time) );
   // TThread::UnLock();
 }

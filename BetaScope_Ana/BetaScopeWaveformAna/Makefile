@@ -35,10 +35,12 @@ UTILITIES_INC = $(GENERAL_DIR)/utilities/include/
 UTILITIES_DEPS = $(wildcard $(GENERAL_DIR)/utilities/build/*.o)
 
 LOGGER_INC = $(GENERAL_DIR)/logger/include/
+LOGGER_DEPS = $(wildcard $(GENERAL_DIR)/logger/build/*.o)
 
 DEPS = $(BETASCOPE_DRIVER_DEPS)
 DEPS += $(WAVEFORM_ANA_DEPS)
 DEPS += $(UTILITIES_DEPS)
+DEPS += $(LOGGER_DEPS)
 
 
 #--BetaScopeWaveformAna

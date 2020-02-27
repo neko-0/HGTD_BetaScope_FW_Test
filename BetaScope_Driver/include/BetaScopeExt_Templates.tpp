@@ -33,12 +33,12 @@ bool BetaScope_Ext::BuildTH1Branch(std::string branchName) {
         branchName, this->oTree_TH[this->new_th_branch_counter_]));
     this->output_ttree_->Branch(branchName.c_str(), my_th);
     this->new_th_branch_counter_++;
-    logger.info(__func__, "TH Branch " + branchName + " is created for ouput.");
+    LOG_INFO("TH Branch " + branchName + " is created for ouput.");
     return true;
   }
   catch (...)
   {
-    logger.error( __func__, "Fail creating TH1 branch.");
+    LOG_ERROR("Fail creating TH1 branch.");
     return false;
   }
 }

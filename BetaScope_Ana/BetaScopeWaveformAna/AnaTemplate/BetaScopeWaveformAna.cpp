@@ -102,7 +102,7 @@ void BetaScopeWaveformAna::Analysis()
 
   if (!this->isProcessing)
   {
-    logger.info(__func__, beta_scope.GetInFileNickName() + " BetaScopeWaveformAna::analysis: Start event processing: ");
+    LOG_INFO( beta_scope.GetInFileNickName() + " BetaScopeWaveformAna::analysis: Start event processing: ");
     this->isProcessing = true;
   }
 
@@ -187,13 +187,13 @@ void BetaScopeWaveformAna::Initialize() {
   char *check_path = getenv("BETASCOPE_SCRIPTS");
   if (check_path != NULL)
   {
-    logger.info( __func__, "Found myOwnTree.ini");
+    LOG_INFO("Found myOwnTree.ini");
     std::string beta_scope_path(getenv("BETASCOPE_SCRIPTS"));
     BetaScope_AnaFramework::Initialize( beta_scope_path + "/../BetaScope_Ana/BetaScopeWaveformAna/AnaTemplate/myOwnTree.ini");
   }
   else
   {
-    logger.warning(__func__, "Did not find myOwnTree.ini");
+    LOG_INFO("Did not find myOwnTree.ini");
     BetaScope_AnaFramework::Initialize("");
   }
 
@@ -208,17 +208,17 @@ void BetaScopeWaveformAna::Initialize() {
     {
       bool branch_checker;
       int branch_counter = 0;
-      logger.info(__func__, "CH:"+std::to_string(ch) );
+      LOG_INFO("CH:"+std::to_string(ch) );
 
-      logger.info(__func__, "Creating branches for storing scope channels: " );
+      LOG_INFO("Creating branches for storing scope channels: " );
       if( this->beta_scope.BuildOutBranch<std::vector<double>>(Form("w%i", ch)) )
       {
-        logger.info(__func__, "Successful: voltage ch-" + std::to_string(ch) );
+        LOG_INFO("Successful: voltage ch-" + std::to_string(ch) );
       }
 
       if( this->beta_scope.BuildOutBranch<std::vector<double>>(Form("t%i", ch)) )
       {
-        logger.info(__func__, "Successful: time ch-" + std::to_string(ch) );
+        LOG_INFO("Successful: time ch-" + std::to_string(ch) );
       }
     }
   }
@@ -322,7 +322,7 @@ void BetaScopeWaveformAna::Initialize() {
 
 void BetaScopeWaveformAna::LoopEvents()
 {
-  logger.info( __func__, "running Derived class LoopEvents." );
+  LOG_INFO("running Derived class LoopEvents." );
   BetaScope_AnaFramework::LoopEvents(&BetaScope_AnaFramework::Analysis);
 }
 

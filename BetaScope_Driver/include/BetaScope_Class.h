@@ -34,8 +34,6 @@
 
 #define VERBOSITY 0
 
-static Logger logger("Logger");
-
 // helper function from stack overflow
 
 template <class N> struct is_vector
@@ -109,7 +107,7 @@ public:
   PrimitiveDataType_TemplateContainer(){};
   ~PrimitiveDataType_TemplateContainer()
   {
-    logger.info( __func__, "clean up." );
+    LOG_INFO("clean up." );
     if (this->data_type)
     {
       delete this->data_type;

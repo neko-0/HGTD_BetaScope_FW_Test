@@ -85,7 +85,7 @@ public:
   BetaScopeWaveformAna(){};
 
   BetaScopeWaveformAna(std::string ifile) : ifile(ifile) {
-    logger.info(__func__, "Using user template: BetaScopeWaveformAna");
+    LOG_INFO("Using user template: BetaScopeWaveformAna");
   };
 
   ~BetaScopeWaveformAna(){};

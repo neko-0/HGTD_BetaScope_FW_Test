@@ -8,10 +8,6 @@
 #include "General/logger/include/logger.h"
 #include "WaveformAna/include/WaveformAna.hpp"
 
-static Logger wave_logger("Waveform_Analysis");
-
-
-
 class WaveformAnalysis
 {
 

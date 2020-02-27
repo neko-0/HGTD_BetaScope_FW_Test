@@ -268,14 +268,14 @@ void WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Singal(
         if (!this->supressNoisy)
         {
             this->mu.lock();
-            wave_logger.warning( __func__, "Noisy"); // if too many "Noisy", there might be a problem.
+            LOG_WARNING("Noisy"); // if too many "Noisy", there might be a problem.
             this->mu.unlock();
         }
         this->supressNoisyCounter++;
         if (this->supressNoisyCounter == 100)
         {
             this->mu.lock();
-            wave_logger.warning( __func__, "supressNoisyCounter reaches 100");
+            LOG_WARNING("supressNoisyCounter reaches 100");
             this->mu.unlock();
             this->supressNoisy = true;
         }
@@ -288,7 +288,7 @@ void WaveformAnalysis::Get_PmaxTmax_Of_Multiple_Singal(
         if (!this->supressNoisy)
         {
             this->mu.lock();
-            wave_logger.warning( __func__, "Method fail, the output size is 0. Assigning ""default value"); // if too many "Noisy", there
+            LOG_WARNING("Method fail, the output size is 0. Assigning ""default value"); // if too many "Noisy", there
             // might be a problem.
             this->mu.unlock();
         }

@@ -21,7 +21,7 @@ public:
 
   virtual void Analysis()
   {
-    logger.info(__func__, "this is a virtual analysis().");
+    LOG_INFO("this is a virtual analysis().");
   };
 
   virtual void LoopEvents(void (BetaScope_AnaFramework::*func)());
@@ -47,13 +47,13 @@ void BetaScope_AnaFramework<beta_scope_type>::Initialize( std::string addBranche
 template <typename beta_scope_type>
 void BetaScope_AnaFramework<beta_scope_type>::LoopEvents( void (BetaScope_AnaFramework::*func)())
 {
-  logger.info( __func__, " BetaScope_AnaFramework::LoopEvents is used for driving event looping." );
+  LOG_INFO("BetaScope_AnaFramework::LoopEvents is used for driving event looping." );
   while (this->beta_scope.GetInTreeReader()->Next())
   {
     (this->*func)();
     BetaScope_AnaFramework<beta_scope_type>::FillData();
   }
-  logger.info( __func__, "Finished loopEvents.");
+  LOG_INFO("Finished loopEvents.");
 }
 
 template <typename beta_scope_type>
@@ -63,7 +63,7 @@ void BetaScope_AnaFramework<beta_scope_type>::FillData()
   this->beta_scope.FillEvent();
   if(this->event_counter % 1000 == 0 || (this->event_counter % 10 == 0 &&  this->event_counter <= 100) )
   {
-    logger.info(__func__, this->beta_scope.GetInFileNickName() + " Proccessed events: " + std::to_string(this->event_counter) + " /" + std::to_string(this->beta_scope.GetInNumEvent()) );
+    LOG_INFO(this->beta_scope.GetInFileNickName() + " Proccessed events: " + std::to_string(this->event_counter) + " /" + std::to_string(this->beta_scope.GetInNumEvent()) );
   }
 }
 
