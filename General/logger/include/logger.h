@@ -60,7 +60,7 @@ namespace BETA_LOG
       {
         std::string output_file_name = file_name;
         std::string deli = "/";
-        if(output_file_name.find(deli) != std::string::npos )
+        while(output_file_name.find(deli) != std::string::npos )
         {
           output_file_name.erase(0, output_file_name.find(deli)+deli.length() );
         }
