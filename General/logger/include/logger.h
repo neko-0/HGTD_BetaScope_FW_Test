@@ -39,6 +39,7 @@ namespace BETA_LOG
     private:
       int level_ = 0;
       std::string name_ = "Logger";
+      int line_counter_ = 0;
 
       std::string color_wrap( std::string color, std::string content){ return boost::str(boost::format("%1% %2% %3%")%color%content%BETA_LOG::RESET); }
       std::string timestamp()
@@ -57,8 +58,10 @@ namespace BETA_LOG
         std::string func_name
       )
       {
-        std::string prefix =  boost::str(boost::format("%1%[%2%] [%3%] [%4%] [%5%] %6%")
-                              % BETA_LOG::BOLDGREEN % timestamp % file_name % line_num % func_name % BETA_LOG::RESET);
+        std::string prefix =  boost::str(boost::format("(%1%)%2%[%3%] [%4%] [%5%] [%6%] %7%")
+                              %this->line_counter_% BETA_LOG::BOLDGREEN % timestamp % file_name % line_num % func_name % BETA_LOG::RESET);
+
+        this->line_counter_++;
         return prefix;
       }
 
