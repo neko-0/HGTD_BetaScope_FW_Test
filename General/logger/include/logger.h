@@ -52,12 +52,16 @@ namespace BETA_LOG
       }
 
       std::string prefix_format(
-        std::string timestamp,
+        const std::string &timestamp,
         std::string file_name,
-        int line_num,
-        std::string func_name
+        const int &line_num,
+        const std::string &func_name
       )
       {
+        if(file_name.find("/") != std::string::npos )
+        {
+          file_name.erase(0, file_name.find("/")+std::string("/").length() );
+        }
         std::string prefix =  boost::str(boost::format("(%1%)%2%[%3%] [%4%] [%5%] [%6%] %7%")
                               %this->line_counter_% BETA_LOG::BOLDGREEN % timestamp % file_name % line_num % func_name % BETA_LOG::RESET);
 
