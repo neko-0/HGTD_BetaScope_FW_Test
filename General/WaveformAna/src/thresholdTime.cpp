@@ -107,7 +107,7 @@ double WaveformAnalysis::Find_Time_At_Threshold(
 //==============================================================================
 // find the time that across the threshold.
 
-void WaveformAnalysis::Get_TimeAcrossThreshold(
+double WaveformAnalysis::Get_TimeAcrossThreshold(
     const double &thresholdLevel,
     const std::vector<double> &voltageVec,
     const std::vector<double> &timeVec,
@@ -148,5 +148,14 @@ void WaveformAnalysis::Get_TimeAcrossThreshold(
     if (time_at_threshold_v.size() < expect_count)
     {
         time_at_threshold_v.push_back(1.0e6);
+    }
+
+    if(time_at_threshold_v.size() < 2)
+    {
+      return 1.0e6;
+    }
+    else
+    {
+      return time_at_threshold_v.at(time_at_threshold_v.size()-1) - time_at_threshold_v.at(0);
     }
 }

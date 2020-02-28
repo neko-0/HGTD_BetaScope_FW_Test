@@ -313,11 +313,18 @@ WaveformAna<double, double> WaveformAnalysis::analyze_waveform(
     waveform.fine_cfd(fine_cfd);
 
     std::vector<double> thTime;
+    thTime.reserve(2000);
+    std::vector<double> ToT;
+    ToT.reserve(2000);
     for (int k = 0; k < 2000; k++)
     {
-        thTime.push_back( WaveformAnalysis::Find_Time_At_Threshold( double(k), waveform.get_v2(), waveform.get_v1(), pmaxHolder));
+        thTime.emplace_back( WaveformAnalysis::Find_Time_At_Threshold( double(k), waveform.get_v2(), waveform.get_v1(), pmaxHolder));
+        std::vector<double> buff1;
+        unsigned int buff2;
+        ToT.emplace_back(WaveformAnalysis::Get_TimeAcrossThreshold(double(k), waveform.get_v2(), waveform.get_v1(), buff1, buff2));
     }
     waveform.threashold_time(thTime);
+    waveform.tot(ToT);
 
     /*
     waveform.set_cfd( loop_helper2( &WaveformAnalysis::Rising_Edge_CFD_Time,

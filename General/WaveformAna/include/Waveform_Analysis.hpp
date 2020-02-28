@@ -270,7 +270,7 @@ public:
         const std::vector<double> &time_v
     );
 
-    void Get_TimeAcrossThreshold(
+    double Get_TimeAcrossThreshold(
         const double &thresholdLevel,
         const std::vector<double> &voltageVec,
         const std::vector<double> &timeVec,

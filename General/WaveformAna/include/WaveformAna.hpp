@@ -26,6 +26,7 @@ private:
     std::vector<double> fine_cfd_;
     std::vector<double> fine_cfd_fall_;
     std::vector<double> threshold_time_;
+    std::vector<double> tot_;
     double rms_;
 
     double front_baseline_int_;
@@ -67,6 +68,7 @@ public:
     void rms(const double &value){ this->rms_ = value; }
     void undershoot_pmax(const double &value){ this->undershoot_pmax_ = value;}
     void undershoot_tmax(const double &value){ this->undershoot_tmax_ = value;}
+    void tot(const std::vector<double> &value){ this->tot_ = value;}
 
     int channel() const { return this->channel_; }
     int max_index() const { return this->max_index_; }
@@ -90,6 +92,7 @@ public:
     double rms() const { return this->rms_; }
     double undershoot_pmax() const {return this->undershoot_pmax_; }
     double undershoot_tmax() const {return this->undershoot_tmax_; }
+    std::vector<double> tot() const {return this->tot_; }
 
     ClassDef(WaveformAna, 1)
 };

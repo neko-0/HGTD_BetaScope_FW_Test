@@ -66,6 +66,8 @@ void BetaScopeWaveformAna::event_ana(int ch, WaveformAna<double, double> wavefor
   *this->thTime[ch] = waveform.threshold_time();
   *this->fineCFDRise[ch] = waveform.fine_cfd();
 
+  *this->beta_scope.GetOutBranch<std::vector<double>>("tot"+std::to_string(ch)) = waveform.tot();
+
   if( !this->skipWaveform )
   {
     *this->w[ch] = waveform.v2();
@@ -247,6 +249,7 @@ void BetaScopeWaveformAna::Initialize() {
     this->beta_scope.BuildOutBranch<double>(Form("undershoot_pmax%i", ch) );
     this->beta_scope.BuildOutBranch<double>(Form("undershoot_tmax%i", ch) );
     this->beta_scope.BuildOutBranch<bool>(Form("isGoodTrig%i", ch) );
+    this->beta_scope.BuildOutBranch<std::vector<double>>(Form("tot%i", ch) );
 
     this->pmax[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("pmax" + std::to_string(ch));
     this->tmax[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("tmax" + std::to_string(ch));
