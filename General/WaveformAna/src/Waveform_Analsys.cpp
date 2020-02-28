@@ -320,8 +320,7 @@ WaveformAna<double, double> WaveformAnalysis::analyze_waveform(
     {
         thTime.emplace_back( WaveformAnalysis::Find_Time_At_Threshold( double(k), waveform.get_v2(), waveform.get_v1(), pmaxHolder));
         std::vector<double> buff1;
-        unsigned int buff2;
-        ToT.emplace_back(WaveformAnalysis::Get_TimeAcrossThreshold(double(k), waveform.get_v2(), waveform.get_v1(), buff1, buff2));
+        ToT.emplace_back(WaveformAnalysis::Get_TimeAcrossThreshold(double(k), waveform.get_v2(), waveform.get_v1(), buff1, 2));
     }
     waveform.threashold_time(thTime);
     waveform.tot(ToT);
