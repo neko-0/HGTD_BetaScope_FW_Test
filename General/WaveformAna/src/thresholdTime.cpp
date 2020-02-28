@@ -148,11 +148,7 @@ double WaveformAnalysis::Get_TimeAcrossThreshold(
     if (time_at_threshold_v.size() < expect_count)
     {
         time_at_threshold_v.push_back(1.0e6);
-    }
-
-    if(time_at_threshold_v.size() < 2)
-    {
-      return 1.0e6;
+        return 1.0e6
     }
     else
     {
