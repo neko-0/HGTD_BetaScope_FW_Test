@@ -282,9 +282,9 @@ WaveformAna<double, double> WaveformAnalysis::analyze_waveform(
     //--------------------------------------------------------------------------------------------
 
     std::vector<double> buffer;
-    std::vector<double> buffer2;
+    //std::vector<double> buffer2;
     buffer.reserve(2000);
-    buffer2.reserve(2000);
+    //buffer2.reserve(2000);
 
     for (int k = 0; k < 101; k++)
     {
@@ -321,13 +321,13 @@ WaveformAna<double, double> WaveformAnalysis::analyze_waveform(
     for (int k = 0; k < 2000; k++)
     {
         buffer.emplace_back( WaveformAnalysis::Find_Time_At_Threshold( double(k), waveform.get_v2(), waveform.get_v1(), pmaxHolder));
-        std::vector<double> my_buff;
-        buffer2.emplace_back(WaveformAnalysis::Get_TimeAcrossThreshold(double(k), waveform.get_v2(), waveform.get_v1(), my_buff, 2));
+        //std::vector<double> my_buff;
+        //buffer2.emplace_back(WaveformAnalysis::Get_TimeAcrossThreshold(double(k), waveform.get_v2(), waveform.get_v1(), my_buff, 2));
     }
     waveform.threashold_time(buffer);
-    waveform.tot(buffer2);
+    //waveform.tot(buffer2);
     buffer.clear();
-    buffer2.clear();
+    //buffer2.clear();
 
     /*
     waveform.set_cfd( loop_helper2( &WaveformAnalysis::Rising_Edge_CFD_Time,
