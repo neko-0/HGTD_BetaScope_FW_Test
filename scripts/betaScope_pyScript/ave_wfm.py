@@ -43,7 +43,7 @@ def ave_wfm(run):
 
 if __name__ == "__main__":
 
-    runs = ConfigParser.open()
+    runs = ConfigReader.open()
 
     import multiprocessing as mp
 
