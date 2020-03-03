@@ -4,6 +4,7 @@ Generate average waveform using ROOT.
 
 import ROOT
 from config_reader import ConfigReader
+from config_reader import Run
 
 
 def ave_wfm(run):

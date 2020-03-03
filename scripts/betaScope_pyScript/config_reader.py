@@ -1,19 +1,20 @@
 import configparser
 
 
-class ConfigReader(object):
-    class Run(object):
-        def __init__(self, bias, file_name, temperature, cycle, dut_ch, trig_ch, cuts):
-            self.bias = bias
-            self.file_name = file_name
-            self.temperature = temperature
-            self.cycle = cycle
-            self.dut_ch = dut_ch
-            self.trig_ch = trig_ch
-            self.cuts = cuts
+class Run(object):
+    def __init__(self, bias, file_name, temperature, cycle, dut_ch, trig_ch, cuts):
+        self.bias = bias
+        self.file_name = file_name
+        self.temperature = temperature
+        self.cycle = cycle
+        self.dut_ch = dut_ch
+        self.trig_ch = trig_ch
+        self.cuts = cuts
 
-    def __init__(self):
-        pass
+def __init__(self):
+    pass
+
+class ConfigReader(object):
 
     @staticmethod
     def open(config="run_info_v08022018.ini"):
