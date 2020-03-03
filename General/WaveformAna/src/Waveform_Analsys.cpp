@@ -281,53 +281,48 @@ WaveformAna<double, double> WaveformAnalysis::analyze_waveform(
 
     //--------------------------------------------------------------------------------------------
 
-    std::vector<double> buffer;
-    //std::vector<double> buffer2;
-    buffer.reserve(2000);
-    //buffer2.reserve(2000);
-
     for (int k = 0; k < 101; k++)
     {
         double percentage = 1.0 * k;
-        buffer.emplace_back( WaveformAnalysis::Rising_Edge_CFD_Time( percentage, waveform.get_v2(), waveform.get_v1(), pmaxHolder));
+        buffer_[0].emplace_back( WaveformAnalysis::Rising_Edge_CFD_Time( percentage, waveform.get_v2(), waveform.get_v1(), pmaxHolder));
     }
-    waveform.cfd(buffer);
-    buffer.clear();
+    waveform.cfd(buffer_[0]);
+    buffer_[0].clear();
 
     for (int k = 0; k < 101; k++)
     {
-        buffer.emplace_back( WaveformAnalysis::Falling_Edge_CFD_Time(k, waveform.get_v2(), waveform.get_v1(), pmaxHolder));
+        buffer_[0].emplace_back( WaveformAnalysis::Falling_Edge_CFD_Time(k, waveform.get_v2(), waveform.get_v1(), pmaxHolder));
     }
-    waveform.cfd_fall(buffer);
-    buffer.clear();
+    waveform.cfd_fall(buffer_[0]);
+    buffer_[0].clear();
 
 
     for (int d = 0; d < 101; d++)
     {
-        buffer.emplace_back(WaveformAnalysis::Find_Dvdt(d, 0, waveform.get_v2(), waveform.get_v1(), pmaxHolder));
+        buffer_[0].emplace_back(WaveformAnalysis::Find_Dvdt(d, 0, waveform.get_v2(), waveform.get_v1(), pmaxHolder));
     }
-    waveform.dvdt(buffer);
-    buffer.clear();
+    waveform.dvdt(buffer_[0]);
+    buffer_[0].clear();
 
     std::vector<double> fine_cfd;
     for (int step = 0; step < 500; step++)
     {
         double percentage = 0.2 * step;
-        buffer.emplace_back( WaveformAnalysis::Rising_Edge_CFD_Time( percentage, waveform.get_v2(), waveform.get_v1(), pmaxHolder));
+        buffer_[0].emplace_back( WaveformAnalysis::Rising_Edge_CFD_Time( percentage, waveform.get_v2(), waveform.get_v1(), pmaxHolder));
     }
-    waveform.fine_cfd(buffer);
-    buffer.clear();
+    waveform.fine_cfd(buffer_[0]);
+    buffer_[0].clear();
 
     for (int k = 0; k < 2000; k++)
     {
-        buffer.emplace_back( WaveformAnalysis::Find_Time_At_Threshold( double(k), waveform.get_v2(), waveform.get_v1(), pmaxHolder));
-        //std::vector<double> my_buff;
-        //buffer2.emplace_back(WaveformAnalysis::Get_TimeAcrossThreshold(double(k), waveform.get_v2(), waveform.get_v1(), my_buff, 2));
+        buffer_[0].emplace_back( WaveformAnalysis::Find_Time_At_Threshold( double(k), waveform.get_v2(), waveform.get_v1(), pmaxHolder));
+        buffer_[1].emplace_back(WaveformAnalysis::Get_TimeAcrossThreshold(double(k), waveform.get_v2(), waveform.get_v1(), buffer_[2], 2));
     }
-    waveform.threashold_time(buffer);
-    //waveform.tot(buffer2);
-    buffer.clear();
-    //buffer2.clear();
+    waveform.threashold_time(buffer_[0]);
+    waveform.tot(buffer_[1]);
+    buffer_[0].clear();
+    buffer_[1].clear();
+    buffer_[2].clear();
 
     /*
     waveform.set_cfd( loop_helper2( &WaveformAnalysis::Rising_Edge_CFD_Time,

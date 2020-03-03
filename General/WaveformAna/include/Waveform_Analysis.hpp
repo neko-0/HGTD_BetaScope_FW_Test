@@ -16,10 +16,18 @@ class WaveformAnalysis
 
     int Find_Bunch_Negative_Signal_Maximum_counter = 0;
 
+    std::vector<double> buffer_[6];
+
     std::mutex mu;
 
 public:
-    WaveformAnalysis() {};
+    WaveformAnalysis()
+    {
+      for(auto &b: buffer_)
+      {
+        b.reserve(2000);
+      }
+    };
     ~WaveformAnalysis() {};
 
     WaveformAna<double, double>

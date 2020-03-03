@@ -62,7 +62,7 @@ public:
   std::vector<double> *pulseArea_withZeroCross[8];
   std::vector<double> *backBaselineInt_indepBaseCorr[8];
   std::vector<double> *frontBaselineInt_indepBaseCorr[8];
-  //std::vector<double> *tot[8];
+  std::vector<double> *tot[8];
 
   std::vector<double> localW[8];
   std::vector<double> localT[8];

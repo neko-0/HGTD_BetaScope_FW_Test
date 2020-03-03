@@ -115,33 +115,26 @@ double WaveformAnalysis::Get_TimeAcrossThreshold(
     const unsigned int &expect_count)
 {
     bool rise_edge = true;
-    bool fall_edge = false;
 
-    for (std::size_t i = 1, npoints = voltageVec.size(); i < npoints; i++)
+    for( std::size_t i = 1, npoints = voltageVec.size(); i < npoints; i++)
     {
-        if (time_at_threshold_v.size() == expect_count)
-            break;
+        if( time_at_threshold_v.size() == expect_count){ break; }
 
-        if (rise_edge)
+        if(rise_edge)
         {
             if (voltageVec.at(i) >= thresholdLevel)
             {
                 time_at_threshold_v.push_back( xlinearInter(timeVec.at(i - 1), voltageVec.at(i - 1), timeVec.at(i), voltageVec.at(i), thresholdLevel));
                 rise_edge = false;
-                fall_edge = true;
-            }
-        }
-        else if (fall_edge)
-        {
-            if (voltageVec.at(i) <= thresholdLevel)
-            {
-                time_at_threshold_v.push_back(xlinearInter(timeVec.at(i - 1), voltageVec.at(i - 1), timeVec.at(i), voltageVec.at(i), thresholdLevel));
-                rise_edge = true;
-                fall_edge = false;
             }
         }
         else
         {
+            if( voltageVec.at(i) <= thresholdLevel)
+            {
+                time_at_threshold_v.push_back(xlinearInter(timeVec.at(i - 1), voltageVec.at(i - 1), timeVec.at(i), voltageVec.at(i), thresholdLevel));
+                rise_edge = true;
+            }
         }
     }
 

@@ -65,7 +65,7 @@ void BetaScopeWaveformAna::event_ana(int ch, WaveformAna<double, double> wavefor
   *this->dvdt[ch] = waveform.dvdt();
   *this->thTime[ch] = waveform.threshold_time();
   *this->fineCFDRise[ch] = waveform.fine_cfd();
-  //*this->tot[ch] = waveform.tot();
+  *this->tot[ch] = waveform.tot();
 
   if( !this->skipWaveform )
   {
@@ -267,7 +267,7 @@ void BetaScopeWaveformAna::Initialize() {
     this->backBaselineInt_indepBaseCorr[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("backBaselineInt_indepBaseCorr" + std::to_string(ch));
     this->i_w[ch] = this->beta_scope.GetInBranch<TTreeReaderArray, double>("w" + std::to_string(ch));
     this->i_t[ch] = this->beta_scope.GetInBranch<TTreeReaderArray, double>("t" + std::to_string(ch));
-    //this->tot[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("tot"+std::to_string(ch));
+    this->tot[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("tot"+std::to_string(ch));
     if (!this->i_w[ch])
     {
       std::cout << this->i_w[ch] << std::endl;
