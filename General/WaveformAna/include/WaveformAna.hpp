@@ -44,7 +44,15 @@ public:
     WaveformAna(TTreeReaderArray<input_type> *v1, TTreeReaderArray<input_type> *v2,
       const bool &invert, const float &ampFactor, const float &tFactor,
       const bool &tResample, const float &xori, const float &dt
-    ) : Waveform<data_type, input_type>(v1, v2, invert, ampFactor, tFactor, tResample, xori, dt) {};
+    ) : Waveform<data_type, input_type>(v1, v2, invert, ampFactor, tFactor, tResample, xori, dt) {
+      dvdt_.reserve(2000);
+      cfd_.reserve(2000);
+      cfd_fall_.reserve(2000);
+      fine_cfd_.reserve(2000);
+      fine_cfd_fall_.reserve(2000);
+      threshold_time_.reserve(2000);
+      tot_.reserve(2000);
+    };
 
     void channel(const int &value){ this->channel_ = value; }
     void pmax(const double &value){ this->pmax_ = value; }
@@ -55,7 +63,7 @@ public:
     void neg_max_index(const int &value){ this->neg_max_index_ = value; }
     void rise_time(const double &value){ this->rise_time_ = value; }
     void fall_time(const double &value){ this->fall_time_ = value; }
-    void pulse_area(const double value){ this->pulse_area_ = value; }
+    void pulse_area(const double &value){ this->pulse_area_ = value; }
     void pulse_area_undershoot(const double &value){ this->pulse_area_undershoot_ = value; }
     void dvdt(const std::vector<double> &value){ this->dvdt_ = value; }
     void cfd(const std::vector<double> &value){ this->cfd_ = value; }
