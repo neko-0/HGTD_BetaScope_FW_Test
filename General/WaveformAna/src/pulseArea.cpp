@@ -43,8 +43,8 @@ index
 ==============================================================================*/
 double
 WaveformAnalysis::Find_Pulse_Area(
-    const std::vector<double> &timeVec,
     const std::vector<double> &voltageVec,
+    const std::vector<double> &timeVec,
     const std::pair<double, unsigned int> &Pmax
 )
 {
