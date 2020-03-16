@@ -59,7 +59,7 @@ class ConfigReader(object):
                 cuts = "{} && {}".format(dut_cut, trig_cut)
 
             run_list.append(
-                ConfigReader.Run(bias, fname, temperature, cycle, dut_ch, trig_ch, cuts)
+                Run(bias, fname, temperature, cycle, dut_ch, trig_ch, cuts)
             )
 
         return run_list
