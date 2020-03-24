@@ -14,6 +14,7 @@ template <class data_type, class input_type> class Waveform : public TObject
 protected:
     std::vector<data_type> v1_ = {};
     std::vector<data_type> v2_ = {};
+    std::size_t size_ = 0;
 
 public:
     Waveform() {};
@@ -57,6 +58,8 @@ public:
 
     void set_v1(std::vector<data_type> value){ this->v1_ = value; }
     void set_v2(std::vector<data_type> value){ this->v2_ = value; }
+
+    std::size_t size() const {return this->size_;}
 
     ClassDef(Waveform, 1)
 };
@@ -160,6 +163,7 @@ Waveform<data_type, input_type>::Waveform(
       invert ? this->v2_.emplace_back(-1.0*amp->At(i)*ampFactor) : this->v2_.emplace_back(amp->At(i)*ampFactor);
   }
 
+  this->size_ = amp->GetSize();
 };
 
 #endif // WAVEFORM_H

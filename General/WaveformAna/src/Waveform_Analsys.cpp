@@ -201,7 +201,16 @@ WaveformAna<double, double> WaveformAnalysis::analyze_waveform(
     std::vector<double> back_temp_time = waveform.v1();
 
     std::pair<double, unsigned int> pmax_before_baseline = WaveformAnalysis::Find_Singal_Maximum( waveform.get_v2(), waveform.get_v1(), limiting_search_region_OnOff, pmaxSearchRange);
-    double tmax_for_baseline = waveform.get_v1_value(pmax_before_baseline.second);
+    double tmax_for_baseline;
+    if( pmax_before_baseline.second < waveform.size() )
+    {
+      tmax_for_baseline = waveform.get_v1_value(pmax_before_baseline.second);
+    }
+    else
+    {
+      tmax_for_baseline = waveform.get_v1_value(waveform.size()-1);
+    }
+
     double temp_riseTime = WaveformAnalysis::Find_Rise_Time( waveform.get_v2(), waveform.get_v1(), pmax_before_baseline, 0.1, 0.9);
 
     double temp_front_searchRange[2] = {
