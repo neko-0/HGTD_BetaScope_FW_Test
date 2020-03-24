@@ -18,7 +18,7 @@ void FASTWaveformAna::Analysis()
     this->beta_scope.GetInBranch<TTreeReaderArray,double>("t1"),
     false, //inverting waveform
     1000.0, //vscale factor
-    1000.0, //hscale factor
+    1e12, //hscale factor
     false, // time resample
     0,
     50
@@ -29,7 +29,7 @@ void FASTWaveformAna::Analysis()
     this->beta_scope.GetInBranch<TTreeReaderArray,double>("t3"),
     false, //inverting waveform
     1000.0, //vscale factor
-    1000.0, //hscale factor
+    1e12, //hscale factor
     false, // time resample
     0,
     50
