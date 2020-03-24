@@ -208,7 +208,7 @@ WaveformAna<double, double> WaveformAnalysis::analyze_waveform(
     }
     else
     {
-      tmax_for_baseline = waveform.get_v1_value(waveform.size()-1);
+      tmax_for_baseline = waveform.get_v1_value(0);
     }
 
     double temp_riseTime = WaveformAnalysis::Find_Rise_Time( waveform.get_v2(), waveform.get_v1(), pmax_before_baseline, 0.1, 0.9);
