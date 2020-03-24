@@ -46,6 +46,18 @@ UTILITIES_SRC_FILES += $(wildcard $(UTILITIES_SRC_DIR)/*.c)
 UTILITIES_DEP = $(patsubst $(UTILITIES_SRC_DIR)/%.cpp, $(UTILITIES_BUILD_DIR)/%.o, $(UTILITIES_SRC_FILES))
 #LOGGER_DEP += $(patsubst $(LOGGER_SRC_DIR)/%.c, $(LOGGER_BUILD_DIR)/%.o, $(LOGGER_SRC_FILES))
 
+################################################################################
+# Trigger
+################################################################################
+TRIGGER_DIR = Trigger/
+TRIGGER_SRC_DIR = $(TRIGGER_DIR)src/
+TRIGGER_BUILD_DIR = $(TRIGGER_DIR)build/
+TRIGGER_INC_DIR = $(TRIGGER_DIR)include/
+TRIGGER_SRC_FILES = $(wildcard $(TRIGGER_SRC_DIR)/*.cpp)
+TRIGGER_SRC_FILES += $(wildcard $(TRIGGER_SRC_DIR)/*.c)
+TRIGGER_DEP = $(patsubst $(TRIGGER_SRC_DIR)/%.cpp, $(TRIGGER_BUILD_DIR)/%.o, $(TRIGGER_SRC_FILES))
+#LOGGER_DEP += $(patsubst $(LOGGER_SRC_DIR)/%.c, $(LOGGER_BUILD_DIR)/%.o, $(LOGGER_SRC_FILES))
+
 
 ################################################################################
 # Waveform Ana
@@ -79,7 +91,9 @@ WAVEFORM_SLIB_DICT_FILES = $(patsubst $(WAVEFORM_ANA_SRC_DIR)/%.cxx, $(WAVEFORM_
 
 all:$(WAVEFORM_ANA_DEP)\
 	$(LOGGER_DEP)\
-	$(UTILITIES_DEP)
+	$(UTILITIES_DEP) \
+	$(TRIGGER_DEP)
+
 
 
 $(WAVEFORM_ANA_BUILD_DIR)/%.Dict.cxx: $(WAVEFORM_ANA_INC_DIR)/%.hpp $(WAVEFORM_ANA_INC_DIR)/LinkDef.h
@@ -109,6 +123,9 @@ $(LOGGER_BUILD_DIR)/%.o: $(LOGGER_SRC_DIR)/%.cpp
 
 $(UTILITIES_BUILD_DIR)/%.o: $(UTILITIES_SRC_DIR)/%.cpp
 	$(CC) $(DEBUG) -I./ -I../ -I$(UTILITIES_INC_DIR) -I$(UTILITIES_DIR) -c $^ -o $@
+
+$(TRIGGER_BUILD_DIR)/%.o: $(TRIGGER_SRC_DIR)/%.cpp
+	$(CC) $(DEBUG) -I./ -I../ -I$(TRIGGER_INC_DIR) -I$(TRIGGER_DIR) -c $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOT_INCLUDE) $(BOOST_LIB)
 
 
 ################################################################################
