@@ -190,7 +190,7 @@ WaveformAna<double, double> WaveformAnalysis::analyze_waveform(
 
     if (THREAD_COUNT < 100)
     {
-        LOG_INFO(boost::str(boost::format("thread count %1%") % THREAD_COUNT) );
+        //LOG_INFO(boost::str(boost::format("thread count %1%") % THREAD_COUNT) );
         THREAD_COUNT++;
     }
     // Base line
