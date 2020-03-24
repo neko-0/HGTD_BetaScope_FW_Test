@@ -166,8 +166,11 @@ Waveform<data_type, input_type>::Waveform(
   this->size_ = amp->GetSize();
   if(this->size_ == 0)
   {
-    this->v1_.emplace_back(-10e10);
-    this->v2_.emplace_back(-10e10);
+    for( int i =0; i < 100; i++ )
+    {
+      this->v1_.emplace_back(-10e10);
+      this->v2_.emplace_back(-10e10);
+    }
   }
 };
 
