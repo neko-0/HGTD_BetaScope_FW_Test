@@ -96,7 +96,7 @@ all:$(WAVEFORM_ANA_DEP)\
 
 
 
-$(WAVEFORM_ANA_BUILD_DIR)/%.Dict.cxx: $(WAVEFORM_ANA_INC_DIR)/%.hpp $(WAVEFORM_ANA_INC_DIR)/LinkDef.h
+$(WAVEFORM_ANA_BUILD_DIR)/%.Dict.cxx: $(WAVEFORM_ANA_INC_DIR)/%.hpp $(WAVEFORM_ANA_INC_DIR)/%_LinkDef.h
 	rootcint -f $@ -c $^
 
 $(WAVEFORM_ANA_BUILD_DIR)/%.o: $(WAVEFORM_ANA_SLIB_SRC_FILES)/%.cxx $(LOGGER_DEP)
@@ -135,7 +135,7 @@ $(TRIGGER_BUILD_DIR)/%.o: $(TRIGGER_SRC_DIR)/%.cpp
 clean:
 	@echo "cleaning .o files in build and binary files in bin."
 	@for file in ./*/build/*; do rm -rf $$file; echo Delete Object file: $$file; done
-	@for file in ./*/build/*.Dict*; do rm -rf $$file; echo Delete Object file: $$file; done
+	@for file in ./*/*/build/*.Dict*; do rm -rf $$file; echo Delete Object file: $$file; done
 	@for file in ./*/*/build/*; do rm -rf $$file; echo Delete Object file: $$file; done
 	@for file in ./bin/*; do rm -rf $$file; echo Delete binary file: $$file; done
 	@for file in ./*/*/bin/*; do rm -rf $$file; echo Delete Object file: $$file; done

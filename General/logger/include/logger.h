@@ -74,7 +74,7 @@ namespace BETA_LOG
 
     public:
 
-      Logger( std::string name, int level = 0 )
+      Logger( const std::string &name, const int &level = 0 )
         : level_(level)
       {
         name_ = name;
@@ -82,10 +82,10 @@ namespace BETA_LOG
       ~Logger(){};
 
     void operator()(
-      std::string content,
-      char const* file_name,
-      int line_num,
-      char const* func_name
+      const std::string &content,
+      const char* file_name,
+      const int &line_num,
+      const char* func_name
     )
     {
       if(level_ == 0)
@@ -103,29 +103,29 @@ namespace BETA_LOG
     }
 
     void error(
-      std::string content,
-      std::string file_name,
-      int line_num,
-      std::string func_name
+      const std::string &content,
+      const std::string &file_name,
+      const int &line_num,
+      const std::string &func_name
     );
 
     void info(
-      std::string content,
-      std::string file_name,
-      int line_num,
-      std::string func_name
+      const std::string &content,
+      const std::string &file_name,
+      const int &line_num,
+      const std::string &func_name
     );
 
     void warning(
-      std::string content,
-      std::string file_name,
-      int line_num,
-      std::string func_name
+      const std::string &content,
+      const std::string &file_name,
+      const int &line_num,
+      const std::string &func_name
     );
 
   };
 
-  BETA_LOG::Logger &make_logger(std::string name, int level);
+  BETA_LOG::Logger &make_logger(const std::string &name, const int &level);
 
 }
 
