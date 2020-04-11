@@ -1,4 +1,5 @@
 #include "BetaScopeWaveformAna/AnaTemplate/BetaScopeWaveformAna.h"
+#include "General/utilities/include/dir.h"
 
 #include <dirent.h>
 #include <iostream>
@@ -8,46 +9,23 @@
 #include <vector>
 
 #include <boost/thread.hpp>
+#include <boost/asio.hpp>
+#include <boost/asio/thread_pool.hpp>
+#include <boost/program_options.hpp>
+namespace bpo = boost::program_options;
 
 #include <TROOT.h>
 #include <TThread.h>
 
-std::vector<std::string> getFiles(const char *directory) {
-  DIR *dir;
-  struct dirent *ent;
-  std::vector<std::string> content = {};
-  if ((dir = opendir(directory)) != NULL) {
-    /* print all the files and directories within directory */
-    while ((ent = readdir(dir)) != NULL) {
-      std::string ifileName = ent->d_name;
-      if (ifileName.find(".root") !=
-          std::string::npos) // && !(rootfiles.at(ifileName).compare(".") == 0)
-                             // && !(rootfiles.at(ifileName).compare("..") == 0)
-                             // )
-      {
-        std::string file_dir = directory;
-        std::string file_name = file_dir + "/" + ifileName;
-        content.push_back(file_name);
-      }
-      // file_counter += 1;
-    }
-    closedir(dir);
-  }
-  std::cout << "contents in " << directory << std::endl;
-  for (std::size_t i = 0, max = content.size(); i < max; i++) {
-    std::cout << content[i] << std::endl;
-  }
-  // dir-> ~DIR();
-  // ent-> ~dirent();
-  return content;
-}
-
-void runAna(std::string fileName, std::string config = "WaveformAnaConfig.ini",
-            bool skipWaveform = false) {
+void runAna(
+  const std::string &fileName,
+  const std::string &config = "WaveformAnaConfig.ini",
+  const bool &skipWaveform = false
+)
+{
   TThread::Lock();
   BetaScopeWaveformAna doAna(fileName.c_str());
-  if (skipWaveform)
-    doAna.setWaveform(skipWaveform);
+  if (skipWaveform){doAna.setWaveform(skipWaveform);}
   doAna.readWaveformConfig(config);
   doAna.Initialize();
   TThread::UnLock();
@@ -58,18 +36,67 @@ void runAna(std::string fileName, std::string config = "WaveformAnaConfig.ini",
 
 int main(int argc, char **argv) {
 
-  LOG_INFO(" Starting beta scope analysis");
+  bpo::options_description desc("BetaScope analysis options.");
+  bpo::variables_map vm;
+  bpo::command_line_style::style_t style = bpo::command_line_style::style_t(
+    bpo::command_line_style::unix_style|
+    bpo::command_line_style::allow_long_disguise
+  );
+  desc.add_options()
+  ("help,h", "help message.")
+  ("config", bpo::value<std::string>(), "configuration file")
+  ("skipWaveform", bpo::bool_switch()->default_value(false), "skipping waveform in output file.");
+  bpo::store(bpo::parse_command_line(argc, argv, desc, style), vm);
+  bpo::notify(vm);
 
-  std::time_t main_time = std::time(nullptr);
+  if(vm.count("help")){
+    std::cout << desc << std::endl;
+    return 1;
+  }
 
-  LOG_INFO("Preparation: Thread configuration.");
-  ROOT::EnableThreadSafety();
-  ROOT::EnableImplicitMT(16);
-  unsigned concurentThreadsSupported = std::thread::hardware_concurrency();
-  LOG_INFO(" Preparing workers.");
+  if(vm.count("config"))
+  {
+    LOG_INFO(" Starting beta scope analysis");
+
+    std::time_t main_time = std::time(nullptr);
+
+    LOG_INFO("Preparation: Thread configuration.");
+    unsigned numThreads = std::thread::hardware_concurrency();
+    LOG_INFO("Get number of threads" + std::to_string(numThreads) );
+    boost::asio::thread_pool pool(numThreads);
+    ROOT::EnableThreadSafety();
+    ROOT::EnableImplicitMT(numThreads);
+    LOG_INFO(" Preparing workers.");
+
+    BetaScopeWaveformAna my_ana;
+    my_ana.readWaveformConfig(vm["config"].as<std::string>());
+
+    std::vector<std::string> fileList = BetaScope_Utilities::Dir::getFiles(my_ana.rawFilesDir.c_str(), ".root");
+    for( auto file : fileList )
+    {
+      boost::asio::post(pool, boost::bind(runAna, file, vm["config"].as<std::string>(), vm["skipWaveform"].as<bool>()));
+    }
+
+    pool.join();
+
+    LOG_INFO("Finished. Time cost: " + std::to_string(std::time(nullptr) - main_time));
+
+    return 1;
+  }
+  else
+  {
+    std::cout << "Please specify configuration file. see -help" << std::endl;
+    return 1;
+  }
+
+
+
+
+
+  /*
   BetaScopeWaveformAna doAna_temp;
   doAna_temp.readWaveformConfig(argv[1]);
-  std::vector<std::string> fileList = getFiles(doAna_temp.rawFilesDir.c_str());
+  std::vector<std::string> fileList = BetaScope_Utilities::Dir::getFiles(doAna_temp.rawFilesDir.c_str(), ".root");
   std::vector<boost::thread *> workers_dorm;
   for (std::size_t i = 0, max = fileList.size(); i < max; i++) {
     std::string config = argv[1];
@@ -99,8 +126,5 @@ int main(int argc, char **argv) {
       delete workers_dorm[id];
     }
   }
-
-  LOG_INFO("Finished. Time cost: " + std::to_string(std::time(nullptr) - main_time));
-
-  return 0;
+  */
 }

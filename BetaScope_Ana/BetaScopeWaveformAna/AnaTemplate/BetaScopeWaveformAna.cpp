@@ -71,6 +71,7 @@ void BetaScopeWaveformAna::event_ana(int ch, WaveformAna<double, double> wavefor
   {
     *this->w[ch] = waveform.v2();
     *this->t[ch] = waveform.v1();
+    this->waveform_ana[ch]->emplace_back(waveform);
   }
 
   /*
@@ -234,6 +235,9 @@ void BetaScopeWaveformAna::Initialize() {
     {
       this->w[ch] = this->beta_scope.GetOutBranch<std::vector<double>>( "w" + std::to_string(ch));
       this->t[ch] = this->beta_scope.GetOutBranch<std::vector<double>>( "t" + std::to_string(ch));
+      this->beta_scope.BuildOutBranch<std::vector<WaveformAna<double, double>>>("waveform" + std::to_string(ch));
+      this->waveform_ana[ch] = this->beta_scope.GetOutBranch<std::vector<WaveformAna<double, double>>>("waveform" + std::to_string(ch));
+
     }
     else
     {
@@ -273,8 +277,6 @@ void BetaScopeWaveformAna::Initialize() {
       std::cout << this->i_w[ch] << std::endl;
       std::cout << this->beta_scope.GetInBranch<TTreeReaderArray, double>("w" + std::to_string(ch)) << std::endl;
     }
-    //this->beta_scope.BuildOutBranch<std::vector<WaveformAna<double, double>>>("waveform" + std::to_string(ch));
-    //this->waveform_ana[ch] = this->beta_scope.GetOutBranch<std::vector<WaveformAna<double, double>>>("waveform" + std::to_string(ch));
   }
 
   if (beta_scope.IsBranchExists("ievent"))
