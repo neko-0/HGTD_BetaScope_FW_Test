@@ -1,4 +1,5 @@
-#include "utilities/include/dir.h"
+#include "General/utilities/include/dir.h"
+#include "General/logger/include/logger.h"
 
 std::vector<std::string>
 BetaScope_Utilities::Dir::_getFiles(const char *directory, std::string pattern)
@@ -23,12 +24,8 @@ BetaScope_Utilities::Dir::_getFiles(const char *directory, std::string pattern)
     closedir(dir);
   }
 
-  /*std::cout << "contents in " << directory << std::endl;
-  for( std::size_t i = 0, max = content.size(); i < max; i++)
-  {
-    std::cout << content[i] << std::endl;
-  }
-  */
+  LOG_INFO("Found contents: ");
+  for( const auto &item : content){ LOG_INFO("File: " + item); }
 
   // dir-> ~DIR();
   // ent-> ~dirent();
@@ -56,7 +53,7 @@ BetaScope_Utilities::Dir::getFiles(std::string directory, std::string pattern)
     std::vector<std::string> pattern_fragment = {};
     std::string my_pattern_copy = pattern;
     std::string wildcard_delimiter = "*";
-    int pos = 0;
+    std::size_t pos = 0;
     while ((pos = my_pattern_copy.find(wildcard_delimiter)) != std::string::npos)
     {
       std::string my_pattern_fragment = my_pattern_copy.substr(0, pos);
@@ -81,6 +78,9 @@ BetaScope_Utilities::Dir::getFiles(std::string directory, std::string pattern)
       content.push_back(file_name);
     }
   }
+
+  LOG_INFO("Found contents: ");
+  for( const auto &item : content){ LOG_INFO("File: " + item); }
 
   return content;
 }
