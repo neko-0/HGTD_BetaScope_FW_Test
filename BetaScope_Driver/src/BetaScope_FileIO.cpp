@@ -68,7 +68,7 @@ void BetaScope::FileClose() {
     if(counter == this->input_branch_counter_){break;}
   }
 
-  LOG_INFO("Finished, extiting");
+  LOG_INFO("file " + this->input_file_name_ + " is finished, extiting.");
   std::time_t _t_end_of_program = std::time(nullptr);
   std::time_t _t_end_of_program_cpu = std::clock();
   this->cpu_time = std::clock() - this->cpu_time;
