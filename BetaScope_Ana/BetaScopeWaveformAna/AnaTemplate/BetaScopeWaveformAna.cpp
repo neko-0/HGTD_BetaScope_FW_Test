@@ -76,7 +76,7 @@ void BetaScopeWaveformAna::thread_it( int ch)
   this->tmax[ch]->push_back( WaveAna.Get_Tmax( *this->t[ch], pmaxHolder) );
   this->neg_tmax[ch]->push_back( WaveAna.Get_Tmax( *this->t[ch], neg_pmaxHolder) );
 
-  this->fit_tmax[ch]->push_back( 0.5 );
+  this->fit_tmax[ch]->push_back( WaveAna.Get_Fit_Tmax( *this->t[ch], neg_pmaxHolder) );
 
   this->rms[ch]->push_back( WaveAna.Find_Noise( *this->w[ch], 0.25*this->w[ch]->size() ) );
 

@@ -58,6 +58,11 @@ class WaveformAnalysis
       const std::pair<double, unsigned int> Pmax
     );
 
+    double Get_Fit_Tmax(
+      std::vector<double> timeVec,
+      const std::pair<double, unsigned int> Pmax
+    );
+
     void Find_Bunch_Negative_Signal_Maximum(
       std::vector<double> voltageVec,
       std::vector<double> timeVec,

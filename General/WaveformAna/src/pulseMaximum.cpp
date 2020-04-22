@@ -207,7 +207,7 @@ void WaveformAnalysis::Find_Bunch_Negative_Signal_Maximum(
       {
         this->mu.lock();
         ColorCout::Msg(function_name, "Only one pmax, no needed to use this function, set value to -10e11" );
-        this->mu.unlock(); 
+        this->mu.unlock();
       }
       negPmax.push_back( -10e11 );
       negTmax.push_back( -10e11 );
@@ -240,4 +240,14 @@ double WaveformAnalysis::Get_Tmax(
 {
   double tmax = timeVec.at(Pmax.second);
   return tmax;
+}
+
+double WaveformAnalysis::Get_Fit_Tmax(
+  std::vector<double> timeVec,
+  const std::pair<double, unsigned int> Pmax
+)
+{
+  //TODO: add fitting code here
+  double tmax = timeVec.at(Pmax.second);
+  return 0.5;
 }
