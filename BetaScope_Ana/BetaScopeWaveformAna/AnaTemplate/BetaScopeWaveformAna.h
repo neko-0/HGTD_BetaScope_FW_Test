@@ -63,6 +63,7 @@ class BetaScopeWaveformAna : public BetaScope_AnaFramework<BetaScope>
   std::vector<double> *pulseArea_withZeroCross[8];
   std::vector<double> *backBaselineInt_indepBaseCorr[8];
   std::vector<double> *frontBaselineInt_indepBaseCorr[8];
+  std::vector<double> *fit_tmax[8];
 
   std::vector<double> localW[8];
   std::vector<double> localT[8];
@@ -77,7 +78,6 @@ class BetaScopeWaveformAna : public BetaScope_AnaFramework<BetaScope>
   TTreeReaderValue<double> *i_current;
   TTreeReaderValue<double> *i_timestamp;
 
-  TTreeReaderValue<double> *fit_tmax;
 
   AnaParam my_anaParam;
 

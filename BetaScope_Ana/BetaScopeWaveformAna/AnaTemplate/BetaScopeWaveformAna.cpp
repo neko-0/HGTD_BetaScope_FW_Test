@@ -76,7 +76,7 @@ void BetaScopeWaveformAna::thread_it( int ch)
   this->tmax[ch]->push_back( WaveAna.Get_Tmax( *this->t[ch], pmaxHolder) );
   this->neg_tmax[ch]->push_back( WaveAna.Get_Tmax( *this->t[ch], neg_pmaxHolder) );
 
-  this->fit_tmax = 0.5;
+  this->fit_tmax[ch]->push_back( 0.5 );
 
   this->rms[ch]->push_back( WaveAna.Find_Noise( *this->w[ch], 0.25*this->w[ch]->size() ) );
 
@@ -280,6 +280,9 @@ void BetaScopeWaveformAna::initialize()
     this->pulseArea_withZeroCross[ch] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( "pulseArea_withZeroCross"+std::to_string(ch) );
     this->frontBaselineInt_indepBaseCorr[ch] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( "frontBaselineInt_indepBaseCorr"+std::to_string(ch) );
     this->backBaselineInt_indepBaseCorr[ch] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( "backBaselineInt_indepBaseCorr"+std::to_string(ch) );
+
+    this->fit_tmax[ch] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( "fit_tmax"+std::to_string(ch) );
+
 
     this->i_w[ch] = this->beta_scope.get_iBranch<TTreeReaderArray,double>("w"+std::to_string(ch) );
     this->i_t[ch] = this->beta_scope.get_iBranch<TTreeReaderArray,double>("t"+std::to_string(ch) );
