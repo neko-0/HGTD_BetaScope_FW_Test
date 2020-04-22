@@ -77,6 +77,8 @@ class BetaScopeWaveformAna : public BetaScope_AnaFramework<BetaScope>
   TTreeReaderValue<double> *i_current;
   TTreeReaderValue<double> *i_timestamp;
 
+  TTreeReaderValue<double> *fit_tmax;
+
   AnaParam my_anaParam;
 
   public:
