@@ -7,7 +7,7 @@ To begin:
   cd scripts/ \
   source setup.sh
 
-## Usage
+## Usage 
 
 ### LGAD Interface.
 After sourcing the setup.sh, you will now have a function call "LGAD".
