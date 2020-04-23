@@ -42,6 +42,7 @@ public:
   double timeMultiFactor = 1.0e12;    // convert second to pico-second
   double assistThreshold = 10.0;      // unit of mili-Volt
   int triggerCh = 3;
+  int counter_ = 0;
 
   std::vector<double> *w[8];
   std::vector<double> *t[8];
