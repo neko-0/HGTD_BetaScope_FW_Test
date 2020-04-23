@@ -250,3 +250,33 @@ double WaveformAnalysis::Get_Tmax(
     double tmax = timeVec.at(Pmax.second);
     return tmax;
 }
+
+/*==============================================================================
+double
+  WaveformAnalysis::Deri_Fit_Tmax
+
+  usage:
+    finding time maximum using linear fit to the second derivative of the pulse.
+
+  paramters:
+
+    std::vector<double>
+      voltageVec := vector of voltage value.
+
+    std::vector<double>
+      timeVec := vector of time value.
+
+    std::vector<double>
+      pmax := vector of pmax value (found using multiple peak function)
+
+    std::vector<double>
+      tmax := vector of tmax value (found using multiple peak function)
+
+    std::vector<double> &
+      negPmax := vector for negative pmax, filled up by reference.
+
+    std::vector<double> &
+      negTmax := vector for negative tmax, filled up by reference.
+
+  return : void
+==============================================================================*/

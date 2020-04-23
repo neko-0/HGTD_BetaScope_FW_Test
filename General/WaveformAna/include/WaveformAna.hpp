@@ -54,6 +54,8 @@ public:
       tot_.reserve(2000);
     };
 
+    virtual std::ostream &print(std::ostream &os) const { return Waveform<data_type,input_type>::print(os); }
+
     void channel(const int &value){ this->channel_ = value; }
     void pmax(const double &value){ this->pmax_ = value; }
     void tmax(const double &value){ this->tmax_ = value; }

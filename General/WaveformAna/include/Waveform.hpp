@@ -6,6 +6,8 @@
 
 #include <TObject.h>
 #include <TTreeReaderArray.h>
+
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -39,6 +41,11 @@ public:
       const bool &tResample, const float &xori, const float &dt
     );
 
+    virtual std::ostream &print(std::ostream &os) const;
+
+    template <class T1, class T2>
+    friend std::ostream &operator<<(std::ostream &os, Waveform<T1,T2> const &m);
+
     int size(){ return this->v1_.size(); }
 
     std::vector<data_type> v1(){ return this->v1_; }
@@ -59,7 +66,11 @@ public:
     void set_v1(std::vector<data_type> value){ this->v1_ = value; }
     void set_v2(std::vector<data_type> value){ this->v2_ = value; }
 
-    std::size_t size() const {return this->size_;}
+    std::size_t size() const {return this->v1_.size();}
+
+    Waveform<data_type,data_type> sub_waveform(const int &start, const int &end);
+
+    Waveform<data_type,data_type> derivative();
 
     ClassDef(Waveform, 1)
 };
@@ -173,5 +184,46 @@ Waveform<data_type, input_type>::Waveform(
     }
   }
 };
+
+template <class data_type, class input_type>
+Waveform<data_type,data_type> Waveform<data_type,input_type>::sub_waveform(const int &start, const int &end)
+{
+  Waveform<data_type,data_type> buffer = Waveform<data_type,data_type>();
+  buffer.get_v1() = std::vector<data_type>(this->v1_.begin()+start, this->v1_.begin()+end);
+  buffer.get_v2() = std::vector<data_type>(this->v2_.begin()+start, this->v2_.begin()+end);
+  return buffer;
+}
+
+template <class data_type, class input_type>
+Waveform<data_type,data_type> Waveform<data_type,input_type>::derivative()
+{
+  Waveform<data_type,data_type> buffer = Waveform<data_type,data_type>();
+  for(std::size_t i = 0, max = this->v1_.size()-1; i < max; i++)
+  {
+    buffer.get_v1().push_back( this->v1_.at(i) );
+    buffer.get_v2().push_back( (this->v2_.at(i+1)-this->v2_.at(i))/(this->v1_.at(i+1)-this->v1_.at(i)) );
+  }
+  return buffer;
+}
+
+template <class data_type, class input_type>
+std::ostream &Waveform<data_type,input_type>::print(std::ostream &os) const
+{
+  os << "v1: [";
+  for(auto &value : this->get_v1() ){ os << value << ","; }
+  os << "]\n";
+  os << "v2: [";
+  for(auto &value : this->get_v2() ){ os << value << ","; }
+  os << "]";
+  return os;
+}
+
+template <class T1, class T2>
+std::ostream &operator<<(std::ostream &os, const Waveform<T1,T2> &m)
+{
+  return m.print(os);
+}
+
+
 
 #endif // WAVEFORM_H
