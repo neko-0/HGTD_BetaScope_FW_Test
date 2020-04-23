@@ -58,12 +58,12 @@ class BetaScopeWaveformAna : public BetaScope_AnaFramework<BetaScope>
   std::vector<double> *thTime[8];
   std::vector<double> *neg_pmax[8];
   std::vector<double> *neg_tmax[8];
+  std::vector<double> *fit_tmax[8];
   std::vector<double> *rms[8];
   std::vector<double> *pulseArea_withUndershoot[8];
   std::vector<double> *pulseArea_withZeroCross[8];
   std::vector<double> *backBaselineInt_indepBaseCorr[8];
   std::vector<double> *frontBaselineInt_indepBaseCorr[8];
-  std::vector<double> *fit_tmax[8];
 
   std::vector<double> localW[8];
   std::vector<double> localT[8];
