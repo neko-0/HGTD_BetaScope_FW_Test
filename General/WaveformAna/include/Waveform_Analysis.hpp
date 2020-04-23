@@ -112,6 +112,12 @@ public:
         const std::pair<double, unsigned int> &Pmax
     );
 
+    double Get_Fit_Tmax(
+      std::vector<double> timeVec,
+      std::vector<double> voltageVec,
+      const std::pair<double, unsigned int> Pmax
+    );
+
     void Find_Bunch_Negative_Signal_Maximum(
         const std::vector<double> &voltageVec,
         const std::vector<double> &timeVec,

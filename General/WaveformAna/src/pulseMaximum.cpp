@@ -28,7 +28,14 @@
 #include <TImage.h>
 #include <TROOT.h>
 #include <TStyle.h>
+<<<<<<< HEAD
 #include <TThread.h>
+=======
+#include <TImage.h>
+#include <TCanvas.h>
+#include <TFitResult.h>
+#include <TVectorF.h>
+>>>>>>> 0003e3805b08823b551b6da3b85e01d02b82cb2e
 
 //==============================================================================
 
@@ -199,6 +206,7 @@ void WaveformAnalysis::Find_Bunch_Negative_Signal_Maximum(
 
     if (voltageVec.size() != timeVec.size() && pmax.size() != tmax.size())
     {
+<<<<<<< HEAD
         if (this->Find_Bunch_Negative_Signal_Maximum_counter < 100)
         {
             LOG_WARNING("Size dose not match! fill with 10e11." );
@@ -207,6 +215,17 @@ void WaveformAnalysis::Find_Bunch_Negative_Signal_Maximum(
         negPmax.push_back(10e11);
         negTmax.push_back(10e11);
         this->Find_Bunch_Negative_Signal_Maximum_counter++;
+=======
+      if(this->Find_Bunch_Negative_Signal_Maximum_counter<100)
+      {
+        this->mu.lock();
+        ColorCout::Msg(function_name, "Only one pmax, no needed to use this function, set value to -10e11" );
+        this->mu.unlock();
+      }
+      negPmax.push_back( -10e11 );
+      negTmax.push_back( -10e11 );
+      this->Find_Bunch_Negative_Signal_Maximum_counter++;
+>>>>>>> 0003e3805b08823b551b6da3b85e01d02b82cb2e
     }
     else
     {
@@ -251,32 +270,61 @@ double WaveformAnalysis::Get_Tmax(
     return tmax;
 }
 
-/*==============================================================================
-double
-  WaveformAnalysis::Deri_Fit_Tmax
+double WaveformAnalysis::Get_Fit_Tmax(
+  std::vector<double> timeVec,
+  std::vector<double> voltageVec,
+  const std::pair<double, unsigned int> Pmax
+)
+{
+  //TODO: add fitting code here
+  gROOT->SetBatch(true);
+  double tmax_fitted = -9999.;
+  int n_points = 3;
+  //std::cout<<"\n**** start *** \n";
+  TVectorF small_voltageVec (2*n_points); // = new float[2*n_points];
+  TVectorF small_timeVec (2*n_points);// = new float[2*n_points];
 
-  usage:
-    finding time maximum using linear fit to the second derivative of the pulse.
+  if(timeVec.at(Pmax.second) > 0. and timeVec.at(Pmax.second) < 500.){
+    if(Pmax.second > 10 and Pmax.second < (timeVec.size() - 10)){
+      for(int i = 0; i < 2*n_points; i++){
+          double t_point = timeVec.at(Pmax.second - n_points + i);
+          double v_point = voltageVec.at(Pmax.second - n_points + i);
 
-  paramters:
+          small_timeVec[i] = t_point;
+          small_voltageVec[i] = v_point;
+      }
 
-    std::vector<double>
-      voltageVec := vector of voltage value.
+      std::string title = std::to_string(timeVec.at(Pmax.second) + std::rand());
+      TGraph gr(small_timeVec, small_voltageVec);
+      gr.SetTitle(title.c_str());
 
-    std::vector<double>
-      timeVec := vector of time value.
+      //TF1* fu;
+      title = "f_" + title;
+      TF1 fu(title.c_str(), "gaus", timeVec.at(Pmax.second) - 300., timeVec.at(Pmax.second) + 300.);
 
-    std::vector<double>
-      pmax := vector of pmax value (found using multiple peak function)
+      //fu->Print();
+      //gr.Print();
 
-    std::vector<double>
-      tmax := vector of tmax value (found using multiple peak function)
+      fu.SetParameter(0, timeVec.at(Pmax.second));
+      fu.SetParameter(1, 100.);
+      //std::cout<<"\n**** fitting *** \n";
+      TThread::Lock();
+      TFitResultPtr res = gr.Fit(&fu, "SRMQ");
+      TThread::UnLock();
+      //fu->Print();
+      tmax_fitted = fu.GetParameter(0);
 
-    std::vector<double> &
-      negPmax := vector for negative pmax, filled up by reference.
-
-    std::vector<double> &
-      negTmax := vector for negative tmax, filled up by reference.
-
-  return : void
-==============================================================================*/
+      /*
+      if(res->Chi2() > 0){
+        gr.Print();
+        std::cout<<"fit res chi:" << res->Chi2() << " tmax " << timeVec.at(Pmax.second) << " fit " << tmax_fitted << " sigma " << fu.GetParameter(1) << std::endl << std::endl;
+      }
+      */
+      //delete fu;
+    }
+  }
+  //delete[] small_timeVec;
+  //delete[] small_voltageVec;
+  //std::cout<<"\n**** end *** \n";
+  return tmax_fitted;
+}

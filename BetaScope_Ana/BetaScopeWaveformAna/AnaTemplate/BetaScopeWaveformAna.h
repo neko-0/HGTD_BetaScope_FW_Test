@@ -58,6 +58,7 @@ public:
   std::vector<double> *thTime[8];
   std::vector<double> *neg_pmax[8];
   std::vector<double> *neg_tmax[8];
+  std::vector<double> *fit_tmax[8];
   std::vector<double> *rms[8];
   std::vector<double> *pulseArea_withUndershoot[8];
   std::vector<double> *pulseArea_withZeroCross[8];
@@ -79,6 +80,7 @@ public:
 
   TTreeReaderValue<double> *i_current;
   TTreeReaderValue<double> *i_timestamp;
+
 
   AnaParam my_anaParam;
 
