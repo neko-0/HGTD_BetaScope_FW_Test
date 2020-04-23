@@ -30,6 +30,7 @@
 #include <TStyle.h>
 #include <TImage.h>
 #include <TCanvas.h>
+#include <TFitResult.h>
 
 //==============================================================================
 
@@ -249,9 +250,10 @@ double WaveformAnalysis::Get_Fit_Tmax(
 )
 {
   //TODO: add fitting code here
+  gROOT->SetBatch(true);
   double tmax_fitted = -9999.;
-  int n_points = 4;
-
+  int n_points = 3;
+  //std::cout<<"\n**** start *** \n";
   float small_voltageVec[2*n_points];
   float small_timeVec[2*n_points];
 
@@ -262,14 +264,36 @@ double WaveformAnalysis::Get_Fit_Tmax(
           double v_point = voltageVec.at(Pmax.second - n_points + i);
 
           small_timeVec[i] = t_point;
-          small_timeVec[i] = v_point;
+          small_voltageVec[i] = v_point;
       }
+      
+      std::string title = std::to_string(timeVec.at(Pmax.second) + std::rand());
       TGraph gr(2*n_points, small_timeVec, small_voltageVec);
-      TF1 fu("fu", "gaus");
-      gr.Fit(&fu);
-      tmax_fitted = fu.GetParameter(0);
+      gr.SetTitle(title.c_str());
+      
+      TF1* fu;      
+      title = "f_" + title;
+      fu = new TF1(title.c_str(), "gaus", timeVec.at(Pmax.second) - 300., timeVec.at(Pmax.second) + 300.);
+      
+      //fu->Print();
+      //gr.Print();
+      
+      fu->SetParameter(0, timeVec.at(Pmax.second));
+      fu->SetParameter(1, 100.);
+      //std::cout<<"\n**** fitting *** \n";
+      TFitResultPtr res = gr.Fit(fu, "SRMQ");
+      //fu->Print();
+      tmax_fitted = fu->GetParameter(0);
+      
+      /*
+      if(res->Chi2() > 10){
+        gr.Print();
+        std::cout<<"fit res chi:" << res->Chi2() << " tmax " << timeVec.at(Pmax.second) << " fit " << tmax_fitted << " sigma " << fu->GetParameter(1) << std::endl << std::endl;
+      }
+      */      
+      delete fu;
     }
   }
-
+  //std::cout<<"\n**** end *** \n";
   return tmax_fitted;
 }
