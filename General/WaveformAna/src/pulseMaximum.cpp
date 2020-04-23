@@ -255,21 +255,21 @@ double WaveformAnalysis::Get_Fit_Tmax(
   float small_voltageVec[2*n_points];
   float small_timeVec[2*n_points];
 
-  for(int i = 0; i < 2*n_points; i++){
+  if(timeVec.at(Pmax.second) > 0. and timeVec.at(Pmax.second) < 500.){
     if(Pmax.second > 10 and Pmax.second < (timeVec.size() - 10)){
-      double t_point = timeVec.at(Pmax.second - n_points + i);
-      double v_point = voltageVec.at(Pmax.second - n_points + i);
+      for(int i = 0; i < 2*n_points; i++){
+          double t_point = timeVec.at(Pmax.second - n_points + i);
+          double v_point = voltageVec.at(Pmax.second - n_points + i);
 
-      small_timeVec[i] = t_point;
-      small_timeVec[i] = v_point;
-
+          small_timeVec[i] = t_point;
+          small_timeVec[i] = v_point;
+      }
+      TGraph gr(2*n_points, small_timeVec, small_voltageVec);
+      TF1 fu("fu", "gaus");
+      gr.Fit(&fu);
+      tmax_fitted = fu.GetParameter(0);
     }
   }
-
-  TGraph gr(2*n_points, small_timeVec, small_voltageVec);
-  TF1 fu("fu", "gaus");
-  gr.Fit(&fu);
-  tmax_fitted = fu.GetParameter(0);
 
   return tmax_fitted;
 }
