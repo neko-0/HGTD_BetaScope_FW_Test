@@ -248,6 +248,11 @@ double WaveformAnalysis::Get_Fit_Tmax(
 )
 {
   //TODO: add fitting code here
+  double tmax_pre = timeVec.at(Pmax.second - 1);
   double tmax = timeVec.at(Pmax.second);
-  return 0.5;
+  double tmax_post = timeVec.at(Pmax.second + 1);
+
+  double tmax_median = (tmax_pre + tmax + tmax_post)/3.;
+
+  return tmax_median;
 }
