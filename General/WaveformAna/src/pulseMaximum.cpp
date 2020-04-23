@@ -244,19 +244,32 @@ double WaveformAnalysis::Get_Tmax(
 
 double WaveformAnalysis::Get_Fit_Tmax(
   std::vector<double> timeVec,
+  std::vector<double> voltageVec,
   const std::pair<double, unsigned int> Pmax
 )
 {
   //TODO: add fitting code here
-  double tmax_median = -9999.;
-  
-  if(Pmax.second > 10 and Pmax.second < (timeVec.size() - 10)){
-    double tmax_pre = timeVec.at(Pmax.second - 1);
-    double tmax = timeVec.at(Pmax.second);
-    double tmax_post = timeVec.at(Pmax.second + 1);
-    tmax_median = (tmax_pre + tmax + tmax_post)/3.;
-    //std::cout << "pre " << tmax_pre << " tmax " << tmax << " post " << tmax_post << " median " << tmax_median << std::endl;
+  double tmax_fitted = -9999.;
+  int n_points = 4;
+
+  float small_voltageVec[2*n_points];
+  float small_timeVec[2*n_points];
+
+  for(int i = 0; i < 2*n_points; i++){
+    if(Pmax.second > 10 and Pmax.second < (timeVec.size() - 10)){
+      double t_point = timeVec.at(Pmax.second - n_points + i);
+      double v_point = voltageVec.at(Pmax.second - n_points + i);
+
+      small_timeVec[i] = t_point;
+      small_timeVec[i] = v_point;
+
+    }
   }
-  
-  return tmax_median;
+
+  TGraph gr(2*n_points, small_timeVec, small_voltageVec);
+  TF1 fu("fu", "gaus");
+  gr.Fit(&fu);
+  tmax_fitted = fu.GetParameter(0);
+
+  return tmax_fitted;
 }
