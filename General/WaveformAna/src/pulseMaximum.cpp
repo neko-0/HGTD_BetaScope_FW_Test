@@ -294,9 +294,11 @@ double WaveformAnalysis::Get_Fit_Tmax(
       fu.SetParameter(0, timeVec.at(Pmax.second));
       fu.SetParameter(1, 100.);
       //std::cout<<"\n**** fitting *** \n";
-      TThread::Lock();
+      //TThread::Lock();
+      fu.AddToGlobalList(false);
+      ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2");
       TFitResultPtr res = gr.Fit(&fu, "SRMQ");
-      TThread::UnLock();
+      //TThread::UnLock();
       //fu->Print();
       tmax_fitted = fu.GetParameter(0);
 
