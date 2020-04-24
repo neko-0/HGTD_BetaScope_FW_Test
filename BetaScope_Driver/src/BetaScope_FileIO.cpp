@@ -1,74 +1,78 @@
 #include "BetaScope_Driver/include/BetaScope_Class.h"
 #include "BetaScope_Driver/include/BetaScope_Templates.h"
 
-#include "Colorful_Cout/include/Colorful_Cout.h"
-
-#include <string>
 #include <iostream>
+#include <string>
 
 #include <TFile.h>
 #include <TThread.h>
 
-bool BetaScope::fileIO_Open( const char *ifile_path )
-{
-  //TThread::Lock();
+bool BetaScope::FileOpen(const char *ifile_path) {
+  // TThread::Lock();
 
-  std::string coutPrefix = "BetaScope::fileIO_Open => ";
-  ColorCout::print(coutPrefix, "Entering", BOLDGREEN);
-  ColorCout::print(coutPrefix, "Preparing IO.", YELLOW);
+  std::string cout_prefix = "BetaScope::FileOpen => ";
+  LOG_INFO("Entering" );
+  LOG_INFO("Preparing IO." );
 
-  this->iFile = new TFile( ifile_path );
-  if( this->iFile->IsZombie() )
-  {
-    ColorCout::print(coutPrefix, "Zombie file. return false.", RED);
+  this->input_tfile_ = new TFile(ifile_path);
+  if (this->input_tfile_->IsZombie()) {
+    LOG_ERROR("Zombie file. return false.");
     return false;
   }
-  ColorCout::print(coutPrefix, "Input file looks fine. continue", YELLOW);
+  LOG_INFO("Input file looks fine. continue");
 
   std::string delimiter = "/";
-  std::string ofileName = ifile_path;
-  while( int(ofileName.find( delimiter )) != -1 )
-	{
-		ofileName.erase(0, ofileName.find( delimiter ) + delimiter.length() );
-	}
-	this->ofileName = this->filePrefix += ofileName;
-	this->i_fileName = ifile_path;
-  this->i_fileNickName = this->ofileName;
+  std::string ofile_name = ifile_path;
+  while (int(ofile_name.find(delimiter)) != -1) {
+    ofile_name.erase(0, ofile_name.find(delimiter) + delimiter.length());
+  }
+  this->output_file_name_ = this->output_file_prefix_ += ofile_name;
+  this->input_file_name_ = ifile_path;
+  this->input_file_nick_name_ = this->output_file_name_;
 
-  ColorCout::print(coutPrefix, "Create output file", YELLOW);
-  ColorCout::print(coutPrefix, "compressionLevel: "+std::to_string(this->compressionLevel), YELLOW);
+  LOG_INFO( "Create output file");
+  LOG_INFO( "compressionLevel: " + std::to_string(this->compression_level_));
 
-  this->oFile = new TFile( this->ofileName.c_str(), "RECREATE", "", this->compressionLevel );
-  this->oFile->cd();
+  this->output_tfile_ = new TFile(this->output_file_name_.c_str(), "RECREATE", "", this->compression_level_);
+  this->output_tfile_->cd();
 
-  ColorCout::print(coutPrefix, "Fininished, exiting", BOLDGREEN);
-  //TThread::UnLock();
+  LOG_INFO("Fininished, exiting");
+  // TThread::UnLock();
 
   return true;
 }
 
-void BetaScope::fileIO_Close()
-{
-	//TThread::Lock();
-  std::string coutPrefix = "BetaScope::fileIO_Close => ";
-  ColorCout::print(coutPrefix, "Entering", BOLDGREEN);
-  ColorCout::print(coutPrefix, "Writing output files.", YELLOW);
+//==============================================================================
+//==============================================================================
 
-	this->oTree->Write();
-	this->oFile->Close();
+void BetaScope::FileClose() {
+  // TThread::Lock();
+  std::string cout_prefix = "BetaScope::FileClose => ";
+  LOG_INFO("Entering");
+  LOG_INFO("Writing output files.");
 
-  ColorCout::print(coutPrefix, "Clean up allocated memory", YELLOW);
+  this->output_ttree_->Write();
+  this->output_tfile_->Close();
 
-  for( auto const& val : this->iTree_branch )
+  LOG_INFO("Clean up allocated memory");
+
+  int counter = 0;
+  for(const auto &val : this->input_branches_buffer_)
   {
-    delete val;
+    if(val)
+    {
+      LOG_INFO("Calling delete");
+      delete val;
+    }
+    counter++;
+    if(counter == this->input_branch_counter_){break;}
   }
 
-  ColorCout::print(coutPrefix, "Finished, extiting", BOLDGREEN);
+  LOG_INFO("file " + this->input_file_name_ + " is finished, extiting.");
   std::time_t _t_end_of_program = std::time(nullptr);
   std::time_t _t_end_of_program_cpu = std::clock();
-  this->cpuTime = std::clock() - this->cpuTime;
-  ColorCout::print( "  "+ this->i_fileNickName +" Wall Time used: ", std::to_string(_t_end_of_program-this->_t_object_creation) , BOLDYELLOW);
-  ColorCout::print( "  "+ this->i_fileNickName +" CPU Time used: ", std::to_string(_t_end_of_program_cpu-this->cpuTime) , BOLDYELLOW);
-	//TThread::UnLock();
+  this->cpu_time = std::clock() - this->cpu_time;
+  LOG_INFO(this->input_file_nick_name_ + " Wall Time used: " + std::to_string(_t_end_of_program - this->kTimeObjCreation) );
+  LOG_INFO(this->input_file_nick_name_ + " CPU Time used: " + std::to_string(_t_end_of_program_cpu - this->cpu_time) );
+  // TThread::UnLock();
 }

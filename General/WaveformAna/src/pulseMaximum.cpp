@@ -4,7 +4,6 @@
 ////                                //
 //////////////////////////////////////
 
-
 //==============================================================================
 // Headers
 
@@ -12,27 +11,30 @@
 #include "WaveformAna/include/general.hpp"
 
 //-------c++----------------//
-#include <iostream>
-#include <string>
-#include <sstream>
 #include <fstream>
-#include <stdlib.h>
-#include <stdio.h>
-#include <vector>
-#include <numeric>
 #include <functional>
+#include <iostream>
+#include <numeric>
+#include <sstream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <vector>
 //------ROOT----------------//
-#include <TH1.h>
+#include <TCanvas.h>
 #include <TF1.h>
 #include <TGraph.h>
-#include <TThread.h>
+#include <TH1.h>
+#include <TImage.h>
 #include <TROOT.h>
 #include <TStyle.h>
+#include <TThread.h>
 #include <TImage.h>
 #include <TCanvas.h>
+#include <TFitResult.h>
+#include <TVectorF.h>
 
 //==============================================================================
-
 
 /*==============================================================================
 Finding the Signal Maximum (Pmax)
@@ -43,54 +45,58 @@ Finding the Signal Maximum (Pmax)
 
   return : Pmax value and its index in the waveform vector.
 ==============================================================================*/
-std::pair<double, unsigned int> WaveformAnalysis::Find_Singal_Maximum(
-  std::vector<double> voltageVec,
-  std::vector<double> timeVec,
-  bool confineSearchRegion,
-  double searchRange[2]
+std::pair<double, unsigned int>
+WaveformAnalysis::Find_Singal_Maximum(
+    const std::vector<double> &voltageVec,
+    const std::vector<double> &timeVec,
+    const bool &confineSearchRegion,
+    const double searchRange[2]
 )
 {
-    double          pmax        = 0.0;
-    unsigned int    pmaxIndex  = 0;
-    //bool   strangePeak = true;
-    bool   firstPoint  = true;
+    double pmax = 0.0;
+    unsigned int pmaxIndex = 0;
+    // bool   strangePeak = true;
+    bool firstPoint = true;
     std::size_t npoints = voltageVec.size();
 
-    if( confineSearchRegion )
+    if (confineSearchRegion)
     {
-      for( std::size_t j = 0; j < npoints; j++)
-      {
-        if( searchRange[0] <= timeVec.at(j) && timeVec.at(j) <= searchRange[1] ) //zoom in to find the Pmax
+        for (std::size_t j = 0; j < npoints; j++)
         {
-            if( firstPoint ){ pmaxIndex = j; firstPoint = false; }
-            if( voltageVec.at(j) > pmax )
+            if (searchRange[0] <= timeVec.at(j) && timeVec.at(j) <= searchRange[1])   // zoom in to find the Pmax
             {
-              pmax      = voltageVec.at(j);
-              pmaxIndex = j;
+                if (firstPoint)
+                {
+                    pmaxIndex = j;
+                    firstPoint = false;
+                }
+                if (voltageVec.at(j) > pmax)
+                {
+                    pmax = voltageVec.at(j);
+                    pmaxIndex = j;
+                }
             }
         }
-      }
     }
     else
     {
-      for( std::size_t j = 0; j < npoints; j++ )
-      {
-          if (j == 0)
-          {
-            pmax = voltageVec[j];
-            pmaxIndex = j;
-          }
-          if (j != 0 && voltageVec.at(j) > pmax)
-          {
-            pmax = voltageVec.at(j);
-            pmaxIndex = j;
+        for (std::size_t j = 0; j < npoints; j++)
+        {
+            if (j == 0)
+            {
+                pmax = voltageVec[j];
+                pmaxIndex = j;
+            }
+            if (j != 0 && voltageVec.at(j) > pmax)
+            {
+                pmax = voltageVec.at(j);
+                pmaxIndex = j;
+            }
         }
-      }
     }
 
-    return std::make_pair( pmax, pmaxIndex);
+    return std::make_pair(pmax, pmaxIndex);
 }
-
 
 /*==============================================================================
 Find the negative signal maximum (indeed the signal minimum)
@@ -101,54 +107,59 @@ Find the negative signal maximum (indeed the signal minimum)
 
   return : Negative Pmax value and its index in the waveform vector.
 ==============================================================================*/
-std::pair<double, unsigned int> WaveformAnalysis::Find_Negative_Signal_Maximum(
-  std::vector<double> voltageVec,
-  std::vector<double> timeVec,
-  bool confineSearchRegion,
-  double searchRange[2]
+std::pair<double, unsigned int>
+WaveformAnalysis::Find_Negative_Signal_Maximum(
+    const std::vector<double> &voltageVec,
+    const std::vector<double> &timeVec,
+    const bool &confineSearchRegion,
+    const double searchRange[2]
 )
 {
-  std::string function_name = "WaveformAnalysis::Find_Negative_Signal_Maximum";
+    std::string function_name = "WaveformAnalysis::Find_Negative_Signal_Maximum";
 
-  double pmax = 0.0;
-  unsigned int pmaxIndex  = 0;
-  //bool strangePeak = true;
-  bool firstPoint  = true;
-  std::size_t npoints = voltageVec.size();
+    double pmax = 0.0;
+    unsigned int pmaxIndex = 0;
+    // bool strangePeak = true;
+    bool firstPoint = true;
+    std::size_t npoints = voltageVec.size();
 
-  if( confineSearchRegion )
-  {
-    for( std::size_t j = 0; j < npoints; j++)
+    if (confineSearchRegion)
     {
-      if( searchRange[0] <= timeVec.at(j) && timeVec.at(j) <= searchRange[1] ) //zoom in to find the Pmax
-      {
-          if( firstPoint ){ pmaxIndex = j; firstPoint = false; }
-          if( voltageVec.at(j) < pmax )
-          {
-            pmax = voltageVec.at(j);
-            pmaxIndex = j;
-          }
-      }
-    }
-  }
-  else
-  {
-    for( std::size_t j = 0, max = npoints; j < max; j++ )
-    {
-        if (j == 0)
+        for (std::size_t j = 0; j < npoints; j++)
         {
-          pmax = voltageVec.at(j);
-          pmaxIndex = j;
+            if (searchRange[0] <= timeVec.at(j) && timeVec.at(j) <= searchRange[1])   // zoom in to find the Pmax
+            {
+                if (firstPoint)
+                {
+                    pmaxIndex = j;
+                    firstPoint = false;
+                }
+                if (voltageVec.at(j) < pmax)
+                {
+                    pmax = voltageVec.at(j);
+                    pmaxIndex = j;
+                }
+            }
         }
-        if (j != 0 && voltageVec.at(j) < pmax)
-        {
-          pmax = voltageVec.at(j);
-          pmaxIndex = j;
-      }
     }
-  }
+    else
+    {
+        for (std::size_t j = 0, max = npoints; j < max; j++)
+        {
+            if (j == 0)
+            {
+              pmax = voltageVec.at(j);
+              pmaxIndex = j;
+            }
+            if (j != 0 && voltageVec.at(j) < pmax)
+            {
+                pmax = voltageVec.at(j);
+                pmaxIndex = j;
+            }
+        }
+    }
 
-  return std::make_pair( pmax, pmaxIndex);
+    return std::make_pair(pmax, pmaxIndex);
 }
 
 /*==============================================================================
@@ -182,32 +193,21 @@ std::pair<double, unsigned int>
   return : void
 ==============================================================================*/
 void WaveformAnalysis::Find_Bunch_Negative_Signal_Maximum(
-  std::vector<double> voltageVec,
-  std::vector<double> timeVec,
-  std::vector<double> pmax,
-  std::vector<double> tmax,
-  std::vector<double> &negPmax,
-  std::vector<double> &negTmax
-)
+    const std::vector<double> &voltageVec,
+    const std::vector<double> &timeVec,
+    const std::vector<double> &pmax,
+    const std::vector<double> &tmax,
+    std::vector<double> &negPmax,
+    std::vector<double> &negTmax)
 {
-  std::string function_name = "WaveformAnalysis::Find_Bunch_Negative_Signal_Maximum";
 
-  if( voltageVec.size() != timeVec.size() && pmax.size() != tmax.size() )
-  {
-    if(this->Find_Bunch_Negative_Signal_Maximum_counter<100)ColorCout::ErrorMsg(function_name, "Size dose not match! fill with 10e11." );
-    negPmax.push_back( 10e11 );
-    negTmax.push_back( 10e11 );
-    this->Find_Bunch_Negative_Signal_Maximum_counter++;
-  }
-  else
-  {
-    if( pmax.size()==1 )
+    if (voltageVec.size() != timeVec.size() && pmax.size() != tmax.size())
     {
       if(this->Find_Bunch_Negative_Signal_Maximum_counter<100)
       {
         this->mu.lock();
-        ColorCout::Msg(function_name, "Only one pmax, no needed to use this function, set value to -10e11" );
-        this->mu.unlock(); 
+        //ColorCout::Msg(function_name, "Only one pmax, no needed to use this function, set value to -10e11" );
+        this->mu.unlock();
       }
       negPmax.push_back( -10e11 );
       negTmax.push_back( -10e11 );
@@ -215,15 +215,29 @@ void WaveformAnalysis::Find_Bunch_Negative_Signal_Maximum(
     }
     else
     {
-      for(std::size_t i=0, max=pmax.size()-1; i<max; i++)
-      {
-        double searchRange[2] = {tmax.at(i), tmax.at(i+1) };
-        std::pair<double, unsigned int> my_negPmax = WaveformAnalysis::Find_Negative_Signal_Maximum(voltageVec, timeVec, true, searchRange);
-        negPmax.push_back( my_negPmax.first );
-        negTmax.push_back( timeVec.at(my_negPmax.second) );
-      }
+        if (pmax.size() == 1)
+        {
+            if (this->Find_Bunch_Negative_Signal_Maximum_counter < 100)
+            {
+                this->mu.lock();
+                LOG_WARNING("Only one pmax, no needed to use this function, set value to -10e11" );
+                this->mu.unlock();
+            }
+            negPmax.push_back(-10e11);
+            negTmax.push_back(-10e11);
+            this->Find_Bunch_Negative_Signal_Maximum_counter++;
+        }
+        else
+        {
+            for (std::size_t i = 0, max = pmax.size() - 1; i < max; i++)
+            {
+                double searchRange[2] = {tmax.at(i), tmax.at(i + 1)};
+                std::pair<double, unsigned int> my_negPmax = WaveformAnalysis::Find_Negative_Signal_Maximum( voltageVec, timeVec, true, searchRange);
+                negPmax.push_back(my_negPmax.first);
+                negTmax.push_back(timeVec.at(my_negPmax.second));
+            }
+        }
     }
-  }
 }
 
 /*==============================================================================
@@ -234,10 +248,69 @@ Give the time of the singal maximum (Tmax)
   return : Tmax
 ==============================================================================*/
 double WaveformAnalysis::Get_Tmax(
+    const std::vector<double> &timeVec,
+    const std::pair<double, unsigned int> &Pmax
+)
+{
+    double tmax = timeVec.at(Pmax.second);
+    return tmax;
+}
+
+double WaveformAnalysis::Get_Fit_Tmax(
   std::vector<double> timeVec,
+  std::vector<double> voltageVec,
   const std::pair<double, unsigned int> Pmax
 )
 {
-  double tmax = timeVec.at(Pmax.second);
-  return tmax;
+  //TODO: add fitting code here
+  gROOT->SetBatch(true);
+  double tmax_fitted = -9999.;
+  int n_points = 3;
+  //std::cout<<"\n**** start *** \n";
+  TVectorF small_voltageVec (2*n_points); // = new float[2*n_points];
+  TVectorF small_timeVec (2*n_points);// = new float[2*n_points];
+
+  if(timeVec.at(Pmax.second) > 0. and timeVec.at(Pmax.second) < 500.){
+    if(Pmax.second > 10 and Pmax.second < (timeVec.size() - 10)){
+      for(int i = 0; i < 2*n_points; i++){
+          double t_point = timeVec.at(Pmax.second - n_points + i);
+          double v_point = voltageVec.at(Pmax.second - n_points + i);
+
+          small_timeVec[i] = t_point;
+          small_voltageVec[i] = v_point;
+      }
+
+      std::string title = std::to_string(timeVec.at(Pmax.second) + std::rand());
+      TGraph gr(small_timeVec, small_voltageVec);
+      gr.SetTitle(title.c_str());
+
+      //TF1* fu;
+      title = "f_" + title;
+      TF1 fu(title.c_str(), "gaus", timeVec.at(Pmax.second) - 300., timeVec.at(Pmax.second) + 300.);
+
+      //fu->Print();
+      //gr.Print();
+
+      fu.SetParameter(0, timeVec.at(Pmax.second));
+      fu.SetParameter(1, 100.);
+      //std::cout<<"\n**** fitting *** \n";
+      TThread::Lock();
+      TFitResultPtr res = gr.Fit(&fu, "SRMQ");
+      TThread::UnLock();
+      //fu->Print();
+      tmax_fitted = fu.GetParameter(0);
+
+      /*
+      if(res->Chi2() > 0){
+        gr.Print();
+        std::cout<<"fit res chi:" << res->Chi2() << " tmax " << timeVec.at(Pmax.second) << " fit " << tmax_fitted << " sigma " << fu.GetParameter(1) << std::endl << std::endl;
+      }
+      */
+      //delete fu;
+    }
+  }
+  //delete[] small_timeVec;
+  //delete[] small_voltageVec;
+  //std::cout<<"\n**** end *** \n";
+  return tmax_fitted;
 }

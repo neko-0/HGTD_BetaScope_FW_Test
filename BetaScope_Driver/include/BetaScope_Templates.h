@@ -3,7 +3,7 @@
 #ifndef BETACOPE_TEMPLATES_HOLDER
 #define BETACOPE_TEMPLATES_HOLDER
 
-#include "BetaScope_makeBranch.tpp"
 #include "BetaScope_inputBranch.tpp"
+#include "BetaScope_makeBranch.tpp"
 
-#endif //BETACOPE_TEMPLATES_HOLDER
+#endif // BETACOPE_TEMPLATES_HOLDER

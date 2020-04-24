@@ -1,43 +1,40 @@
 #include "BetaScope_Driver/include/BetaScope_Class.h"
 #include "BetaScope_Driver/include/BetaScope_Templates.h"
 
-#include "Colorful_Cout/include/Colorful_Cout.h"
-
-#include <string>
 #include <iostream>
+#include <string>
 
+#include <TThread.h>
 #include <TTreeReader.h>
 #include <TTreeReaderArray.h>
 #include <TTreeReaderValue.h>
-#include <TThread.h>
 
-bool BetaScope::rawTreeReader( const char* itreeName )
-{
-  std::string coutPrefix = "BetaScope::rawTreeReader => ";
-  ColorCout::print(coutPrefix, "Entering", BOLDGREEN);
-  ColorCout::print(coutPrefix, "Preparing raw tree reader.", YELLOW);
+bool BetaScope::RawTreeReader(const char *itreeName) {
+  std::string cout_prefix = "BetaScope::RawTreeReader => ";
+  LOG_INFO("Entering");
+  LOG_INFO("Preparing raw tree reader.");
 
-  this->treeReader = new TTreeReader( itreeName, this->iFile );
-  this->i_numEvent = this->treeReader->GetEntries(true);
+  this->input_tree_reader_ = new TTreeReader(itreeName, this->input_tfile_);
+  this->input_num_event_ = this->input_tree_reader_->GetEntries(true);
 
-  ColorCout::print(coutPrefix, "Number of events: "+std::to_string(this->i_numEvent), YELLOW);
+  LOG_INFO( "Number of events: " + std::to_string(this->input_num_event_));
 
-  ColorCout::print(coutPrefix, "Looping through raw scope channels.", YELLOW);
+  LOG_INFO("Looping through raw scope channels.");
 
-  //int branch_counter = 0;
+  // int branch_counter = 0;
   bool br_check;
 
-  for( int b = 1, max = 5; b < max; b++ )
-  {
-    bool isBranch = BetaScope::isBranchExists( Form("t%i",b) );
-    if(isBranch){
-      br_check = BetaScope::set_iBranch<TTreeReaderArray, double>( Form("w%i", b ),  Form("w%i", b ) );
-      br_check = BetaScope::set_iBranch<TTreeReaderArray, double>( Form("t%i", b ),  Form("t%i", b ) );
+  for (int b = 1, max = 5; b < max; b++) {
+    bool isBranch = BetaScope::IsBranchExists(Form("t%i", b));
+    if (isBranch)
+    {
+      br_check = BetaScope::SetInBranch<TTreeReaderArray, double>( Form("w%i", b), Form("w%i", b));
+      br_check = BetaScope::SetInBranch<TTreeReaderArray, double>( Form("t%i", b), Form("t%i", b));
       this->channel.push_back(b);
     }
   }
 
-  ColorCout::print(coutPrefix, "Finished, exiting", BOLDGREEN);
+  LOG_INFO("Finished, exiting");
 
   return true;
 }

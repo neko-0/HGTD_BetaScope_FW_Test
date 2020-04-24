@@ -4,7 +4,6 @@
 ////                                    //
 /////////////////////////////////////////
 
-
 //==============================================================================
 // Headers
 
@@ -12,18 +11,16 @@
 #include "WaveformAna/include/general.hpp"
 
 //-------c++----------------//
-#include <iostream>
-#include <string>
-#include <sstream>
 #include <fstream>
-#include <stdlib.h>
-#include <stdio.h>
-#include <vector>
-#include <numeric>
 #include <functional>
+#include <iostream>
 #include <math.h>
-
-
+#include <numeric>
+#include <sstream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <vector>
 
 /*==============================================================================
 Find the time at where the voltage crosses the threshold level.
@@ -37,43 +34,46 @@ Find the time at where the voltage crosses the threshold level.
 
 /=============================================================================*/
 double WaveformAnalysis::Find_Time_At_Threshold(
-  const double                thresholdLevel,
-  std::vector<double>         voltageVec,
-  std::vector<double>         timeVec,
-  const std::pair<double,unsigned int> Pmax
+    const double &thresholdLevel,
+    const std::vector<double> &voltageVec,
+    const std::vector<double> &timeVec,
+    const std::pair<double, unsigned int> &Pmax
 )
 {
-  double timeAtThreshold = 0.0, timeBelowThreshold = 0.0;
+    double timeAtThreshold = 0.0, timeBelowThreshold = 0.0;
 
-  unsigned int timeBelowThreshold_index = 0;
+    unsigned int timeBelowThreshold_index = 0;
 
-  unsigned int pmax_index = Pmax.second;
-  double pmax = Pmax.first;
-  std::size_t npoints = voltageVec.size();
+    unsigned int pmax_index = Pmax.second;
+    double pmax = Pmax.first;
+    std::size_t npoints = voltageVec.size();
 
-  if( pmax_index == npoints-1 ) pmax_index = pmax_index - 1;//preventing out of range
+    if (pmax_index == npoints - 1)
+        pmax_index = pmax_index - 1; // preventing out of range
 
-    if( pmax < thresholdLevel ){ return 9999.0;}
+    if (pmax < thresholdLevel)
+    {
+        return 9999.0;
+    }
     else
     {
-      for( int i = pmax_index; i > -1; i-- )
-      {
-        if( voltageVec.at(i) <= thresholdLevel )
+        for (int i = pmax_index; i > -1; i--)
         {
-          timeBelowThreshold_index = i;
+            if (voltageVec.at(i) <= thresholdLevel)
+            {
+                timeBelowThreshold_index = i;
 
-          timeBelowThreshold       = timeVec.at(i);
+                timeBelowThreshold = timeVec.at(i);
 
-          break;
+                break;
+            }
         }
-      }
 
-      timeAtThreshold = xlinearInter( timeBelowThreshold, voltageVec.at(timeBelowThreshold_index), timeVec.at(timeBelowThreshold_index+1), voltageVec.at(timeBelowThreshold_index+1), thresholdLevel );
+        timeAtThreshold = xlinearInter( timeBelowThreshold, voltageVec.at(timeBelowThreshold_index), timeVec.at(timeBelowThreshold_index + 1), voltageVec.at(timeBelowThreshold_index + 1), thresholdLevel);
 
-      return timeAtThreshold;
+        return timeAtThreshold;
     }
 }
-
 
 /*==============================================================================
 Find the time at where the voltage crosses the threshold level. (2)
@@ -89,65 +89,62 @@ Best for simple step function trigger.
 
 /=============================================================================*/
 double WaveformAnalysis::Find_Time_At_Threshold(
-  const double                thresholdLevel,
-  std::vector<double>         voltage_v,
-  std::vector<double>         time_v
-)
+    const double &thresholdLevel,
+    const std::vector<double> &voltage_v,
+    const std::vector<double> &time_v)
 {
-  for( std::size_t i = 1, max = voltage_v.size(); i < max; i++ ) //starting at 1 to avoid boundary underflow problem.
-  {
-    if( voltage_v.at(i) >= thresholdLevel )
+    for (std::size_t i = 1, max = voltage_v.size(); i < max; i++)   // starting at 1 to avoid boundary underflow problem.
     {
-      return xlinearInter( time_v.at(i-1), voltage_v.at(i-1), time_v.at(i), voltage_v.at(i), thresholdLevel );
+        if (voltage_v.at(i) >= thresholdLevel)
+        {
+            return xlinearInter(time_v.at(i - 1), voltage_v.at(i - 1), time_v.at(i), voltage_v.at(i), thresholdLevel);
+        }
     }
-  }
-  return time_v.at(0); //return the first point of the time vector if not finnding anything.
+    return time_v.at(0); // return the first point of the time vector if not finnding anything.
 }
 
-
-
 //==============================================================================
 //==============================================================================
-//find the time that across the threshold.
+// find the time that across the threshold.
 
-void WaveformAnalysis::Get_TimeAcrossThreshold(
-  const double        thresholdLevel,
-  std::vector<double> voltageVec,
-  std::vector<double> timeVec,
-  std::vector<double> &time_at_threshold_v,
-  const unsigned int  expect_count
-)
+double WaveformAnalysis::Get_TimeAcrossThreshold(
+    const double &thresholdLevel,
+    const std::vector<double> &voltageVec,
+    const std::vector<double> &timeVec,
+    std::vector<double> &time_at_threshold_v,
+    const unsigned int &expect_count)
 {
-  bool rise_edge = true;
-  bool fall_edge = false;
+    bool rise_edge = true;
 
-  for( std::size_t i = 1, npoints = voltageVec.size(); i < npoints; i++ )
-  {
-    if( time_at_threshold_v.size() == expect_count ) break;
-
-    if( rise_edge )
+    for( std::size_t i = 1, npoints = voltageVec.size(); i < npoints; i++)
     {
-      if( voltageVec.at(i) >= thresholdLevel )
-      {
-        time_at_threshold_v.push_back( xlinearInter( timeVec.at(i-1), voltageVec.at(i-1), timeVec.at(i), voltageVec.at(i), thresholdLevel ) );
-        rise_edge = false;
-        fall_edge = true;
-      }
-    }
-    else if( fall_edge )
-    {
-      if( voltageVec.at(i) <= thresholdLevel )
-      {
-        time_at_threshold_v.push_back( xlinearInter( timeVec.at(i-1), voltageVec.at(i-1), timeVec.at(i), voltageVec.at(i), thresholdLevel ) );
-        rise_edge = true;
-        fall_edge = false;
-      }
-    }
-    else{}
-  }
+        if( time_at_threshold_v.size() == expect_count){ break; }
 
-  if( time_at_threshold_v.size() < expect_count )
-  {
-    time_at_threshold_v.push_back( 1.0e6 );
-  }
+        if(rise_edge)
+        {
+            if (voltageVec.at(i) >= thresholdLevel)
+            {
+                time_at_threshold_v.push_back( xlinearInter(timeVec.at(i - 1), voltageVec.at(i - 1), timeVec.at(i), voltageVec.at(i), thresholdLevel));
+                rise_edge = false;
+            }
+        }
+        else
+        {
+            if( voltageVec.at(i) <= thresholdLevel)
+            {
+                time_at_threshold_v.push_back(xlinearInter(timeVec.at(i - 1), voltageVec.at(i - 1), timeVec.at(i), voltageVec.at(i), thresholdLevel));
+                rise_edge = true;
+            }
+        }
+    }
+
+    if (time_at_threshold_v.size() < expect_count)
+    {
+        time_at_threshold_v.push_back(1.0e6);
+        return 1.0e6;
+    }
+    else
+    {
+      return time_at_threshold_v.at(time_at_threshold_v.size()-1) - time_at_threshold_v.at(0);
+    }
 }

@@ -4,7 +4,7 @@
 
 ########## defaut ##########
 
-CC      = g++ -std=c++17 -lstdc++fs -fPIC -no-pie
+CC      = g++ -std=c++17 -fPIC -no-pie
 DEBUG   = -g -Wall
 CFLAGS  = -c
 CFLAGS_NO_C  = -Wall $(DEBUG)
@@ -23,16 +23,16 @@ BOOST_LIB    = -L/usr/include/boost/property_tree -L/usr/include/boost/ -lboost_
 
 
 ################################################################################
-# Colorful_Cout
+# LOGGER
 ################################################################################
-COLORFUL_COUT_DIR = Colorful_Cout/
-COLORFUL_COUT_SRC_DIR = $(COLORFUL_COUT_DIR)src/
-COLORFUL_COUT_BUILD_DIR = $(COLORFUL_COUT_DIR)build/
-COLORFUL_COUT_INC_DIR = $(COLORFUL_COUT_DIR)include/
-COLORFUL_COUT_SRC_FILES = $(wildcard $(COLORFUL_COUT_SRC_DIR)/*.cpp)
-COLORFUL_COUT_SRC_FILES += $(wildcard $(COLORFUL_COUT_SRC_DIR)/*.c)
-COLORFUL_COUT_DEP = $(patsubst $(COLORFUL_COUT_SRC_DIR)/%.cpp, $(COLORFUL_COUT_BUILD_DIR)/%.o, $(COLORFUL_COUT_SRC_FILES))
-#COLORFUL_COUT_DEP += $(patsubst $(COLORFUL_COUT_SRC_DIR)/%.c, $(COLORFUL_COUT_BUILD_DIR)/%.o, $(COLORFUL_COUT_SRC_FILES))
+LOGGER_DIR = logger/
+LOGGER_SRC_DIR = $(LOGGER_DIR)src/
+LOGGER_BUILD_DIR = $(LOGGER_DIR)build/
+LOGGER_INC_DIR = $(LOGGER_DIR)include/
+LOGGER_SRC_FILES = $(wildcard $(LOGGER_SRC_DIR)/*.cpp)
+LOGGER_SRC_FILES += $(wildcard $(LOGGER_SRC_DIR)/*.c)
+LOGGER_DEP = $(patsubst $(LOGGER_SRC_DIR)/%.cpp, $(LOGGER_BUILD_DIR)/%.o, $(LOGGER_SRC_FILES))
+#LOGGER_DEP += $(patsubst $(LOGGER_SRC_DIR)/%.c, $(LOGGER_BUILD_DIR)/%.o, $(LOGGER_SRC_FILES))
 
 ################################################################################
 # utilities
@@ -44,7 +44,19 @@ UTILITIES_INC_DIR = $(UTILITIES_DIR)include/
 UTILITIES_SRC_FILES = $(wildcard $(UTILITIES_SRC_DIR)/*.cpp)
 UTILITIES_SRC_FILES += $(wildcard $(UTILITIES_SRC_DIR)/*.c)
 UTILITIES_DEP = $(patsubst $(UTILITIES_SRC_DIR)/%.cpp, $(UTILITIES_BUILD_DIR)/%.o, $(UTILITIES_SRC_FILES))
-#COLORFUL_COUT_DEP += $(patsubst $(COLORFUL_COUT_SRC_DIR)/%.c, $(COLORFUL_COUT_BUILD_DIR)/%.o, $(COLORFUL_COUT_SRC_FILES))
+#LOGGER_DEP += $(patsubst $(LOGGER_SRC_DIR)/%.c, $(LOGGER_BUILD_DIR)/%.o, $(LOGGER_SRC_FILES))
+
+################################################################################
+# Trigger
+################################################################################
+TRIGGER_DIR = Trigger/
+TRIGGER_SRC_DIR = $(TRIGGER_DIR)src/
+TRIGGER_BUILD_DIR = $(TRIGGER_DIR)build/
+TRIGGER_INC_DIR = $(TRIGGER_DIR)include/
+TRIGGER_SRC_FILES = $(wildcard $(TRIGGER_SRC_DIR)/*.cpp)
+TRIGGER_SRC_FILES += $(wildcard $(TRIGGER_SRC_DIR)/*.c)
+TRIGGER_DEP = $(patsubst $(TRIGGER_SRC_DIR)/%.cpp, $(TRIGGER_BUILD_DIR)/%.o, $(TRIGGER_SRC_FILES))
+#LOGGER_DEP += $(patsubst $(LOGGER_SRC_DIR)/%.c, $(LOGGER_BUILD_DIR)/%.o, $(LOGGER_SRC_FILES))
 
 
 ################################################################################
@@ -56,26 +68,64 @@ WAVEFORM_ANA_BUILD_DIR = $(WAVEFORM_ANA_DIR)build/
 WAVEFORM_ANA_INC_DIR = $(WAVEFORM_ANA_DIR)include/
 WAVEFORM_ANA_SRC_FILES = $(wildcard $(WAVEFORM_ANA_SRC_DIR)/*.cpp)
 WAVEFORM_ANA_SRC_FILES += $(wildcard $(WAVEFORM_ANA_SRC_DIR)/*.c)
+WAVEFORM_ANA_SRC_FILES += $(wildcard $(WAVEFORM_ANA_SRC_DIR)/*.cxx)
 WAVEFORM_ANA_DEP = $(patsubst $(WAVEFORM_ANA_SRC_DIR)/%.cpp, $(WAVEFORM_ANA_BUILD_DIR)/%.o, $(WAVEFORM_ANA_SRC_FILES))
+WAVEFORM_ANA_DEP += $(patsubst $(WAVEFORM_ANA_SRC_DIR)/%.cxx, $(WAVEFORM_ANA_BUILD_DIR)/%.o, $(WAVEFORM_ANA_SRC_FILES))
 
+WAVEFORM_ANA_DEP += $(patsubst $(WAVEFORM_ANA_SRC_DIR)/%.cxx, $(WAVEFORM_ANA_BUILD_DIR)/%.Dict.cxx, $(WAVEFORM_ANA_SLIB_SRC_FILES))
+WAVEFORM_ANA_DEP += $(patsubst $(WAVEFORM_ANA_SRC_DIR)/%.cxx, $(WAVEFORM_ANA_BUILD_DIR)/%.Dict.so, $(WAVEFORM_ANA_SLIB_SRC_FILES))
+WAVEFORM_ANA_DEP += $(patsubst $(WAVEFORM_ANA_SRC_DIR)/%.cxx, $(WAVEFORM_ANA_BUILD_DIR)/%.Dict, $(WAVEFORM_ANA_SLIB_SRC_FILES))
+
+
+WAVEFORM_ANA_DIR = WaveformAna/
+WAVEFORM_ANA_SLIB_SRC_FILES += $(wildcard $(WAVEFORM_ANA_SRC_DIR)/*.cxx)
+WAVEFORM_ANA_SLIB_DEP = $(patsubst $(WAVEFORM_ANA_SRC_DIR)/%.cxx, $(WAVEFORM_ANA_BUILD_DIR)/%.o, $(WAVEFORM_ANA_SLIB_SRC_FILES))
+WAVEFORM_ANA_SLIB_INC = $(patsubst $(WAVEFORM_ANA_SRC_DIR)/%.cxx, $(WAVEFORM_ANA_INC_DIR)/%.hpp, $(WAVEFORM_ANA_SLIB_SRC_FILES))
+
+WAVEFORM_SLIB_FILES = $(patsubst $(WAVEFORM_ANA_SRC_DIR)/%.cxx, $(WAVEFORM_ANA_BUILD_DIR)/%.Dict.so, $(WAVEFORM_ANA_SLIB_SRC_FILES))
+WAVEFORM_SLIB_DICT_FILES = $(patsubst $(WAVEFORM_ANA_SRC_DIR)/%.cxx, $(WAVEFORM_ANA_BUILD_DIR)/%.Dict.cxx, $(WAVEFORM_ANA_SLIB_SRC_FILES))
 
 ################################################################################
 # Building object files.
 ################################################################################
 
-all: $(WAVEFORM_ANA_DEP)\
-	$(COLORFUL_COUT_DEP)\
-	$(UTILITIES_DEP)
+all:$(WAVEFORM_ANA_DEP)\
+	$(LOGGER_DEP)\
+	$(UTILITIES_DEP) \
+	$(TRIGGER_DEP)
 
-$(COLORFUL_COUT_BUILD_DIR)/%.o: $(COLORFUL_COUT_SRC_DIR)/%.cpp
-	$(CC) $(DEBUG) -I./ -I../ -I$(COLORFUL_COUT_INC_DIR) -I$(WAVEFORM_ANA_DIR) -c $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOT_INCLUDE) $(BOOST_LIB)
+
+
+$(WAVEFORM_ANA_BUILD_DIR)/%.Dict.cxx: $(WAVEFORM_ANA_INC_DIR)/%.hpp $(WAVEFORM_ANA_INC_DIR)/%_LinkDef.h
+	rootcint -f $@ -c $^
+
+$(WAVEFORM_ANA_BUILD_DIR)/%.o: $(WAVEFORM_ANA_SLIB_SRC_FILES)/%.cxx $(LOGGER_DEP)
+	$(CC) $(DEBUG) -I./ -I../ -I$(LOGGER_INC_DIR) -I$(WAVEFORM_ANA_DIR) -c $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOT_INCLUDE) $(BOOST_LIB)
+
+$(WAVEFORM_ANA_BUILD_DIR)/%.Dict: $(WAVEFORM_ANA_BUILD_DIR)/%.Dict.cxx
+	$(CC) $(DEBUG) -I./ -I../ -I$(LOGGER_INC_DIR) -I$(WAVEFORM_ANA_DIR) -c $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOT_INCLUDE) $(BOOST_LIB)
+
+$(WAVEFORM_ANA_BUILD_DIR)/%.Dict.so: $(WAVEFORM_ANA_BUILD_DIR)/%.o $(WAVEFORM_ANA_BUILD_DIR)/%.Dict
+	$(CC) -shared $(DEBUG) -I./ -I../ -I$(LOGGER_INC_DIR) -I$(WAVEFORM_ANA_DIR)  $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOT_INCLUDE) $(BOOST_LIB)
+
 
 $(WAVEFORM_ANA_BUILD_DIR)/%.o: $(WAVEFORM_ANA_SRC_DIR)/%.cpp
-	$(CC) $(DEBUG) -I./ -I../ -I$(COLORFUL_COUT_INC_DIR) -I$(WAVEFORM_ANA_DIR) -I$(WAVEFORM_ANA_INC_DIR) -c $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOT_INCLUDE) $(BOOST_LIB)
+	$(CC) $(DEBUG) -I./ -I../ -I$(LOGGER_INC_DIR) -I$(WAVEFORM_ANA_DIR) -I$(WAVEFORM_ANA_INC_DIR) -c $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOT_INCLUDE) $(BOOST_LIB)
+
+$(WAVEFORM_ANA_BUILD_DIR)/%.o: $(WAVEFORM_ANA_SRC_DIR)/%.cxx
+	$(CC) $(DEBUG) -I./ -I../ -I$(LOGGER_INC_DIR) -I$(WAVEFORM_ANA_DIR) -I$(WAVEFORM_ANA_INC_DIR) -c $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOT_INCLUDE) $(BOOST_LIB)
+
+
+
+
+$(LOGGER_BUILD_DIR)/%.o: $(LOGGER_SRC_DIR)/%.cpp
+	$(CC) $(DEBUG) -I./ -I../ -I$(LOGGER_INC_DIR) -I$(WAVEFORM_ANA_DIR) -c $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOT_INCLUDE) $(BOOST_LIB)
 
 $(UTILITIES_BUILD_DIR)/%.o: $(UTILITIES_SRC_DIR)/%.cpp
 	$(CC) $(DEBUG) -I./ -I../ -I$(UTILITIES_INC_DIR) -I$(UTILITIES_DIR) -c $^ -o $@
 
+$(TRIGGER_BUILD_DIR)/%.o: $(TRIGGER_SRC_DIR)/%.cpp
+	$(CC) $(DEBUG) -I./ -I../ -I$(TRIGGER_INC_DIR) -I$(TRIGGER_DIR) -c $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOT_INCLUDE) $(BOOST_LIB)
 
 
 ################################################################################
@@ -85,6 +135,7 @@ $(UTILITIES_BUILD_DIR)/%.o: $(UTILITIES_SRC_DIR)/%.cpp
 clean:
 	@echo "cleaning .o files in build and binary files in bin."
 	@for file in ./*/build/*; do rm -rf $$file; echo Delete Object file: $$file; done
+	@for file in ./*/*/build/*.Dict*; do rm -rf $$file; echo Delete Object file: $$file; done
 	@for file in ./*/*/build/*; do rm -rf $$file; echo Delete Object file: $$file; done
 	@for file in ./bin/*; do rm -rf $$file; echo Delete binary file: $$file; done
 	@for file in ./*/*/bin/*; do rm -rf $$file; echo Delete Object file: $$file; done

@@ -252,7 +252,7 @@ def generate_cuts( dutCh, trigCh, runNum, configFileName, trigFixedCut, tmax_min
 
         #raw_input()
 
-        allCut = tCut + " " + pmaxCut + " " + trigger_preset
+        allCut = tCut + " " + pmaxCut + " " + trigger_preset + " isGoodTrig3"
         betaRunConfig.set( runNum, "cut_%s"%dutCh, allCut)
 
         #parse the temperature and trigger bias voltage, for temperatrue scan measurement.
