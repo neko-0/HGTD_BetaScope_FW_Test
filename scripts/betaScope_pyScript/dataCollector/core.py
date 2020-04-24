@@ -1,13 +1,237 @@
+"""
+structure class for sensor's data
+"""
+import logging, coloredlogs
+
+logging.basicConfig()
+log = logging.getLogger(__name__)
+coloredlogs.install(level="CRITICAL", logger=log)
+
 import configparser
 import pickle
+
+import ROOT
+from array import array
 from copy import deepcopy
 
-class BetaScopeResult(object):
-    def __init__(self, fname=""):
+import inspect
+
+
+class BetaResult(object):
+    """
+    The structure should be
+
+    BetaResult(run_number, name)
+    |
+    |-----Fit Result from charge collection
+    |
+    |
+    |-----DAQ information
+    """
+
+    # ===========================================================================
+    # ===========================================================================
+    class FitResult(object):
+        """
+        Internal class handle the fit results
+        """
+
+        def __init__(self, channel):
+            self.channel = channel
+            self.cycle = 1
+
+        def load_time_resolution(self, fname, cfd):
+            try:
+                with open(fname, "r") as f:
+                    for line in f.readlines():
+                        line_split = line.split(",")
+                        if str(self.cycle) in str(line_split[5]).split("\n")[0] and str(
+                            self.bias_voltage
+                        ) in str(line_split[2]):
+                            if cfd == 50:
+                                self.time_resolution_50 = float(line_split[3])
+                                self.time_resolution_err_50 = float(line_split[4])
+                            if cfd == 20:
+                                self.time_resolution_20 = float(line_split[3])
+                                self.time_resolution_err_20 = float(line_split[4])
+            except Exception as e:
+                log.warning(
+                    "{}-> Error encounter during time resolution. Error: {}".format(
+                        self.__class__.__name__, e
+                    )
+                )
+
+        def load_leakage(self, fname):
+            try:
+                with open(fname, "r") as f:
+                    for line in f.readlines():
+                        line_split = line.split(",")
+                        if str(self.cycle) in str(line_split[4]).split("\n")[0] and str(
+                            self.bias_voltage
+                        ) in str(line_split[2]):
+                            self.leakage = float(line_split[3])
+                            self.temperature = float(line_split[1])
+            except Exception as e:
+                log.warning(
+                    "{}-> Error entounter during leakage. Error: {}".format(
+                        self.__class__.__name__, e
+                    )
+                )
+
+    # ===========================================================================
+    # ===========================================================================
+    class DAQInfo(object):
+        """
+        Internal class handle the DAQ info.
+        """
+
+        def __init__(self, run_number, daq_description_name=""):
+            self.daq_description = configparser.ConfigParser()
+            self.run_number = run_number
+            if daq_description_name:
+                try:
+                    self.daq_description.read(daq_description_name)
+                    self.sensor_name = self.daq_description["Run_Description"][
+                        "DUT_Senor_Name"
+                    ]
+                    self.temperature = self.daq_description["Run_Description"][
+                        "Temperature"
+                    ]
+                    self.trigger_bias = self.daq_description["Run_Description"][
+                        "Trigger_Voltage"
+                    ]
+                    self.dut_board = self.daq_description["Run_Description"][
+                        "DUT_Readout_Board"
+                    ]
+                    self.dut_board_number = self.daq_description["Run_Description"][
+                        "DUT_Readout_Board_Number"
+                    ]
+                    self.dut_fluence_type = self.daq_description["Run_Description"][
+                        "DUT_Fluence_Type"
+                    ]
+                    self.dut_fluence = self.daq_description["Run_Description"][
+                        "DUT_Fluence"
+                    ]
+                except Exception as e:
+                    log.warning(
+                        "{}-> Error in reading DAQ info. Error: {}".format(
+                            self.__class__.__name__, e
+                        )
+                    )
+
+    # ===========================================================================
+    # ===========================================================================
+    """
+    __init__ and methods for BetaResult class
+    """
+
+    def __init__(self, run_number, name):
+        self.run_number = run_number
+        self.name = name
+        self.fit_result = {}
+        self.daq_info = None
+
+    def load_result(self, result_file_ini, time_res_file_list, leakage_file, tag):
+        parser = configparser.ConfigParser()
+        try:
+            parser.read(result_file_ini)
+        except Exception as e:
+            log.critical(
+                "{}-> Cannot load result file. Error: {}".format(
+                    self.__class__.__name__, e
+                )
+            )
+            return {}
+
+        if not (tag in self.fit_result):
+            self.fit_result[tag] = []
+
+        for sec in parser.sections():
+            fit_result = BetaResult.FitResult(tag)
+            if tag in sec:
+                if tag != "Trig":
+                    if ".." in sec:
+                        fit_result.bias_voltage = int(
+                            sec[sec.find("_") + 1 : sec.find("V")]
+                        )
+                        fit_result.cycle = sec.split("..")[1]
+                        if "_" in fit_result.cycle:
+                            fit_result.cycle = int(fit_result.cycle.split("_")[0])
+                    else:
+                        fit_result.bias_voltage = int(
+                            sec[sec.find("_") + 1 : sec.find("V")]
+                        )
+                        fit_result.cycle = 1
+                else:
+                    try:
+                        fit_result.bias_voltage = int(parser[sec]["trigger_bias"])
+                        if ".." in sec:
+                            fit_result.cycle = sec.split("..")[1]
+                            if "_" in fit_result.cycle:
+                                fit_result.cycle = int(fit_result.cycle.split("_")[0])
+                        else:
+                            fit_result.cycle = 1
+                    except:
+                        fit_result.bias_voltage = -390
+                        fit_result.cycle = 1
+
+                fit_result.pulse_area = float(parser[sec]["PulseArea"])
+                fit_result.pmax = float(parser[sec]["Pmax"])
+                fit_result.rms = float(parser[sec]["RMS"])
+                fit_result.rise_time = float(parser[sec]["Rise_Time"])
+                fit_result.dvdt = float(parser[sec]["dvdt"])
+                fit_result.fwhm = float(parser[sec]["FWHM"])
+                fit_result.new_pulse_area = float(parser[sec]["NewPulseArea"])
+                try:
+                    fit_result.fall_time = float(parser[sec]["FallTime"])
+                    fit_result.pulse_area_chi = float(parser[sec]["PulseArea_CHI_NDF"])
+                    fit_result.pmax_chi = float(parser[sec]["Pmax_CHI_NDF"])
+                    fit_result.rms_chi = float(parser[sec]["RMS_CHI_NDF"])
+                    fit_result.rise_time_chi = float(parser[sec]["Rise_Time_CHI_NDF"])
+                    fit_result.dvdt_chi = float(parser[sec]["dvdt_CHI_NDF"])
+                    fit_result.fwhm_chi = float(parser[sec]["FWHM_CHI_NDF"])
+                    fit_result.new_pulse_area_chi = float(
+                        parser[sec]["NewPulseArea_CHI_NDF"]
+                    )
+                    fit_result.fall_time_chi = float(parser[sec]["FallTime_CHI_NDF"])
+                except Exception as e:
+                    log.warning(
+                        "{}-> Error in loading fit results: {}".format(
+                            self.__class__.__name__, e
+                        )
+                    )
+
+            self.fit_result[tag].append(fit_result)
+
+        if tag != "Trig":
+            for fit_r in self.fit_result[tag]:
+                for time_res_file, cfd in time_res_file_list:
+                    fit_r.load_time_resolution(time_res_file, cfd)
+                fit_r.load_leakage(leakage_file)
+
+    def load_daq_info(self, run_number, daq_description_name):
+        self.daq_info = BetaResult.DAQInfo(run_number, daq_description_name)
+
+
+# ===============================================================================
+# ===============================================================================
+
+
+class BetaCollector(object):
+    def __init__(self):
         self.beta_runs = {}
         self.user_data_dir = "./user_data/"
-        if fname:
-            self.load(fname)
+
+    @classmethod
+    def load(cls, ifile):
+        try:
+            with open(ifile, "rb") as f:
+                data = pickle.load(f)
+                cls_obj = cls()
+                cls_obj.beta_runs = data.beta_runs
+                return cls_obj
+        except:
+            log.critical("cannot load file. Return default instance of object.")
 
     def run_exists(self, beta_run):
         if beta_run.run_number in self.beta_runs:
@@ -18,181 +242,158 @@ class BetaScopeResult(object):
     def fetchRun(self, run_list):
         output = []
         for run_num, run in run_list:
-            output.append( self.beta_runs[run_num] )
+            output.append(self.beta_runs[run_num])
         return output
 
     def generate_run_list(self):
         run_list = []
-        for run_num,run in self.beta_runs.items():
-            run_list.append( [run_num, run.name] )
+        for run_num, run in self.beta_runs.items():
+            run_list.append([run_num, run.name])
         return run_list
 
-    def add_run(self, beta_run):
-        self.beta_runs[beta_run.run_number] = deepcopy(beta_run)
+    def add_run(self, beta_run, icount=2):
+        '''
+        beta_run should be class instance of BetaResult
+        '''
+        counter = icount
+        if beta_run.run_number in self.beta_runs:
+            if "add{}_".format(counter-1) in beta_run.run_number:
+                beta_run.run_number=beta_run.run_number.split("add{}_".format(counter-1))[1]
+            beta_run.run_number="add{}_".format(counter)+beta_run.run_number
+            self.add_run(beta_run, counter+1)
+        self.beta_runs[beta_run.run_number] = beta_run
 
     def save(self, out_path):
         with open(out_path, "wb") as f:
             pickle.dump(self, f, 2)
 
-    def load(self, ifile):
-        try:
-            with open(ifile, "rb") as f:
-                data = pickle.load(f)
-                self.beta_runs = data.beta_runs
-        except:
-            pass
+    @staticmethod
+    def _roottree_setup(run_num, tag, name, fit_result_cls_obj, branch_holder):
+        """
+        setup output ttree. automatically create branch from the fit results object.
+
+        param:
+            run_num := run number, integer value
+            tag := name tag for lookup in the fit result INI file. 'DUT' or 'Trig' for example
+            name := description for full file name. Use for reference for plotting.
+            fit_result_cls_obj := class object from BetaResult.FitResult
+
+        return:
+            ttree
+        """
+        tree_name = "{}_{}".format(run_num, tag)
+        description = name
+        ttree = ROOT.TTree(tree_name, description)
+        """
+        Found on stackover-flow. Get the variables out of a class object
+        """
+        obj_attr = inspect.getmembers(
+            fit_result_cls_obj, lambda a: not (inspect.isroutine(a))
+        )
+        obj_vars = [
+            attr
+            for attr in obj_attr
+            if not (attr[0].startswith("__") and attr[0].endswith("__"))
+        ]
+
+        for var_name, var_value in obj_vars:
+            if not isinstance(var_value, str):
+                branch_holder[var_name] = array("d", [0])
+                ttree.Branch(var_name, branch_holder[var_name], "{}/D".format(var_name))
+
+        return (ttree, obj_vars)
 
     def to_root(self, ofile_name):
-        import ROOT
-        from array import array
-        par_list = [
-        "temperature",
-        "bias_voltage",
-        "resistance",
-        "pulse_area",
-        "pulse_area_chi",
-        "pmax",
-        "pmax_chi",
-        "rms",
-        "rms_chi",
-        "rise_time",
-        "rise_time_chi",
-        "dvdt",
-        "dvdt_chi",
-        "fwhm",
-        "fwhm_chi",
-        "new_pulse_area",
-        "new_pulse_area_chi",
-        "fall_time",
-        "fall_time_chi",
-        "time_resolution_50",
-        "time_resolution_20",
-        "cycle"
-        ]
         if self.beta_runs:
-            ofile = ROOT.TFile(ofile_name, "RECREATE" )
+            ofile = ROOT.TFile(ofile_name, "RECREATE")
             ofile.cd()
-            for run,run_item in self.beta_runs.items():
-                ttree = ROOT.TTree(run, "{}".format(run_item.name) )
-                array_dict = {}
-                for par in par_list:
-                    array_dict[par] = array("d",[0])
-                    ttree.Branch(par,array_dict[par], "{}/D".format(par) )
-                for fit in run_item.fit_results:
-                    if "DUT" in fit.channel:
-                        for par in par_list:
-                            my_value = getattr(fit, par)
-                            if my_value is None:
-                                array_dict[par][0] = -9999
-                            else:
-                                array_dict[par][0] = float(my_value)
-                        ttree.Fill()
+            for run_num, run_item in self.beta_runs.items():
+                '''
+                run_num is the run number,
+                run_item is class instance of BetaResult
+                '''
+                for tag, result in run_item.fit_result.items():
+                    '''
+                    tag in here is just a label for 'DUT' or 'Trig' in fit result file or ttree
+                    '''
+                    if len(result) == 0:
+                        continue
+                    branch_dict = {}
+                    ttree, obj_vars = self._roottree_setup(
+                        run_num, tag, run_item.name, result[0], branch_dict
+                    )
+
+                    sort_buffer = {}
+                    for r in result:
+                        for var_name, _ in obj_vars:
+                            if var_name in branch_dict and var_name in r.__dict__:
+                                if not(var_name in sort_buffer):
+                                    sort_buffer[var_name] = []
+                                sort_buffer[var_name].append(r.__dict__[var_name])
+
+                    sort_against_key = "bias_voltage"
+                    if sort_against_key in sort_buffer:
+                        sort_against_list = deepcopy(sort_buffer[sort_against_key])
+                        for key, l in sort_buffer.items():
+                            if key != sort_against_key:
+                                #print(tag)
+                                #if key=="pmax" and "Run643" in run_item.name:print("before {}".format(l))
+                                sort_buffer[key] = [x for _,x in sorted(zip(sort_against_list, l))]
+                                #if key=="pmax" and "Run643" in run_item.name:print("after {}".format(l))
+                        #if "Run643" in run_item.name:print("before {}".format(sort_buffer[sort_against_key]))
+                        sort_buffer[sort_against_key] = sorted(sort_buffer[sort_against_key])
+                        #if "Run643" in run_item.name:print("after {}".format(sort_buffer[sort_against_key]))
+                        #if "Run643" in run_item.name:print("after {}".format(sort_buffer["pmax"]))
                     else:
                         continue
-                ttree.Write()
+                    '''
+                    for r in result:
+                        for var_name, _ in obj_vars:
+                            if var_name in branch_dict and var_name in r.__dict__:
+                                branch_dict[var_name][0] = r.__dict__[var_name]
+                    '''
+                    count = len(sort_buffer[sort_against_key])
+                    '''
+                    if "Run643" in run_item.name:
+                        print("{}\n{}".format(sort_buffer["bias_voltage"], sort_buffer["pmax"]))
+                    '''
+                    if count <= 0:
+                        continue
+                    for i in range(count):
+                        for var_name in sort_buffer.keys():
+                            if var_name in branch_dict:
+                                if len(sort_buffer[var_name])!=count:
+                                    log.critical("list size dose not match: {}->{}".format(run_item.name, var_name))
+                                else:
+                                    branch_dict[var_name][0] = sort_buffer[var_name][i]
+                        ttree.Fill()
+                    ttree.Write()
             ofile.Close()
 
 
-class BetaRun(object):
-    def __init__(self, run_number, name):
-        self.run_number = run_number
-        self.name = name
-        self.fit_results = None
-        self.cv_results = None
-        self.daq_info = None
+# ===============================================================================
+# ===============================================================================
+"""
+class SensorData(object):
+    def __init__(self):
+        self.sensor_name = name
+        self.beta_run_num = beta_run_num
+        self.beta_data = None
 
-    def add_fit_result(self, fit_result):
-        self.fit_results = deepcopy(fit_result)
+        self.cv_data = None
+        self.iv_data = None
 
-    def add_cv_result(self):
-        pass
+        self.beta_daq_info = None
 
-    def update_daq_info(self, daq_info):
-        self.daq_info = daq_info
+    def add_beta(self, beta_data):
+        self.beta_data = beta_data
 
-class FitResult(object):
+    def add_cv(self, cv_data):
+        self.cv_data = cv_data
 
-    def __init__(self, channel):
-        self.channel = channel
-        self.bias_voltage = None
-        self.pulse_area = None
-        self.pulse_area_chi = None
-        self.pmax = None
-        self.pmax_chi = None
-        self.rms = None
-        self.rms_chi = None
-        self.rise_time = None
-        self.rise_time_chi = None
-        self.fwhm = None
-        self.fwhm_chi = None
-        self.fall_time = None
-        self.fall_time_chi = None
-        self.new_pulse_area = None
-        self.new_pulse_area_chi = None
-        self.resistance = None
-        self.temperature = None
-        self.dvdt = None
-        self.dvdt_chi = None
-        self.cycle = 1
-        self.time_resolution_50 = None
-        self.time_resolution_err_50 = None
-        self.time_resolution_50_chi = None
-        self.time_resolution_20 = None
-        self.time_resolution_err_20 = None
-        self.time_resolution_20_chi = None
-        self.leakage = None
+    def add_iv(self, iv_data):
+        self.iv_data = iv_data
 
-    def update_time_resolution(self, fname, cfd):
-        try:
-            with open(fname, "r") as f:
-                for line in f.readlines():
-                    line_split = line.split(",")
-                    #print(type(self.cycle))
-                    #print(line_split[2])
-                    if(str(self.cycle) in str(line_split[5]).split("\n")[0] and str(self.bias_voltage) in str(line_split[2])):
-                        if cfd==50:
-                            self.time_resolution_50 = float(line_split[3])
-                            self.time_resolution_err_50 = float(line_split[4])
-                        if cfd==20:
-                            self.time_resolution_20 = float(line_split[3])
-                            self.time_resolution_err_20 = float(line_split[4])
-                        #print(self.time_resolution_50)
-        except:
-            pass
-
-    def update_leakage(self, fname):
-        try:
-            with open(fname, "r") as f:
-                for line in f.readlines():
-                    line_split = line.split(",")
-                    if(str(self.cycle) in str(line_split[4]).split("\n")[0] and str(self.bias_voltage) in str(line_split[2])):
-                        self.leakage = float(line_split[3])
-                        self.temperature = float(line_split[1])
-        except Exception as e:
-            print("update leakge catch {}".format(e))
-            pass
-
-class DAQInfo(object):
-
-    def __init__(self, run_number, daq_description_name=""):
-        self.daq_description = configparse.ConfigParser()
-        self.sensor_name = None
-        self.temperature = None
-        self.trigger_bias = None
-        self.dut_board = None
-        self.dut_board_number = None
-        self.dut_fluence_type = None
-        self.dut_fluence = None
-        self.run_number = run_number
-        if daq_description_name:
-            try:
-                self.daq_description.read(daq_description_name)
-                self.sensor_name  = self.daq_description["Run_Description"]["DUT_Senor_Name"]
-                self.temperature = self.daq_description["Run_Description"]["Temperature"]
-                self.trigger_bias = self.daq_description["Run_Description"]["Trigger_Voltage"]
-                self.dut_board = self.daq_description["Run_Description"]["DUT_Readout_Board"]
-                self.dut_board_number = self.daq_description["Run_Description"]["DUT_Readout_Board_Number"]
-                self.dut_fluence_type = self.daq_description["Run_Description"]["DUT_Fluence_Type"]
-                self.dut_fluence = self.daq_description["Run_Description"]["DUT_Fluence"]
-            except:
-                raise IOError
+    def add_beta_daq(self, beta_daq_info):
+        self.beta_daq_info = beta_daq_info
+"""

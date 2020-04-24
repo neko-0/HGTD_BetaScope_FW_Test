@@ -4,7 +4,7 @@
 
 ########## defaut ##########
 
-CC      = g++ --std=c++17 --std=c++1z --std=gnu++1z -fPIC -no-pie
+CC      = g++ -std=c++17 -fPIC -no-pie
 DEBUG   = -g -Wall
 CFLAGS  = -c
 CFLAGS_NO_C  = -Wall $(DEBUG)
@@ -23,7 +23,8 @@ BOOST_LIB    = -L/usr/include/boost/property_tree -L/usr/include/boost/ -lboost_
 
 GENERAL_DIR = ../General/
 
-COLORFUL_COUT_DIR = $(GENERAL_DIR)Colorful_Cout/
+LOGGER_DIR = $(GENERAL_DIR)logger/
+LOGGER_DEP = $(wildcard $(GENERAL_DIR)/logger/build/*.o)
 
 WAVEFORMANA_DIR = $(GENERAL_DIR)WaveformAna/
 WAVEFORMANA_BUILD_DIR = $(WAVEFORMANA_DIR)/build/
@@ -51,8 +52,8 @@ BETASCOPE_DRIVER_DEP = $(patsubst $(BETASCOPE_DRIVER_SRC_DIR)/%.cpp, $(BETASCOPE
 
 all: $(BETASCOPE_DRIVER_DEP)
 
-$(BETASCOPE_DRIVER_BUILD_DIR)/%.o: $(BETASCOPE_DRIVER_SRC_DIR)/%.cpp
-	$(CC) $(DEBUG) -I./ -I../ -I$(GENERAL_DIR) -I$(BETASCOPE_DRIVER_INC_DIR) -c $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOT_INCLUDE) $(BOOST_LIB)
+$(BETASCOPE_DRIVER_BUILD_DIR)/%.o: $(BETASCOPE_DRIVER_SRC_DIR)/%.cpp $(LOGGER_DEP)
+	$(CC) $(DEBUG) -I./ -I../ -I$(GENERAL_DIR) -I$(LOGGER_DIR)/include/ -I$(BETASCOPE_DRIVER_INC_DIR) -c $< -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOT_INCLUDE) $(BOOST_LIB)
 
 
 ################################################################################

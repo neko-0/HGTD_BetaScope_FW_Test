@@ -4,7 +4,7 @@ function to extract time resolution from the beta scope measurement
 
 import ROOT
 
-def get_time_resolution( tfile_name, cuts, cfd, dut_ch, trig_ch, return_histo=False ):
+def get_time_resolution( tfile_name, cuts, cfd, dut_ch, trig_ch, return_histo=False, xmin=None, xmax=None, nbin=None ):
     tfile = ROOT.TFile.Open(tfile_name, "r")
     ttree_wfm = tfile.wfm
 
@@ -27,6 +27,12 @@ def get_time_resolution( tfile_name, cuts, cfd, dut_ch, trig_ch, return_histo=Fa
     min_range = sample_mean - 5.0*sample_std
     max_range = sample_mean + 5.0*sample_std
     num_bins = int((max_range-min_range)/bin_width)
+    if xmin:
+        min_range = xmin
+    if xmax:
+        max_range = xmax
+    if nbin:
+        num_bins = nbin
     tdiff_histo = ROOT.TH1D("tdiff_histo", "tdiff_histo", num_bins, min_range, max_range)
     ttree_wfm.Project("tdiff_histo", tdiff, cuts)
     gaussian = ROOT.TF1("gaussian", "gaus")
@@ -49,6 +55,9 @@ if __name__ == "__main__":
     cml_parser = argparse.ArgumentParser()
     cml_parser.add_argument("--CFD", dest="CFD", nargs="?", default="50", type=int, help="CFD")
     cml_parser.add_argument("--scope", dest="scope", nargs="?", default="lecroy", type=str, help="scope")
+    cml_parser.add_argument("--xmin", dest="xmin", nargs="?", default=None, type=float, help="scope")
+    cml_parser.add_argument("--xmax", dest="xmax", nargs="?", default=None, type=float, help="scope")
+    cml_parser.add_argument("--nbin", dest="nbin", nargs="?", default=None, type=int, help="scope")
 
     argv = cml_parser.parse_args()
 
@@ -104,7 +113,7 @@ if __name__ == "__main__":
         dut_cut = "tmax%s[0]-cfd3[20] > %s && tmax%s[0]-cfd3[20] < %s && pmax%s[0] > %s && pmax%s[0] < %s"%(dut_ch, raw_cut[0], dut_ch, raw_cut[1], dut_ch, raw_cut[2], dut_ch, raw_cut[3] )
         trig_cut = "tmax%s[0]-cfd3[20] > %s && tmax%s[0]-cfd3[20] < %s && pmax%s[0] > %s && pmax%s[0] < %s"%(trig_ch, raw_cut[4], trig_ch, raw_cut[5], trig_ch, raw_cut[6], trig_ch, raw_cut[7] )
         cuts = dut_cut + " && "+ trig_cut
-        result = get_time_resolution(fileName, cuts, argv.CFD, dut_ch, trig_ch, True)
+        result = get_time_resolution(fileName, cuts, argv.CFD, dut_ch, trig_ch, True, argv.xmin, argv.xmax, argv.nbin)
 
         dut_time_res = math.sqrt( math.pow(result["sigma"],2) - math.pow(trigger_resolution,2) )
         dut_time_res_err = math.sqrt( math.pow(result["sigma"],2)/(math.pow(result["sigma"],2) - math.pow(trigger_resolution,2))*math.pow(result["sigma_err"],2) + math.pow(trigger_resolution,2)/(math.pow(result["sigma"],2) - math.pow(trigger_resolution,2))*math.pow(trigger_resolution_err, 2))

@@ -2,67 +2,80 @@
 
 
 template <typename dtype>
-bool BetaScope::buildPrimitiveBranch( std::string branchName )
-{
-  std::string function_name = "BetaScope::buildPrimitiveBranch";
-  try{
-    this->oTreePrimitiveBranches[this->oTreePrimitiveBranchCounter] = new PrimitiveDataType_Container<dtype>();
-    this->oTreePrimitiveBranchesMap.insert( std::pair<std::string, PrimitiveDataType_BaseContainer*>( branchName, this->oTreePrimitiveBranches[this->oTreePrimitiveBranchCounter] ) );
-    oTree->Branch( branchName.c_str(), static_cast<PrimitiveDataType_Container<dtype>*>(this->oTreePrimitiveBranches[this->oTreePrimitiveBranchCounter])->get() );
-    this->oTreePrimitiveBranchesMapIndex.insert( std::pair<std::string , int>(branchName, this->oTreePrimitiveBranchCounter) );
+bool BetaScope::BuildOutBranch(std::string branchName, int size) {
+  try
+  {
+    this->output_branches_buffer_[this->output_branch_counter_] = new PrimitiveDataType_Container<dtype>();
+    this->output_branch_map_.insert( std::pair<std::string, PrimitiveDataType_BaseContainer *>( branchName, this->output_branches_buffer_[this->output_branch_counter_]));
+    this->output_ttree_->Branch( branchName.c_str(), static_cast<PrimitiveDataType_Container<dtype> *>( this->output_branches_buffer_[this->output_branch_counter_])->get());
+    this->output_branch_map_index_.insert(std::pair<std::string, int>(branchName, this->output_branch_counter_));
 
-    if( is_vector<dtype>::value )
+    if (is_vector<dtype>::value)
     {
-      this->oTreeSTLVectorReservedIndex.push_back( this->newBranchCountKeeper );
+      this->output_vector_reserved_index_.push_back(this->new_branch_counter_);
+
 
       typedef typename is_vector<dtype>::T v;
       ///*
-      if( std::is_same< v, std::vector<int>>::value )
+      if (std::is_same<v, std::vector<int>>::value)
       {
-        ColorCout::Msg(function_name, "Branch:" + branchName + " is std::vector<int>, Handle buffer internally" );
-        this->oTreeSTLVecotr_Int_keeper.push_back( static_cast<PrimitiveDataType_Container<std::vector<int>>*>(this->oTreePrimitiveBranches[this->oTreePrimitiveBranchCounter])->get() );
-        this->oTree_STLVecotrKeeper.push_back( static_cast<PrimitiveDataType_Container<std::vector<int>>*>(this->oTreePrimitiveBranches[this->oTreePrimitiveBranchCounter]) );
+        LOG_INFO( "BetaScope::BuildOutBranch Branch:" + branchName + " is std::vector<int>, Handle buffer internally");
+        static_cast<PrimitiveDataType_Container<std::vector<int>> *>(this->output_branches_buffer_[this->output_branch_counter_])->get()->reserve(size);
+        this->output_int_vector_keeper_.push_back( static_cast<PrimitiveDataType_Container<std::vector<int>> *>( this->output_branches_buffer_[this->output_branch_counter_])->get());
+        this->output_vector_keeper_.push_back( static_cast<PrimitiveDataType_Container<std::vector<int>> *>( this->output_branches_buffer_[this->output_branch_counter_]));
       }
-      if( std::is_same< v, std::vector<double>>::value )
+      else if (std::is_same<v, std::vector<double>>::value)
       {
-        ColorCout::Msg(function_name, "Branch:" + branchName + " is std::vector<double>, Handle buffer internally" );
-        this->oTreeSTLVecotr_Double_keeper.push_back( static_cast<PrimitiveDataType_Container<std::vector<double>>*>(this->oTreePrimitiveBranches[this->oTreePrimitiveBranchCounter])->get() );
-        this->oTree_STLVecotrKeeper.push_back( static_cast<PrimitiveDataType_Container<std::vector<double>>*>(this->oTreePrimitiveBranches[this->oTreePrimitiveBranchCounter]) );
+        LOG_INFO( "BetaScope::BuildOutBranch Branch:" + branchName + " is std::vector<double>, Handle buffer internally");
+        static_cast<PrimitiveDataType_Container<std::vector<double>>*>(this->output_branches_buffer_[this->output_branch_counter_])->get()->reserve(size);
+        this->output_double_vector_keeper_.push_back( static_cast<PrimitiveDataType_Container<std::vector<double>> *>(this->output_branches_buffer_[this->output_branch_counter_])->get());
+        this->output_vector_keeper_.push_back( static_cast<PrimitiveDataType_Container<std::vector<double>> *>( this->output_branches_buffer_[this->output_branch_counter_]));
+
       }
-      if( std::is_same< v, std::vector<float>>::value)
+      else if (std::is_same<v, std::vector<float>>::value)
       {
-        ColorCout::Msg(function_name, "Branch:" + branchName + " is std::vector<float>, Handle buffer internally" );
-        this->oTreeSTLVecotr_Float_keeper.push_back( static_cast<PrimitiveDataType_Container<std::vector<float>>*>(this->oTreePrimitiveBranches[this->oTreePrimitiveBranchCounter])->get() );
-        this->oTree_STLVecotrKeeper.push_back( static_cast<PrimitiveDataType_Container<std::vector<float>>*>(this->oTreePrimitiveBranches[this->oTreePrimitiveBranchCounter]) );
+        LOG_INFO( "BetaScope::BuildOutBranch Branch:" + branchName + " is std::vector<float>, Handle buffer internally");
+        static_cast<PrimitiveDataType_Container<std::vector<float>>*>(this->output_branches_buffer_[this->output_branch_counter_])->get()->reserve(size);
+        this->output_float_vector_keeper_.push_back( static_cast<PrimitiveDataType_Container<std::vector<float>> *>(this->output_branches_buffer_[this->output_branch_counter_])->get());
+        this->output_vector_keeper_.push_back(static_cast<PrimitiveDataType_Container<std::vector<float>> *>( this->output_branches_buffer_[this->output_branch_counter_]));
       }
-      if( std::is_same< v, std::vector<bool>>::value)
+      else if (std::is_same<v, std::vector<bool>>::value)
       {
-        ColorCout::Msg(function_name, "Branch:" + branchName + " is std::vector<bool>, Handle buffer internally" );
-        this->oTreeSTLVecotr_Bool_keeper.push_back( static_cast<PrimitiveDataType_Container<std::vector<bool>>*>(this->oTreePrimitiveBranches[this->oTreePrimitiveBranchCounter])->get() );
-        this->oTree_STLVecotrKeeper.push_back( static_cast<PrimitiveDataType_Container<std::vector<bool>>*>(this->oTreePrimitiveBranches[this->oTreePrimitiveBranchCounter]) );
+        LOG_INFO( "BetaScope::BuildOutBranch Branch:" + branchName + " is std::vector<bool>, Handle buffer internally");
+        static_cast<PrimitiveDataType_Container<std::vector<bool>>*>(this->output_branches_buffer_[this->output_branch_counter_])->get()->reserve(size);
+        this->output_bool_vector_keeper_.push_back( static_cast<PrimitiveDataType_Container<std::vector<bool>> *>( this->output_branches_buffer_[this->output_branch_counter_])->get());
+        this->output_vector_keeper_.push_back(static_cast<PrimitiveDataType_Container<std::vector<bool>> *>(this->output_branches_buffer_[this->output_branch_counter_]));
       }
-      if( std::is_same< v, std::vector<char>>::value)
+      else if (std::is_same<v, std::vector<char>>::value)
       {
-        ColorCout::Msg(function_name, "Branch:" + branchName + " is std::vector<char>, Handle buffer internally" );
-        this->oTreeSTLVecotr_Char_keeper.push_back( static_cast<PrimitiveDataType_Container<std::vector<char>>*>(this->oTreePrimitiveBranches[this->oTreePrimitiveBranchCounter])->get() );
-        this->oTree_STLVecotrKeeper.push_back( static_cast<PrimitiveDataType_Container<std::vector<char>>*>(this->oTreePrimitiveBranches[this->oTreePrimitiveBranchCounter]) );
+        LOG_INFO( "BetaScope::BuildOutBranch Branch:" + branchName + " is std::vector<char>, Handle buffer internally");
+        static_cast<PrimitiveDataType_Container<std::vector<char>>*>(this->output_branches_buffer_[this->output_branch_counter_])->get()->reserve(size);
+        this->output_char_vector_keeper_.push_back( static_cast<PrimitiveDataType_Container<std::vector<char>> *>( this->output_branches_buffer_[this->output_branch_counter_])->get());
+        this->output_vector_keeper_.push_back( static_cast<PrimitiveDataType_Container<std::vector<char>> *>( this->output_branches_buffer_[this->output_branch_counter_]));
       }
-      //*/
+      else
+      {
+        LOG_INFO( "BetaScope::BuildOutBranch Branch:" + branchName + " is std::vector<" + typeid(dtype).name() + ">, Handle buffer internally");
+        this->output_vector_keeper_.push_back( static_cast<PrimitiveDataType_Container<std::vector<dtype>> *>( this->output_branches_buffer_[this->output_branch_counter_]));
+      }
     }
-    else{
-      ColorCout::Msg(function_name, "Branch:" + branchName + " is NOT std::vector. No action is needed." );
+    else
+    {
+      LOG_INFO( "BetaScope::BuildOutBranch Branch:" + branchName + " is NOT std::vector. No action is needed.");
     }
 
-    this->oTreePrimitiveBranchCounter++;
+    this->output_branch_counter_++;
     return true;
   }
-  catch(...){
+  catch (...)
+  {
     return false;
   }
 }
 
 template <typename dtype>
-typename DataType<dtype>::type *BetaScope::get_oTree_PrimitiveBranch( std::string branchName )
+typename DataType<dtype>::type *
+BetaScope::GetOutBranch(std::string branchName)
 {
-  return static_cast<PrimitiveDataType_Container<dtype>*>(this->oTreePrimitiveBranchesMap[branchName])->get();
+  return static_cast<PrimitiveDataType_Container<dtype> *>(this->output_branch_map_[branchName])->get();
 }

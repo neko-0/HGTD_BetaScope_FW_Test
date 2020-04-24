@@ -3,101 +3,127 @@
 #include <fstream>
 #include <iostream>
 
-#include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/ini_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
 
-#include "General/WaveformAna/include/Waveform_Analysis.hpp"
 #include "General/WaveformAna/include/general.hpp"
 
 #include <ctime>
+#include <future>
 #include <thread>
+#include <memory>
+
+#include <TGraph.h>
+#include <TF1.h>
+#include <TH1.h>
+#include <TROOT.h>
+#include <Math/MinimizerOptions.h>
 
 
-int THREAD_COUNT = 0;
+bool BetaScopeWaveformAna::isGoodTrig( const WaveformAna<double,double> &waveform )
+{
+  if( waveform.pmax() >= 70 && waveform.pmax() < 350  && waveform.tmax() > 0 )
+  {
+    return true;
+  }
+  else{ return false; }
+}
 
-void BetaScopeWaveformAna::thread_it( int ch)
+void BetaScopeWaveformAna::event_ana(int ch, WaveformAna<double, double> waveform)
 {
   WaveformAnalysis WaveAna;
 
-  if( THREAD_COUNT < 100){
-    ColorCout::print("  Running thread_it: thread num ", std::to_string(THREAD_COUNT), CYAN);
-    THREAD_COUNT++;
-  }
-  // Base line
-  std::vector<double> front_temp_voltage = *this->w[ch];
-  std::vector<double> front_temp_time = *this->t[ch];
+  bool confine_search;
 
-  std::vector<double> back_temp_voltage = *this->w[ch];
-  std::vector<double> back_temp_time = *this->t[ch];
+  if (ch == this->triggerCh){ confine_search = false; }
+  else{ confine_search = true; }
 
-  std::pair<double,unsigned int> pmax_before_baseline = WaveAna.Find_Singal_Maximum( *this->w[ch], *this->t[ch], this->my_anaParam.limiting_search_region_OnOff, this->my_anaParam.pmaxSearchRange);
-  double tmax_for_baseline = this->t[ch]->at(pmax_before_baseline.second);
-  double temp_riseTime = WaveAna.Find_Rise_Time( *this->w[ch], *this->t[ch], pmax_before_baseline, 0.1, 0.9 );
+  //WaveformAna<double, double> waveform =
+  WaveAna.analyze_waveform(
+    waveform,
+    confine_search,
+    this->my_anaParam.pmaxSearchRange
+  );
 
-  double temp_front_searchRange[2] = {tmax_for_baseline-temp_riseTime-15000.0, tmax_for_baseline-temp_riseTime-10000.0};
-  std::pair<double,unsigned int> front_baseline_pmax = WaveAna.Find_Singal_Maximum( *this->w[ch], *this->t[ch], true, temp_front_searchRange );
-  double front_baseline_tmax = this->t[ch]->at(front_baseline_pmax.second);
-  double front_baseline_riseTime = WaveAna.Find_Rise_Time( *this->w[ch], *this->t[ch], front_baseline_pmax, 0.1, 0.9 );
-  double temp_baselineRange[2] = {front_baseline_tmax-front_baseline_riseTime-5000.0, front_baseline_tmax+5000.0};
-  WaveAna.Correct_Baseline3(front_temp_voltage, front_temp_time, temp_baselineRange );
-  std::pair<double,unsigned int> front_baseline_pmax_corr = WaveAna.Find_Singal_Maximum( front_temp_voltage, front_temp_time, true, temp_front_searchRange );
-  this->frontBaselineInt_indepBaseCorr[ch]->push_back( WaveAna.Pulse_Integration_with_Fixed_Window_Size( front_temp_voltage, front_temp_time, front_baseline_pmax_corr, "Simpson", 1000.0, 3000.0) );
+  this->frontBaselineInt_indepBaseCorr[ch]->emplace_back(waveform.front_baseline_int());
+  this->backBaselineInt_indepBaseCorr[ch]->emplace_back(waveform.back_baseline_int());
+  this->pmax[ch]->emplace_back(waveform.pmax());
+  this->neg_pmax[ch]->emplace_back(waveform.neg_pmax());
+
+  this->tmax[ch]->emplace_back(waveform.tmax());
+  this->neg_tmax[ch]->emplace_back(waveform.neg_tmax());
+  this->fit_tmax[ch]->emplace_back(waveform.fit_tmax());
+  //this->fit_tmax[ch]->emplace_back( WaveAna.Get_Fit_Tmax( *this->t[ch], *this->w[ch], pmaxHolder) );
+
+  this->rms[ch]->emplace_back(waveform.rms());
+
+  this->pulseArea_withUndershoot[ch]->emplace_back(waveform.pulse_area_undershoot());
+  this->pulseArea_withZeroCross[ch]->emplace_back(waveform.pulse_area());
+
+  this->riseTime[ch]->emplace_back(waveform.rise_time());
+
+  int thcount =  WaveAna.Get_Number_Of_Multiple_Signals( 20, waveform.get_v2() );
+  this->beta_scope.SetOutBranchValue( Form("countTH20_%i", ch), thcount );
+  this->beta_scope.SetOutBranchValue( Form("undershoot_pmax%i", ch), waveform.undershoot_pmax() );
+  this->beta_scope.SetOutBranchValue( Form("undershoot_tmax%i", ch), waveform.undershoot_tmax() );
+  this->beta_scope.SetOutBranchValue( Form("isGoodTrig%i", ch), (isGoodTrig(waveform) && thcount<3) ? 1:0 );
 
 
-  double temp_back_searchRange[2] = {tmax_for_baseline+10000.0, tmax_for_baseline+15000.0 };
-  std::pair<double,unsigned int> back_baseline_pmax = WaveAna.Find_Singal_Maximum ( *this->w[ch], *this->t[ch], true, temp_back_searchRange);
-  double back_baseline_tmax = this->t[ch]->at(back_baseline_pmax.second);
-  double back_baseline_riseTime = WaveAna.Find_Rise_Time( *this->w[ch], *this->t[ch], back_baseline_pmax, 0.1, 0.9 );
-  double temp_back_baselineRange[2] = {back_baseline_tmax-back_baseline_riseTime-5000.0, back_baseline_tmax+5000.0 };
-  WaveAna.Correct_Baseline3(back_temp_voltage, back_temp_time, temp_back_baselineRange );
-  std::pair<double,unsigned int> back_baseline_pmax_corr = WaveAna.Find_Singal_Maximum( back_temp_voltage, back_temp_time, true, temp_back_searchRange );
-  this->backBaselineInt_indepBaseCorr[ch]->push_back( WaveAna.Pulse_Integration_with_Fixed_Window_Size( back_temp_voltage, back_temp_time, back_baseline_pmax_corr, "Simpson", 1000.0, 3000.0) );
-
-  double baselineRange[2] = {tmax_for_baseline-temp_riseTime-3000.0, tmax_for_baseline-temp_riseTime-1000.0 };
-  WaveAna.Correct_Baseline3( *this->w[ch], *this->t[ch], baselineRange);
-
-  if( ch == this->triggerCh )this->my_anaParam.limiting_search_region_OnOff=false;
-  else this->my_anaParam.limiting_search_region_OnOff = true;
-
-  std::pair<double,unsigned int> pmaxHolder = WaveAna.Find_Singal_Maximum( *this->w[ch], *this->t[ch], this->my_anaParam.limiting_search_region_OnOff, this->my_anaParam.pmaxSearchRange );
-  std::pair<double,unsigned int> neg_pmaxHolder = WaveAna.Find_Negative_Signal_Maximum( *this->w[ch], *this->t[ch], this->my_anaParam.limiting_search_region_OnOff, this->my_anaParam.pmaxSearchRange);
-
-  this->pmax[ch]->push_back( pmaxHolder.first );
-  this->neg_pmax[ch]->push_back( neg_pmaxHolder.first );
-
-  for(int k =0; k<101; k++){ double percentage = 1.0*k; this->cfd[ch]->push_back( WaveAna.Rising_Edge_CFD_Time( percentage, *this->w[ch], *this->t[ch], pmaxHolder ) ); }
-
-  for(int k =0; k<101; k++){ this->cfd_fall[ch]->push_back( WaveAna.Falling_Edge_CFD_Time( k, *this->w[ch], *this->t[ch], pmaxHolder ) ); }
-
-  for( int step = 0; step < 500; step++ ){ double percentage = 0.2 * step; this->fineCFDRise[ch]->push_back( WaveAna.Rising_Edge_CFD_Time( percentage, *this->w[ch], *this->t[ch], pmaxHolder ) ); }
-
-  //========================================================================
-  //Filling Tmax
-  this->tmax[ch]->push_back( WaveAna.Get_Tmax( *this->t[ch], pmaxHolder) );
-  this->neg_tmax[ch]->push_back( WaveAna.Get_Tmax( *this->t[ch], neg_pmaxHolder) );
-
-  this->rms[ch]->push_back( WaveAna.Find_Noise( *this->w[ch], 0.25*this->w[ch]->size() ) );
-
-  this->pulseArea_withUndershoot[ch]->push_back( WaveAna.Pulse_Integration_with_Fixed_Window_Size( *this->w[ch], *this->t[ch], pmaxHolder, "Simpson", 1000.0, 3000.0) );
-  this->pulseArea_withZeroCross[ch]->push_back( WaveAna.Find_Pulse_Area( *this->w[ch], *this->t[ch], pmaxHolder) );
-
-  //this->frontBaselineInt[b]->push_back( WaveAna.Pulse_Integration_with_Fixed_Window_Size( this->w[ch], this->t[ch], pmaxHolder, "Simpson", 12000.0, -8000.0) );
-  //this->backBaselineInt[b]->push_back( WaveAna.Pulse_Integration_with_Fixed_Window_Size( this->w[ch], this->t[ch], pmaxHolder, "Simpson", -8000.0, 12000.0) );
-
-  //------------------Rise Time 10 to 90---------------------------------------------------------
-
-  this->riseTime[ch]->push_back( WaveAna.Find_Rise_Time( *this->w[ch], *this->t[ch], pmaxHolder, 0.1, 0.9 ) );
-
-  //--------------------------------------------------------------------------------------------
-
-  for(int d =0; d<101; d++){ this->dvdt[ch]->push_back( WaveAna.Find_Dvdt( d, 0, *this->w[ch], *this->t[ch], pmaxHolder ) ); }
-
-  for(int k = 0; k < 2000; k++){ this->thTime[ch]->push_back( WaveAna.Find_Time_At_Threshold( double(k), *this->w[ch], *this->t[ch], pmaxHolder ) ); }
+  *this->cfd[ch] = waveform.cfd();
+  *this->cfd_fall[ch] = waveform.cfd_fall();
+  *this->dvdt[ch] = waveform.dvdt();
+  *this->thTime[ch] = waveform.threshold_time();
+  *this->fineCFDRise[ch] = waveform.fine_cfd();
+  *this->tot[ch] = waveform.tot();
 
   if( !this->skipWaveform )
   {
-    for( unsigned int invI = 0; invI < this->w[ch]->size(); invI++){
-      this->w[ch]->at(invI) = -1.0 * this->w[ch]->at(invI);
+    *this->w[ch] = waveform.v2();
+    *this->t[ch] = waveform.v1();
+    this->waveform_ana[ch]->emplace_back(waveform);
+  }
+
+  auto subwaveform = waveform.sub_waveform(waveform.max_index()-4, waveform.max_index()+4);
+  auto deri_subwaveform = subwaveform.derivative();
+  TGraph g(deri_subwaveform.size(), &deri_subwaveform.get_v1()[0], &deri_subwaveform.get_v2()[0]);
+  g.SetName(Form("%s_%i_ch%i",this->beta_scope.GetInFileNickName().c_str(), this->counter_, ch));
+  this->counter_++;
+  TF1 linear("linear", "[0]*x+[1]", deri_subwaveform.get_v1()[0]-300, deri_subwaveform.get_v1()[deri_subwaveform.size()-1]+300);
+  linear.AddToGlobalList(false);
+  ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2");
+  g.Fit(&linear, "Q");
+  this->beta_scope.SetOutBranchValue( Form("deri_tmax%i_g", ch), g );
+  if(std::all_of(std::begin(deri_subwaveform.get_v2()), std::end(deri_subwaveform.get_v2()), [](double value){return value > 0; }))
+  {
+    this->beta_scope.SetOutBranchValue( Form("deri_tmax%i_value", ch), 10e11 );
+  }
+  else if( std::all_of( std::begin(deri_subwaveform.get_v2()), std::end(deri_subwaveform.get_v2()), [](double value){return value < 0; } ) )
+  {
+    this->beta_scope.SetOutBranchValue( Form("deri_tmax%i_value", ch), 10e11 );
+  }
+  else
+  {
+    auto deri_zero_cross = linear.GetX(0, waveform.get_v1()[0], waveform.get_v1()[waveform.size()-1]);
+    if(true)//TMath::IsNaN(deri_zero_cross))
+    {
+      this->beta_scope.SetOutBranchValue( Form("deri_tmax%i_value", ch), 10e11 );
+    }
+    else
+    {
+      this->beta_scope.SetOutBranchValue( Form("deri_tmax%i_value", ch), deri_zero_cross );
+    }
+  }
+
+  /*
+  if( !this->skipWaveform )
+  {
+    for( const auto &value : waveform.get_v2())
+    {
+      this->w[ch]->emplace_back(-value);
+    }
+    for( const auto &value : waveform.get_v1())
+    {
+      this->t[ch]->emplace_back(value);
     }
   }
   else
@@ -105,117 +131,114 @@ void BetaScopeWaveformAna::thread_it( int ch)
     this->w[ch]->clear();
     this->t[ch]->clear();
   }
+  */
 
+
+  //this->waveform_ana[ch]->emplace_back(waveform);
 }
 
-void BetaScopeWaveformAna::analysis()
+
+void BetaScopeWaveformAna::Analysis()
 {
-  //fill up your own analysis in the while loop
+  // fill up your own analysis in the while loop
 
-  //WaveformAnalysis WaveAna;
-
-  if(! this->isProcessing)
+  if (!this->isProcessing)
   {
-    ColorCout::print( "   " + beta_scope.get_ifile_nickName(), " BetaScopeWaveformAna::analysis: Start event processing: ", BOLDYELLOW);
+    LOG_INFO( beta_scope.GetInFileNickName() + " BetaScopeWaveformAna::analysis: Start event processing: ");
     this->isProcessing = true;
   }
 
-  //if(this->beta_scope.ieventFromDAQ)*this->beta_scope.oTreeIntMap["ievent"] = **this->beta_scope.iTreeIntValueMap["ievent"];
+  // loop through all the possible channels
 
-  //std::time_t t1 = std::time(nullptr);
-  //loop through all the possible channels
-  std::vector<std::thread*> workers;
-  for(int chh = 0; chh < this->activeChannels.size(); chh ++)
+  //std::vector<std::thread> workers;
+  std::vector<std::future<void>> workers;
+  for (int chh = 0; chh < this->activeChannels.size(); chh++)
   {
     int ch = this->activeChannels.at(chh);
-    //if(std::find(this->activeChannels.begin(), this->activeChannels.end(), ch) != this->activeChannels.end())
-    if(this->resample_time && this->dt<=0.0){this->xorigin=this->i_t[ch]->At(0);this->dt=this->i_t[ch]->At(1)-this->i_t[ch]->At(0);}
-    if(true)
+
+    if( this->resample_time && this->dt <= 0.0)
     {
-      //if( this->beta_scope.iTreeDoubleArrayMap.count("w"+std::to_string(ch) ))
-      if(true)
-      {
-        if(!this->i_w[ch])std::cout<< ch << std::endl;
-        for(std::size_t i=0, max = this->i_w[ch]->GetSize(); i<max; i++)
-        {
-          //std::cout<<  <<std::endl;
-          //if( std::find(this->invertChannels.begin(), this->invertChannels.end(), ch) != this->invertChannels.end() )
-          if(this->invertChannels.at(chh) != 0)
-          {
-            this->w[ch]->push_back( this->i_w[ch]->At(i) * -1.0 * this->voltageMultiFactor );
-            //this->w[ch]->at(i) = this->i_w[ch]->At(i) * -1.0 * this->voltageMultiFactor;
-          }
-          else
-          {
-            this->w[ch]->push_back( this->i_w[ch]->At(i) * this->voltageMultiFactor );
-            //this->w[ch]->at(i) = this->i_w[ch]->At(i) * this->voltageMultiFactor;
-          }
-
-          if(this->resample_time)
-          {
-            this->t[ch]->push_back( (this->xorigin + i*this->dt) * this->timeMultiFactor );
-            //this->xorigin = this->xorigin + this->dt;
-          }
-          else
-          {
-            this->t[ch]->push_back( this->i_t[ch]->At(i) * this->timeMultiFactor );
-          }
-          //std::cout << this->w[ch]->at(5) << std::endl;
-          //std::cout << this->w[ch]->size() << std::endl;
-
-          //this->wRaw[ch]->push_back( this->i_w[ch]->At(i) * this->voltageMultiFactor );
-          //this->tRaw[ch]->push_back( this->i_t[ch]->At(i) * this->timeMultiFactor );
-
-          /*
-          this->t[ch]->at(i) = this->i_t[ch]->At(i) * this->timeMultiFactor;
-          this->wRaw[ch]->at(i) = this->i_w[ch]->At(i) * this->voltageMultiFactor;
-          this->tRaw[ch]->at(i) = this->i_t[ch]->At(i) * this->timeMultiFactor;
-          */
-        }
-        //this->xorigin = 0.0;
-        //this->dt = 0.0;
-
-        workers.push_back( new std::thread( &BetaScopeWaveformAna::thread_it, this, ch) );
-
-      }
+      this->xorigin = this->i_t[ch]->At(0);
+      this->dt = this->i_t[ch]->At(1) - this->i_t[ch]->At(0);
     }
+
+    // workers.emplace_back( new std::thread( &BetaScopeWaveformAna::event_ana, this, ch) );
+    WaveformAna<double, double> waveform(
+      this->i_w[ch],
+      this->i_t[ch],
+      this->invertChannels.at(chh),
+      this->voltageMultiFactor,
+      this->timeMultiFactor,
+      this->resample_time,
+      this->xorigin,
+      this->dt
+    );
+
+    workers.emplace_back(
+        std::async( std::launch::async | std::launch::deferred, &BetaScopeWaveformAna::event_ana, this, ch, waveform)
+    );
   }
 
-  for(std::size_t id=0; id < workers.size(); id++ )
+    //BetaScopeWaveformAna::event_ana(ch, waveform);
+
+    //BetaScopeWaveformAna::event_ana(ch, this->invertChannels.at(chh),this->voltageMultiFactor,this->timeMultiFactor,this->resample_time,this->xorigin,this->dt);
+
+  for( std::size_t id = 0; id < workers.size(); id++ )
   {
-    workers[id]->join();
-    delete workers[id];
+     //workers[id].join();
+     //delete workers[id];
+    workers[id].wait();
   }
 
   // filling value that's indep of scope channels
-  if( this->has_daq_cycle )this->beta_scope.set_oTree_value<int>("cycle", this->beta_scope.get_iBranch_value<TTreeReaderValue,int>("cycle") );
-  if( this->has_daq_temperature )this->beta_scope.set_oTree_value<double>("temperature", this->beta_scope.get_iBranch_value<TTreeReaderValue,double>("temperature") );
-  if( this->has_daq_humidity )this->beta_scope.set_oTree_value<double>("humidity", this->beta_scope.get_iBranch_value<TTreeReaderValue,double>("humidity") );
-  if( this->has_daq_bias )this->beta_scope.set_oTree_value<double>("bias", this->beta_scope.get_iBranch_value<TTreeReaderValue,double>("bias") );
-  if( this->has_daq_timestamp )this->beta_scope.set_oTree_value<double>("timestamp", this->beta_scope.get_iBranch_value<TTreeReaderValue,double>("timestamp") );
-  if( this->has_daq_current )this->beta_scope.set_oTree_value<double>("current", this->beta_scope.get_iBranch_value<TTreeReaderValue,double>("current") );
-  if( this->has_daq_eventNum )this->beta_scope.set_oTree_value<double>("ievent", this->beta_scope.get_iBranch_value<TTreeReaderValue,int>("ievent") );
-
+  if (this->has_daq_cycle)
+  {
+    this->beta_scope.SetOutBranchValue( "cycle", this->beta_scope.GetInBranchValue<TTreeReaderValue, int>("cycle"));
+  }
+  if (this->has_daq_temperature)
+  {
+    this->beta_scope.SetOutBranchValue( "temperature", this->beta_scope.GetInBranchValue<TTreeReaderValue, double>("temperature"));
+  }
+  if (this->has_daq_humidity)
+  {
+    this->beta_scope.SetOutBranchValue( "humidity", this->beta_scope.GetInBranchValue<TTreeReaderValue, double>("humidity"));
+  }
+  if (this->has_daq_bias)
+  {
+    this->beta_scope.SetOutBranchValue( "bias", this->beta_scope.GetInBranchValue<TTreeReaderValue, double>("bias"));
+  }
+  if (this->has_daq_timestamp)
+  {
+    this->beta_scope.SetOutBranchValue("timestamp", this->beta_scope.GetInBranchValue<TTreeReaderValue, double>("timestamp"));
+  }
+  if (this->has_daq_current)
+  {
+    this->beta_scope.SetOutBranchValue("current", this->beta_scope.GetInBranchValue<TTreeReaderValue, double>("current"));
+  }
+  if (this->has_daq_eventNum)
+  {
+    this->beta_scope.SetOutBranchValue( "ievent", this->beta_scope.GetInBranchValue<TTreeReaderValue, int>("ievent"));
+  }
 }
 
 
-void BetaScopeWaveformAna::initialize()
-{
-  //required
-  std::string function_name = "BetaScopeWaveformAna::initialize";
-  this->beta_scope.fileIO_Open( ifile.c_str() );
+void BetaScopeWaveformAna::Initialize() {
+  // required
+  this->beta_scope.FileOpen(ifile.c_str());
+
+  gErrorIgnoreLevel = kFatal;
 
   char *check_path = getenv("BETASCOPE_SCRIPTS");
-  if(check_path!=NULL)
+  if (check_path != NULL)
   {
-    ColorCout::Msg( function_name, "Found myOwnTree.ini" );
+    LOG_INFO("Found myOwnTree.ini");
     std::string beta_scope_path(getenv("BETASCOPE_SCRIPTS"));
-    BetaScope_AnaFramework::initialize( beta_scope_path + "/../BetaScope_Ana/BetaScopeWaveformAna/AnaTemplate/myOwnTree.ini" );
+    BetaScope_AnaFramework::Initialize( beta_scope_path + "/../BetaScope_Ana/BetaScopeWaveformAna/AnaTemplate/myOwnTree.ini");
   }
   else
   {
-    ColorCout::Msg( function_name, "Did not find myOwnTree.ini" );
-    BetaScope_AnaFramework::initialize("");
+    LOG_INFO("Did not find myOwnTree.ini");
+    BetaScope_AnaFramework::Initialize("");
   }
 
   this->my_anaParam.limiting_search_region_OnOff = this->limitPmaxSearchRange;
@@ -223,125 +246,140 @@ void BetaScopeWaveformAna::initialize()
   this->my_anaParam.pmaxSearchRange[1] = this->pmaxSearchMaxRange;
   //----------------------
 
-  if( !this->skipWaveform )
+  if (!this->skipWaveform)
   {
-    for( auto ch : this->beta_scope.channel )
+    for (auto ch : this->beta_scope.channel)
     {
       bool branch_checker;
       int branch_counter = 0;
-      ColorCout::print("  CH:", std::to_string(ch), CYAN);
+      LOG_INFO("CH:"+std::to_string(ch) );
 
-      ColorCout::print("  ", "Creating branches for storing scope channels: ", YELLOW);
-      branch_checker = this->beta_scope.buildPrimitiveBranch<std::vector<double>>( Form("w%i", ch ) );
-
-      branch_checker = this->beta_scope.buildPrimitiveBranch<std::vector<double>>( Form("t%i", ch ) );
-
-      if(branch_checker)
+      LOG_INFO("Creating branches for storing scope channels: " );
+      if( this->beta_scope.BuildOutBranch<std::vector<double>>(Form("w%i", ch)) )
       {
-        ColorCout::print("  Successful:", std::to_string(ch), CYAN);
+        LOG_INFO("Successful: voltage ch-" + std::to_string(ch) );
+      }
+
+      if( this->beta_scope.BuildOutBranch<std::vector<double>>(Form("t%i", ch)) )
+      {
+        LOG_INFO("Successful: time ch-" + std::to_string(ch) );
       }
     }
   }
 
-  //do your own stuffs here
-  //this->beta_scope.treeReader->Next();
-  for(int chh = 0; chh < this->activeChannels.size(); chh ++)
+  // do your own stuffs here
+  // this->beta_scope.treeReader->Next();
+  for (int chh = 0; chh < this->activeChannels.size(); chh++)
   {
     int ch = this->activeChannels.at(chh);
 
-    if( !this->skipWaveform )
+    if (!this->skipWaveform)
     {
-      this->w[ch] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( "w"+std::to_string(ch) );
-      this->t[ch] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( "t"+std::to_string(ch) );
+      this->w[ch] = this->beta_scope.GetOutBranch<std::vector<double>>( "w" + std::to_string(ch));
+      this->t[ch] = this->beta_scope.GetOutBranch<std::vector<double>>( "t" + std::to_string(ch));
+      this->beta_scope.BuildOutBranch<std::vector<WaveformAna<double, double>>>("waveform" + std::to_string(ch));
+      this->waveform_ana[ch] = this->beta_scope.GetOutBranch<std::vector<WaveformAna<double, double>>>("waveform" + std::to_string(ch));
+
     }
     else
     {
-      this->w[ch] = &localW[ch];//new std::vector<double>;
+      this->w[ch] = &localW[ch]; // new std::vector<double>;
       this->w[ch]->reserve(10000);
-      this->t[ch] = &localT[ch];//new std::vector<double>;
+      this->t[ch] = &localT[ch]; // new std::vector<double>;
       this->t[ch]->reserve(10000);
     }
 
-    this->pmax[ch] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( "pmax"+std::to_string(ch) );
-    this->tmax[ch] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( "tmax"+std::to_string(ch) );
-    this->neg_pmax[ch] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( "neg_pmax"+std::to_string(ch) );
-    this->neg_tmax[ch] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( "neg_tmax"+std::to_string(ch) );
+    // build extra branches
+    this->beta_scope.BuildOutBranch<int>(Form("countTH20_%i", ch));
+    this->beta_scope.BuildOutBranch<double>(Form("undershoot_pmax%i", ch) );
+    this->beta_scope.BuildOutBranch<double>(Form("undershoot_tmax%i", ch) );
+    this->beta_scope.BuildOutBranch<bool>(Form("isGoodTrig%i", ch) );
+    this->beta_scope.BuildOutBranch<std::vector<double>>(Form("tot%i", ch) );
 
-    this->riseTime[ch] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( "riseTime"+std::to_string(ch) );
-    this->dvdt[ch] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( "dvdt"+std::to_string(ch) );
-    this->cfd_fall[ch] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( "cfd_fall"+std::to_string(ch) );
-    this->cfd[ch] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( "cfd"+std::to_string(ch) );
-    this->fineCFDRise[ch] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( "fineCFDRise"+std::to_string(ch) );
-    this->thTime[ch] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( "thTime"+std::to_string(ch) );
-    this->rms[ch] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( "rms"+std::to_string(ch) );
-    this->pulseArea_withUndershoot[ch] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( "pulseArea_withUndershoot"+std::to_string(ch) );
-    this->pulseArea_withZeroCross[ch] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( "pulseArea_withZeroCross"+std::to_string(ch) );
-    this->frontBaselineInt_indepBaseCorr[ch] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( "frontBaselineInt_indepBaseCorr"+std::to_string(ch) );
-    this->backBaselineInt_indepBaseCorr[ch] = this->beta_scope.get_oTree_PrimitiveBranch<std::vector<double>>( "backBaselineInt_indepBaseCorr"+std::to_string(ch) );
+    this->beta_scope.BuildOutBranch<TGraph>(Form("deri_tmax%i_g", ch) );
+    this->beta_scope.BuildOutBranch<double>(Form("deri_tmax%i_value", ch) );
 
-    this->i_w[ch] = this->beta_scope.get_iBranch<TTreeReaderArray,double>("w"+std::to_string(ch) );
-    this->i_t[ch] = this->beta_scope.get_iBranch<TTreeReaderArray,double>("t"+std::to_string(ch) );
-    if(!this->i_w[ch])
+    this->pmax[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("pmax" + std::to_string(ch));
+    this->tmax[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("tmax" + std::to_string(ch));
+    this->fit_tmax[ch] = this->beta_scope.GetOutBranch<std::vector<double>>( "fit_tmax"+std::to_string(ch) );
+    this->neg_pmax[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("neg_pmax" + std::to_string(ch));
+    this->neg_tmax[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("neg_tmax" + std::to_string(ch));
+    this->riseTime[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("riseTime" + std::to_string(ch));
+    this->dvdt[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("dvdt" + std::to_string(ch));
+    this->cfd_fall[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("cfd_fall" + std::to_string(ch));
+    this->cfd[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("cfd" + std::to_string(ch));
+    this->fineCFDRise[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("fineCFDRise" + std::to_string(ch));
+    this->thTime[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("thTime" + std::to_string(ch));
+    this->rms[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("rms" + std::to_string(ch));
+    this->pulseArea_withUndershoot[ch] = this->beta_scope.GetOutBranch<std::vector<double>>( "pulseArea_withUndershoot" + std::to_string(ch));
+    this->pulseArea_withZeroCross[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("pulseArea_withZeroCross" + std::to_string(ch));
+    this->frontBaselineInt_indepBaseCorr[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("frontBaselineInt_indepBaseCorr" + std::to_string(ch));
+    this->backBaselineInt_indepBaseCorr[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("backBaselineInt_indepBaseCorr" + std::to_string(ch));
+    this->i_w[ch] = this->beta_scope.GetInBranch<TTreeReaderArray, double>("w" + std::to_string(ch));
+    this->i_t[ch] = this->beta_scope.GetInBranch<TTreeReaderArray, double>("t" + std::to_string(ch));
+    this->tot[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("tot"+std::to_string(ch));
+    if (!this->i_w[ch])
     {
-      std::cout<<this->i_w[ch]<<std::endl;
-      std::cout<<this->beta_scope.get_iBranch<TTreeReaderArray,double>("w"+std::to_string(ch) )<<std::endl;
+      std::cout << this->i_w[ch] << std::endl;
+      std::cout << this->beta_scope.GetInBranch<TTreeReaderArray, double>("w" + std::to_string(ch)) << std::endl;
     }
   }
 
-  if( beta_scope.isBranchExists("ievent") )
+  if (beta_scope.IsBranchExists("ievent"))
   {
     this->has_daq_eventNum = true;
-    this->beta_scope.set_iBranch<TTreeReaderValue,int>("ievent", "ievent");
-    this->beta_scope.buildPrimitiveBranch<int>("ievent");
+    this->beta_scope.SetInBranch<TTreeReaderValue, int>("ievent", "ievent");
+    this->beta_scope.BuildOutBranch<int>("ievent");
   }
-  if( beta_scope.isBranchExists("temperature") )
+  if (beta_scope.IsBranchExists("temperature"))
   {
     this->has_daq_temperature = true;
-    this->beta_scope.set_iBranch<TTreeReaderValue,double>("temperature", "temperature");
-    this->beta_scope.buildPrimitiveBranch<double>("temperature");
+    this->beta_scope.SetInBranch<TTreeReaderValue, double>("temperature", "temperature");
+    this->beta_scope.BuildOutBranch<double>("temperature");
   }
-  if( beta_scope.isBranchExists("humidity") )
+  if (beta_scope.IsBranchExists("humidity"))
   {
     this->has_daq_humidity = true;
-    this->beta_scope.set_iBranch<TTreeReaderValue,double>("humidity", "humidity");
-    this->beta_scope.buildPrimitiveBranch<double>("humidity");
+    this->beta_scope.SetInBranch<TTreeReaderValue, double>("humidity", "humidity");
+    this->beta_scope.BuildOutBranch<double>("humidity");
   }
-  if( beta_scope.isBranchExists("i_timestamp") )
+  if (beta_scope.IsBranchExists("i_timestamp"))
   {
     this->has_daq_timestamp = true;
-    this->beta_scope.set_iBranch<TTreeReaderValue,double>("i_timestamp", "timestamp");
-    this->beta_scope.buildPrimitiveBranch<double>("timestamp");
+    this->beta_scope.SetInBranch<TTreeReaderValue, double>("i_timestamp", "timestamp");
+    this->beta_scope.BuildOutBranch<double>("timestamp");
   }
-  if( beta_scope.isBranchExists("i_current") )
+  if (beta_scope.IsBranchExists("i_current"))
   {
     this->has_daq_current = true;
-    this->beta_scope.set_iBranch<TTreeReaderValue,double>("i_current", "current");
-    this->beta_scope.buildPrimitiveBranch<double>("current");
+    this->beta_scope.SetInBranch<TTreeReaderValue, double>("i_current", "current");
+    this->beta_scope.BuildOutBranch<double>("current");
   }
-  if( beta_scope.isBranchExists("bias") )
+  if (beta_scope.IsBranchExists("bias"))
   {
     this->has_daq_bias = true;
-    this->beta_scope.set_iBranch<TTreeReaderValue,double>("bias", "bias");
-    this->beta_scope.buildPrimitiveBranch<double>("bias");
+    this->beta_scope.SetInBranch<TTreeReaderValue, double>("bias", "bias");
+    this->beta_scope.BuildOutBranch<double>("bias");
   }
-  if( beta_scope.isBranchExists("cycle") )
+  if (beta_scope.IsBranchExists("cycle"))
   {
     this->has_daq_cycle = true;
-    this->beta_scope.set_iBranch<TTreeReaderValue,int>("cycle", "cycle");
-    this->beta_scope.buildPrimitiveBranch<int>("cycle");
+    this->beta_scope.SetInBranch<TTreeReaderValue, int>("cycle", "cycle");
+    this->beta_scope.BuildOutBranch<int>("cycle");
   }
 
-  //this->beta_scope.treeReader->Restart();
+  // this->beta_scope.treeReader->Restart();
 }
 
-void BetaScopeWaveformAna::loopEvents()
+void BetaScopeWaveformAna::LoopEvents()
 {
-  BetaScope_AnaFramework::loopEvents( &BetaScope_AnaFramework::analysis );
+  LOG_INFO("running Derived class LoopEvents." );
+  BetaScope_AnaFramework::LoopEvents(&BetaScope_AnaFramework::Analysis);
 }
 
-void BetaScopeWaveformAna::finalize()
+void BetaScopeWaveformAna::Finalize()
 {
-  //do your own stuffs here
+  // do your own stuffs here
   /*
   if(this->skipWaveform)
   {
@@ -354,22 +392,12 @@ void BetaScopeWaveformAna::finalize()
   }
   */
 
-  //required
-  BetaScope_AnaFramework::finalize();
+  // required
+  BetaScope_AnaFramework::Finalize();
 }
 
-
-
-
-
-
-
-
-
-
-
-//custom class methods start from here
-void BetaScopeWaveformAna::readWaveformConfig( std::string configName )
+// custom class methods start from here
+void BetaScopeWaveformAna::readWaveformConfig(std::string configName)
 {
   boost::property_tree::ptree pt;
   boost::property_tree::ini_parser::read_ini(configName, pt);
@@ -384,18 +412,18 @@ void BetaScopeWaveformAna::readWaveformConfig( std::string configName )
   this->triggerCh = pt.get<int>("General.triggerCh");
   this->rawFilesDir = pt.get<std::string>("General.rawFilesDir");
 
-  for( int i = 1; i < 7; i++)
+  for (int i = 1; i < 7; i++)
   {
-    std::string ch = "channel_"+std::to_string(i);
-    if( pt.get<int>("Channel_Activation."+ch) !=0 )
+    std::string ch = "channel_" + std::to_string(i);
+    if (pt.get<int>("Channel_Activation." + ch) != 0)
     {
-      this->activeChannels.push_back(i);
-      if( pt.get<int>("Channel_Invertion."+ch) !=0 )this->invertChannels.push_back(1);
-      else this->invertChannels.push_back(0);
+      this->activeChannels.emplace_back(i);
+      if (pt.get<int>("Channel_Invertion." + ch) != 0)
+        this->invertChannels.emplace_back(1);
+      else
+        this->invertChannels.emplace_back(0);
     }
-
   }
-
 }
 
 void BetaScopeWaveformAna::generateWaveformConfig()
@@ -415,7 +443,7 @@ void BetaScopeWaveformAna::generateWaveformConfig()
   configFile << std::endl;
 
   configFile << "[Channel_Activation]" << std::endl;
-  for( int i = 1; i < 7; i++)
+  for (int i = 1; i < 7; i++)
   {
     configFile << "channel_" << i << " = 0" << std::endl;
   }
@@ -423,7 +451,7 @@ void BetaScopeWaveformAna::generateWaveformConfig()
   configFile << std::endl;
 
   configFile << "[Channel_Invertion]" << std::endl;
-  for( int i = 1; i < 7; i++)
+  for (int i = 1; i < 7; i++)
   {
     configFile << "channel_" << i << " = 0" << std::endl;
   }

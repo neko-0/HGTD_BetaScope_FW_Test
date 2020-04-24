@@ -1,60 +1,57 @@
-    ///////////////////////////////
-   //                           //
-  // Argument class header     //
- //                           //
+///////////////////////////////
+//                           //
+// Argument class header     //
+//                           //
 ///////////////////////////////
 
 #ifndef BETACOPE_H
 #define BETACOPE_H
 
-#include "General/Colorful_Cout/include/Colorful_Cout.h"
+#include "General/logger/include/logger.h"
 
 //-------c++----------------//
-#include <iostream>
 #include <ctime>
-#include <string>
-#include <sstream>
 #include <fstream>
-#include <stdlib.h>
+#include <iostream>
+#include <sstream>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <utility> // std::pair, std::make_pair
 #include <vector>
-#include <utility>      // std::pair, std::make_pair
 //#include <boost/unordered_map.hpp>
 #include <unordered_map>
 
 #include <boost/type_traits/is_same.hpp>
+#include <boost/format.hpp>
 
 //------ROOT----------------//
 #include <TFile.h>
-#include <TTree.h>
 #include <TThread.h>
+#include <TTree.h>
 #include <TTreeReader.h>
 #include <TTreeReaderArray.h>
 #include <TTreeReaderValue.h>
 
 #define VERBOSITY 0
 
-//helper function from stack overflow
+// helper function from stack overflow
 
-template <class N>
-struct is_vector{
+template <class N> struct is_vector
+{
   static const bool value = false;
   using T = N;
 };
 
-template <class N, class A>
-struct is_vector<std::vector<N,A>>{
+template <class N, class A> struct is_vector<std::vector<N, A>>
+{
   static const bool value = true;
-  using T = std::vector<N,A>;
+  using T = std::vector<N, A>;
 };
-
-
 
 //==============================================================================
 
-template<typename T>
-struct DataType{using type = T;};
-
+template <typename T> struct DataType { using type = T; };
 struct PrimitiveDataType_BaseContainer
 {
   PrimitiveDataType_BaseContainer(){};
@@ -66,216 +63,241 @@ struct PrimitiveDataType_BaseContainer
 template <typename dtype>
 struct PrimitiveDataType_Container : public PrimitiveDataType_BaseContainer
 {
-  private:
-    dtype *data_type = new dtype;
-    is_vector<dtype> _isVec;
-    bool __isVec = _isVec.value;
+private:
+  dtype *data_type = new dtype;
+  is_vector<dtype> _isVec;
+  bool __isVec = _isVec.value;
 
-    template <class vClass>
-    typename std::enable_if<is_vector<vClass>::value>::type _clear(){ this->data_type->clear(); };
+  template <class vClass>
+  typename std::enable_if<is_vector<vClass>::value>::type _clear()
+  {
+    this->data_type->clear();
+  };
 
-    template <class vClass>
-    typename std::enable_if<!is_vector<vClass>::value>::type _clear(){};
+  template <class vClass>
+  typename std::enable_if<!is_vector<vClass>::value>::type _clear(){};
 
-  public:
-    PrimitiveDataType_Container(){};
-    virtual ~PrimitiveDataType_Container()
+public:
+  PrimitiveDataType_Container(){};
+  ~PrimitiveDataType_Container()
+  {
+    if (this->data_type)
     {
-      if(this->data_type){delete this->data_type;}
-    };
+      delete this->data_type;
+    }
+  };
 
-    dtype *get(){ return this->data_type; };
+  dtype *get() { return this->data_type; };
 
-    inline bool isVec(){ return __isVec; };
+  inline bool isVec() { return __isVec; };
 
-    //inline void clear(){ if constexpr( __isVec ){this->data_type->clear();} else{} }
+  // inline void clear(){ if constexpr( __isVec ){this->data_type->clear();}
+  // else{} }
 
-    inline void clear(){ _clear<dtype>(); };
-
+  inline void clear() { _clear<dtype>(); };
 };
 
-template <template<class> class c, typename dtype>
+template <template <class> class c, typename dtype>
 struct PrimitiveDataType_TemplateContainer : public PrimitiveDataType_BaseContainer
 {
-  private:
-    c<dtype> *data_type;
-    std::string class_name = "PrimitiveDataType_TemplateContainer";
-  public:
-    PrimitiveDataType_TemplateContainer(){};
-    virtual ~PrimitiveDataType_TemplateContainer()
+private:
+  c<dtype> *data_type;
+  std::string class_name = "PrimitiveDataType_TemplateContainer";
+
+public:
+  PrimitiveDataType_TemplateContainer(){};
+  ~PrimitiveDataType_TemplateContainer()
+  {
+    LOG_INFO("clean up." );
+    if (this->data_type)
     {
-      ColorCout::print( class_name, "clean up.", YELLOW);
-      if(this->data_type){delete this->data_type;}
-    };
-
-    c<dtype> *get(){return this->data_type; };
-    void set( TTreeReader* itree, std::string branchName)
-    {
-      this->data_type = new c<dtype>( *itree, branchName.c_str());
-    };
-
-    void del(){ if(this->data_type){ delete this->data_type;} };
-};
-
-//==============================================================================
-
-
-//==============================================================================
-
-class BetaScope
-{
-  protected:
-
-    // output stuff are here.
-    TFile *oFile = new TFile;
-    TTree *oTree = new TTree;
-    std::string filePrefix = "stats_";
-    std::string ofileName;
-    int compressionLevel = 8;
-    int newBranchCountKeeper = 0;
-
-    PrimitiveDataType_BaseContainer *oTreePrimitiveBranches[500];
-    std::map<std::string, PrimitiveDataType_BaseContainer * > oTreePrimitiveBranchesMap;
-    std::map<std::string, int > oTreePrimitiveBranchesMapIndex;
-    int oTreePrimitiveBranchCounter = 0;
-
-    // output stl vector keepers
-    std::vector<int> oTreeSTLVectorReservedIndex = {};
-    std::vector<PrimitiveDataType_BaseContainer *> oTree_STLVecotrKeeper = {};
-    std::vector< std::vector<int>* > oTreeSTLVecotr_Int_keeper = {};
-    std::vector< std::vector<double>* > oTreeSTLVecotr_Double_keeper = {};
-    std::vector< std::vector<float>* > oTreeSTLVecotr_Float_keeper = {};
-    std::vector< std::vector<bool>* > oTreeSTLVecotr_Bool_keeper = {};
-    std::vector< std::vector<char>* > oTreeSTLVecotr_Char_keeper = {};
-
-    // input stuff are here
-
-    unsigned int i_numEvent;
-    std::string i_fileName;
-    std::string i_fileNickName;
-    bool skipBadVector = false;
-    bool i_ifileOpened = false;
-    std::string objectLocation = "default";
-
-    TFile *iFile = new TFile;
-    TTreeReader *treeReader = new TTreeReader;
-    std::string iTreeName = "wfm";
-
-
-    PrimitiveDataType_BaseContainer *iTree_branch[500];
-    std::map<std::string, PrimitiveDataType_BaseContainer *> iTree_branchMap;
-    std::map<std::string, int> iTree_branchMapIndex;
-    /*
-    std::vector<TTreeReaderArray<int>*> iTree_int_arrayReaderKeeper = {};
-    std::vector<TTreeReaderArray<double>*> iTree_double_arrayReaderKeeper = {};
-    std::vector<TTreeReaderArray<float>*> iTree_float_arrayReaderKeeper = {};
-    std::vector<TTreeReaderValue<int>*> iTree_int_valueReaderKeeper = {};
-    std::vector<TTreeReaderValue<double>*> iTree_double_valueReaderKeeper = {};
-    std::vector<TTreeReaderValue<float>*> iTree_float_valueReaderKeeper = {};
-    */
-    int iTreeBranchCounter = 0;
-
-  public:
-
-    std::vector<unsigned int> channel = {};
-    std::vector<int> invertPulse = {};
-
-    static const int numCh = 100; // reserving number of input channels.
-
-    std::time_t cpuTime = std::clock();
-    std::time_t _t_object_creation = std::time(nullptr);
-
-    BetaScope(){};
-    BetaScope(const char* ipath);
-    BetaScope(const char* ipath, const char* iTreeBranch_config, const char* oTreeBranch_config);
-    ~BetaScope()
-    {
-      std::cout << this << " call destructor at " << this->objectLocation <<std::endl;
-      //delete this->iTree;
-      //delete this->iFile;
-      //delete this->oTree;
-      //delete this->oFile;
-    };
-
-    bool fileIO_Open( const char *ifileName);
-    bool rawTreeReader( const char* itreeName = "wfm" );
-    bool newTreeMaker( std::string additional_branch_list );
-    void fillEvent();
-    void _clearVecBuffer();
-    void _clearVecBuffer(std::string mode);
-    void fileIO_Close();
-
-    bool isBranchExists( const char* branchName );
-
-    //=========================================================================
-    // reading and getting branches methods for input ttree
-
-    template < template<class> class ibranchType, typename dtype>
-    bool set_iBranch( std::string my_branchName, std::string my_key );
-
-    template < template<class> class ibranchType, typename dtype>
-    bool set_iBranch( const char* my_branchName, const char* my_key )
-    {
-      std::string branchName = my_branchName;
-      std::string key = my_key;
-      return set_iBranch<ibranchType, dtype>(branchName, key);
+      delete this->data_type;
     }
+  };
 
-    template < template<class> class ibranchType, typename dtype>
-    ibranchType<dtype> *get_iBranch( std::string key );
+  c<dtype> *get() { return this->data_type; };
+  void set(TTreeReader *itree, std::string branchName)
+  {
+    this->data_type = new c<dtype>(*itree, branchName.c_str());
+  };
 
-    template < template<class> class ibranchType, typename dtype>
-    dtype get_iBranch_value( std::string key ){ return **get_iBranch<ibranchType,dtype>(key); }
+  dtype GetValue() { return **this->data_type; }
 
-    //=========================================================================
-    // building and getting branches methods for ouput ttree
-
-    template <typename dtype>
-    bool buildPrimitiveBranch( std::string branchName );
-
-    template <typename dtype>
-    typename DataType<dtype>::type *get_oTree_PrimitiveBranch(std::string branchName);
-
-    template <typename dtype>
-    void set_oTree_value( std::string branchName, dtype i_value ){ *get_oTree_PrimitiveBranch<dtype>(branchName) = i_value;}
-
-    //==========================================================================
-
-
-    template <typename o_type>
-    void copyTTreeReaderArrayToVector( std::string oBranchName, std::string iBranchName, int entry);
-
-    std::vector< std::tuple<int, std::string, std::string, std::string> > branchConfigReader( std::string configName );
-
-    //==========================================================================
-    // class getter methods
-
-    std::string get_ifile_name()const{ return this->i_fileName; }
-    std::string get_ifile_nickName()const{ return this->i_fileNickName; }
-    std::string get_iTreeName()const{ return this->iTreeName; }
-    TTreeReader *get_treeReader()const{return this->treeReader;}
-    int get_iNumEvent()const{ return this->i_numEvent; }
-
-    TFile *get_ofile()const{ return this->oFile; }
-    TTree *get_otree()const{ return this->oTree; }
-    std::string get_ofile_prefix()const{ return this->filePrefix; }
-    std::string get_ofile_name()const{ return this->ofileName; }
-    int get_ofile_compressionLevel()const{ return this->compressionLevel; }
-
-    //==========================================================================
-    // class setter methods
-
-    void set_ifile_name( std::string i_value ){ this->i_fileName = i_value; }
-    void set_ifile_nickName( std::string i_value ){ this->i_fileNickName = i_value; }
-    void set_iTreeName( std::string i_value ){ this->iTreeName = i_value; }
-
-    void set_ofile_prefix( std::string i_value ){ this->filePrefix = i_value; }
-    void set_ofile_name( std::string i_value ){ this->ofileName = i_value; }
-    void set_ofile_compressionLevel( int i_value ){ this->compressionLevel = i_value; }
-
-
+  void del()
+  {
+    if (this->data_type)
+    {
+      delete this->data_type;
+    }
+  };
 };
 
+//==============================================================================
 
+//==============================================================================
+
+class BetaScope {
+protected:
+  // output stuff are here.
+
+  TFile *output_tfile_ = new TFile;
+  TTree *output_ttree_ = new TTree;
+  std::string output_file_prefix_ = "stats_";
+  std::string output_file_name_;
+  int compression_level_ = 8;
+  int new_branch_counter_ = 0;
+
+  PrimitiveDataType_BaseContainer *output_branches_buffer_[500];
+  std::map<std::string, PrimitiveDataType_BaseContainer *> output_branch_map_;
+  std::map<std::string, int> output_branch_map_index_;
+  int output_branch_counter_ = 0;
+
+  // output stl vector keepers
+
+  std::vector<int> output_vector_reserved_index_ = {};
+  std::vector<PrimitiveDataType_BaseContainer *> output_vector_keeper_ = {};
+  std::vector<std::vector<int> *> output_int_vector_keeper_ = {};
+  std::vector<std::vector<double> *> output_double_vector_keeper_ = {};
+  std::vector<std::vector<float> *> output_float_vector_keeper_ = {};
+  std::vector<std::vector<bool> *> output_bool_vector_keeper_ = {};
+  std::vector<std::vector<char> *> output_char_vector_keeper_ = {};
+
+  // input stuff are here
+
+  unsigned int input_num_event_;
+  std::string input_file_name_;
+  std::string input_file_nick_name_;
+  bool skip_bad_vector_ = false;
+  bool is_file_opened_ = false;
+  std::string object_location_ = "default";
+
+  TFile *input_tfile_ = new TFile;
+  TTreeReader *input_tree_reader_ = new TTreeReader;
+  std::string input_tree_name_ = "wfm";
+
+  PrimitiveDataType_BaseContainer *input_branches_buffer_[500];
+  std::map<std::string, PrimitiveDataType_BaseContainer *> input_branch_map_;
+  std::map<std::string, int> input_branch_map_index_;
+  int input_branch_counter_ = 0;
+
+public:
+  std::vector<unsigned int> channel = {};
+  std::vector<int> invert_pulse = {};
+
+  static const int kNumChannels = 100; // reserving number of input channels.
+
+  std::time_t cpu_time = std::clock();
+  const std::time_t kTimeObjCreation = std::time(nullptr);
+
+  BetaScope(){};
+  BetaScope(const char *ipath);
+  BetaScope(const char *ipath, const char *iTreeBranch_config,
+            const char *oTreeBranch_config);
+  ~BetaScope()
+  {
+    LOG_INFO( boost::str(boost::format("%1% call destructor at location %2%")%this%this->object_location_ ) );
+    // delete this->iTree;
+    // delete this->iFile;
+    // delete this->oTree;
+    // delete this->oFile;
+  };
+
+  bool FileOpen(const char *ifileName);
+  void FileClose();
+  bool RawTreeReader(const char *itreeName = "wfm");
+  bool NewTreeMaker(std::string additional_branch_list);
+  void FillEvent();
+  bool IsBranchExists(const char *branchName);
+
+  void _ClearVecBuffer();
+  void _ClearVecBuffer(std::string mode);
+
+  //=========================================================================
+  // reading and getting branches methods for input ttree
+
+  template <template <class> class ibranchType, typename dtype>
+  bool SetInBranch(std::string my_branchName, std::string my_key);
+
+  template <template <class> class ibranchType, typename dtype>
+  bool SetInBranch(const char *my_branchName, const char *my_key) {
+    std::string branchName = my_branchName;
+    std::string key = my_key;
+    return SetInBranch<ibranchType, dtype>(branchName, key);
+  }
+
+  template <template <class> class ibranchType, typename dtype>
+  ibranchType<dtype> *GetInBranch(std::string key);
+
+  template <template <class> class ibranchType, typename dtype>
+  dtype GetInBranchValue(std::string key) {
+    return **GetInBranch<ibranchType, dtype>(key);
+  }
+
+  //=========================================================================
+  // building and getting branches methods for ouput ttree
+
+  template <typename dtype> bool BuildOutBranch(std::string branchName, int size=2000);
+
+  template <typename dtype>
+  typename DataType<dtype>::type *GetOutBranch(std::string branchName);
+
+  template <typename dtype>
+  void SetOutBranchValue(std::string branchName, dtype i_value) {
+    *GetOutBranch<dtype>(branchName) = i_value;
+  }
+
+  //==========================================================================
+
+  template <typename o_type>
+  void copyTTreeReaderArrayToVector(std::string oBranchName,
+                                    std::string iBranchName, int entry);
+
+  std::vector<std::tuple<int, std::string, std::string, std::string>>
+  BranchConfigReader(std::string configName);
+
+  //==========================================================================
+  // class getter methods
+
+  std::string GetInFileName() const { return this->input_file_name_; };
+
+  std::string GetInFileNickName() const { return this->input_file_nick_name_; };
+
+  std::string GetInTreeName() const { return this->input_tree_name_; };
+
+  TTreeReader *GetInTreeReader() const { return this->input_tree_reader_; };
+
+  int GetInNumEvent() const { return this->input_num_event_; };
+
+  TFile *GetOutFile() const { return this->output_tfile_; };
+
+  TTree *GetOutTree() const { return this->output_ttree_; };
+
+  std::string GetOutFilePrefix() const { return this->output_file_prefix_; };
+
+  std::string GetOutFileName() const { return this->output_file_name_; };
+
+  int GetCompLevel() const { return this->compression_level_; };
+
+  //==========================================================================
+  // class setter methods
+
+  void SetInFileName(std::string i_value) { this->input_file_name_ = i_value; };
+
+  void SetInFileNickName(std::string i_value) {
+    this->input_file_nick_name_ = i_value;
+  };
+
+  void SetInTreeName(std::string i_value) { this->input_tree_name_ = i_value; };
+
+  void SetOutFilePrefix(std::string i_value) {
+    this->output_file_prefix_ = i_value;
+  };
+
+  void SetOutFileName(std::string i_value) {
+    this->output_file_name_ = i_value;
+  };
+
+  void SetCompLevel(int i_value) { this->compression_level_ = i_value; };
+};
 
 #endif // BETACOPE_H
