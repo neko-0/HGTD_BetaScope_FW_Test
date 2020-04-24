@@ -28,14 +28,11 @@
 #include <TImage.h>
 #include <TROOT.h>
 #include <TStyle.h>
-<<<<<<< HEAD
 #include <TThread.h>
-=======
 #include <TImage.h>
 #include <TCanvas.h>
 #include <TFitResult.h>
 #include <TVectorF.h>
->>>>>>> 0003e3805b08823b551b6da3b85e01d02b82cb2e
 
 //==============================================================================
 
@@ -206,26 +203,15 @@ void WaveformAnalysis::Find_Bunch_Negative_Signal_Maximum(
 
     if (voltageVec.size() != timeVec.size() && pmax.size() != tmax.size())
     {
-<<<<<<< HEAD
-        if (this->Find_Bunch_Negative_Signal_Maximum_counter < 100)
-        {
-            LOG_WARNING("Size dose not match! fill with 10e11." );
-        }
-
-        negPmax.push_back(10e11);
-        negTmax.push_back(10e11);
-        this->Find_Bunch_Negative_Signal_Maximum_counter++;
-=======
       if(this->Find_Bunch_Negative_Signal_Maximum_counter<100)
       {
         this->mu.lock();
-        ColorCout::Msg(function_name, "Only one pmax, no needed to use this function, set value to -10e11" );
+        //ColorCout::Msg(function_name, "Only one pmax, no needed to use this function, set value to -10e11" );
         this->mu.unlock();
       }
       negPmax.push_back( -10e11 );
       negTmax.push_back( -10e11 );
       this->Find_Bunch_Negative_Signal_Maximum_counter++;
->>>>>>> 0003e3805b08823b551b6da3b85e01d02b82cb2e
     }
     else
     {

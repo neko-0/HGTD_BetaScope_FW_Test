@@ -52,7 +52,7 @@ void BetaScopeWaveformAna::event_ana(int ch, WaveformAna<double, double> wavefor
 
   this->tmax[ch]->emplace_back(waveform.tmax());
   this->neg_tmax[ch]->emplace_back(waveform.neg_tmax());
-  this->fit_tmax[ch]->emplace_back(waveform.neg_tmax());
+  this->fit_tmax[ch]->emplace_back(waveform.fit_tmax());
   //this->fit_tmax[ch]->emplace_back( WaveAna.Get_Fit_Tmax( *this->t[ch], *this->w[ch], pmaxHolder) );
 
   this->rms[ch]->emplace_back(waveform.rms());
@@ -104,7 +104,7 @@ void BetaScopeWaveformAna::event_ana(int ch, WaveformAna<double, double> wavefor
   else
   {
     auto deri_zero_cross = linear.GetX(0, waveform.get_v1()[0], waveform.get_v1()[waveform.size()-1]);
-    if(TMath::IsNaN(deri_zero_cross))
+    if(true)//TMath::IsNaN(deri_zero_cross))
     {
       this->beta_scope.SetOutBranchValue( Form("deri_tmax%i_value", ch), 10e11 );
     }
