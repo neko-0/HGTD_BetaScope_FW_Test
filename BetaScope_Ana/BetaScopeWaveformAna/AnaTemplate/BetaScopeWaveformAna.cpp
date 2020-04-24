@@ -91,7 +91,9 @@ void BetaScopeWaveformAna::event_ana(int ch, WaveformAna<double, double> wavefor
   TF1 linear("linear", "[0]*x+[1]", deri_subwaveform.get_v1()[0]-300, deri_subwaveform.get_v1()[deri_subwaveform.size()-1]+300);
   linear.AddToGlobalList(false);
   ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2");
-  g.Fit(&linear, "Q");
+  TThread::Lock();
+  //g.Fit(&linear, "Q");
+  TThread::UnLock();
   this->beta_scope.SetOutBranchValue( Form("deri_tmax%i_g", ch), g );
   if(std::all_of(std::begin(deri_subwaveform.get_v2()), std::end(deri_subwaveform.get_v2()), [](double value){return value > 0; }))
   {

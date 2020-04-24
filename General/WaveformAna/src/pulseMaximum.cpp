@@ -33,6 +33,7 @@
 #include <TCanvas.h>
 #include <TFitResult.h>
 #include <TVectorF.h>
+#include <Math/MinimizerOptions.h>
 
 //==============================================================================
 
@@ -287,27 +288,27 @@ double WaveformAnalysis::Get_Fit_Tmax(
       //TF1* fu;
       title = "f_" + title;
       TF1 fu(title.c_str(), "gaus", timeVec.at(Pmax.second) - 300., timeVec.at(Pmax.second) + 300.);
-
+      fu.AddToGlobalList(false);
+      
       //fu->Print();
       //gr.Print();
 
       fu.SetParameter(0, timeVec.at(Pmax.second));
       fu.SetParameter(1, 100.);
       //std::cout<<"\n**** fitting *** \n";
-      //TThread::Lock();
-      fu.AddToGlobalList(false);
+      TThread::Lock();
       ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2");
       TFitResultPtr res = gr.Fit(&fu, "SRMQ");
-      //TThread::UnLock();
+      TThread::UnLock();
       //fu->Print();
       tmax_fitted = fu.GetParameter(0);
 
-      /*
-      if(res->Chi2() > 0){
+      
+      if(res->Chi2() > 10){
         gr.Print();
         std::cout<<"fit res chi:" << res->Chi2() << " tmax " << timeVec.at(Pmax.second) << " fit " << tmax_fitted << " sigma " << fu.GetParameter(1) << std::endl << std::endl;
       }
-      */
+      
       //delete fu;
     }
   }
