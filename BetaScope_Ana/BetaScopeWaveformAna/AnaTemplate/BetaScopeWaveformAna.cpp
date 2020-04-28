@@ -53,6 +53,7 @@ void BetaScopeWaveformAna::event_ana(int ch, WaveformAna<double, double> wavefor
   this->tmax[ch]->emplace_back(waveform.tmax());
   this->neg_tmax[ch]->emplace_back(waveform.neg_tmax());
   this->fit_tmax[ch]->emplace_back(waveform.fit_tmax());
+  this->fit_tmax_chi[ch]->emplace_back(waveform.fit_tmax_chi());
   //this->fit_tmax[ch]->emplace_back( WaveAna.Get_Fit_Tmax( *this->t[ch], *this->w[ch], pmaxHolder) );
 
   this->rms[ch]->emplace_back(waveform.rms());
@@ -304,6 +305,7 @@ void BetaScopeWaveformAna::Initialize() {
     this->pmax[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("pmax" + std::to_string(ch));
     this->tmax[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("tmax" + std::to_string(ch));
     this->fit_tmax[ch] = this->beta_scope.GetOutBranch<std::vector<double>>( "fit_tmax"+std::to_string(ch) );
+    this->fit_tmax_chi[ch] = this->beta_scope.GetOutBranch<std::vector<double>>( "fit_tmax_chi"+std::to_string(ch) );
     this->neg_pmax[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("neg_pmax" + std::to_string(ch));
     this->neg_tmax[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("neg_tmax" + std::to_string(ch));
     this->riseTime[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("riseTime" + std::to_string(ch));
