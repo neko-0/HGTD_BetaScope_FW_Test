@@ -62,7 +62,7 @@ public:
     void pmax(const double &value){ this->pmax_ = value; }
     void tmax(const double &value){ this->tmax_ = value; }
     void fit_tmax(const double &value){ this->fit_tmax_ = value; }
-    void fit_tmax_chi(const double &value){ this->fit_tmax_ = value; }
+    void fit_tmax_chi(const double &value){ this->fit_tmax_chi_ = value; }
     void max_index(const int &value){ this->max_index_ = value; }
     void neg_pmax(const double &value){ this->neg_pmax_ = value; }
     void neg_tmax(const double &value){ this->neg_tmax_ = value; }
