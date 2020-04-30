@@ -100,7 +100,9 @@ WaveformAna<double, double> WaveformAnalysis::analyze_waveform(
 
     waveform.pmax(pmaxHolder.first);
     waveform.tmax(waveform.get_v1_value( pmaxHolder.second));
-    waveform.fit_tmax( WaveformAnalysis::Get_Fit_Tmax( waveform.get_v1(), waveform.get_v2(), pmaxHolder) );
+    std::pair<double, double> tmaxFitHolder = WaveformAnalysis::Get_Fit_Tmax( waveform.get_v2(), waveform.get_v1(), pmaxHolder);
+    waveform.fit_tmax( tmaxFitHolder.first );
+    waveform.fit_tmax_chi( tmaxFitHolder.second );
     waveform.max_index(pmaxHolder.second);
 
     waveform.neg_pmax(neg_pmaxHolder.first);
@@ -264,7 +266,10 @@ WaveformAna<double, double> WaveformAnalysis::analyze_waveform(
 
     waveform.pmax( pmaxHolder.first);
     waveform.tmax( waveform.get_v1_value( pmaxHolder.second));
-    waveform.fit_tmax( WaveformAnalysis::Get_Fit_Tmax( waveform.get_v2(), waveform.get_v1(), pmaxHolder) );
+    std::pair<double, double> tmaxFitHolder = WaveformAnalysis::Get_Fit_Tmax( waveform.get_v2(), waveform.get_v1(), pmaxHolder);
+    waveform.fit_tmax( tmaxFitHolder.first );
+    waveform.fit_tmax_chi( tmaxFitHolder.second );
+    //std::cout << "fit tmax chi:" << tmaxFitHolder.second << std::endl;
     waveform.max_index( pmaxHolder.second);
 
     waveform.neg_pmax( neg_pmaxHolder.first);

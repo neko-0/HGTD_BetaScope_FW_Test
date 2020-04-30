@@ -257,7 +257,8 @@ double WaveformAnalysis::Get_Tmax(
     return tmax;
 }
 
-double WaveformAnalysis::Get_Fit_Tmax(
+std::pair<double, double>
+WaveformAnalysis::Get_Fit_Tmax(
   std::vector<double> voltageVec,
   std::vector<double> timeVec,
   const std::pair<double, unsigned int> Pmax
@@ -266,12 +267,13 @@ double WaveformAnalysis::Get_Fit_Tmax(
   //TODO: add fitting code here
   gROOT->SetBatch(true);
   double tmax_fitted = -9999.;
+  double chi2_fitted = -9999.;
   int n_points = 3;
   //std::cout<<"\n**** start *** \n";
   TVectorF small_voltageVec (2*n_points); // = new float[2*n_points];
   TVectorF small_timeVec (2*n_points);// = new float[2*n_points];
 
-  if(timeVec.at(Pmax.second) > 0. and timeVec.at(Pmax.second) < 500.){
+  if(timeVec.at(Pmax.second) > -1000. and timeVec.at(Pmax.second) < 1000.){
     if(Pmax.second > 10 and Pmax.second < (timeVec.size() - 10)){
       for(int i = 0; i < 2*n_points; i++){
           double t_point = timeVec.at(Pmax.second - n_points + i);
@@ -289,7 +291,7 @@ double WaveformAnalysis::Get_Fit_Tmax(
       title = "f_" + title;
       TF1 fu(title.c_str(), "gaus", timeVec.at(Pmax.second) - 300., timeVec.at(Pmax.second) + 300.);
       fu.AddToGlobalList(false);
-      
+
       //fu->Print();
       //gr.Print();
 
@@ -298,15 +300,16 @@ double WaveformAnalysis::Get_Fit_Tmax(
       //std::cout<<"\n**** fitting *** \n";
       TThread::Lock();
       ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2");
-      TFitResultPtr res = gr.Fit(&fu, "SRMQ");
+      TFitResultPtr res = gr.Fit(&fu, "SQ");
       TThread::UnLock();
       //fu->Print();
-      tmax_fitted = fu.GetParameter(0);
-
+      tmax_fitted = fu.GetParameter(1);
+      chi2_fitted = res->Chi2();
       /*
-      if(res->Chi2() > 10){
+      if(res->Chi2() > 0.){
         gr.Print();
-        std::cout<<"fit res chi:" << res->Chi2() << " tmax " << timeVec.at(Pmax.second) << " fit " << tmax_fitted << " sigma " << fu.GetParameter(1) << std::endl << std::endl;
+        fu.Print();
+        std::cout<<"fit res chi:" << chi2_fitted << " tmax " << timeVec.at(Pmax.second) << " fit " << tmax_fitted << " sigma " << fu.GetParameter(2) << std::endl << std::endl;
       }
       */
       //delete fu;
@@ -315,5 +318,5 @@ double WaveformAnalysis::Get_Fit_Tmax(
   //delete[] small_timeVec;
   //delete[] small_voltageVec;
   //std::cout<<"\n**** end *** \n";
-  return tmax_fitted;
+  return std::make_pair(tmax_fitted, chi2_fitted);
 }
