@@ -9,7 +9,10 @@ def get_time_resolution( tfile_name, cuts, cfd, dut_ch, trig_ch, return_histo=Fa
     ttree_wfm = tfile.wfm
 
     #parameter to project on the histogram. Time difference of dut and trig
+
     tdiff = "cfd%s[%s]-cfd%s[20]"%(dut_ch, cfd, trig_ch)
+    if cfd == "tmax": tdiff = "tmax-cfd%s[20]"%(dut_ch, cfd, trig_ch)
+    if cfd == "fit_tmax": tdiff = "fit_tmax-cfd%s[20]"%(dut_ch, cfd, trig_ch)
 
     #create default histogram for pre-processing.
     preHisto = ROOT.TH1D("preHisto", "preHisto", 100, 1, 1)
