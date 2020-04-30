@@ -231,7 +231,7 @@ class BetaCollector(object):
     @classmethod
     def load(cls, ifile):
         try:
-            with open(ifile, "rb") as f:
+            with open(ifile,  "rb") as f:
                 data = pickle.load(f)
                 cls_obj = cls()
                 cls_obj.beta_runs = data.beta_runs
