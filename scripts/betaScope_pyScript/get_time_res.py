@@ -13,8 +13,8 @@ def get_time_resolution( tfile_name, cuts, cfd, dut_ch, trig_ch, return_histo=Fa
     try:
         tdiff = "cfd%s[%s]-cfd%s[20]"%(dut_ch, int(cfd), trig_ch)
     except:
-        if cfd == "tmax": tdiff = "tmax-cfd%s[20]"%(dut_ch, trig_ch)
-        if cfd == "fit_tmax": tdiff = "fit_tmax-cfd%s[20]"%(dut_ch, trig_ch)
+        if cfd == "tmax": tdiff = "tmax%s-cfd%s[20]"%(dut_ch, trig_ch)
+        if cfd == "fit_tmax": tdiff = "fit_tmax%s-cfd%s[20]"%(dut_ch, trig_ch)
 
     #create default histogram for pre-processing.
     preHisto = ROOT.TH1D("preHisto", "preHisto", 100, 1, 1)
