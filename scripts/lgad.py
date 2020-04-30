@@ -18,13 +18,15 @@ from shutil import copyfile, copy
 from colorStringFormating import *
 
 predefined_path = {
+"":"/media/mnt/COVID-19/betaAna4/",
 "__raw":"/media/mnt/BigHD/Beta_DAQ_Data/",
 "__raw2":"/media/mnt/gunter/Beta_DAQ_Data_2/",
 "__yuzhan":"/media/mnt/BigHD/BetaScope_Data/Analyzed_YZ/",
-"__yuzhan2":"/media/mnt/gunter/betaAna2/",
-"__def":"/media/mnt/gunter/betaAna2/",
-"__old_remake":"/media/mnt/gunter/betaAna3/",
 "__simone":"/media/mnt/BigHD/BetaScope_Data/Analyzed_Simone/"
+"__yuzhan2":"/media/mnt/gunter/betaAna2/",
+"__covid":"/media/mnt/COVID-19/betaAna4/",
+"__gunter":"/media/mnt/gunter/betaAna2/",
+"__old_remake":"/media/mnt/gunter/betaAna3/",
 }
 
 class Lgad(cmd.Cmd, object):
@@ -227,6 +229,9 @@ class Lgad(cmd.Cmd, object):
 
                 p = subprocess.call("{nohup} python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum {num} {nohup_log}".format(num=self.runNum, nohup=nohup, nohup_log=nohup_log), shell=True)
 
+                p = subprocess.Popen("{nohup} $BETASCOPE_SCRIPTS/betaScopePlot/bin/getResults run_info_v08022018.ini {nohup_log}".format(nohup=nohup, nohup_log=nohup_log), shell=True)
+                p.wait()
+            if "no_autocut" in mode:
                 p = subprocess.Popen("{nohup} $BETASCOPE_SCRIPTS/betaScopePlot/bin/getResults run_info_v08022018.ini {nohup_log}".format(nohup=nohup, nohup_log=nohup_log), shell=True)
                 p.wait()
             if "full" in mode:
