@@ -219,7 +219,7 @@ class Lgad(cmd.Cmd, object):
                 nohup_log = ""
 
             if "ana_only" in mode:
-                p = subprocess.Popen("{nohup} $BETASCOPE_SCRIPTS/../BetaScope_Ana/BetaScopeWaveformAna/bin/Run_WaveformAna {tdir}/WaveformAnaConfig.ini {nohup_log}".format(nohup=nohup, nohup_log=nohup_log, tdir=self.current_run), shell=True)
+                p = subprocess.Popen("{nohup} $BETASCOPE_SCRIPTS/../BetaScope_Ana/BetaScopeWaveformAna/bin/Run_WaveformAna -skipWaveform -config {tdir}/WaveformAnaConfig.ini {nohup_log}".format(nohup=nohup, nohup_log=nohup_log, tdir=self.current_run), shell=True)
                 p.wait()
             if "res_only" in mode:
                 p = subprocess.Popen("{} $BETASCOPE_SCRIPTS/betaScopePlot/bin/genPlotConfig {}".format(nohup, nohup_log), shell=True)
@@ -230,7 +230,7 @@ class Lgad(cmd.Cmd, object):
                 p = subprocess.Popen("{nohup} $BETASCOPE_SCRIPTS/betaScopePlot/bin/getResults run_info_v08022018.ini {nohup_log}".format(nohup=nohup, nohup_log=nohup_log), shell=True)
                 p.wait()
             if "full" in mode:
-                p = subprocess.Popen("{nohup} $BETASCOPE_SCRIPTS/../BetaScope_Ana/BetaScopeWaveformAna/bin/Run_WaveformAna {tdir}/WaveformAnaConfig.ini {nohup_log}".format(nohup=nohup, nohup_log=nohup_log, tdir=self.current_run), shell=True)
+                p = subprocess.Popen("{nohup} $BETASCOPE_SCRIPTS/../BetaScope_Ana/BetaScopeWaveformAna/bin/Run_WaveformAna -skipWaveform -config {tdir}/WaveformAnaConfig.ini {nohup_log}".format(nohup=nohup, nohup_log=nohup_log, tdir=self.current_run), shell=True)
                 p.wait()
 
                 p = subprocess.Popen("{} $BETASCOPE_SCRIPTS/betaScopePlot/bin/genPlotConfig {}".format(nohup, nohup_log), shell=True)
