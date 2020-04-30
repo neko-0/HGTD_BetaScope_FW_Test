@@ -66,5 +66,21 @@ std::vector<PlotList> create_job() {
                            "pulseArea_withUndershoot3[0]/1.0E-15",
                            "Area Under Ch3", "LanGausArea", 100, 0, 20000);
 
+  my_booked_plot.book_plot(2, "time_res_50", "time_res_50_ch2", "Time resolution CFD50% ch-2",
+                          "cfd2[50]-cfd3[20]", "Time resolution CFD50% Ch2 [ps]",
+                          "gaus", 100, -100, 500);
+
+  my_booked_plot.book_plot(2, "time_res_20", "time_res_20_ch2", "Time resolution CFD20% ch-2",
+                          "cfd2[20]-cfd3[20]", "Time resolution CFD20% Ch2 [ps]",
+                          "gaus", 100, -100, 500);
+
+  my_booked_plot.book_plot(2, "time_res_tmax", "time_res_tmax_ch2", "Time resolution Tmax ch-2",
+                          "tmax2-cfd3[50]", "Time resolution Tmax Ch2 [ps]",
+                          "gaus", 100, -100, 500);
+
+  my_booked_plot.book_plot(2, "time_res_fit_tmax", "time_res_fit_tmax_ch2", "Time resolution Fit Tmax ch-2",
+                          "fit_tmax2-cfd3[50]", "Time resolution Fit Tmax Ch2 [ps]",
+                          "gaus", 100, -100, 500);
+                          
   return my_booked_plot.get_booked_plot();
 }
