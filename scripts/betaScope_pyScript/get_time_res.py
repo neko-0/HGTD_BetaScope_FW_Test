@@ -10,7 +10,7 @@ def get_time_resolution( tfile_name, cuts, cfd, dut_ch, trig_ch, return_histo=Fa
 
     #parameter to project on the histogram. Time difference of dut and trig
 
-    tdiff = "cfd%s[%s]-cfd%s[20]"%(dut_ch, cfd, trig_ch)
+    tdiff = "cfd%s[%s]-cfd%s[20]"%(dut_ch, int(cfd), trig_ch)
     if cfd == "tmax": tdiff = "tmax-cfd%s[20]"%(dut_ch, cfd, trig_ch)
     if cfd == "fit_tmax": tdiff = "fit_tmax-cfd%s[20]"%(dut_ch, cfd, trig_ch)
 
@@ -56,7 +56,7 @@ if __name__ == "__main__":
 
     import argparse
     cml_parser = argparse.ArgumentParser()
-    cml_parser.add_argument("--CFD", dest="CFD", nargs="?", default="50", type=int, help="CFD")
+    cml_parser.add_argument("--CFD", dest="CFD", nargs="?", default="50", type=str, help="CFD")
     cml_parser.add_argument("--scope", dest="scope", nargs="?", default="lecroy", type=str, help="scope")
     cml_parser.add_argument("--xmin", dest="xmin", nargs="?", default=None, type=float, help="scope")
     cml_parser.add_argument("--xmax", dest="xmax", nargs="?", default=None, type=float, help="scope")
