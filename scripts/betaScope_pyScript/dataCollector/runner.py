@@ -47,6 +47,8 @@ for mdir in mdir_list:
                 time_res_file = [
                     (mdir + "/" + fold + "/res50.txt", 50),
                     (mdir + "/" + fold + "/res20.txt", 20),
+                    (mdir + "/" + fold + "/restmax.txt", "tmax"),
+                    (mdir + "/" + fold + "/resfit_tmax.txt", "fit_tmax"),
                 ]
                 leakage_file = mdir + "/" + fold + "/leakage.txt"
                 beta_run.load_result(

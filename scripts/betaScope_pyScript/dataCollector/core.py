@@ -54,6 +54,12 @@ class BetaResult(object):
                             if cfd == 20:
                                 self.time_resolution_20 = float(line_split[3])
                                 self.time_resolution_err_20 = float(line_split[4])
+                            if cfd == "tmax":
+                                self.time_resolution_tmax = float(line_split[3])
+                                self.time_resolution_err_tmax = float(line_split[4])
+                            if cfd == "fit_tmax":
+                                self.time_resolution_fit_tmax = float(line_split[3])
+                                self.time_resolution_err_fit_tmax = float(line_split[4])
             except Exception as e:
                 log.warning(
                     "{}-> Error encounter during time resolution. Error: {}".format(
