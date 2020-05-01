@@ -22,11 +22,11 @@ predefined_path = {
 "__raw":"/media/mnt/BigHD/Beta_DAQ_Data/",
 "__raw2":"/media/mnt/gunter/Beta_DAQ_Data_2/",
 "__yuzhan":"/media/mnt/BigHD/BetaScope_Data/Analyzed_YZ/",
-"__simone":"/media/mnt/BigHD/BetaScope_Data/Analyzed_Simone/"
+"__simone":"/media/mnt/BigHD/BetaScope_Data/Analyzed_Simone/",
 "__yuzhan2":"/media/mnt/gunter/betaAna2/",
 "__covid":"/media/mnt/COVID-19/betaAna4/",
 "__gunter":"/media/mnt/gunter/betaAna2/",
-"__old_remake":"/media/mnt/gunter/betaAna3/",
+"__old_remake":"/media/mnt/gunter/betaAna3/"
 }
 
 class Lgad(cmd.Cmd, object):
