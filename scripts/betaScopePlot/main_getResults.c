@@ -98,7 +98,7 @@ void getResults(std::string plotConfig_fname, std::string outDir = "Results/" )
       biasVoltage = plotConfig.bias[i].at(0) + "." + fIndex;
     }
     else
-    {
+    { 
       biasVoltage = plotConfig.bias[i].at(0);
     }
     outfile.CreateBetaScopeOutputFile( biasVoltage.c_str(), oData, plotConfig.run_temperature[i].at(0), plotConfig.trigger_bias[i].at(0) );

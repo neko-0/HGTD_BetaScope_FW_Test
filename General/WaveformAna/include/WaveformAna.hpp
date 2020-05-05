@@ -11,6 +11,8 @@ private:
     int max_index_;
     double pmax_;
     double tmax_;
+    double fit_tmax_;
+    double fit_tmax_chi_;
     double neg_pmax_;
     double neg_tmax_;
     int neg_max_index_;
@@ -59,6 +61,8 @@ public:
     void channel(const int &value){ this->channel_ = value; }
     void pmax(const double &value){ this->pmax_ = value; }
     void tmax(const double &value){ this->tmax_ = value; }
+    void fit_tmax(const double &value){ this->fit_tmax_ = value; }
+    void fit_tmax_chi(const double &value){ this->fit_tmax_chi_ = value; }
     void max_index(const int &value){ this->max_index_ = value; }
     void neg_pmax(const double &value){ this->neg_pmax_ = value; }
     void neg_tmax(const double &value){ this->neg_tmax_ = value; }
@@ -84,6 +88,8 @@ public:
     int max_index() const { return this->max_index_; }
     double pmax() const { return this->pmax_; }
     double tmax() const { return this->tmax_; }
+    double fit_tmax() const { return this->fit_tmax_; }
+    double fit_tmax_chi() const { return this->fit_tmax_chi_; }
     int meg_max_index() const { return this->neg_max_index_; }
     double neg_pmax() const { return this->neg_pmax_; }
     double neg_tmax() const { return this->neg_tmax_; }
