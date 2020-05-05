@@ -60,6 +60,9 @@ class BetaResult(object):
                             if cfd == "fit_tmax":
                                 self.time_resolution_fit_tmax = float(line_split[3])
                                 self.time_resolution_err_fit_tmax = float(line_split[4])
+                            if cfd == "zero_cross_tmax":
+                                self.time_resolution_zero_cross_tmax = float(line_split[3])
+                                self.time_resolution_err_zero_cross_tmax = float(line_split[4])
             except Exception as e:
                 log.warning(
                     "{}-> Error encounter during time resolution. Error: {}".format(

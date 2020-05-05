@@ -268,7 +268,7 @@ WaveformAnalysis::Get_Fit_Tmax(
   gROOT->SetBatch(true);
   double tmax_fitted = -9999.;
   double chi2_fitted = -9999.;
-  int n_points = 3;
+  int n_points = 4;
   //std::cout<<"\n**** start *** \n";
   TVectorF small_voltageVec (2*n_points); // = new float[2*n_points];
   TVectorF small_timeVec (2*n_points);// = new float[2*n_points];
