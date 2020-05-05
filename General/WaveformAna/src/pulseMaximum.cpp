@@ -363,15 +363,15 @@ WaveformAnalysis::Get_Zero_Cross_Tmax(
       TFitResultPtr res = gr.Fit(&fu, "SQ");
       TThread::UnLock();
 
-      tmax_fitted = fu.GetX(0);
+      tmax_zerocross = fu.GetX(0);
       chi2_fitted = res->Chi2();
-
+      /*
       if(res->Chi2() > 0.){
         gr.Print();
         fu.Print();
-        std::cout<<"Zero Cross Tmax chi:" << chi2_fitted << " tmax " << timeVec.at(Pmax.second) << " fit " << tmax_fitted << std::endl << std::endl;
+        std::cout<<"Zero Cross Tmax chi:" << chi2_fitted << " tmax " << timeVec.at(Pmax.second) << " fit " << tmax_zerocross << std::endl << std::endl;
       }
-
+      */
     }
   }
 
