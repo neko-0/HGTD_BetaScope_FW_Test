@@ -81,7 +81,7 @@ void BetaScopeWaveformAna::event_ana(int ch, WaveformAna<double, double> wavefor
   {
     *this->w[ch] = waveform.v2();
     *this->t[ch] = waveform.v1();
-    this->waveform_ana[ch]->emplace_back(waveform);
+    //this->waveform_ana[ch]->emplace_back(waveform);
   }
 
   auto subwaveform = waveform.sub_waveform(waveform.max_index()-4, waveform.max_index()+4);
@@ -89,12 +89,11 @@ void BetaScopeWaveformAna::event_ana(int ch, WaveformAna<double, double> wavefor
   TGraph g(deri_subwaveform.size(), &deri_subwaveform.get_v1()[0], &deri_subwaveform.get_v2()[0]);
   g.SetName(Form("%s_%i_ch%i",this->beta_scope.GetInFileNickName().c_str(), this->counter_, ch));
   this->counter_++;
-  TF1 linear("linear", "[0]*x+[1]", deri_subwaveform.get_v1()[0]-300, deri_subwaveform.get_v1()[deri_subwaveform.size()-1]+300);
+  TF1 linear("linear", "[0]*x+[1]", deri_subwaveform.get_v1()[0], deri_subwaveform.get_v1()[deri_subwaveform.size()-1]);
   linear.AddToGlobalList(false);
   ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2");
-  TThread::Lock();
-  //g.Fit(&linear, "Q");
-  TThread::UnLock();
+  g.Fit(&linear, "QR");
+
   this->beta_scope.SetOutBranchValue( Form("deri_tmax%i_g", ch), g );
   if(std::all_of(std::begin(deri_subwaveform.get_v2()), std::end(deri_subwaveform.get_v2()), [](double value){return value > 0; }))
   {
@@ -115,6 +114,24 @@ void BetaScopeWaveformAna::event_ana(int ch, WaveformAna<double, double> wavefor
     {
       this->beta_scope.SetOutBranchValue( Form("deri_tmax%i_value", ch), deri_zero_cross );
     }
+  }
+
+  TGraph gauss_g(subwaveform.size(), &subwaveform.get_v1()[0], &subwaveform.get_v2()[0]);
+  gauss_g.SetName(Form("gauss_%s_%i_ch%i",this->beta_scope.GetInFileNickName().c_str(), this->counter_, ch));
+  this->counter_++;
+  TF1 gauss_fit("gauss_fit", "gaus", subwaveform.get_v1()[0], subwaveform.get_v1()[subwaveform.size()-1]);
+  gauss_fit.AddToGlobalList(false);
+  gauss_g.Fit(&gauss_fit, "QR");
+  this->beta_scope.SetOutBranchValue( Form("gaus_tmax%i_g", ch), gauss_g );
+  //auto maxvalue = gauss_fit.Eval(gauss_fit.GetParameter(1));
+  auto maxvalue = gauss_fit.GetParameter(1);
+  if(TMath::IsNaN(maxvalue))
+  {
+    this->beta_scope.SetOutBranchValue( Form("gaus_tmax%i_value", ch), 10e11 );
+  }
+  else
+  {
+    this->beta_scope.SetOutBranchValue( Form("gaus_tmax%i_value", ch), maxvalue );
   }
 
   /*
@@ -280,8 +297,8 @@ void BetaScopeWaveformAna::Initialize() {
     {
       this->w[ch] = this->beta_scope.GetOutBranch<std::vector<double>>( "w" + std::to_string(ch));
       this->t[ch] = this->beta_scope.GetOutBranch<std::vector<double>>( "t" + std::to_string(ch));
-      this->beta_scope.BuildOutBranch<std::vector<WaveformAna<double, double>>>("waveform" + std::to_string(ch));
-      this->waveform_ana[ch] = this->beta_scope.GetOutBranch<std::vector<WaveformAna<double, double>>>("waveform" + std::to_string(ch));
+      //this->beta_scope.BuildOutBranch<std::vector<WaveformAna<double, double>>>("waveform" + std::to_string(ch));
+      //this->waveform_ana[ch] = this->beta_scope.GetOutBranch<std::vector<WaveformAna<double, double>>>("waveform" + std::to_string(ch));
 
     }
     else
@@ -301,6 +318,9 @@ void BetaScopeWaveformAna::Initialize() {
 
     this->beta_scope.BuildOutBranch<TGraph>(Form("deri_tmax%i_g", ch) );
     this->beta_scope.BuildOutBranch<double>(Form("deri_tmax%i_value", ch) );
+
+    this->beta_scope.BuildOutBranch<TGraph>(Form("gaus_tmax%i_g", ch) );
+    this->beta_scope.BuildOutBranch<double>(Form("gaus_tmax%i_value", ch) );
 
     this->pmax[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("pmax" + std::to_string(ch));
     this->tmax[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("tmax" + std::to_string(ch));
@@ -395,6 +415,11 @@ void BetaScopeWaveformAna::Finalize()
     }
   }
   */
+
+  if(this->skim_output)
+  {
+    this->beta_scope.Filter("isGoodTrig3==1");
+  }
 
   // required
   BetaScope_AnaFramework::Finalize();

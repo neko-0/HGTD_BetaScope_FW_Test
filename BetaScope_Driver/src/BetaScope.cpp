@@ -40,3 +40,16 @@ bool BetaScope::IsBranchExists(const char *branchName) {
   else
     return false;
 }
+
+void BetaScope::Filter(const char *selection)
+{
+  if(this->output_ttree_)
+  {
+      LOG_INFO("applying filter: " + std::string(selection));
+      this->output_ttree_ = this->output_ttree_->CopyTree(selection);
+  }
+  else
+  {
+    LOG_ERROR("Invalid pointer to output_ttree_");
+  }
+}

@@ -34,6 +34,7 @@ public:
   std::vector<int> activeChannels;
 
   bool skipWaveform = false;
+  bool skim_output = false;
 
   bool limitPmaxSearchRange = true;
   double pmaxSearchMinRange = -1000.0; // unit of ps

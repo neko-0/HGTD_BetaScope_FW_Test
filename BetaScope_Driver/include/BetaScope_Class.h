@@ -141,7 +141,7 @@ protected:
   // output stuff are here.
 
   TFile *output_tfile_ = new TFile;
-  TTree *output_ttree_ = new TTree;
+  TTree *output_ttree_;//= new TTree;
   std::string output_file_prefix_ = "stats_";
   std::string output_file_name_;
   int compression_level_ = 8;
@@ -172,7 +172,7 @@ protected:
   std::string object_location_ = "default";
 
   TFile *input_tfile_ = new TFile;
-  TTreeReader *input_tree_reader_ = new TTreeReader;
+  TTreeReader *input_tree_reader_;//= new TTreeReader;
   std::string input_tree_name_ = "wfm";
 
   PrimitiveDataType_BaseContainer *input_branches_buffer_[500];
@@ -196,10 +196,8 @@ public:
   ~BetaScope()
   {
     LOG_INFO( boost::str(boost::format("%1% call destructor at location %2%")%this%this->object_location_ ) );
-    // delete this->iTree;
-    // delete this->iFile;
-    // delete this->oTree;
-    // delete this->oFile;
+    if(this->output_tfile_){delete output_tfile_;}
+    if(this->input_tfile_){delete input_tfile_;}
   };
 
   bool FileOpen(const char *ifileName);
@@ -208,6 +206,8 @@ public:
   bool NewTreeMaker(std::string additional_branch_list);
   void FillEvent();
   bool IsBranchExists(const char *branchName);
+
+  void Filter(const char *selection);
 
   void _ClearVecBuffer();
   void _ClearVecBuffer(std::string mode);
