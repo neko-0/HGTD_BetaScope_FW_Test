@@ -20,13 +20,15 @@ namespace bpo = boost::program_options;
 void runAna(
   const std::string &fileName,
   const std::string &config = "WaveformAnaConfig.ini",
-  const bool &skipWaveform = false
+  const bool &skipWaveform = false,
+  const bool &skim = false
 )
 {
   TThread::Lock();
   BetaScopeWaveformAna doAna(fileName.c_str());
   if (skipWaveform){doAna.setWaveform(skipWaveform);}
   doAna.readWaveformConfig(config);
+  doAna.skim_output = skim;
   doAna.Initialize();
   TThread::UnLock();
   // doAna.run();
@@ -45,7 +47,10 @@ int main(int argc, char **argv) {
   desc.add_options()
   ("help,h", "help message.")
   ("config", bpo::value<std::string>(), "configuration file")
-  ("skipWaveform", bpo::bool_switch()->default_value(false), "skipping waveform in output file.");
+  ("skipWaveform", bpo::bool_switch()->default_value(false), "skipping waveform in output file.")
+  ("skim", bpo::bool_switch()->default_value(false), "skim the output file.")
+  ("thread,j", bpo::value<unsigned>()->default_value(std::thread::hardware_concurrency()), "using number of thread.")
+  ;
   bpo::store(bpo::parse_command_line(argc, argv, desc, style), vm);
   bpo::notify(vm);
 
@@ -61,7 +66,7 @@ int main(int argc, char **argv) {
     std::time_t main_time = std::time(nullptr);
 
     LOG_INFO("Preparation: Thread configuration.");
-    unsigned numThreads = std::thread::hardware_concurrency();
+    unsigned numThreads = vm["thread"].as<unsigned>();
     LOG_INFO("Get number of threads" + std::to_string(numThreads) );
     boost::asio::thread_pool pool(numThreads);
     ROOT::EnableThreadSafety();
@@ -74,7 +79,7 @@ int main(int argc, char **argv) {
     std::vector<std::string> fileList = BetaScope_Utilities::Dir::getFiles(my_ana.rawFilesDir.c_str(), ".root");
     for( auto file : fileList )
     {
-      boost::asio::post(pool, boost::bind(runAna, file, vm["config"].as<std::string>(), vm["skipWaveform"].as<bool>()));
+      boost::asio::post(pool, boost::bind(runAna, file, vm["config"].as<std::string>(), vm["skipWaveform"].as<bool>(), vm["skim"].as<bool>()));
     }
 
     pool.join();
