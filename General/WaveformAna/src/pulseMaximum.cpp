@@ -309,7 +309,7 @@ WaveformAnalysis::Get_Fit_Tmax(
       if(res->Chi2() > 0.){
         gr.Print();
         fu.Print();
-        std::cout<<"fit res chi:" << chi2_fitted << " tmax " << timeVec.at(Pmax.second) << " fit " << tmax_fitted << " sigma " << fu.GetParameter(2) << std::endl << std::endl;
+        std::cout<<"Fit Tmax chi:" << chi2_fitted << " tmax " << timeVec.at(Pmax.second) << " fit " << tmax_fitted << " sigma " << fu.GetParameter(2) << std::endl << std::endl;
       }
       */
       //delete fu;
@@ -319,4 +319,61 @@ WaveformAnalysis::Get_Fit_Tmax(
   //delete[] small_voltageVec;
   //std::cout<<"\n**** end *** \n";
   return std::make_pair(tmax_fitted, chi2_fitted);
+}
+
+
+std::pair<double, double>
+WaveformAnalysis::Get_Zero_Cross_Tmax(
+  std::vector<double> voltageVec,
+  std::vector<double> timeVec,
+  const std::pair<double, unsigned int> Pmax
+)
+{
+  double tmax_zerocross = -9999.;
+  double chi2_fitted = -9999.;
+
+  int n_points = 4;
+  //std::cout<<"\n**** start *** \n";
+  TVectorF small_voltageVec (2*n_points); // = new float[2*n_points];
+  TVectorF small_timeVec (2*n_points);// = new float[2*n_points];
+
+  if(timeVec.at(Pmax.second) > -1000. and timeVec.at(Pmax.second) < 1000.){
+    if(Pmax.second > 10 and Pmax.second < (timeVec.size() - 10)){
+      for(int i = 0; i < 2*n_points; i++){
+          double t_point = timeVec.at(Pmax.second - n_points + i);
+          double v_inc = (voltageVec.at(Pmax.second - n_points + i + 1) - voltageVec.at(Pmax.second - n_points + i));
+          double t_inc = (timeVec.at(Pmax.second - n_points + i + 1) - timeVec.at(Pmax.second - n_points + i));
+          double v_point = v_inc / t_inc;
+
+          small_timeVec[i] = t_point;
+          small_voltageVec[i] = v_point;
+      }
+
+      std::string title = std::to_string(timeVec.at(Pmax.second) + std::rand());
+      TGraph gr(small_timeVec, small_voltageVec);
+      gr.SetTitle(title.c_str());
+
+      //TF1* fu;
+      title = "f_" + title;
+      TF1 fu(title.c_str(), "[0]*x+[1]", timeVec.at(Pmax.second) - 300., timeVec.at(Pmax.second) + 300.);
+      fu.AddToGlobalList(false);
+
+      TThread::Lock();
+      ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2");
+      TFitResultPtr res = gr.Fit(&fu, "SQ");
+      TThread::UnLock();
+
+      tmax_fitted = fu.GetX(0);
+      chi2_fitted = res->Chi2();
+
+      if(res->Chi2() > 0.){
+        gr.Print();
+        fu.Print();
+        std::cout<<"Zero Cross Tmax chi:" << chi2_fitted << " tmax " << timeVec.at(Pmax.second) << " fit " << tmax_fitted << std::endl << std::endl;
+      }
+
+    }
+  }
+
+  return std::make_pair(tmax_zerocross, chi2_fitted);
 }

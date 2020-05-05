@@ -60,6 +60,8 @@ public:
   std::vector<double> *neg_tmax[8];
   std::vector<double> *fit_tmax[8];
   std::vector<double> *fit_tmax_chi[8];
+  std::vector<double> *zero_cross_tmax[8];
+  std::vector<double> *zero_cross_tmax_chi[8];
   std::vector<double> *rms[8];
   std::vector<double> *pulseArea_withUndershoot[8];
   std::vector<double> *pulseArea_withZeroCross[8];
