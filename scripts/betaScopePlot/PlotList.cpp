@@ -75,12 +75,16 @@ std::vector<PlotList> create_job() {
                           "gaus", 100, -100, 500);
 
   my_booked_plot.book_plot(2, "time_res_tmax", "time_res_tmax_ch2", "Time resolution Tmax ch-2",
-                          "tmax2-cfd3[50]", "Time resolution Tmax Ch2 [ps]",
+                          "tmax2-cfd3[20]", "Time resolution Tmax Ch2 [ps]",
                           "gaus", 100, -100, 500);
 
   my_booked_plot.book_plot(2, "time_res_fit_tmax", "time_res_fit_tmax_ch2", "Time resolution Fit Tmax ch-2",
-                          "fit_tmax2-cfd3[50]", "Time resolution Fit Tmax Ch2 [ps]",
+                          "fit_tmax2-cfd3[20]", "Time resolution Fit Tmax Ch2 [ps]",
                           "gaus", 100, -100, 500);
-                          
+
+  my_booked_plot.book_plot(2, "time_res_zero_cross_tmax", "time_res_zero_cross_tmax_ch2", "Time resolution Zero Cross Tmax ch-2",
+                          "zero_cross_tmax2-cfd3[20]", "Time resolution Zero Cross Tmax Ch2 [ps]",
+                          "gaus", 100, -100, 500);
+
   return my_booked_plot.get_booked_plot();
 }

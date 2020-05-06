@@ -50,6 +50,7 @@ for mdir in mdir_list:
                     (mdir + "/" + fold + "/res20.txt", 20),
                     (mdir + "/" + fold + "/restmax.txt", "tmax"),
                     (mdir + "/" + fold + "/resfit_tmax.txt", "fit_tmax"),
+                    (mdir + "/" + fold + "/reszero_cross_tmax.txt", "zero_cross_tmax"),
                 ]
                 leakage_file = mdir + "/" + fold + "/leakage.txt"
                 beta_run.load_result(
