@@ -31,6 +31,12 @@ To run routine analysis, you can follow this example:
 In the last command, "nohup" suppress the output. This is same as the usual nohup. "full" will tell the analyzer to run the full routine analysis.
 If "full" is not specified, the analyzer will only produce "stats_" files
 
+extra options:
+- "full": full analysis
+- "ana_only": only produce stat files
+- "res_only": only get results from stat files
+- "no_autocut": get results without re-running autcut script (useful if autocut fails)
+
 ### BetaScope Waveform Ana
 
 Routine waveform analysis for beta-scope charge collection measurement.
