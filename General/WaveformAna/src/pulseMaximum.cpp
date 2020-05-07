@@ -310,6 +310,13 @@ WaveformAnalysis::Get_Fit_Tmax(
         gr.Print();
         fu.Print();
         std::cout<<"Fit Tmax chi:" << chi2_fitted << " tmax " << timeVec.at(Pmax.second) << " fit " << tmax_fitted << " sigma " << fu.GetParameter(2) << std::endl << std::endl;
+        TThread::Lock();
+        title = "c_" + title;
+        TCanvas c(title.c_str(), "c", 800, 600);
+        gr.Draw("A*");
+        title = "~/Desktop/plots/Gaus_" + title + ".png";
+        c.SaveAs(title.c_str());
+        TThread::UnLock();
       }
       */
       //delete fu;
@@ -332,7 +339,7 @@ WaveformAnalysis::Get_Zero_Cross_Tmax(
   double tmax_zerocross = -9999.;
   double chi2_fitted = -9999.;
 
-  int n_points = 4;
+  int n_points = 3;
   //std::cout<<"\n**** start *** \n";
   TVectorF small_voltageVec (2*n_points); // = new float[2*n_points];
   TVectorF small_timeVec (2*n_points);// = new float[2*n_points];
@@ -370,8 +377,59 @@ WaveformAnalysis::Get_Zero_Cross_Tmax(
         gr.Print();
         fu.Print();
         std::cout<<"Zero Cross Tmax chi:" << chi2_fitted << " tmax " << timeVec.at(Pmax.second) << " fit " << tmax_zerocross << std::endl << std::endl;
+        TThread::Lock();
+        title = "c_" + title;
+        TCanvas c(title.c_str(), "c", 800, 600);
+        gr.Draw("A*");
+        title = "~/Desktop/plots/Zero_cross_" + title + ".png";
+        c.SaveAs(title.c_str());
+        TThread::UnLock();
       }
       */
+    }
+  }
+
+  return std::make_pair(tmax_zerocross, chi2_fitted);
+}
+
+
+std::pair<double, double>
+WaveformAnalysis::Get_Abe_Tmax(
+  std::vector<double> voltageVec,
+  std::vector<double> timeVec,
+  const std::pair<double, unsigned int> Pmax
+)
+{
+  double tmax_zerocross = -9999.;
+  double chi2_fitted = 0.;
+
+  if(timeVec.at(Pmax.second) > -1000. and timeVec.at(Pmax.second) < 1000.){
+    if(Pmax.second > 10 and Pmax.second < (timeVec.size() - 10)){
+      
+      double tmax_p = timeVec.at(Pmax.second + 1);
+      double pmax_p = voltageVec.at(Pmax.second + 1);
+      double tmax = timeVec.at(Pmax.second);
+      double pmax = voltageVec.at(Pmax.second);
+      double tmax_m = timeVec.at(Pmax.second - 1);
+      double pmax_m = voltageVec.at(Pmax.second - 1);
+      
+      tmax_zerocross = (tmax_m * pmax/pmax_m + tmax + tmax_p * pmax/pmax_p)/(pmax/pmax_p + 1 + pmax/pmax_p);
+      /*
+      if(pmax_p > pmax_m){
+        tmax_zerocross = (tmax_m * pmax/pmax_m + tmax * pmax * pmax_p/pmax_m + tmax_p * pmax/pmax_p)/(pmax * pmax_p/pmax_m + pmax_m + pmax_p);
+      }else{
+        tmax_zerocross = (tmax_m * pmax_m + tmax * pmax * pmax_m/pmax_p + tmax_p * pmax_p)/(pmax * pmax_m/pmax_p + pmax_m + pmax_p);
+      }        
+      
+      if(pmax_p > pmax_m){
+        tmax_zerocross = tmax + (pmax/pmax_p)*(tmax_p - tmax)/2.;
+      }else{
+        tmax_zerocross = tmax - (pmax/pmax_m)*(tmax_p - tmax)/2.;
+      }
+      */
+      //std::cout<<"Tmax v:" << tmax_m << "," << pmax_m << "  " << tmax << "," << pmax << "  " << tmax_p << "," << pmax_p << std::endl << std::endl;
+      //std::cout<<"Abe Tmax chi:" << tmax_zerocross << " tmax " << tmax << std::endl << std::endl;
+      
     }
   }
 

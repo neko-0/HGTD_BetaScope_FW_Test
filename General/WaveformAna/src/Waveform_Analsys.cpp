@@ -267,6 +267,7 @@ WaveformAna<double, double> WaveformAnalysis::analyze_waveform(
     waveform.pmax( pmaxHolder.first);
     waveform.tmax( waveform.get_v1_value( pmaxHolder.second));
     std::pair<double, double> tmaxFitHolder = WaveformAnalysis::Get_Fit_Tmax( waveform.get_v2(), waveform.get_v1(), pmaxHolder);
+    //std::pair<double, double> tmaxFitHolder = WaveformAnalysis::Get_Abe_Tmax( waveform.get_v2(), waveform.get_v1(), pmaxHolder);
     waveform.fit_tmax( tmaxFitHolder.first );
     waveform.fit_tmax_chi( tmaxFitHolder.second );
     std::pair<double, double> tmaxZeroHolder = WaveformAnalysis::Get_Zero_Cross_Tmax( waveform.get_v2(), waveform.get_v1(), pmaxHolder);
