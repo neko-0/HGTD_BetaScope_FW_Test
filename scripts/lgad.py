@@ -273,7 +273,7 @@ class Lgad(cmd.Cmd, object):
                 p.wait()
 
                 p = subprocess.call(
-                    f"{nohup} python3 $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum f{self.runNum} {nohup_log}",
+                    f"{nohup} python3 $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum {self.runNum} {nohup_log}",
                     shell=True,
                 )
 
