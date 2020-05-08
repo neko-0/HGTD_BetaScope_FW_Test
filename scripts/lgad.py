@@ -142,32 +142,27 @@ class Lgad(cmd.Cmd, object):
 
         for rawDir in self.raw_dir:
             for d in os.listdir(rawDir):
-                if "Sr_Run" + str(runNum) in d:
+                if f"Sr_Run{runNum}" in d:
                     self.runNum = runNum
                     self.runNum_dir = d
                     self.my_raw_dir = rawDir
 
         if hasattr(self, "runNum"):
-            if not os.path.isdir(self.output_dir + "/" + self.runNum_dir):
-                os.mkdir(self.output_dir + "/" + self.runNum_dir)
-                self.current_run = self.output_dir + "/" + self.runNum_dir
+            if not os.path.isdir(f"{self.output_dir}/{self.runNum_dir}"):
+                os.mkdir(f"{self.output_dir}/{self.runNum_dir}")
             else:
-                self.current_run = self.output_dir + "/" + self.runNum_dir
-                colorString.sysError(
-                    "direcotry {} is already there".format(self.current_run)
-                )
+                colorString.sysError(f"direcotry {self.current_run} is already there")
+            self.current_run = f"{self.output_dir}/{self.runNum_dir}"
             try:
                 copyfile(
-                    rawDir
-                    + self.runNum_dir
-                    + "/fromDAQ/Sr_Run_{}_Description.ini".format(self.runNum),
-                    self.current_run + "/Sr_Run_{}_Description.ini".format(self.runNum),
+                    f"{self.my_raw_dir}{self.runNum_dir}/fromDAQ/Sr_Run_{self.runNum}_Description.ini",
+                    f"{self.current_run}/Sr_Run_{self.runNum}_Description.ini",
                 )
             except:
                 pass
             self.do_cd_current_run()
         else:
-            colorString.sysError("No run number {}".format(runNum))
+            colorString.sysError(f"No run number {runNum}")
 
     def do_cd_current_run(self, tdir=""):
         "change direcotry to the run you set from set_run"
@@ -176,7 +171,7 @@ class Lgad(cmd.Cmd, object):
     def do_generate_config(self, place_holder=""):
         "Generate configuration file for the beta-scope waveform analyzer."
         subprocess.call(
-            "${BETASCOPE_SCRIPTS}/../BetaScope_Ana/BetaScopeWaveformAna/bin/GenerateWaveformConfig",
+            "$BETASCOPE_SCRIPTS/../BetaScope_Ana/BetaScopeWaveformAna/bin/GenerateWaveformConfig",
             shell=True,
         )
 
@@ -194,11 +189,7 @@ class Lgad(cmd.Cmd, object):
         parser.optionxform = str
         parser.read("WaveformAnaConfig.ini")
         parser.set(
-            "General",
-            "rawFilesDir",
-            "{raw_dir}/{raw_data}/fromDAQ/".format(
-                raw_dir=__raw_data_dir, raw_data=self.runNum_dir
-            ),
+            "General", "rawFilesDir", f"{__raw_data_dir}/{self.runNum_dir}/fromDAQ/"
         )
         parser.set("Channel_Activation", "channel_2", "1")
         parser.set("Channel_Activation", "channel_3", "1")
@@ -228,254 +219,88 @@ class Lgad(cmd.Cmd, object):
             else:
                 self.do_set_run(run)
                 self.do_cd_current_run()
-            p = subprocess.call(
-                "python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum {num}".format(
-                    num=self.runNum
-                ),
-                shell=True,
-            )
         else:
             self.do_cd_current_run()
-            p = subprocess.call(
-                "python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum {num}".format(
-                    num=self.runNum
-                ),
-                shell=True,
-            )
+        p = subprocess.call(
+            f"python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum {self.runNum}",
+            shell=True,
+        )
 
-    def do_run_analysis(self, mode=""):
+    def do_run_analysis(self, mode="", flags=""):
         "Run routine beta-scope analysis. Argument with 'full' will do the full rountine analysis, else it will only generate stats files. Argument 'resonly' will only run the result calculation. Argument with 'nohup' will supress the output "
+
         if not hasattr(self, "current_run"):
             colorString.sysError("current run is not set")
-
+            return -1
         else:
             self.do_cd_current_run()
-
+            nohup = ""
+            nohup_log = ""
             if "nohup" in mode:
                 nohup = "nohup"
                 nohup_log = " >> /tmp/betaPlot_nohup.log"
 
                 def isRunning(pid):
                     while True:
-                        if os.path.isdir("/proc/{}".format(pid)):
+                        if os.path.isdir(f"/proc/{pid}"):
                             continue
                         else:
                             break
 
-            else:
-                nohup = ""
-                nohup_log = ""
-
             if "ana_only" in mode:
                 p = subprocess.Popen(
-                    "{nohup} $BETASCOPE_SCRIPTS/../BetaScope_Ana/BetaScopeWaveformAna/bin/Run_WaveformAna -skipWaveform -config {tdir}/WaveformAnaConfig.ini {nohup_log}".format(
-                        nohup=nohup, nohup_log=nohup_log, tdir=self.current_run
-                    ),
+                    f"{nohup} $BETASCOPE_ANALYSIS_DIR/BetaScopeWaveformAna/bin/Run_WaveformAna -config {self.current_run}/WaveformAnaConfig.ini {flags} {nohup_log}",
                     shell=True,
                 )
                 p.wait()
 
             if "res_only" in mode:
                 p = subprocess.Popen(
-                    "{} $BETASCOPE_SCRIPTS/betaScopePlot/bin/genPlotConfig {}".format(
-                        nohup, nohup_log
-                    ),
+                    f"{nohup} $BETASCOPE_SCRIPTS/betaScopePlot/bin/genPlotConfig {nohup_log}",
                     shell=True,
                 )
                 p.wait()
 
                 p = subprocess.call(
-                    "{nohup} python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum {num} {nohup_log}".format(
-                        num=self.runNum, nohup=nohup, nohup_log=nohup_log
-                    ),
+                    f"{nohup} python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum f{self.runNum} {nohup_log}",
                     shell=True,
                 )
 
                 p = subprocess.Popen(
-                    "{nohup} $BETASCOPE_SCRIPTS/betaScopePlot/bin/getResults run_info_v08022018.ini {nohup_log}".format(
-                        nohup=nohup, nohup_log=nohup_log
-                    ),
+                    f"{nohup} $BETASCOPE_SCRIPTS/betaScopePlot/bin/getResults run_info_v08022018.ini {nohup_log}",
                     shell=True,
                 )
                 p.wait()
 
             if "no_autocut" in mode:
                 p = subprocess.Popen(
-                    "{nohup} $BETASCOPE_SCRIPTS/betaScopePlot/bin/getResults run_info_v08022018.ini {nohup_log}".format(
-                        nohup=nohup, nohup_log=nohup_log
-                    ),
+                    f"{nohup} $BETASCOPE_SCRIPTS/betaScopePlot/bin/getResults run_info_v08022018.ini {nohup_log}",
                     shell=True,
                 )
                 p.wait()
 
             if "full" in mode:
                 p = subprocess.Popen(
-                    "{nohup} $BETASCOPE_SCRIPTS/../BetaScope_Ana/BetaScopeWaveformAna/bin/Run_WaveformAna -skipWaveform -config {tdir}/WaveformAnaConfig.ini {nohup_log}".format(
-                        nohup=nohup, nohup_log=nohup_log, tdir=self.current_run
-                    ),
+                    f"{nohup} $BETASCOPE_ANALYSIS_DIR/BetaScopeWaveformAna/bin/Run_WaveformAna -skipWaveform -config {self.current_run}/WaveformAnaConfig.ini {flags} {nohup_log}",
                     shell=True,
                 )
                 p.wait()
 
                 p = subprocess.Popen(
-                    "{} $BETASCOPE_SCRIPTS/betaScopePlot/bin/genPlotConfig {}".format(
-                        nohup, nohup_log
-                    ),
+                    f"{nohup} $BETASCOPE_SCRIPTS/betaScopePlot/bin/genPlotConfig {nohup_log}",
                     shell=True,
                 )
                 p.wait()
 
                 p = subprocess.call(
-                    "{nohup} python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum {num} {nohup_log}".format(
-                        num=self.runNum, nohup=nohup, nohup_log=nohup_log
-                    ),
+                    f"{nohup} python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum {self.runNum} {nohup_log}",
                     shell=True,
                 )
                 p = subprocess.Popen(
-                    "{nohup} $BETASCOPE_SCRIPTS/betaScopePlot//bin/getResults run_info_v08022018.ini {nohup_log}".format(
-                        nohup=nohup, nohup_log=nohup_log
-                    ),
+                    f"{nohup} $BETASCOPE_SCRIPTS/betaScopePlot//bin/getResults run_info_v08022018.ini {nohup_log}",
                     shell=True,
                 )
                 p.wait()
-
-            if False:
-                if "resonly" in mode:
-                    if not nohup:
-                        p = subprocess.Popen(
-                            "{} $BETASCOPE_SCRIPTS/betaScopePlot/bin/genPlotConfig {}".format(
-                                nohup, nohup_log
-                            ),
-                            shell=True,
-                        )
-                        p.wait()
-
-                        p = subprocess.call(
-                            "{nohup} python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum {num} {nohup_log}".format(
-                                num=self.runNum, nohup=nohup, nohup_log=nohup_log
-                            ),
-                            shell=True,
-                        )
-
-                        p = subprocess.Popen(
-                            "{nohup} $BETASCOPE_SCRIPTS/betaScopePlot/bin/getResults run_info_v08022018.ini {nohup_log}".format(
-                                nohup=nohup, nohup_log=nohup_log
-                            ),
-                            shell=True,
-                        )
-                        p.wait()
-                    else:
-
-                        def nohupRun(mode):
-                            p = subprocess.Popen(
-                                "{} $BETASCOPE_SCRIPTS/betaScopePlot/bin/genPlotConfig {}".format(
-                                    nohup, nohup_log
-                                ),
-                                shell=True,
-                            )
-                            # pid = p.pid
-                            # isRunning(pid)
-                            p.wait()
-
-                            p = subprocess.call(
-                                "{nohup} python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum {num} {nohup_log}".format(
-                                    num=self.runNum, nohup=nohup, nohup_log=nohup_log
-                                ),
-                                shell=True,
-                            )
-
-                            p = subprocess.Popen(
-                                "{nohup} $BETASCOPE_SCRIPTS/betaScopePlot/bin/getResults run_info_v08022018.ini {nohup_log}".format(
-                                    nohup=nohup, nohup_log=nohup_log
-                                ),
-                                shell=True,
-                            )
-                            p.wait()
-
-                else:
-
-                    def nohupRun(mode):
-
-                        p = subprocess.Popen(
-                            "{nohup} $BETASCOPE_SCRIPTS/../BetaScope_Ana/BetaScopeWaveformAna/bin/Run_WaveformAna -config {tdir}/WaveformAnaConfig.ini --skipWaveform {nohup_log} --skim".format(
-                                nohup=nohup, nohup_log=nohup_log, tdir=self.current_run
-                            ),
-                            shell=True,
-                        )
-                        # p = subprocess.Popen("{nohup} $BETASCOPE_SCRIPTS/../BetaScope_Ana/BetaScopeWaveformAna/bin/Run_WaveformAna {tdir}/WaveformAnaConfig.ini {nohup_log}".format(nohup=nohup, nohup_log=nohup_log, tdir=self.current_run), shell=True)
-                        # pid = p.pid
-                        # isRunning(pid)
-                        p.wait()
-
-                        if "full" in mode:
-                            p = subprocess.Popen(
-                                "{} $BETASCOPE_SCRIPTS/betaScopePlot/bin/genPlotConfig {}".format(
-                                    nohup, nohup_log
-                                ),
-                                shell=True,
-                            )
-                            p.wait()
-
-                            p = subprocess.call(
-                                "{nohup} python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum {num} {nohup_log}".format(
-                                    num=self.runNum, nohup=nohup, nohup_log=nohup_log
-                                ),
-                                shell=True,
-                            )
-
-                            p = subprocess.Popen(
-                                "{nohup} $BETASCOPE_SCRIPTS/betaScopePlot//bin/getResults run_info_v08022018.ini {nohup_log}".format(
-                                    nohup=nohup, nohup_log=nohup_log
-                                ),
-                                shell=True,
-                            )
-                            p.wait()
-                        else:
-
-                            def nohupRun(mode):
-                                p = subprocess.Popen(
-                                    "{nohup} $BETASCOPE_SCRIPTS/../BetaScope_Ana/BetaScopeWaveformAna/bin/Run_WaveformAna {tdir}/WaveformAnaConfig.ini {nohup_log}".format(
-                                        nohup=nohup,
-                                        nohup_log=nohup_log,
-                                        tdir=self.current_run,
-                                    ),
-                                    shell=True,
-                                )
-                                # pid = p.pid
-                                # isRunning(pid)
-                                p.wait()
-                                if "full" in mode:
-                                    p = subprocess.Popen(
-                                        "{} $BETASCOPE_SCRIPTS/betaScopePlot/bin/genPlotConfig {}".format(
-                                            nohup, nohup_log
-                                        ),
-                                        shell=True,
-                                    )
-                                    # pid = p.pid
-                                    # isRunning(pid)
-                                    p.wait()
-
-                                    p = subprocess.call(
-                                        "{nohup} python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum {num} {nohup_log}".format(
-                                            num=self.runNum,
-                                            nohup=nohup,
-                                            nohup_log=nohup_log,
-                                        ),
-                                        shell=True,
-                                    )
-
-                                    p = subprocess.Popen(
-                                        "{nohup} $BETASCOPE_SCRIPTS/betaScopePlot/bin/getResults run_info_v08022018.ini {nohup_log}".format(
-                                            nohup=nohup, nohup_log=nohup_log
-                                        ),
-                                        shell=True,
-                                    )
-                                    p.wait()
-
-                        # job = threading.Thread(name="nohupRun", target=nohupRun, args=(mode,) )
-                        job = mp.Process(target=nohupRun, args=(mode,))
-                        job.daemon = True
-                        job.start()
 
     def do_batch(self, txtFile):
         name_pattern = "S8664"
