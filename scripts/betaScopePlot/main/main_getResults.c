@@ -20,7 +20,7 @@ void getResults(std::string plotConfig_fname, std::string outDir = "Results/" )
   // looping through files
   for( auto &sec : plotConfig.sections )
   {
-    fmt::print("Start processing : {}", sec.file_name );
+    fmt::print("Start processing : {}\n", sec.file_name );
 
     TFile *loadFile = TFile::Open( sec.file_name.c_str() );
     TTree* itree = (TTree*) loadFile->Get("wfm");
@@ -103,19 +103,19 @@ void getResults(std::string plotConfig_fname, std::string outDir = "Results/" )
     }
     outfile.CreateBetaScopeOutputFile( biasVoltage.c_str(), oData, sec.temperature, sec.trigger_bias );
 
-    fmt::print("{} is Finished.", sec.file_name);
+    fmt::print("{} is Finished.\n", sec.file_name);
     my_cut_v.clear();
     delete selection;
   }
 
-  fmt::print("Start dumping plots...");
+  fmt::print("Start dumping plots...\n");
 	if(mkdir( outDir.c_str(), ACCESSPERMS ) == 0)
   {
-    fmt::print("Directory {} is created.", outDir);
+    fmt::print("Directory {} is created.\n", outDir);
   }
 	else
   {
-    fmt::print("Directory {} already exists! Previous data will be replaced...", outDir);
+    fmt::print("Directory {} already exists! Previous data will be replaced...\n", outDir);
   }
 	std::string mv_png = "mv *.png " + outDir;
 	std::string mv_results_ini = "mv *_results.ini " + outDir;
@@ -123,11 +123,12 @@ void getResults(std::string plotConfig_fname, std::string outDir = "Results/" )
   std::string cp_description = "cp *Description*.ini "+outDir;
 	system( "python3  $BETASCOPE_SCRIPTS/betaScope_pyScript/parseBetaResultsToExcel.py");
   system( "python3  $BETASCOPE_SCRIPTS/betaScope_pyScript/parseINItoROOT.py");
-  system( fmt::format("mv *.png {}_plots", outDir).c_str() );
+  system( fmt::format("mv *.png plots_{}", outDir).c_str() );
   system( fmt::format("mv *_results.ini {}", outDir).c_str() );
   system( fmt::format("mv *_results.xlsx {}", outDir).c_str() );
   system( fmt::format("mv *_results.ini {}", outDir).c_str() );
-  fmt::print("Finished!");
+  system( fmt::format("cp *_results.root {}", outDir).c_str() );
+  fmt::print("Finished!\n");
 
 	gROOT->SetBatch(false);
 }

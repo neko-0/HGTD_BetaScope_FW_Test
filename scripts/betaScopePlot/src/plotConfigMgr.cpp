@@ -59,24 +59,24 @@ PlotConfigMgr PlotConfigMgr::ParseConfig(std::string ifile)
 
 void PlotConfigMgr::PrintContent(PlotConfigMgr config)
 {
-  fmt::print("Header");
-  fmt::print("sensor = {}", config.header.sensor );
-  fmt::print("fluence = {}", config.header.fluence );
-  fmt::print("temperature = {}", config.header.temperature );
-  fmt::print("time_bin = {}", config.header.time_bin );
-  fmt::print("average_pulse_ofile_name = {}", config.header.average_pulse_ofile_name );
-  fmt::print("number_of_runs = {}", config.header.number_of_runs );
+  fmt::print("Header\n");
+  fmt::print("sensor = {}\n", config.header.sensor );
+  fmt::print("fluence = {}\n", config.header.fluence );
+  fmt::print("temperature = {}\n", config.header.temperature );
+  fmt::print("time_bin = {}\n", config.header.time_bin );
+  fmt::print("average_pulse_ofile_name = {}\n", config.header.average_pulse_ofile_name );
+  fmt::print("number_of_runs = {}\n", config.header.number_of_runs );
   for(auto &sec : config.sections )
   {
-    fmt::print("[run{}]", sec.run_index);
-    fmt::print("bias = {}", sec.bias);
-    fmt::print("file_name = {}", sec.file_name);
-    fmt::print("cut1 = {}", sec.cut[0]);
-    fmt::print("cut2 = {}", sec.cut[1]);
-    fmt::print("cut3 = {}", sec.cut[2]);
-    fmt::print("cut4 = {}", sec.cut[3]);
-    fmt::print("CFD = {}", sec.cfd);
-    fmt::print("trigger_bias = {}", sec.trigger_bias);
-    fmt::print("temperature = {}", sec.temperature);
+    fmt::print("[run{}]\n", sec.run_index);
+    fmt::print("bias = {}\n", sec.bias);
+    fmt::print("file_name = {}\n", sec.file_name);
+    fmt::print("cut1 = {}\n", sec.cut[0]);
+    fmt::print("cut2 = {}\n", sec.cut[1]);
+    fmt::print("cut3 = {}\n", sec.cut[2]);
+    fmt::print("cut4 = {}\n", sec.cut[3]);
+    fmt::print("CFD = {}\n", sec.cfd);
+    fmt::print("trigger_bias = {}\n", sec.trigger_bias);
+    fmt::print("temperature = {}\n", sec.temperature);
   }
 }
