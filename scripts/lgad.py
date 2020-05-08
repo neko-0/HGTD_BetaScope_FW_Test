@@ -259,7 +259,7 @@ class Lgad(cmd.Cmd, object):
                 )
                 p.wait()
 
-            else if "res_only" in mode:
+            elif "res_only" in mode:
                 p = subprocess.Popen(
                     f"{nohup} $BETASCOPE_SCRIPTS/betaScopePlot/bin/genPlotConfig {nohup_log}",
                     shell=True,
@@ -277,14 +277,14 @@ class Lgad(cmd.Cmd, object):
                 )
                 p.wait()
 
-            else if "no_autocut" in mode:
+            elif "no_autocut" in mode:
                 p = subprocess.Popen(
                     f"{nohup} $BETASCOPE_SCRIPTS/betaScopePlot/bin/getResults run_info_v08022018.ini {nohup_log}",
                     shell=True,
                 )
                 p.wait()
 
-            else if "full" in mode:
+            elif "full" in mode:
                 p = subprocess.Popen(
                     f"{nohup} $BETASCOPE_ANALYSIS_DIR/BetaScopeWaveformAna/bin/Run_WaveformAna -skipWaveform -config {self.current_run}/WaveformAnaConfig.ini {flags} {nohup_log}",
                     shell=True,
