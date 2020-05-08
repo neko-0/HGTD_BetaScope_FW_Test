@@ -225,7 +225,7 @@ class Lgad(cmd.Cmd, object):
         else:
             self.do_cd_current_run()
         p = subprocess.call(
-            f"python $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum {self.runNum}",
+            f"python3 $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum {self.runNum}",
             shell=True,
         )
 
@@ -273,7 +273,7 @@ class Lgad(cmd.Cmd, object):
                 p.wait()
 
                 p = subprocess.call(
-                    f"{nohup} python $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum f{self.runNum} {nohup_log}",
+                    f"{nohup} python3 $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum f{self.runNum} {nohup_log}",
                     shell=True,
                 )
 
@@ -304,7 +304,7 @@ class Lgad(cmd.Cmd, object):
                 p.wait()
 
                 p = subprocess.call(
-                    f"{nohup} python $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum {self.runNum} {nohup_log}",
+                    f"{nohup} python3 $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum {self.runNum} {nohup_log}",
                     shell=True,
                 )
                 p = subprocess.Popen(
