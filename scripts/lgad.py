@@ -96,10 +96,10 @@ class Lgad(cmd.Cmd, object):
 
         try:
             os.chdir(tdir)
-            colorString.sysMsg("changed dir to {}".format(tdir))
+            colorString.sysMsg(f"changed dir to {tdir}")
             self.files = os.listdir(os.getcwd())
         except OSError:
-            print(colorString.colorFormat("Cannot find {}".format(tdir), "red"))
+            print(colorString.colorFormat(f"Cannot find {tdir}", "red"))
 
     #'''
     def default(self, line):
@@ -162,7 +162,7 @@ class Lgad(cmd.Cmd, object):
                 )
             except:
                 pass
-                
+
             self.do_cd_current_run()
         else:
             colorString.sysError(f"No run number {runNum}")
@@ -232,6 +232,8 @@ class Lgad(cmd.Cmd, object):
     def do_run_analysis(self, mode="", flags=""):
         "Run routine beta-scope analysis. Argument with 'full' will do the full rountine analysis, else it will only generate stats files. Argument 'resonly' will only run the result calculation. Argument with 'nohup' will supress the output "
 
+        colorString.sysMsg(f"input flags {flags}")
+
         if not hasattr(self, "current_run"):
             colorString.sysError("current run is not set")
             return -1
@@ -257,7 +259,7 @@ class Lgad(cmd.Cmd, object):
                 )
                 p.wait()
 
-            if "res_only" in mode:
+            else if "res_only" in mode:
                 p = subprocess.Popen(
                     f"{nohup} $BETASCOPE_SCRIPTS/betaScopePlot/bin/genPlotConfig {nohup_log}",
                     shell=True,
@@ -275,14 +277,14 @@ class Lgad(cmd.Cmd, object):
                 )
                 p.wait()
 
-            if "no_autocut" in mode:
+            else if "no_autocut" in mode:
                 p = subprocess.Popen(
                     f"{nohup} $BETASCOPE_SCRIPTS/betaScopePlot/bin/getResults run_info_v08022018.ini {nohup_log}",
                     shell=True,
                 )
                 p.wait()
 
-            if "full" in mode:
+            else if "full" in mode:
                 p = subprocess.Popen(
                     f"{nohup} $BETASCOPE_ANALYSIS_DIR/BetaScopeWaveformAna/bin/Run_WaveformAna -skipWaveform -config {self.current_run}/WaveformAnaConfig.ini {flags} {nohup_log}",
                     shell=True,
@@ -304,6 +306,8 @@ class Lgad(cmd.Cmd, object):
                     shell=True,
                 )
                 p.wait()
+            else:
+                colorString.sysError("please specify analysis mode.")
 
     def do_batch(self, txtFile):
         name_pattern = "S8664"
