@@ -229,10 +229,12 @@ class Lgad(cmd.Cmd, object):
             shell=True,
         )
 
-    def do_run_analysis(self, mode="", flags=""):
+    def do_run_analysis(self, *mode):
         "Run routine beta-scope analysis. Argument with 'full' will do the full rountine analysis, else it will only generate stats files. Argument 'resonly' will only run the result calculation. Argument with 'nohup' will supress the output "
 
-        colorString.sysMsg(f"input flags {flags}")
+        if "dry" in mode[0]:
+            colorString.sysMsg(f"dry run. mode:{mode}")
+            return 0
 
         if not hasattr(self, "current_run"):
             colorString.sysError("current run is not set")
@@ -252,14 +254,14 @@ class Lgad(cmd.Cmd, object):
                         else:
                             break
 
-            if "ana_only" in mode:
+            if "ana_only" in mode[0]:
                 p = subprocess.Popen(
-                    f"{nohup} $BETASCOPE_ANALYSIS_DIR/BetaScopeWaveformAna/bin/Run_WaveformAna -config {self.current_run}/WaveformAnaConfig.ini {flags} {nohup_log}",
+                    f"{nohup} $BETASCOPE_ANALYSIS_DIR/BetaScopeWaveformAna/bin/Run_WaveformAna -config {self.current_run}/WaveformAnaConfig.ini {' '.join(mode[1:]} {nohup_log}",
                     shell=True,
                 )
                 p.wait()
 
-            elif "res_only" in mode:
+            elif "res_only" in mode[0]:
                 p = subprocess.Popen(
                     f"{nohup} $BETASCOPE_SCRIPTS/betaScopePlot/bin/genPlotConfig {nohup_log}",
                     shell=True,
@@ -277,16 +279,16 @@ class Lgad(cmd.Cmd, object):
                 )
                 p.wait()
 
-            elif "no_autocut" in mode:
+            elif "no_autocut" in mode[0]:
                 p = subprocess.Popen(
                     f"{nohup} $BETASCOPE_SCRIPTS/betaScopePlot/bin/getResults run_info_v08022018.ini {nohup_log}",
                     shell=True,
                 )
                 p.wait()
 
-            elif "full" in mode:
+            elif "full" in mode[0]:
                 p = subprocess.Popen(
-                    f"{nohup} $BETASCOPE_ANALYSIS_DIR/BetaScopeWaveformAna/bin/Run_WaveformAna -skipWaveform -config {self.current_run}/WaveformAnaConfig.ini {flags} {nohup_log}",
+                    f"{nohup} $BETASCOPE_ANALYSIS_DIR/BetaScopeWaveformAna/bin/Run_WaveformAna -skipWaveform -config {self.current_run}/WaveformAnaConfig.ini {' '.join(mode[1:]} {nohup_log}",
                     shell=True,
                 )
                 p.wait()
