@@ -148,11 +148,13 @@ class Lgad(cmd.Cmd, object):
                     self.my_raw_dir = rawDir
 
         if hasattr(self, "runNum"):
-            if not os.path.isdir(f"{self.output_dir}/{self.runNum_dir}"):
-                os.mkdir(f"{self.output_dir}/{self.runNum_dir}")
+
+            self.current_run = f"{self.output_dir}/{self.runNum_dir}"
+            if not os.path.isdir(f"{self.current_run}"):
+                os.mkdir(f"{self.current_run}")
             else:
                 colorString.sysError(f"direcotry {self.current_run} is already there")
-            self.current_run = f"{self.output_dir}/{self.runNum_dir}"
+
             try:
                 copyfile(
                     f"{self.my_raw_dir}{self.runNum_dir}/fromDAQ/Sr_Run_{self.runNum}_Description.ini",
@@ -160,6 +162,7 @@ class Lgad(cmd.Cmd, object):
                 )
             except:
                 pass
+                
             self.do_cd_current_run()
         else:
             colorString.sysError(f"No run number {runNum}")
