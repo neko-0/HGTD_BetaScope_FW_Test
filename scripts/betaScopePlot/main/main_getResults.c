@@ -1,33 +1,33 @@
 #include "fitter.h"
 #include "histoPackage.h"
 #include "dataOutputFormat.h"
-#include "plotConfigMgr.h"
 #include "plotList.h"
 #include "dataSelection.h"
+
+#include <fmt/format.h>
+
+#include "betaScopePlot/include/plotConfigMgr.h"
 
 void getResults(std::string plotConfig_fname, std::string outDir = "Results/" )
 {
   gROOT->SetBatch(true);
 
-  PlotConfigMgr plotConfig(plotConfig_fname);
-  int dut_channel = plotConfig.dut_channel;
-	int trigger_channel = plotConfig.trigger_channel;
+  PlotConfigMgr plotConfig = PlotConfigMgr::ParseConfig(plotConfig_fname);
+
+  int dut_channel = plotConfig.header.dut_channel;
+	int trigger_channel = plotConfig.header.trigger_channel;
 
   // looping through files
-  for( int i = 0; i < plotConfig.number_of_runs; i++ )
+  for( auto &sec : plotConfig.sections )
   {
-    std::cout << std::endl;
-    std::cout << plotConfig.file_name[i].at(0) << std::endl;
-		std::cout << "start running " << std::endl;
-		std::cout << "processing histogram " << std::endl;
-    std::cout << std::endl;
+    fmt::print("Start processing : {}\n", sec.file_name );
 
-    TFile *loadFile = TFile::Open(plotConfig.file_name[i].at(0).c_str());
+    TFile *loadFile = TFile::Open( sec.file_name.c_str() );
     TTree* itree = (TTree*) loadFile->Get("wfm");
 
     // parsing cuts
     std::string delimiter = " ";
-    std::string my_cut_str = plotConfig.cut[dut_channel-1][i].at(0);
+    std::string my_cut_str = sec.cut[dut_channel-1];
     std::vector<std::string> my_cut_v;
     while( int(my_cut_str.find(delimiter)) != -1 )
     {
@@ -47,7 +47,7 @@ void getResults(std::string plotConfig_fname, std::string outDir = "Results/" )
     {
       HistoPackage myHisto;
       myHisto.set_cut_str( selection->cuts.GetTitle() );
-      myHisto.set_fname( plotConfig.file_name[i].at(0) );
+      myHisto.set_fname( sec.file_name );
       myHisto.set_bin( job.binNum );
       myHisto.set_min( job.x_min );
       myHisto.set_max( job.x_max );
@@ -90,43 +90,44 @@ void getResults(std::string plotConfig_fname, std::string outDir = "Results/" )
     // output data;
     DataOutputFormat outfile;
     std::string biasVoltage;
-    std::string myBuffer = plotConfig.file_name[i].at(0);
+    std::string myBuffer = sec.file_name;
     if(myBuffer.find(".root.")!=std::string::npos)
     {
       std::string fIndex;
       fIndex = myBuffer.substr(myBuffer.find(".root.")+5, myBuffer.length() );
-      biasVoltage = plotConfig.bias[i].at(0) + "." + fIndex;
+      biasVoltage = sec.bias + "." + fIndex;
     }
     else
-    { 
-      biasVoltage = plotConfig.bias[i].at(0);
+    {
+      biasVoltage = sec.bias;
     }
-    outfile.CreateBetaScopeOutputFile( biasVoltage.c_str(), oData, plotConfig.run_temperature[i].at(0), plotConfig.trigger_bias[i].at(0) );
+    outfile.CreateBetaScopeOutputFile( biasVoltage.c_str(), oData, sec.temperature, sec.trigger_bias );
 
-    std::cout<<"Finished "<<std::endl;
+    fmt::print("{} is Finished.\n", sec.file_name);
     my_cut_v.clear();
     delete selection;
-
   }
 
-  printf("Start dumping plots...\n");
-	int dir_check;
-	dir_check = mkdir( outDir.c_str(), ACCESSPERMS );
-	if(dir_check == 0){printf("Directory is created. \n");}
-	else{printf("Directory already exists! Previous data will be replaced...\n");}
-	std::string mv_png = "mv *.png " + outDir;
-	std::string mv_results_ini = "mv *_results.ini " + outDir;
-	std::string mv_results_xlsx = "mv *_results.xlsx " + outDir;
-  std::string cp_description = "cp *Description*.ini "+outDir;
-	system( "python  $BETASCOPE_SCRIPTS/betaScope_pyScript/parseBetaResultsToExcel.py");
-  system( "python  $BETASCOPE_SCRIPTS/betaScope_pyScript/parseINItoROOT.py");
-	system( mv_png.c_str() );
-	system( mv_results_ini.c_str() );
-	system( mv_results_xlsx.c_str());
-  system( cp_description.c_str() );
+  fmt::print("Start dumping plots...\n");
+	if(mkdir( outDir.c_str(), ACCESSPERMS ) == 0)
+  {
+    fmt::print("Directory {} is created.\n", outDir);
+  }
+	else
+  {
+    fmt::print("Directory {} already exists! Previous data will be replaced...\n", outDir);
+  }
 
-	printf( "output is in the %s directory. \n", outDir.c_str() );
-	printf("\n");
+	system( "python3  $BETASCOPE_SCRIPTS/betaScope_pyScript/parseBetaResultsToExcel.py");
+  system( "python3  $BETASCOPE_SCRIPTS/betaScope_pyScript/parseINItoROOT.py");
+  system( fmt::format("mkdir plots_{}", outDir).c_str() );
+  system( fmt::format("mv *.png plots_{}", outDir).c_str() );
+  system( fmt::format("mv *_results.ini {}", outDir).c_str() );
+  system( fmt::format("mv *_results.xlsx {}", outDir).c_str() );
+  system( fmt::format("cp *Description*.ini {}", outDir).c_str() );
+  system( fmt::format("cp *_results.root {}", outDir).c_str() );
+
+  fmt::print("Finished!\n");
 
 	gROOT->SetBatch(false);
 }

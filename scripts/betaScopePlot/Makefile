@@ -33,10 +33,12 @@ BIN = ./bin/
 ################################################################################
 # BETASCOPE_PLOTTER
 ################################################################################
-BETASCOPE_PLOTTER_DIR = ./
-BETASCOPE_PLOTTER_SRC_DIR = $(BETASCOPE_PLOTTER_DIR)
+SCRIPTS_DIR = ../
+BETASCOPE_PLOTTER_DIR = $(SCRIPTS_DIR)/betaScopePlot/
+BETASCOPE_PLOTTER_SRC_DIR = $(BETASCOPE_PLOTTER_DIR)/src/
+BETASCOPE_PLOTTER_BIN_DIR = $(BETASCOPE_PLOTTER_DIR)/bin/
 BETASCOPE_PLOTTER_BUILD_DIR = $(BETASCOPE_PLOTTER_DIR)build/
-BETASCOPE_PLOTTER_INC_DIR = $(BETASCOPE_PLOTTER_DIR)
+BETASCOPE_PLOTTER_INC_DIR = $(BETASCOPE_PLOTTER_DIR)/include/
 BETASCOPE_PLOTTER_SRC_FILES = $(wildcard $(BETASCOPE_PLOTTER_SRC_DIR)/*.cpp)
 BETASCOPE_PLOTTER_DEP = $(patsubst $(BETASCOPE_PLOTTER_SRC_DIR)/%.cpp, $(BETASCOPE_PLOTTER_BUILD_DIR)/%.o, $(BETASCOPE_PLOTTER_SRC_FILES))
 #BETASCOPE_PLOTTER_SRC_FILES = $(wildcard $(BETASCOPE_PLOTTER_SRC_DIR)/*.c)
@@ -50,16 +52,18 @@ BETASCOPE_PLOTTER_DEP = $(patsubst $(BETASCOPE_PLOTTER_SRC_DIR)/%.cpp, $(BETASCO
 
 # $(info [${BETASCOPE_PLOTTER_INC_DIR}] )
 
-all: $(BETASCOPE_PLOTTER_DEP) $(BIN)/getResults $(BIN)/genPlotConfig
+all: $(BETASCOPE_PLOTTER_DEP) \
+	$(BETASCOPE_PLOTTER_BIN_DIR)/getResults \
+	$(BETASCOPE_PLOTTER_BIN_DIR)/genPlotConfig
 
 $(BETASCOPE_PLOTTER_BUILD_DIR)/%.o: $(BETASCOPE_PLOTTER_SRC_DIR)/%.cpp
-	$(CC) $(DEBUG) -I./ -I../ -I$(GENERAL_DIR) -I$(BETASCOPE_PLOTTER_INC_DIR) -c $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOFIT) $(ROOT_INCLUDE) $(BOOST_LIB)
+	$(CC) $(DEBUG) -Iinclude -I$(SCRIPTS_DIR) -I$(BETASCOPE_PLOTTER_DIR) -I$(BETASCOPE_PLOTTER_INC_DIR) -I$(GENERAL_DIR) -c $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOFIT) $(ROOT_INCLUDE) $(BOOST_LIB) -lfmt
 
-$(BIN)/getResults: main_getResults.c $(BETASCOPE_PLOTTER_DEP)
-	$(CC) $(DEBUG) -I./ -I../ -I$(GENERAL_DIR) -I$(BETASCOPE_PLOTTER_INC_DIR) $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOFIT) $(ROOT_INCLUDE) $(BOOST_LIB)
+$(BETASCOPE_PLOTTER_BIN_DIR)/getResults: $(BETASCOPE_PLOTTER_DIR)/main/main_getResults.c $(BETASCOPE_PLOTTER_DEP)
+	$(CC) $(DEBUG) -Iinclude -I$(SCRIPTS_DIR) -I$(BETASCOPE_PLOTTER_DIR) -I$(BETASCOPE_PLOTTER_INC_DIR) -I$(GENERAL_DIR) $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOFIT) $(ROOT_INCLUDE) $(BOOST_LIB) -lfmt
 
-$(BIN)/genPlotConfig: main_genPlotConfig.c $(BETASCOPE_PLOTTER_DEP)
-	$(CC) $(DEBUG) -I./ -I../ -I$(GENERAL_DIR) -I$(BETASCOPE_PLOTTER_INC_DIR) $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOFIT) $(ROOT_INCLUDE) $(BOOST_LIB)
+$(BETASCOPE_PLOTTER_BIN_DIR)/genPlotConfig: $(BETASCOPE_PLOTTER_DIR)/main/main_genPlotConfig.c $(BETASCOPE_PLOTTER_DEP)
+	$(CC) $(DEBUG) -Iinclude -I$(SCRIPTS_DIR) -I$(BETASCOPE_PLOTTER_DIR) -I$(BETASCOPE_PLOTTER_INC_DIR) -I$(GENERAL_DIR) $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOFIT) $(ROOT_INCLUDE) $(BOOST_LIB) -lfmt
 
 ################################################################################
 # cleanning object files.
@@ -67,6 +71,6 @@ $(BIN)/genPlotConfig: main_genPlotConfig.c $(BETASCOPE_PLOTTER_DEP)
 .PHONY: clean
 clean:
 	@echo "cleaning .o files in build and binary files in bin."
-	@for file in ./*.o; do rm -rf $$file; echo Delete Object file: $$file; done
+	@for file in ./build/*.o; do rm -rf $$file; echo Delete Object file: $$file; done
 	@for file in ./bin/*; do rm -rf $$file; echo Delete Object file: $$file; done
 	@echo "finished"
