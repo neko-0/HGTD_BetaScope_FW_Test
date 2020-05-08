@@ -135,7 +135,7 @@ def parseINItoROOT2(fileout, title = "Hi", run_folder="./", fname="_results.ini"
 
     branches = {}
 
-    print title
+    print(title)
     RunNum = title.split("_")[1]
     SensorName = title
     trigBias = 395
