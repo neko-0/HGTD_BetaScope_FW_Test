@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-void GenerateRunInfo();
+extern const std::string PLOT_CONFIG_VER;
 
 struct PlotConfigMgr {
   // header section
@@ -32,6 +32,8 @@ struct PlotConfigMgr {
   PlotConfigMgr(std::string ifile);
   virtual ~PlotConfigMgr(){};
   void PrintContent();
+
+  static bool GenerateRunInfo();
 };
 
 #endif // BETASCOPE_MEASUREMENT_INFO_HPP_MEASUREMENT_INFO_H
