@@ -11,7 +11,14 @@
 #include <string>
 #include <vector>
 
-template <class data_type, class input_type> class Waveform : public TObject
+class WaveformBase : public TObject
+{
+public:
+  WaveformBase(){};
+  virtual ~WaveformBase(){};
+};
+
+template <class data_type, class input_type> class Waveform : public WaveformBase
 {
 protected:
     std::vector<data_type> v1_ = {};
