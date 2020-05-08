@@ -2,9 +2,10 @@
 #define WAVEFORMANA_H
 
 #include "WaveformAna/include/Waveform.hpp"
+#include "WaveformAna/include/WaveformAnaBase.hpp"
 
 template <class data_type, class input_type>
-class WaveformAna : public Waveform<data_type, input_type>
+class WaveformAna : public Waveform<data_type, input_type>, public WaveformAnaBase
 {
 private:
     int channel_;
