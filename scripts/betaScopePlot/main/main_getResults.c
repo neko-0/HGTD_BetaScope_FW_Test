@@ -118,18 +118,15 @@ void getResults(std::string plotConfig_fname, std::string outDir = "Results/" )
     fmt::print("Directory {} already exists! Previous data will be replaced...\n", outDir);
   }
 
-	std::string mv_png = "mv *.png " + outDir;
-	std::string mv_results_ini = "mv *_results.ini " + outDir;
-	std::string mv_results_xlsx = "mv *_results.xlsx " + outDir;
-  std::string cp_description = "cp *Description*.ini "+outDir;
 	system( "python3  $BETASCOPE_SCRIPTS/betaScope_pyScript/parseBetaResultsToExcel.py");
   system( "python3  $BETASCOPE_SCRIPTS/betaScope_pyScript/parseINItoROOT.py");
   system( fmt::format("mkdir plots_{}", outDir).c_str() );
   system( fmt::format("mv *.png plots_{}", outDir).c_str() );
   system( fmt::format("mv *_results.ini {}", outDir).c_str() );
   system( fmt::format("mv *_results.xlsx {}", outDir).c_str() );
-  system( fmt::format("mv *_results.ini {}", outDir).c_str() );
+  system( fmt::format("cp *Description*.ini {}", outDir).c_str() );
   system( fmt::format("cp *_results.root {}", outDir).c_str() );
+
   fmt::print("Finished!\n");
 
 	gROOT->SetBatch(false);
