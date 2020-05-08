@@ -13,10 +13,6 @@
 #include <thread>
 #include <memory>
 
-#include <TGraph.h>
-#include <TF1.h>
-#include <TH1.h>
-#include <TROOT.h>
 #include <Math/MinimizerOptions.h>
 
 
@@ -52,11 +48,6 @@ void BetaScopeWaveformAna::event_ana(int ch, WaveformAna<double, double> wavefor
 
   this->tmax[ch]->emplace_back(waveform.tmax());
   this->neg_tmax[ch]->emplace_back(waveform.neg_tmax());
-  this->fit_tmax[ch]->emplace_back(waveform.fit_tmax());
-  this->fit_tmax_chi[ch]->emplace_back(waveform.fit_tmax_chi());
-  this->zero_cross_tmax[ch]->emplace_back(waveform.zero_cross_tmax());
-  this->zero_cross_tmax_chi[ch]->emplace_back(waveform.zero_cross_tmax_chi());
-  //this->fit_tmax[ch]->emplace_back( WaveAna.Get_Fit_Tmax( *this->t[ch], *this->w[ch], pmaxHolder) );
 
   this->rms[ch]->emplace_back(waveform.rms());
 
@@ -86,55 +77,21 @@ void BetaScopeWaveformAna::event_ana(int ch, WaveformAna<double, double> wavefor
     //this->waveform_ana[ch]->emplace_back(waveform);
   }
 
-  auto subwaveform = waveform.sub_waveform(waveform.max_index()-4, waveform.max_index()+4);
-  auto deri_subwaveform = subwaveform.derivative();
-  TGraph g(deri_subwaveform.size(), &deri_subwaveform.get_v1()[0], &deri_subwaveform.get_v2()[0]);
-  g.SetName(Form("%s_%i_ch%i",this->beta_scope.GetInFileNickName().c_str(), this->counter_, ch));
-  this->counter_++;
-  TF1 linear("linear", "[0]*x+[1]", deri_subwaveform.get_v1()[0], deri_subwaveform.get_v1()[deri_subwaveform.size()-1]);
-  linear.AddToGlobalList(false);
-  ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2");
-  g.Fit(&linear, "QR");
+  WaveformAnalysis::FitResult tmaxFitHolder = WaveAna.Get_Fit_Tmax( waveform.get_v2(), waveform.get_v1(), waveform.max_index() );
+  WaveformAnalysis::FitResult tmaxZeroHolder = WaveAna.Get_Zero_Cross_Tmax( waveform.get_v2(), waveform.get_v1(), waveform.max_index() );
 
-  this->beta_scope.SetOutBranchValue( Form("deri_tmax%i_g", ch), g );
-  if(std::all_of(std::begin(deri_subwaveform.get_v2()), std::end(deri_subwaveform.get_v2()), [](double value){return value > 0; }))
+  this->fit_tmax[ch]->emplace_back(tmaxFitHolder.value );
+  this->fit_tmax_chi[ch]->emplace_back(tmaxFitHolder.chi );
+  this->zero_cross_tmax[ch]->emplace_back(tmaxZeroHolder.value);
+  this->zero_cross_tmax_chi[ch]->emplace_back(tmaxZeroHolder.chi);
+
+  if(!this->skipWaveform)
   {
-    this->beta_scope.SetOutBranchValue( Form("deri_tmax%i_value", ch), 10e11 );
-  }
-  else if( std::all_of( std::begin(deri_subwaveform.get_v2()), std::end(deri_subwaveform.get_v2()), [](double value){return value < 0; } ) )
-  {
-    this->beta_scope.SetOutBranchValue( Form("deri_tmax%i_value", ch), 10e11 );
-  }
-  else
-  {
-    auto deri_zero_cross = linear.GetX(0, waveform.get_v1()[0], waveform.get_v1()[waveform.size()-1]);
-    if(true)//TMath::IsNaN(deri_zero_cross))
-    {
-      this->beta_scope.SetOutBranchValue( Form("deri_tmax%i_value", ch), 10e11 );
-    }
-    else
-    {
-      this->beta_scope.SetOutBranchValue( Form("deri_tmax%i_value", ch), deri_zero_cross );
-    }
+    this->beta_scope.SetOutBranchValue(Form("fit_tmax%i_g", ch), tmaxFitHolder.graph);
+    this->beta_scope.SetOutBranchValue(Form("zero_cross_tmax%i_g", ch), tmaxZeroHolder.graph );
   }
 
-  TGraph gauss_g(subwaveform.size(), &subwaveform.get_v1()[0], &subwaveform.get_v2()[0]);
-  gauss_g.SetName(Form("gauss_%s_%i_ch%i",this->beta_scope.GetInFileNickName().c_str(), this->counter_, ch));
-  this->counter_++;
-  TF1 gauss_fit("gauss_fit", "gaus", subwaveform.get_v1()[0], subwaveform.get_v1()[subwaveform.size()-1]);
-  gauss_fit.AddToGlobalList(false);
-  gauss_g.Fit(&gauss_fit, "QR");
-  this->beta_scope.SetOutBranchValue( Form("gaus_tmax%i_g", ch), gauss_g );
-  //auto maxvalue = gauss_fit.Eval(gauss_fit.GetParameter(1));
-  auto maxvalue = gauss_fit.GetParameter(1);
-  if(TMath::IsNaN(maxvalue))
-  {
-    this->beta_scope.SetOutBranchValue( Form("gaus_tmax%i_value", ch), 10e11 );
-  }
-  else
-  {
-    this->beta_scope.SetOutBranchValue( Form("gaus_tmax%i_value", ch), maxvalue );
-  }
+
 
   /*
   if( !this->skipWaveform )
@@ -248,6 +205,7 @@ void BetaScopeWaveformAna::Initialize() {
   // required
   this->beta_scope.FileOpen(ifile.c_str());
 
+  ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2");
   gErrorIgnoreLevel = kFatal;
 
   char *check_path = getenv("BETASCOPE_SCRIPTS");
@@ -318,11 +276,11 @@ void BetaScopeWaveformAna::Initialize() {
     this->beta_scope.BuildOutBranch<bool>(Form("isGoodTrig%i", ch) );
     this->beta_scope.BuildOutBranch<std::vector<double>>(Form("tot%i", ch) );
 
-    this->beta_scope.BuildOutBranch<TGraph>(Form("deri_tmax%i_g", ch) );
-    this->beta_scope.BuildOutBranch<double>(Form("deri_tmax%i_value", ch) );
-
-    this->beta_scope.BuildOutBranch<TGraph>(Form("gaus_tmax%i_g", ch) );
-    this->beta_scope.BuildOutBranch<double>(Form("gaus_tmax%i_value", ch) );
+    if(!this->skipWaveform)
+    {
+      this->beta_scope.BuildOutBranch<TGraph>(Form("zero_cross_tmax%i_g", ch) );
+      this->beta_scope.BuildOutBranch<TGraph>(Form("fit_tmax%i_g", ch) );
+    }
 
     this->pmax[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("pmax" + std::to_string(ch));
     this->tmax[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("tmax" + std::to_string(ch));

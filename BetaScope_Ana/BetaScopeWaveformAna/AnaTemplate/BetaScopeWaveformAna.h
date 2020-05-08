@@ -35,6 +35,7 @@ public:
 
   bool skipWaveform = false;
   bool skim_output = false;
+  bool save_fit = this->skipWaveform;
 
   bool limitPmaxSearchRange = true;
   double pmaxSearchMinRange = -1000.0; // unit of ps
