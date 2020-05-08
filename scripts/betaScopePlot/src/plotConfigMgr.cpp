@@ -1,5 +1,3 @@
-#include "plotConfigMgr.h"
-
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -11,74 +9,74 @@
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 
-PlotConfigMgr::PlotConfigMgr(std::string ifile) {
+#include <fmt/format.h>
+
+#include "betaScopePlot/include/plotConfigMgr.h"
+
+PlotConfigMgr PlotConfigMgr::ParseConfig(std::string ifile)
+{
+
   boost::property_tree::ptree pt;
   boost::property_tree::ini_parser::read_ini(ifile, pt);
 
-  this->sensor = pt.get<std::string>("header.sensor");
-  this->fluence = pt.get<std::string>("header.fluence");
-  this->temperature = pt.get<std::string>("header.temperature");
-  this->time_bin = pt.get<int>("header.time_bin");
-  this->time_range_min = pt.get<double>("header.time_range_min");
-  this->time_range_max = pt.get<double>("header.time_range_max");
-  this->self_correct = pt.get<bool>("header.self_correct");
-  this->average_pulse_ofile_name =
-      pt.get<std::string>("header.average_pulse_ofile_name");
-  this->number_of_runs = pt.get<int>("header.number_of_runs");
-  this->trigger_channel = pt.get<int>("header.trigger_channel");
-  this->dut_channel = pt.get<int>("header.dut_channel");
-  this->use_selected_events = pt.get<bool>("header.use_selected_events", false);
+  PlotConfigMgr::ConfigHeader header = PlotConfigMgr::ConfigHeader{
+    pt.get<std::string>("header.sensor"),
+    pt.get<std::string>("header.fluence"),
+    pt.get<std::string>("header.temperature"),
+    pt.get<int>("header.time_bin"),
+    pt.get<double>("header.time_range_min"),
+    pt.get<double>("header.time_range_max"),
+    pt.get<bool>("header.self_correct"),
+    pt.get<std::string>("header.average_pulse_ofile_name"),
+    pt.get<int>("header.number_of_runs"),
+    pt.get<int>("header.trigger_channel"),
+    pt.get<int>("header.dut_channel"),
+    pt.get<bool>("header.use_selected_events", false)
+  };
 
-  for (std::size_t i = 0, max = this->number_of_runs; i < max; i++) {
-    std::string run_section = "run" + std::to_string(i) + ".";
-    std::string bias = run_section + "bias";
-    std::string file_name = run_section + "file_name";
-    std::string cut_1 = run_section + "cut_1";
-    std::string cut_2 = run_section + "cut_2";
-    std::string cut_3 = run_section + "cut_3";
-    std::string cut_4 = run_section + "cut_4";
-    std::string CFD = run_section + "CFD";
-    std::string run_temperature = run_section + "temperature";
-    std::string trigger_bias = run_section + "trigger_bias";
-
-    this->bias[i].push_back(pt.get<std::string>(bias));
-    if (this->use_selected_events) {
-      this->file_name[i].push_back("Selected_" +
-                                   pt.get<std::string>(file_name));
-    } else {
-      this->file_name[i].push_back(pt.get<std::string>(file_name));
-    }
-    this->cut[0][i].push_back(pt.get<std::string>(cut_1));
-    this->cut[1][i].push_back(pt.get<std::string>(cut_2));
-    this->cut[2][i].push_back(pt.get<std::string>(cut_3));
-    this->cut[3][i].push_back(pt.get<std::string>(cut_4));
-    this->CFD[i].push_back(pt.get<double>(CFD, 20.0));
-    this->run_temperature[i].push_back(pt.get<int>(run_temperature));
-    this->trigger_bias[i].push_back(pt.get<int>(trigger_bias));
+  std::vector<PlotConfigMgr::ConfigSection> sections;
+  for (std::size_t i = 0, max = header.number_of_runs; i < max; i++ )
+  {
+    std::string run_header = fmt::format("run{}", i);
+    sections.push_back(
+      PlotConfigMgr::ConfigSection{
+        (int)i,
+        pt.get<std::string>(fmt::format("{}.bias",run_header)),
+        pt.get<std::string>(fmt::format("{}.file_name",run_header)),
+        pt.get<std::string>(fmt::format("{}.cut_1",run_header)),
+        pt.get<std::string>(fmt::format("{}.cut_2",run_header)),
+        pt.get<std::string>(fmt::format("{}.cut_3",run_header)),
+        pt.get<std::string>(fmt::format("{}.cut_4",run_header)),
+        pt.get<double>(fmt::format("{}.CFD",run_header), 20),
+        pt.get<int>(fmt::format("{}.trigger_bias",run_header)),
+        pt.get<int>(fmt::format("{}.temperature",run_header))
+      }
+    );
   }
+
+  return PlotConfigMgr(header, sections);
 }
 
-void PlotConfigMgr::PrintContent() {
-  std::cout << std::endl;
-  std::cout << "sensor= " << this->sensor << std::endl;
-  std::cout << "fluence= " << this->fluence << std::endl;
-  std::cout << "temperature= " << this->temperature << std::endl;
-  std::cout << "time_bin= " << this->time_bin << std::endl;
-  std::cout << "average_pulse_ofile_name= " << this->average_pulse_ofile_name
-            << std::endl;
-
-  std::cout << "number of run = " << this->number_of_runs << std::endl;
-
-  for (int i = 0; i < this->number_of_runs; i++) {
-    std::cout << "bias= " << this->bias[i].at(0) << std::endl;
-    std::cout << this->file_name[i].at(0) << std::endl;
-    for (unsigned int j = 0; j < this->cut[0][i].size(); j++) {
-      for (std::size_t ch = 0, max = 4; ch < max; ch++) {
-        std::cout << this->cut[ch][i].at(j) << " ";
-      }
-    }
-    std::cout << std::endl;
+void PlotConfigMgr::PrintContent(PlotConfigMgr config)
+{
+  fmt::print("Header");
+  fmt::print("sensor = {}", config.header.sensor );
+  fmt::print("fluence = {}", config.header.fluence );
+  fmt::print("temperature = {}", config.header.temperature );
+  fmt::print("time_bin = {}", config.header.time_bin );
+  fmt::print("average_pulse_ofile_name = {}", config.header.average_pulse_ofile_name );
+  fmt::print("number_of_runs = {}", config.header.number_of_runs );
+  for(auto &sec : config.sections )
+  {
+    fmt::print("[run{}]", sec.run_index);
+    fmt::print("bias = {}", sec.bias);
+    fmt::print("file_name = {}", sec.file_name);
+    fmt::print("cut1 = {}", sec.cut[0]);
+    fmt::print("cut2 = {}", sec.cut[1]);
+    fmt::print("cut3 = {}", sec.cut[2]);
+    fmt::print("cut4 = {}", sec.cut[3]);
+    fmt::print("CFD = {}", sec.cfd);
+    fmt::print("trigger_bias = {}", sec.trigger_bias);
+    fmt::print("temperature = {}", sec.temperature);
   }
-
-  std::cout << std::endl;
 }

@@ -7,32 +7,48 @@
 extern const std::string PLOT_CONFIG_VER;
 
 struct PlotConfigMgr {
+
   // header section
-  std::string sensor;
-  std::string fluence;
-  std::string temperature;
-  int time_bin;
-  double time_range_min;
-  double time_range_max;
-  bool self_correct;
-  std::string average_pulse_ofile_name;
-  int number_of_runs;
-  int trigger_channel;
-  int dut_channel;
-  bool use_selected_events;
+  struct ConfigHeader
+  {
+    std::string sensor;
+    std::string fluence;
+    std::string temperature;
+    int time_bin;
+    double time_range_min;
+    double time_range_max;
+    bool self_correct;
+    std::string average_pulse_ofile_name;
+    int number_of_runs;
+    int trigger_channel;
+    int dut_channel;
+    bool use_selected_events;
+  };
 
-  // file section
-  std::vector<std::string> bias[1024];
-  std::vector<std::string> file_name[1024];
-  std::vector<std::string> cut[4][1024];
-  std::vector<double> CFD[1024];
-  std::vector<int> trigger_bias[1024];
-  std::vector<int> run_temperature[1024];
+  struct ConfigSection
+  {
+    int run_index;
+    std::string bias;
+    std::string file_name;
+    std::string cut[4];
+    double cfd;
+    int trigger_bias;
+    int temperature;
+  };
 
-  PlotConfigMgr(std::string ifile);
+
+  ConfigHeader header;
+  std::vector<ConfigSection> sections;
+
+  PlotConfigMgr(){};
+
+  PlotConfigMgr(ConfigHeader header, std::vector<ConfigSection> sections)
+  :header(header), sections(sections){};
+
   virtual ~PlotConfigMgr(){};
-  void PrintContent();
 
+  static void PrintContent( PlotConfigMgr config);
+  static PlotConfigMgr ParseConfig(std::string ifile);
   static bool GenerateRunInfo();
 };
 

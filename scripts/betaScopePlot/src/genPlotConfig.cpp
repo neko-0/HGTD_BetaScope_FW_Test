@@ -11,7 +11,7 @@
 
 #include <fmt/format.h>
 
-#include "betaScopePlot/src/plotConfigMgr.h"
+#include "betaScopePlot/include/plotConfigMgr.h"
 
 const std::string PLOT_CONFIG_VER = "08022018";
 
