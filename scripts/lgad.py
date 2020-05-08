@@ -256,7 +256,7 @@ class Lgad(cmd.Cmd, object):
 
             if "ana_only" in mode[0]:
                 p = subprocess.Popen(
-                    f"{nohup} $BETASCOPE_ANALYSIS_DIR/BetaScopeWaveformAna/bin/Run_WaveformAna -config {self.current_run}/WaveformAnaConfig.ini {' '.join(mode[1:]} {nohup_log}",
+                    f"{nohup} $BETASCOPE_ANALYSIS_DIR/BetaScopeWaveformAna/bin/Run_WaveformAna -config {self.current_run}/WaveformAnaConfig.ini {' '.join(mode[1:])} {nohup_log}",
                     shell=True,
                 )
                 p.wait()
@@ -288,7 +288,7 @@ class Lgad(cmd.Cmd, object):
 
             elif "full" in mode[0]:
                 p = subprocess.Popen(
-                    f"{nohup} $BETASCOPE_ANALYSIS_DIR/BetaScopeWaveformAna/bin/Run_WaveformAna -skipWaveform -config {self.current_run}/WaveformAnaConfig.ini {' '.join(mode[1:]} {nohup_log}",
+                    f"{nohup} $BETASCOPE_ANALYSIS_DIR/BetaScopeWaveformAna/bin/Run_WaveformAna -skipWaveform -config {self.current_run}/WaveformAnaConfig.ini {' '.join(mode[1:])} {nohup_log}",
                     shell=True,
                 )
                 p.wait()
