@@ -102,6 +102,10 @@ WaveformAna<double, double> WaveformAnalysis::analyze_waveform(
     waveform.tmax(waveform.get_v1_value( pmaxHolder.second));
     waveform.max_index(pmaxHolder.second);
 
+    //std::pair<double, double> tmaxFitHolder = WaveformAnalysis::Get_Fit_Tmax( waveform.get_v2(), waveform.get_v1(), pmaxHolder);
+    //waveform.fit_tmax( tmaxFitHolder.first );
+    //waveform.fit_tmax_chi( tmaxFitHolder.second );
+
     waveform.neg_pmax(neg_pmaxHolder.first);
     waveform.neg_tmax(waveform.get_v1_value(neg_pmaxHolder.second));
     waveform.neg_max_index(neg_pmaxHolder.second);

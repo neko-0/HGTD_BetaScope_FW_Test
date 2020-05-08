@@ -20,15 +20,7 @@
 #include <stdlib.h>
 #include <string>
 #include <vector>
-//------ROOT----------------//
-#include <TCanvas.h>
-#include <TF1.h>
-#include <TGraph.h>
-#include <TH1.h>
-#include <TImage.h>
-#include <TROOT.h>
-#include <TStyle.h>
-#include <TThread.h>
+
 
 //==============================================================================
 
@@ -199,14 +191,15 @@ void WaveformAnalysis::Find_Bunch_Negative_Signal_Maximum(
 
     if (voltageVec.size() != timeVec.size() && pmax.size() != tmax.size())
     {
-        if (this->Find_Bunch_Negative_Signal_Maximum_counter < 100)
-        {
-            LOG_WARNING("Size dose not match! fill with 10e11." );
-        }
-
-        negPmax.push_back(10e11);
-        negTmax.push_back(10e11);
-        this->Find_Bunch_Negative_Signal_Maximum_counter++;
+      if(this->Find_Bunch_Negative_Signal_Maximum_counter<100)
+      {
+        this->mu.lock();
+        //ColorCout::Msg(function_name, "Only one pmax, no needed to use this function, set value to -10e11" );
+        this->mu.unlock();
+      }
+      negPmax.push_back( -10e11 );
+      negTmax.push_back( -10e11 );
+      this->Find_Bunch_Negative_Signal_Maximum_counter++;
     }
     else
     {
@@ -250,33 +243,3 @@ double WaveformAnalysis::Get_Tmax(
     double tmax = timeVec.at(Pmax.second);
     return tmax;
 }
-
-/*==============================================================================
-double
-  WaveformAnalysis::Deri_Fit_Tmax
-
-  usage:
-    finding time maximum using linear fit to the second derivative of the pulse.
-
-  paramters:
-
-    std::vector<double>
-      voltageVec := vector of voltage value.
-
-    std::vector<double>
-      timeVec := vector of time value.
-
-    std::vector<double>
-      pmax := vector of pmax value (found using multiple peak function)
-
-    std::vector<double>
-      tmax := vector of tmax value (found using multiple peak function)
-
-    std::vector<double> &
-      negPmax := vector for negative pmax, filled up by reference.
-
-    std::vector<double> &
-      negTmax := vector for negative tmax, filled up by reference.
-
-  return : void
-==============================================================================*/

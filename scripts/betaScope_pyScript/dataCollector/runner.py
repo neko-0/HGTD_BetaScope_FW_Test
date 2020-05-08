@@ -9,6 +9,7 @@ mdir_list = [
     "/media/mnt/BigHD/BetaScope_Data/Analyzed_YZ/",
     "/media/mnt/gunter/betaAna3/",
     "/media/mnt/gunter/betaAna2/",
+    "/media/mnt/COVID-19/betaAna4/"
 ]
 
 dirlist = [[x for x in os.listdir(mdir_list[i])] for i in range(len(mdir_list))]
@@ -47,6 +48,9 @@ for mdir in mdir_list:
                 time_res_file = [
                     (mdir + "/" + fold + "/res50.txt", 50),
                     (mdir + "/" + fold + "/res20.txt", 20),
+                    (mdir + "/" + fold + "/restmax.txt", "tmax"),
+                    (mdir + "/" + fold + "/resfit_tmax.txt", "fit_tmax"),
+                    (mdir + "/" + fold + "/reszero_cross_tmax.txt", "zero_cross_tmax"),
                 ]
                 leakage_file = mdir + "/" + fold + "/leakage.txt"
                 beta_run.load_result(
@@ -60,5 +64,5 @@ for mdir in mdir_list:
                 beta_scope.add_run(beta_run)
 
 
-beta_scope.save("test.pkl")
+#beta_scope.save("test.pkl")
 beta_scope.to_root("test_run.root")

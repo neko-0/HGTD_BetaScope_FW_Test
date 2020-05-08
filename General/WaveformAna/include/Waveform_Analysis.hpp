@@ -1,12 +1,15 @@
-#ifndef WAVEFORM_ANA_H
-#define WAVEFORM_ANA_H
+#ifndef WAVEFORM_ANALYSIS_H
+#define WAVEFORM_ANALYSIS_H
 
 #include <mutex>
 #include <string>
 #include <vector>
 
+#include <TGraph.h>
+
 #include "General/logger/include/logger.h"
 #include "WaveformAna/include/WaveformAna.hpp"
+
 
 class WaveformAnalysis
 {
@@ -21,6 +24,14 @@ class WaveformAnalysis
     std::mutex mu;
 
 public:
+
+    struct FitResult
+    {
+      double value;
+      double chi;
+      TGraph graph;
+    };
+
     WaveformAnalysis()
     {
       for(auto &b: buffer_)
@@ -37,6 +48,8 @@ public:
         const bool &limiting_search_region_OnOff,
         double pmaxSearchRange[2]
     );
+
+
 
 
     WaveformAna<double, double>
@@ -111,6 +124,26 @@ public:
         const std::vector<double> &timeVec,
         const std::pair<double, unsigned int> &Pmax
     );
+
+    WaveformAnalysis::FitResult
+    Get_Fit_Tmax(
+      const std::vector<double> &timeVec,
+      const std::vector<double> &voltageVec,
+      const int &pmax_index
+    );
+
+    WaveformAnalysis::FitResult
+    Get_Zero_Cross_Tmax(
+      const std::vector<double> &timeVec,
+      const std::vector<double> &voltageVec,
+      const int &pmax_index
+    );
+
+    template <class data_type>
+    WaveformAnalysis::FitResult Get_Fit_Tmax( WaveformAna<data_type,data_type> &waveform, const int &npt);
+
+    template <class data_type>
+    WaveformAnalysis::FitResult Get_Zero_Cross_Tmax( WaveformAna<data_type,data_type> &waveform, const int &npt);
 
     void Find_Bunch_Negative_Signal_Maximum(
         const std::vector<double> &voltageVec,
@@ -288,4 +321,4 @@ public:
 };
 
 
-#endif // WAVEFORM_ANA_H
+#endif // WAVEFORM_ANALYSIS_H
