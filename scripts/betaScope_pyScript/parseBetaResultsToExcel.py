@@ -312,7 +312,7 @@ def injectData( paramName ):
         src_wb.save("{}/user_data/merged_beta_results.xlsx".format(os.environ["BETASCOPE_SCRIPTS"]) )
 
     if paramName=="leakage":
-        p = subprocess.call("python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/read_current.py", shell=True)
+        p = subprocess.call("python3 $BETASCOPE_SCRIPTS/betaScope_pyScript/read_current.py", shell=True)
         with open("leakage.txt") as f:
             start_row = None
             end_row = None
