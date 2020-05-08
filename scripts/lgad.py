@@ -229,8 +229,10 @@ class Lgad(cmd.Cmd, object):
             shell=True,
         )
 
-    def do_run_analysis(self, *mode):
+    def do_run_analysis(self, i_mode):
         "Run routine beta-scope analysis. Argument with 'full' will do the full rountine analysis, else it will only generate stats files. Argument 'resonly' will only run the result calculation. Argument with 'nohup' will supress the output "
+
+        mode = i_mode.split(" ")
 
         if "dry" in mode[0]:
             colorString.sysMsg(f"dry run. mode:")
