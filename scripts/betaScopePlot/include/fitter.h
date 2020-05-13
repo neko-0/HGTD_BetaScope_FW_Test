@@ -10,6 +10,8 @@
 #include <stdlib.h>
 #include <string>
 #include <vector>
+#include <fmt/format.h>
+
 //------ROOT----------------//
 #include <TCanvas.h>
 #include <TCut.h>
@@ -31,6 +33,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <mutex>
 //======RooFit=================//
 #include <RooAbsPdf.h>
 #include <RooAddPdf.h>
@@ -47,6 +50,9 @@
 
 #include "histoPackage.h"
 
+
+static std::mutex MTX;
+
 struct FitResult {
   double param;
   double param_err;
@@ -56,22 +62,6 @@ struct FitResult {
   double chi_square;
   double prob;
   double chi_ndf;
-
-  FitResult(){};
-
-  FitResult(double param, double param_err, double xmin, double xmax,
-            double ndf, double chi, double prob, double chi_ndf) {
-    this->param = param;
-    this->param_err = param_err;
-    this->xmin = xmin;
-    this->xmax = xmax;
-    this->ndf = ndf;
-    this->chi_square = chi;
-    this->prob = prob;
-    this->chi_ndf = chi_ndf;
-  };
-
-  ~FitResult(){};
 };
 
 class Fitter {
@@ -85,7 +75,7 @@ public:
   virtual ~Fitter(){};
 
   void set_fitter(std::string fitName) {
-    this->fitter = new TF1(fitName.c_str(), fitName.c_str());
+    this->fitter = new TF1( fmt::format("{}_{}",fitName, std::rand()).c_str(), fitName.c_str());
     this->fitFunc = fitName;
   };
   TF1 *get_fitter() { return this->fitter; };
@@ -94,12 +84,15 @@ public:
     this->fitter->SetParameter(param, iValue);
   }
 
-  FitResult fitter_RooLanGausArea(HistoPackage &i_hist,
-                                  HistoPackage frontBaseArea,
-                                  HistoPackage backBaseArea,
-                                  bool savePlot = true);
-  FitResult fitter_RooLanGaus(HistoPackage &i_hist, bool savePlot = true);
-  FitResult fitter_fit(HistoPackage &i_hist, bool savePlot = true);
+  FitResult fitter_RooLanGausArea(
+    HistoPackage &i_hist,
+    HistoPackage frontBaseArea,
+    HistoPackage backBaseArea,
+    bool savePlot = true
+  );
+
+  FitResult fitter_RooLanGaus( HistoPackage &i_hist, bool savePlot = true );
+  FitResult fitter_fit( HistoPackage &i_hist, bool savePlot = true );
 };
 
 #endif

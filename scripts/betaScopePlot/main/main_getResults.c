@@ -1,112 +1,144 @@
-#include "fitter.h"
-#include "histoPackage.h"
-#include "dataOutputFormat.h"
-#include "plotList.h"
-#include "dataSelection.h"
-
 #include <fmt/format.h>
+#include <thread>
+#include <future>
+#include <mutex>
+#include <unistd.h>
+#include <stdio.h>
 
+#include <boost/thread.hpp>
+#include <boost/asio.hpp>
+#include <boost/asio/thread_pool.hpp>
+
+#include <TROOT.h>
+#include <TThread.h>
+#include <Math/MinimizerOptions.h>
+
+#include "betaScopePlot/include/fitter.h"
 #include "betaScopePlot/include/plotConfigMgr.h"
+#include "betaScopePlot/include/plotJobMgr.h"
+#include "betaScopePlot/include/histoPackage.h"
+#include "betaScopePlot/include/dataOutputFormat.h"
+#include "betaScopePlot/include/dataSelection.h"
+
+void result( PlotConfigMgr::ConfigSection sec, int dut_channel, int trigger_channel )
+{
+  fmt::print("Start processing : {}\n", sec.file_name );
+
+  TFile *loadFile = TFile::Open( sec.file_name.c_str() );
+  TTree* itree = (TTree*) loadFile->Get("wfm");
+
+  // parsing cuts
+  std::string delimiter = " ";
+  std::string my_cut_str = sec.cut[dut_channel-1];
+  std::vector<std::string> my_cut_v;
+  while( int(my_cut_str.find(delimiter)) != -1 )
+  {
+    my_cut_v.push_back( my_cut_str.substr(0, my_cut_str.find(delimiter) ) );
+    my_cut_str.erase(0, my_cut_str.find(delimiter) + delimiter.length() );
+  }
+  my_cut_v.push_back( my_cut_str );
+
+  DataSelection *selection = new DataSelection(my_cut_v, dut_channel, trigger_channel );
+
+  // output result ;
+  std::map<std::string, FitResult> oData;
+
+  // getting booked plot list
+  PlotJobMgr plotMgr = PlotJobMgr::Create_Default_List( sec.file_name );
+  for( auto &job : plotMgr.jobs )
+  {
+
+    FitResult fitResult;
+    Fitter my_fitter;
+    bool savePlot = false;
+
+    // fit multiple times for better ranges;
+    for(int k = 0; k < 5; k++)
+    {
+      job.histo_pack.Reset();
+      job.histo_pack.fillFromTree(itree, selection->cuts );
+      if( k==4 )
+      {
+        savePlot=true;
+      }
+      if( job.fitFunc == "LanGausArea" )
+      {
+        // some baseline histos
+        HistoPackage frontBaseArea( sec.file_name, Form("frontBaseLineInt_indepBaseCorr%i[0]/1.0E-15", job.channel ), "front base area");
+        frontBaseArea.fillFromTree( itree );
+
+        HistoPackage backBaseArea( sec.file_name, Form("backBaseLineInt_indepBaseCorr%i[0]/1.0E-15", job.channel ), "back base area");
+        frontBaseArea.fillFromTree( itree );
+
+        std::lock_guard<std::mutex> lck(MTX);
+        fitResult = my_fitter.fitter_RooLanGausArea( job.histo_pack, frontBaseArea, backBaseArea, savePlot);
+      }
+      else if( job.fitFunc == "LanGaus" )
+      {
+        std::lock_guard<std::mutex> lck(MTX);
+        fitResult = my_fitter.fitter_RooLanGaus( job.histo_pack, savePlot);
+      }
+      else
+      {
+        std::lock_guard<std::mutex> lck(MTX);
+        my_fitter.set_fitter( job.fitFunc );
+        fitResult = my_fitter.fitter_fit( job.histo_pack, savePlot);
+      }
+    }
+    //std::pair<double,double> oParams = std::make_pair( std::get<0>(fitResult), std::get<1>(fitResult) );
+    oData.insert( std::pair<std::string, FitResult>(job.tag, fitResult) );
+  }
+
+  // output data;
+  std::unique_lock<std::mutex> lck(MTX);
+  DataOutputFormat outfile;
+  std::string biasVoltage;
+  std::string myBuffer = sec.file_name;
+  if(myBuffer.find(".root.")!=std::string::npos)
+  {
+    std::string fIndex;
+    fIndex = myBuffer.substr(myBuffer.find(".root.")+5, myBuffer.length() );
+    biasVoltage = sec.bias + "." + fIndex;
+  }
+  else
+  {
+    biasVoltage = sec.bias;
+  }
+  outfile.CreateBetaScopeOutputFile( biasVoltage.c_str(), oData, sec.temperature, sec.trigger_bias );
+
+  fmt::print("{} is Finished.\n", sec.file_name);
+  my_cut_v.clear();
+  delete selection;
+  lck.unlock();
+}
+
 
 void getResults(std::string plotConfig_fname, std::string outDir = "Results/" )
 {
   gROOT->SetBatch(true);
+
+  ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2");
+  ROOT::EnableThreadSafety();
+  //ROOT::EnableImplicitMT(std::thread::hardware_concurrency());
 
   PlotConfigMgr plotConfig = PlotConfigMgr::ParseConfig(plotConfig_fname);
 
   int dut_channel = plotConfig.header.dut_channel;
 	int trigger_channel = plotConfig.header.trigger_channel;
 
+  //std::vector<std::future<void>> workers;
+  boost::asio::thread_pool pool(5);
+
   // looping through files
   for( auto &sec : plotConfig.sections )
   {
-    fmt::print("Start processing : {}\n", sec.file_name );
-
-    TFile *loadFile = TFile::Open( sec.file_name.c_str() );
-    TTree* itree = (TTree*) loadFile->Get("wfm");
-
-    // parsing cuts
-    std::string delimiter = " ";
-    std::string my_cut_str = sec.cut[dut_channel-1];
-    std::vector<std::string> my_cut_v;
-    while( int(my_cut_str.find(delimiter)) != -1 )
-    {
-      my_cut_v.push_back( my_cut_str.substr(0, my_cut_str.find(delimiter) ) );
-      my_cut_str.erase(0, my_cut_str.find(delimiter) + delimiter.length() );
-    }
-    my_cut_v.push_back( my_cut_str );
-
-    DataSelection *selection = new DataSelection(my_cut_v, dut_channel, trigger_channel );
-
-    // output result ;
-    std::map<std::string, FitResult> oData;
-
-    // getting booked plot list
-    std::vector<PlotList> my_plot_jobs = create_job(); // from plotList.cpp
-    for( const auto job : my_plot_jobs )
-    {
-      HistoPackage myHisto;
-      myHisto.set_cut_str( selection->cuts.GetTitle() );
-      myHisto.set_fname( sec.file_name );
-      myHisto.set_bin( job.binNum );
-      myHisto.set_min( job.x_min );
-      myHisto.set_max( job.x_max );
-
-      FitResult fitResult;
-      Fitter my_fitter;
-      bool savePlot = false;
-      // fit multiple times for better ranges;
-      for(int k = 0; k < 5; k++)
-      {
-        myHisto.set_histo( job.histo_name, job.histo_title, job.xTitle);
-        myHisto.fillFromTree(itree, job.observable_name );
-        if(k==4)savePlot=true;
-        if( job.fitFunc.compare("LanGausArea")==0 )
-        {
-          // some baseline histos
-          HistoPackage frontBaseArea;
-          frontBaseArea.set_histo("frontBase", "frontBase", "front base area");
-          frontBaseArea.fillFromTree( itree, Form("frontBaseLineInt%i[0]/1.0E-15", job.channel ) );
-          HistoPackage backBaseArea;
-          backBaseArea.set_histo("backBase", "backBase", "back base area");
-          frontBaseArea.fillFromTree( itree, Form("backBaseLineInt%i[0]/1.0E-15", job.channel ) );
-          fitResult = my_fitter.fitter_RooLanGausArea(myHisto, frontBaseArea, backBaseArea, savePlot);
-        }
-        else if( job.fitFunc.compare("LanGaus") == 0 )
-        {
-          fitResult = my_fitter.fitter_RooLanGaus(myHisto, savePlot);
-        }
-        else
-        {
-          my_fitter.set_fitter( job.fitFunc );
-          fitResult = my_fitter.fitter_fit(myHisto, savePlot);
-        }
-        myHisto.clean();
-      }
-      //std::pair<double,double> oParams = std::make_pair( std::get<0>(fitResult), std::get<1>(fitResult) );
-      oData.insert( std::pair<std::string, FitResult>(job.tag, fitResult) );
-    }
-
-    // output data;
-    DataOutputFormat outfile;
-    std::string biasVoltage;
-    std::string myBuffer = sec.file_name;
-    if(myBuffer.find(".root.")!=std::string::npos)
-    {
-      std::string fIndex;
-      fIndex = myBuffer.substr(myBuffer.find(".root.")+5, myBuffer.length() );
-      biasVoltage = sec.bias + "." + fIndex;
-    }
-    else
-    {
-      biasVoltage = sec.bias;
-    }
-    outfile.CreateBetaScopeOutputFile( biasVoltage.c_str(), oData, sec.temperature, sec.trigger_bias );
-
-    fmt::print("{} is Finished.\n", sec.file_name);
-    my_cut_v.clear();
-    delete selection;
+    //result(sec, dut_channel, trigger_channel);
+    //workers.emplace_back( std::async(std::launch::async | std::launch::deferred, result, sec, dut_channel, trigger_channel) );
+    boost::asio::post(pool, boost::bind(result, sec, dut_channel, trigger_channel));
   }
+
+  //for( std::size_t id = 0; id < workers.size(); id++ ){ workers[id].wait(); }
+  pool.join();
 
   fmt::print("Start dumping plots...\n");
 	if(mkdir( outDir.c_str(), ACCESSPERMS ) == 0)
