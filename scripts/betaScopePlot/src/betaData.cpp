@@ -60,14 +60,11 @@ void DataOutputFormat::CreateBetaScopeOutputFile(
   DataOutputFormat::WriteKey("jitter_20_CHI_NDF", outData["jitter2"].chi_ndf);
 
   DataOutputFormat::WriteKey("NewPulseArea", outData["area_under2"].param);
-  DataOutputFormat::WriteKey("NewPulseArea_Error",
-                             outData["area_under2"].param_err);
+  DataOutputFormat::WriteKey("NewPulseArea_Error",outData["area_under2"].param_err);
   DataOutputFormat::WriteKey("NewPulseArea_NDF", outData["area_under2"].ndf);
-  DataOutputFormat::WriteKey("NewPulseArea_CHI",
-                             outData["area_under2"].chi_square);
+  DataOutputFormat::WriteKey("NewPulseArea_CHI",outData["area_under2"].chi_square);
   DataOutputFormat::WriteKey("NewPulseArea_PROB", outData["area_under2"].prob);
-  DataOutputFormat::WriteKey("NewPulseArea_CHI_NDF",
-                             outData["area_under2"].chi_ndf);
+  DataOutputFormat::WriteKey("NewPulseArea_CHI_NDF",outData["area_under2"].chi_ndf);
 
   DataOutputFormat::WriteKey("FallTime", outData["fall2"].param);
   DataOutputFormat::WriteKey("FallTime_Error", outData["fall2"].param_err);
@@ -75,6 +72,34 @@ void DataOutputFormat::CreateBetaScopeOutputFile(
   DataOutputFormat::WriteKey("FallTime_CHI", outData["fall2"].chi_square);
   DataOutputFormat::WriteKey("FallTime_PROB", outData["fall2"].prob);
   DataOutputFormat::WriteKey("FallTime_CHI_NDF", outData["fall2"].chi_ndf);
+
+  DataOutputFormat::WriteKey("DeltaT_Res50", outData["res50"].param);
+  DataOutputFormat::WriteKey("DeltaT_Res50_Error", outData["res50"].param_err);
+  DataOutputFormat::WriteKey("DeltaT_Res50_NDF", outData["res50"].ndf);
+  DataOutputFormat::WriteKey("DeltaT_Res50_CHI", outData["res50"].chi_square);
+  DataOutputFormat::WriteKey("DeltaT_Res50_PROB", outData["res50"].prob);
+  DataOutputFormat::WriteKey("DeltaT_Res50_CHI_NDF", outData["res50"].chi_ndf);
+
+  DataOutputFormat::WriteKey("DeltaT_Res20", outData["res20"].param);
+  DataOutputFormat::WriteKey("DeltaT_Res20_Error", outData["res20"].param_err);
+  DataOutputFormat::WriteKey("DeltaT_Res20_NDF", outData["res20"].ndf);
+  DataOutputFormat::WriteKey("DeltaT_Res20_CHI", outData["res20"].chi_square);
+  DataOutputFormat::WriteKey("DeltaT_Res20_PROB", outData["res20"].prob);
+  DataOutputFormat::WriteKey("DeltaT_Res20_CHI_NDF", outData["res20"].chi_ndf);
+
+  DataOutputFormat::WriteKey("DeltaT_resTmax", outData["resTmax"].param);
+  DataOutputFormat::WriteKey("DeltaT_resTmax_Error", outData["resTmax"].param_err);
+  DataOutputFormat::WriteKey("DeltaT_resTmax_NDF", outData["resTmax"].ndf);
+  DataOutputFormat::WriteKey("DeltaT_resTmax_CHI", outData["resTmax"].chi_square);
+  DataOutputFormat::WriteKey("DeltaT_resTmax_PROB", outData["resTmax"].prob);
+  DataOutputFormat::WriteKey("DeltaT_resTmax_CHI_NDF", outData["resTmax"].chi_ndf);
+
+  DataOutputFormat::WriteKey("DeltaT_resZeroCross", outData["resZeroCross"].param);
+  DataOutputFormat::WriteKey("DeltaT_resZeroCross_Error", outData["resZeroCross"].param_err);
+  DataOutputFormat::WriteKey("DeltaT_resZeroCross_NDF", outData["resZeroCross"].ndf);
+  DataOutputFormat::WriteKey("DeltaT_resZeroCross_CHI", outData["resZeroCross"].chi_square);
+  DataOutputFormat::WriteKey("DeltaT_resZeroCross_PROB", outData["resZeroCross"].prob);
+  DataOutputFormat::WriteKey("DeltaT_resZeroCross_CHI_NDF", outData["resZeroCross"].chi_ndf);
 
   DataOutputFormat::WriteKey("temperature", temperature);
   DataOutputFormat::WriteKey("trigger_bias", trigger_bias);

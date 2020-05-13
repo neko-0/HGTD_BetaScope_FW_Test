@@ -1,68 +1,74 @@
 #ifndef HISTO_PACKAGE_H
 #define HISTO_PACKAGE_H
 
+#include <TH1.h>
+#include <RooDataHist.h>
+#include <RooDataSet.h>
+#include <RooRealVar.h>
+
 class HistoPackage {
 private:
+
+  std::string tfile_name;
+  std::string observable;
+  std::string title;
+
   int binNum = 100;
   double x_min = -2000.0;
   double x_max = 2000.0;
 
-  std::string my_histo_name;
-  std::string my_title;
-
-  std::string observable_name;
-
-  std::string root_file_name;
+  std::string histo_name;
 
   std::string cut_str = "";
 
-  TH1D *histo;
+  TH1 *histo = NULL;
+
+  std::string tag;
+  std::string simple_tag;
+  //RooDataHist *dataHist;
+
 
 public:
   HistoPackage(){};
-  virtual ~HistoPackage(){};
+  virtual ~HistoPackage();
 
-  void set_histo(std::string histoName, std::string title, std::string xtitle) {
-    this->histo = new TH1D(histoName.c_str(), title.c_str(), this->binNum,
-                           this->x_min, this->x_max);
-    this->histo->GetXaxis()->SetTitle(xtitle.c_str());
-    this->my_histo_name = histoName;
-    this->my_title = title;
-  };
-  TH1D *get_histo() { return this->histo; };
-  void clean() {
-    if (this->histo)
-      delete this->histo;
-  };
+  HistoPackage(
+    std::string tfile_name, std::string obs, std::string title,
+    int binNum, double x_min, double x_max, std::string tag = "default_tag", std::string type="TH1D"
+  );
 
-  void set_bin(int iValue) { this->binNum = iValue; };
-  int get_bin() { return this->binNum; };
+  HistoPackage( std::string tfile_name, std::string obs, std::string title, std::string tag = "default_tag");
 
-  void set_min(double xmin) { this->x_min = xmin; };
-  void set_max(double xmax) { this->x_max = xmax; };
+  void CreateTH1(std::string type = "TH1D");
 
-  double get_xmin() { return this->x_min; }
-  double get_xmax() { return this->x_max; }
+  TH1 *get_histo() const;
+  //RooDataHist *get_dataHist() const;
 
-  void set_cut_str(std::string i_cut) { this->cut_str = i_cut; };
-  std::string get_cut_str() { return this->cut_str; };
+  int get_bin() const;
+  double get_xmin() const;
+  double get_xmax() const;
+  std::string get_cut_str() const;
+  std::string get_observable() const;
+  std::string get_title() const;
+  std::string get_histoName() const;
+  std::string get_tfile_name() const;
+  double get_max_bin_xvalue() const;
+  double get_max_bin_yvalue() const;
+  std::string get_tag() const;
+  std::string get_simple_tag() const;
 
-  void set_fname(std::string fname) { this->root_file_name = fname; };
-  std::string get_fname() { return this->root_file_name; };
 
-  std::string get_observable() { return this->observable_name; };
-  std::string get_title() { return this->my_title; };
-  std::string get_histoName() { return this->my_histo_name; };
+  void set_bin( const int &iValue);
+  void set_min( const double &xmin);
+  void set_max( const double &xmax);
+  void set_selection(const std::string &i_cut);
 
-  double get_max_bin_value() {
-    return this->histo->GetBinContent(this->histo->GetMaximumBin());
-  }
+  void Clean();
+  void Reset();
 
-  void fillFromTree(TTree *itree, std::string observable_name) {
-    itree->Project(this->my_histo_name.c_str(), observable_name.c_str(),
-                   this->cut_str.c_str());
-    this->observable_name = observable_name;
-  }
+  void fillFromTree(TTree *itree, const std::string &selection = "");
+
 };
+
 
 #endif
