@@ -20,7 +20,7 @@ def generate_cuts(
     betaRunNum = runNum
     betaRunConfig = configparser.ConfigParser()
     betaRunConfig.read(configFileName)
-    num_file = betaRunConfig["header"]["number_of_runs"]
+    num_file = int(float(betaRunConfig["header"]["number_of_runs"]))
     trigger_preset = trigFixedCut  # {}"200 500 70 375"
 
     numOfSigma = 3.0
@@ -28,7 +28,7 @@ def generate_cuts(
     tmax_expr = f"tmax{dutCh}[0]-cfd{trigCh}[20]"
     pmax_expr = f"pmax{dutCh}[0]"
 
-    for i in range(int(num_file)):
+    for i in range(num_file):
         runNum = f"run{i}"
         fileName = betaRunConfig[runNum]["file_name"]
         try:

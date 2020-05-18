@@ -45,6 +45,8 @@ void result( PlotConfigMgr::ConfigSection sec, int dut_channel, int trigger_chan
 
   // getting booked plot list
   PlotJobMgr plotMgr = PlotJobMgr::Create_Default_List( sec.file_name );
+  PlotJobMgr addition_plotMgr = PlotJobMgr::Read_List( sec.file_name );
+  plotMgr += addition_plotMgr;
   for( auto &job : plotMgr.jobs )
   {
 
@@ -64,10 +66,10 @@ void result( PlotConfigMgr::ConfigSection sec, int dut_channel, int trigger_chan
       if( job.fitFunc == "LanGausArea" )
       {
         // some baseline histos
-        HistoPackage frontBaseArea( sec.file_name, Form("frontBaseLineInt_indepBaseCorr%i[0]/1.0E-15", job.channel ), "front base area");
+        HistoPackage frontBaseArea( sec.file_name, Form("frontBaselineInt_indepBaseCorr%i[0]/1.0E-15", job.channel ), "front base area");
         frontBaseArea.fillFromTree( itree );
 
-        HistoPackage backBaseArea( sec.file_name, Form("backBaseLineInt_indepBaseCorr%i[0]/1.0E-15", job.channel ), "back base area");
+        HistoPackage backBaseArea( sec.file_name, Form("backBaselineInt_indepBaseCorr%i[0]/1.0E-15", job.channel ), "back base area");
         frontBaseArea.fillFromTree( itree );
 
         std::lock_guard<std::mutex> lck(MTX);
@@ -81,8 +83,7 @@ void result( PlotConfigMgr::ConfigSection sec, int dut_channel, int trigger_chan
       else
       {
         std::lock_guard<std::mutex> lck(MTX);
-        my_fitter.set_fitter( job.fitFunc );
-        fitResult = my_fitter.fitter_fit( job.histo_pack, savePlot);
+        fitResult = my_fitter.fitter_fit( job.histo_pack, job.fitFunc, savePlot);
       }
     }
     //std::pair<double,double> oParams = std::make_pair( std::get<0>(fitResult), std::get<1>(fitResult) );
@@ -90,7 +91,8 @@ void result( PlotConfigMgr::ConfigSection sec, int dut_channel, int trigger_chan
   }
 
   // output data;
-  std::unique_lock<std::mutex> lck(MTX);
+  //std::unique_lock<std::mutex> lck(MTX);
+  std::lock_guard<std::mutex> lck(MTX);
   DataOutputFormat outfile;
   std::string biasVoltage;
   std::string myBuffer = sec.file_name;
@@ -105,11 +107,12 @@ void result( PlotConfigMgr::ConfigSection sec, int dut_channel, int trigger_chan
     biasVoltage = sec.bias;
   }
   outfile.CreateBetaScopeOutputFile( biasVoltage.c_str(), oData, sec.temperature, sec.trigger_bias );
+  outfile.ParseRawOutputToINI(biasVoltage, oData, sec.temperature );
 
   fmt::print("{} is Finished.\n", sec.file_name);
   my_cut_v.clear();
   delete selection;
-  lck.unlock();
+  //lck.unlock();
 }
 
 

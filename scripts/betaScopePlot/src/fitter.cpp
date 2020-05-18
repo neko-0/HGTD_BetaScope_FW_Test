@@ -50,13 +50,13 @@ FitResult Fitter::fitter_RooLanGausArea(
   baseline_area_sigma = (backBaseline_param2 + baseline_area_sigma) / 2.0;
   baseline_area_sigma_error = (backBaseline_param2 + baseline_area_sigma_error) / 2.0;
 
-  RooRealVar roo_gaus_mean(fmt::format("Roo_gaus_mean_{}",i_histo.get_tag()).c_str(), "Roo_gaus_mean", 0.0);
-  RooRealVar roo_gaus_sigma(fmt::format("Roo_gaus_sigma_{}",i_histo.get_tag()).c_str(), "Roo_gaus_sigma", std::abs(sampleSigma), 0.001, 3*std::abs(sampleSigma));
-  RooGaussian roo_gaus(fmt::format("Roo_gauss_{}",i_histo.get_tag()).c_str(), "Roo_gauss", x, roo_gaus_mean, roo_gaus_sigma);
+  RooRealVar roo_gaus_mean(fmt::format("Roo_gaus_mean_",i_histo.get_tag()).c_str(), "Roo_gaus_mean", 0.0);
+  RooRealVar roo_gaus_sigma(fmt::format("Roo_gaus_sigma_",i_histo.get_tag()).c_str(), "Roo_gaus_sigma", std::abs(sampleSigma), 0.001, 3*std::abs(sampleSigma));
+  RooGaussian roo_gaus(fmt::format("Roo_gauss_",i_histo.get_tag()).c_str(), "Roo_gauss", x, roo_gaus_mean, roo_gaus_sigma);
 
-  RooRealVar roo_landau_mean(fmt::format("Roo_landau_mean_{}",i_histo.get_tag()).c_str(), "Roo_landau_mean", 1.0, 0.0, i_histo.get_xmax());
-  RooRealVar roo_landau_sigma(fmt::format("Roo_landau_sigma_{}",i_histo.get_tag()).c_str(), "Roo_landau_sigma", std::abs(sampleSigma), 0.1, 3 * std::abs(sampleSigma));
-  RooLandau roo_landau(fmt::format("Roo_landau_{}",i_histo.get_tag()).c_str(), "Roo_landau", x, roo_landau_mean, roo_landau_sigma);
+  RooRealVar roo_landau_mean(fmt::format("Roo_landau_mean_",i_histo.get_tag()).c_str(), "Roo_landau_mean", 1.0, 0.0, i_histo.get_xmax());
+  RooRealVar roo_landau_sigma(fmt::format("Roo_landau_sigma_",i_histo.get_tag()).c_str(), "Roo_landau_sigma", std::abs(sampleSigma), 0.1, 3 * std::abs(sampleSigma));
+  RooLandau roo_landau(fmt::format("Roo_landau_",i_histo.get_tag()).c_str(), "Roo_landau", x, roo_landau_mean, roo_landau_sigma);
 
   /*
   roo_gaus_mean = new RooRealVar("Roo_gaus_mean", "Roo_gaus_mean", 0.0);
@@ -117,6 +117,9 @@ FitResult Fitter::fitter_RooLanGausArea(
   double Par = roo_landau_mean.getVal();
   double ParErr = roo_landau_mean.getAsymErrorHi();
 
+  double Par2 = roo_landau_sigma.getVal();
+  double Par2Err = roo_landau_sigma.getAsymErrorHi();
+
   RooPlot *frame = x.frame(RooFit::Title(i_histo.get_title().c_str()));
 
   if( savePlot )
@@ -130,7 +133,8 @@ FitResult Fitter::fitter_RooLanGausArea(
     histo_fit.SetLineColor(kGreen);
     i_histo.get_histo()->SetLineColor(kRed);
     i_histo.get_histo()->SetLineWidth(3);
-    i_histo.get_histo()->Fit(&histo_fit, "Q");
+    if( i_histo.get_histo()->Fit(&histo_fit, "SQR", "", i_histo.get_xmin(), i_histo.get_xmax())){}
+    else{ i_histo.get_histo()->Fit(&histo_fit, "SQ"); }
     i_histo.get_histo()->GetYaxis()->SetRangeUser(0, i_histo.get_max_bin_xvalue()*1.5);
     i_histo.get_histo()->Draw("same");
 
@@ -164,7 +168,7 @@ FitResult Fitter::fitter_RooLanGausArea(
   double chi_ndf = frame->chiSquare(fmt::format("lxg_{}",i_histo.get_tag()).c_str(), fmt::format("dataHist_{}",i_histo.get_tag()).c_str(), 3);
 
   FitResult fitResult{
-    Par, ParErr, range_min, range_max, ndf, chi_square, prob, chi_ndf
+    Par, ParErr, range_min, range_max, ndf, chi_square, prob, chi_ndf, Par2, Par2Err
   };
 
   /*
@@ -200,13 +204,13 @@ FitResult Fitter::fitter_RooLanGaus(HistoPackage &i_histo, bool savePlot)
   int bins = i_histo.get_histo()->GetEntries();
   double histo_max = i_histo.get_max_bin_xvalue();
 
-  RooRealVar roo_gaus_mean( fmt::format("Roo_gmean_{}",i_histo.get_tag()).c_str(), "Roo_gmean", 0.0);
-  RooRealVar roo_gaus_sigma( fmt::format("Roo_gsigma_{}",i_histo.get_tag()).c_str(), "Roo_gsigma", std::abs(sampleSigma), 0.1, 3*std::abs(sampleSigma));
-  RooGaussian roo_gaus( fmt::format("Roo_gauss_{}",i_histo.get_tag()).c_str(), "Roo_gauss", x, roo_gaus_mean, roo_gaus_sigma);
+  RooRealVar roo_gaus_mean( fmt::format("Roo_gmean_",i_histo.get_tag()).c_str(), "Roo_gmean", 0.0);
+  RooRealVar roo_gaus_sigma( fmt::format("Roo_gsigma_",i_histo.get_tag()).c_str(), "Roo_gsigma", std::abs(sampleSigma), 0.1, 3*std::abs(sampleSigma));
+  RooGaussian roo_gaus( fmt::format("Roo_gauss_",i_histo.get_tag()).c_str(), "Roo_gauss", x, roo_gaus_mean, roo_gaus_sigma);
 
-  RooRealVar roo_landau_mean( fmt::format("Roo_landau_mean_{}",i_histo.get_tag()).c_str(), "Roo_landau_mean", 1.0, i_histo.get_xmin(), i_histo.get_xmax() );
-  RooRealVar roo_landau_sigma( fmt::format("Roo_landau_sigma_{}",i_histo.get_tag()).c_str(), "Roo_landau_sigma",std::abs(sampleSigma), 0.001, 3 * std::abs(sampleSigma));
-  RooLandau roo_landau( fmt::format("Roo_landau_{}",i_histo.get_tag()).c_str(), "Roo_landau", x, roo_landau_mean, roo_landau_sigma);
+  RooRealVar roo_landau_mean( fmt::format("Roo_landau_mean_",i_histo.get_tag()).c_str(), "Roo_landau_mean", 1.0, i_histo.get_xmin(), i_histo.get_xmax() );
+  RooRealVar roo_landau_sigma( fmt::format("Roo_landau_sigma_",i_histo.get_tag()).c_str(), "Roo_landau_sigma",std::abs(sampleSigma), 0.001, 3 * std::abs(sampleSigma));
+  RooLandau roo_landau( fmt::format("Roo_landau_",i_histo.get_tag()).c_str(), "Roo_landau", x, roo_landau_mean, roo_landau_sigma);
 
   x.setBins(10000, "cache");
 
@@ -257,6 +261,9 @@ FitResult Fitter::fitter_RooLanGaus(HistoPackage &i_histo, bool savePlot)
   double Par = roo_landau_mean.getVal();
   double ParErr = roo_landau_mean.getAsymErrorHi();
 
+  double Par2 = roo_landau_sigma.getVal();
+  double Par2Err = roo_landau_mean.getAsymErrorHi();
+
   RooPlot *frame = x.frame(RooFit::Title(i_histo.get_title().c_str()));
 
   if( savePlot )
@@ -269,7 +276,8 @@ FitResult Fitter::fitter_RooLanGaus(HistoPackage &i_histo, bool savePlot)
     histo_fit.SetLineColor(kGreen);
     i_histo.get_histo()->SetLineColor(kRed);
     i_histo.get_histo()->SetLineWidth(3);
-    i_histo.get_histo()->Fit(&histo_fit, "Q");
+    if( i_histo.get_histo()->Fit(&histo_fit, "SQR", "", i_histo.get_xmin(), i_histo.get_xmax())){}
+    else{ i_histo.get_histo()->Fit(&histo_fit, "SQ"); }
     i_histo.get_histo()->GetYaxis()->SetRangeUser(0, i_histo.get_max_bin_xvalue() * 1.5);
     i_histo.get_histo()->Draw("same");
 
@@ -301,24 +309,27 @@ FitResult Fitter::fitter_RooLanGaus(HistoPackage &i_histo, bool savePlot)
   double chi_ndf = frame->chiSquare( fmt::format("lxg_{}",i_histo.get_tag()).c_str(), fmt::format("dataHist_{}",i_histo.get_tag()).c_str(), 3);
 
   FitResult fitResult{
-    Par, ParErr, range_min, range_max, ndf, chi_square, prob, chi_ndf
+    Par, ParErr, range_min, range_max, ndf, chi_square, prob, chi_ndf, Par2, Par2Err
   };
 
   return fitResult;
 }
 
-FitResult Fitter::fitter_fit(HistoPackage &i_histo, bool savePlot)
-{
+FitResult Fitter::fitter_fit(HistoPackage &i_histo, std::string fitName, bool savePlot)
+{  
+  TF1 fitter( fmt::format("{}_{}",fitName, std::rand()).c_str(), fitName.c_str());
+  fitter.AddToGlobalList(false);
+
   double sampleMean = i_histo.get_histo()->GetMean();
   double sampleSigma = i_histo.get_histo()->GetStdDev();
 
-  this->fitter->SetParameter(1, sampleMean);
-  this->fitter->SetParameter(2, sampleSigma);
+  fitter.SetParameter(1, sampleMean);
+  fitter.SetParameter(2, sampleSigma);
 
-  int fitSatus = i_histo.get_histo()->Fit(this->fitter, "Q");
+  int fitSatus = i_histo.get_histo()->Fit(&fitter, this->fitOpt.c_str(), "", i_histo.get_xmin(), i_histo.get_xmax());
 
-  double param1 = this->fitter->GetParameter(1);
-  double param2 = this->fitter->GetParameter(2);
+  double param1 = fitter.GetParameter(1);
+  double param2 = fitter.GetParameter(2);
 
   double range_min = param1 - 5 * param2;
   double range_max = param1 + 5 * param2;
@@ -340,26 +351,29 @@ FitResult Fitter::fitter_fit(HistoPackage &i_histo, bool savePlot)
       i_histo.set_min(i_histo.get_xmin()-500);
       i_histo.set_max(i_histo.get_xmax()+500);
     }
+    this->fitOpt = "SQR";
   }
   else
   {
+    std::cout << i_histo.get_histoName() << "no fit results\n";
     i_histo.set_min(1);
     i_histo.set_max(1);
+    this->fitOpt = "SQ";
   }
 
 
+  double Par = fitter.GetParameter(1);
+  double ParErr = fitter.GetParError(1);
 
-
-  double Par = this->fitter->GetParameter(1);
-  double ParErr = this->fitter->GetParError(1);
+  double Par2 = fitter.GetParameter(2);
+  double Par2Err = fitter.GetParError(2);
 
   if (savePlot)
   {
     TCanvas *oCanvas = new TCanvas(Form("%s_canvas", i_histo.get_histoName().c_str()));
     oCanvas->cd();
     i_histo.get_histo()->Draw();
-    gStyle->SetOptFit(1);
-    gSystem->ProcessEvents();
+    //fitter.Draw("same");
     TImage *img = TImage::Create();
     img->FromPad(oCanvas);
     img->WriteImage(Form("%s_%s.png", i_histo.get_tfile_name().c_str(), i_histo.get_simple_tag().c_str()));
@@ -367,13 +381,13 @@ FitResult Fitter::fitter_fit(HistoPackage &i_histo, bool savePlot)
     delete oCanvas;
   }
 
-  double ndf = this->fitter->GetNDF();
-  double chi_square = this->fitter->GetChisquare();
-  double prob = this->fitter->GetProb();
+  double ndf = fitter.GetNDF();
+  double chi_square = fitter.GetChisquare();
+  double prob = fitter.GetProb();
   double chi_ndf = chi_square / ndf;
 
   FitResult fitResult{
-    Par, ParErr, range_min, range_max, ndf, chi_square, prob, chi_ndf
+    Par, ParErr, range_min, range_max, ndf, chi_square, prob, chi_ndf, Par2, Par2Err
   };
 
   return fitResult;

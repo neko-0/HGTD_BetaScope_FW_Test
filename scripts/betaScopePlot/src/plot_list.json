@@ -1,0 +1,44 @@
+{
+  "plot_list" : [
+
+    {
+      "channel" : 2,
+      "expression" : "cfd2[50]-cfd3[50]",
+      "fit" : "gaus",
+      "title" : "Time Resolution CFD50% [ps]",
+      "bin" : {"nbin":100, "xmin":-100, "xmax":500},
+      "histo_tag" : "res50",
+      "tag" : "res50"
+    },
+
+    {
+      "channel" : 2,
+      "expression" : "cfd2[20]-cfd3[20]",
+      "fit" : "gaus",
+      "title" : "Time Resolution CFD20% [ps]",
+      "bin" : {"nbin":100, "xmin":-100, "xmax":500},
+      "histo_tag" : "res20",
+      "tag" : "res20"
+    },
+
+    {
+      "channel" : 2,
+      "expression" : "tmax2[0]-cfd3[20]",
+      "fit" : "gaus",
+      "title" : "Time Resolution Tmax [ps]",
+      "bin" : {"nbin":100, "xmin":-100, "xmax":500},
+      "histo_tag" : "resTmax",
+      "tag" : "resTmax"
+    },
+
+    {
+      "channel" : 2,
+      "expression" : "zero_cross_tmax2[0]-cfd3[20]",
+      "fit" : "gaus",
+      "title" : "Time Resolution Zero Cross Tmax [ps]",
+      "bin" : {"nbin":100, "xmin":-100, "xmax":500},
+      "histo_tag" : "resZeroCross",
+      "tag" : "resZeroCross"
+    }
+  ]
+}
