@@ -59,8 +59,8 @@ HistoPackage::HistoPackage(std::string tfile_name,
     binNum(binNum), x_min(x_min), x_max(x_max), tag(tag)
 {
   this->simple_tag = tag;
-  this->tag = fmt::format("{}_{}_{}", this->tag, std::rand(), tfile_name.substr(0, tfile_name.find(".root.")));
-  this->histo_name = fmt::format("{}_{}_{}", tfile_name, tag, std::rand());
+  this->tag = fmt::format("{}_id{}_{}", this->tag, std::rand(), tfile_name.substr(0, tfile_name.find(".root.")));
+  this->histo_name = fmt::format("{}_{}_id{}", tfile_name, tag, std::rand());
   HistoPackage::CreateTH1();
 }
 

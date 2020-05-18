@@ -62,27 +62,20 @@ struct FitResult {
   double chi_square;
   double prob;
   double chi_ndf;
+  double param2;
+  double param2_err;
 };
 
 class Fitter {
 private:
-  TF1 *fitter;
-  std::string fitFunc = "";
-  std::string fitOpt = "Q0";
+  std::string fitOpt = "SRQ";
 
 public:
-  Fitter(){};
-  virtual ~Fitter(){};
-
-  void set_fitter(std::string fitName) {
-    this->fitter = new TF1( fmt::format("{}_{}",fitName, std::rand()).c_str(), fitName.c_str());
-    this->fitFunc = fitName;
+  Fitter(){
+    gStyle->SetOptFit(1);
+    gSystem->ProcessEvents();
   };
-  TF1 *get_fitter() { return this->fitter; };
-
-  void set_param(int param, double iValue) {
-    this->fitter->SetParameter(param, iValue);
-  }
+  virtual ~Fitter(){};
 
   FitResult fitter_RooLanGausArea(
     HistoPackage &i_hist,
@@ -92,7 +85,7 @@ public:
   );
 
   FitResult fitter_RooLanGaus( HistoPackage &i_hist, bool savePlot = true );
-  FitResult fitter_fit( HistoPackage &i_hist, bool savePlot = true );
+  FitResult fitter_fit( HistoPackage &i_hist, std::string fitName, bool savePlot = true );
 };
 
 #endif

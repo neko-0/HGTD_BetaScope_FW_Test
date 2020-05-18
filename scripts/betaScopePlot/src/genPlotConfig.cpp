@@ -48,7 +48,8 @@ bool PlotConfigMgr::GenerateRunInfo()
   pt.put("header.time_range_min", -50000);
   pt.put("header.time_range_max", 50000);
   pt.put("header.average_pulse_ofile_name", "run_avePluse.root");
-  pt.put("header.number_of_runs", "");
+  pt.put("header.self_correct", false);
+  pt.put("header.number_of_runs", file_name.size() );
   pt.put("header.trigger_channel", 3);
   pt.put("header.dut_channel", 2);
   pt.put("header.use_selected_events", false);

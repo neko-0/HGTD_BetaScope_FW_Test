@@ -1,6 +1,22 @@
-#include <fmt/format.h>
-
 #include "betaScopePlot/include/plotJobMgr.h"
+
+#include <fmt/format.h>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
+
+PlotJobMgr PlotJobMgr::operator +(const PlotJobMgr &inputConfigMgr)
+{
+  PlotJobMgr merged;
+  merged.jobs.insert(this->jobs.end(), this->jobs.begin(), this->jobs.end() );
+  merged.jobs.insert(merged.jobs.end(), inputConfigMgr.jobs.begin(), inputConfigMgr.jobs.end() );
+  return merged;
+}
+
+PlotJobMgr &PlotJobMgr::operator +=(const PlotJobMgr &inputConfigMgr)
+{
+  this->jobs.insert(this->jobs.end(), inputConfigMgr.jobs.begin(), inputConfigMgr.jobs.end() );
+  return *this;
+}
 
 
 void PlotJobMgr::Fill(const int &channel, const std::string &fitFunc,
@@ -74,29 +90,49 @@ PlotJobMgr PlotJobMgr::Create_Default_List( std::string tfile_name )
     );
   }
 
-  defaultPlotMgr.Fill(
-    2, "gaus",
-    HistoPackage(tfile_name, "cfd2[50]-cfd3[50]" , "Time resolution CFD50% [ps]", 100, -100, 500, "res50"),
-    "res50"
-  );
-
-  defaultPlotMgr.Fill(
-    2, "gaus",
-    HistoPackage(tfile_name, "cfd2[20]-cfd3[20]" , "Time resolution CFD20% [ps]", 100, -100, 500, "res20"),
-    "res20"
-  );
-
-  defaultPlotMgr.Fill(
-    2, "gaus",
-    HistoPackage(tfile_name, "tmax2[0]-cfd3[20]" , "Time resolution Tmax [ps]", 100, -100, 500, "resTmax"),
-    "resTmax"
-  );
-
-  defaultPlotMgr.Fill(
-    2, "gaus",
-    HistoPackage(tfile_name, "zero_cross_tmax2[0]-cfd3[20]" , "Time resolution Zero Cross Tmax Ch2 [ps]", 100, -100, 500, "resZeroCross"),
-    "resZeroCross"
-  );
-
   return defaultPlotMgr;
+}
+
+//==============================================================================
+//==============================================================================
+PlotJobMgr PlotJobMgr::Read_List(std::string tfile_name, std::string job_list)
+{
+    std::string file_loc;
+    if(job_list == "")
+    {
+      std::cout << "opening additional plot list from default location\n";
+
+      std::string beta_scope_path(getenv("BETASCOPE_SCRIPTS"));
+      file_loc = fmt::format("{}/betaScopePlot/src/plot_list.json", beta_scope_path);
+    }
+    else
+    {
+      file_loc = job_list;
+    }
+
+    boost::property_tree::ptree pt;
+    boost::property_tree::read_json(file_loc, pt);
+
+    PlotJobMgr output_plotJobMgr;
+
+    for(const auto &item : pt.get_child("plot_list"))
+    {
+      const auto &job = item.second;
+      const auto &bin = job.get_child("bin");
+
+      output_plotJobMgr.Fill(
+        job.get<int>("channel", 2),
+        job.get<std::string>("fit"),
+        HistoPackage(
+          tfile_name,
+          job.get<std::string>("expression"),
+          job.get<std::string>("title"),
+          bin.get<int>("nbin"), bin.get<double>("xmin"), bin.get<double>("xmax"),
+          job.get<std::string>("histo_tag")
+        ),
+        job.get<std::string>("tag")
+      );
+    }
+
+    return output_plotJobMgr;
 }

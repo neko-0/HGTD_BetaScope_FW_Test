@@ -1,8 +1,12 @@
-#include "dataOutputFormat.h"
+#include "betaScopePlot/include/dataOutputFormat.h"
+
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/ini_parser.hpp>
 
 void DataOutputFormat::CreateBetaScopeOutputFile(
     std::string biasVoltage, std::map<std::string, FitResult> outData,
-    int temperature, int trigger_bias) {
+    int temperature, int trigger_bias)
+{
 
   std::string dutHeader =
       "DUT_" + biasVoltage + "_" + std::to_string(temperature);
@@ -176,4 +180,35 @@ void DataOutputFormat::CreateBetaScopeOutputFile(
 
   DataOutputFormat::WriteKey("temperature", temperature);
   DataOutputFormat::WriteKey("trigger_bias", trigger_bias);
+}
+
+void DataOutputFormat::ParseRawOutputToINI(
+    std::string biasVoltage,
+    std::map<std::string, FitResult> outData,
+    int temperature
+)
+{
+  boost::property_tree::ptree pt;
+  try
+  {
+    boost::property_tree::ini_parser::read_ini("raw_results.ini", pt);
+  }
+  catch(std::exception &pt_ex )
+  {
+    std::cerr << pt_ex.what() << std::endl;  
+  }
+
+  for(const auto &odata : outData )
+  {
+    pt.put(fmt::format("{}_{}.{}", biasVoltage, temperature, odata.first), odata.second.param );
+    pt.put(fmt::format("{}_{}.{}_Error", biasVoltage, temperature, odata.first), odata.second.param_err );
+    pt.put(fmt::format("{}_{}.{}_NDF", biasVoltage, temperature, odata.first), odata.second.ndf );
+    pt.put(fmt::format("{}_{}.{}_CHI", biasVoltage, temperature, odata.first), odata.second.chi_square );
+    pt.put(fmt::format("{}_{}.{}_PROB", biasVoltage, temperature, odata.first), odata.second.prob );
+    pt.put(fmt::format("{}_{}.{}_CHI_NDF", biasVoltage, temperature, odata.first), odata.second.chi_ndf );
+    pt.put(fmt::format("{}_{}.{}_Par2", biasVoltage, temperature, odata.first), odata.second.param2 );
+    pt.put(fmt::format("{}_{}.{}_Par2Err", biasVoltage, temperature, odata.first), odata.second.param2_err );
+  }
+
+  boost::property_tree::ini_parser::write_ini("raw_results.ini", pt);
 }

@@ -29,9 +29,18 @@ public:
     this->ofile.open(fileName, std::ios::app);
   };
 
-  void CreateBetaScopeOutputFile(std::string biasVoltage,
-                                 std::map<std::string, FitResult> outData,
-                                 int temperatur = 20, int trigger_bias = 390);
+  void CreateBetaScopeOutputFile(
+    std::string biasVoltage,
+    std::map<std::string, FitResult> outData,
+    int temperatur = 20, int trigger_bias = 390
+  );
+
+  void ParseRawOutputToINI(
+    std::string biasVoltage,
+    std::map<std::string, FitResult> outData,
+    int temperature = -30
+  );
+
 };
 
 #endif // DATA_OUTPUT_FORMAT_HPP

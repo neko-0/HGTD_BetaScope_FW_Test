@@ -24,12 +24,17 @@ struct PlotJobMgr
   PlotJobMgr(){};
   virtual ~PlotJobMgr(){};
 
+  PlotJobMgr operator +(const PlotJobMgr &inputConfigMgr);
+  PlotJobMgr &operator +=(const PlotJobMgr &inputConfigMgr);
+
   void Fill(
     const int &channel, const std::string &fitFunc,
     const HistoPackage &histoPack, const std::string &tag
    );
 
   static PlotJobMgr Create_Default_List( std::string tfile_name );
+
+  static PlotJobMgr Read_List(std::string tfile_name, std::string job_list="");
 };
 
 
