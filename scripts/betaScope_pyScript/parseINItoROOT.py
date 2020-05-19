@@ -2,6 +2,14 @@ import ROOT
 from array import array
 from parseBetaResultsToExcel import *
 
+from ROOTFile import RootFile
+
+import logging, coloredlogs
+
+logging.basicConfig()
+log = logging.getLogger(__name__)
+coloredlogs.install(level="CRITICAL", logger=log)
+
 def parseINItoROOT(fname="_results.ini"):
     config = configparser.ConfigParser()
     config.read(fname)
@@ -234,5 +242,34 @@ def parseINItoROOT2(fileout, title = "Hi", run_folder="./", fname="_results.ini"
 
         ttree.Write() #"run"+str(RunNum), ROOT.TObject.kOverwrite)
 
+def parseRawINIToROOT(filename = "raw_results.ini"):
+    config = configparser.ConfigParser()
+    config.read(filename)
+    output_file = RootFile("raw_results.root", "raw")
+    created_branches = False
+    for sec in config.sections():
+        if not created_branches:
+            for key in config[sec]:
+                output_file.create_branch(key, "d")
+            output_file.create_branch("bias", "d")
+            output_file.create_branch("cycle", "i")
+            created_branches = True
+        for key in config[sec]:
+            output_file[key][0] = float(config[sec][key])
+        output_file["bias"][0] = float(sec.split("V")[0])
+        output_file["cycle"][0] = int(sec.split(".")[1]) if "." in sec else 1
+        '''
+        try:
+            output_file["bias"][0] = sec.split("V")[0]
+        except Exception as excep:
+            log.warning(excep)
+        try:
+            output_file["cycle"][0] = int(sec.split(".")[1]) if sec.split(".")[1] != "" else 1
+        except Exception as excep:
+            log.warning(excep)
+        '''
+        output_file.fill()
+
 if __name__=="__main__":
     parseINItoROOT()
+    parseRawINIToROOT()
