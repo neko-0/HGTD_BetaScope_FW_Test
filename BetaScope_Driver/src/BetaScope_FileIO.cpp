@@ -17,6 +17,7 @@ bool BetaScope::FileOpen(const char *ifile_path) {
   this->input_tfile_ = new TFile(ifile_path);
   if (this->input_tfile_->IsZombie()) {
     LOG_ERROR("Zombie file. return false.");
+    this->is_file_opened_ = false;
     return false;
   }
   LOG_INFO("Input file looks fine. continue");
@@ -34,11 +35,11 @@ bool BetaScope::FileOpen(const char *ifile_path) {
   LOG_INFO( "compressionLevel: " + std::to_string(this->compression_level_));
 
   this->output_tfile_ = new TFile(this->output_file_name_.c_str(), "RECREATE", "", this->compression_level_);
-  this->output_tfile_->cd();
 
   LOG_INFO("Fininished, exiting");
   // TThread::UnLock();
 
+  this->is_file_opened_ = true;
   return true;
 }
 
@@ -51,6 +52,7 @@ void BetaScope::FileClose() {
   LOG_INFO("Entering");
   LOG_INFO("Writing output files.");
 
+  this->output_tfile_->cd();
   this->output_ttree_->Write();
   this->output_tfile_->Close();
 

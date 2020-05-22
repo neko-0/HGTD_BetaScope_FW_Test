@@ -201,9 +201,10 @@ void BetaScopeWaveformAna::Analysis()
 }
 
 
-void BetaScopeWaveformAna::Initialize() {
+bool BetaScopeWaveformAna::Initialize() {
   // required
-  this->beta_scope.FileOpen(ifile.c_str());
+  bool file_opened = this->beta_scope.FileOpen(ifile.c_str());
+  if(!file_opened){return false;}
 
   ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2");
   gErrorIgnoreLevel = kFatal;
@@ -355,6 +356,7 @@ void BetaScopeWaveformAna::Initialize() {
   }
 
   // this->beta_scope.treeReader->Restart();
+  return true;
 }
 
 void BetaScopeWaveformAna::LoopEvents()

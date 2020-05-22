@@ -29,11 +29,14 @@ void runAna(
   if (skipWaveform){doAna.setWaveform(skipWaveform);}
   doAna.readWaveformConfig(config);
   doAna.skim_output = skim;
-  doAna.Initialize();
+  bool initialized = doAna.Initialize();
   TThread::UnLock();
   // doAna.run();
-  doAna.LoopEvents();
-  doAna.Finalize();
+  if(initialized)
+  {
+    doAna.LoopEvents();
+    doAna.Finalize();
+  }
 }
 
 int main(int argc, char **argv) {
