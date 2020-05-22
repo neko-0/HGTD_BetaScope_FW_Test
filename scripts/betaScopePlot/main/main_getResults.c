@@ -100,7 +100,7 @@ void result( PlotConfigMgr::ConfigSection sec, int dut_channel, int trigger_chan
   if(myBuffer.find(".root.")!=std::string::npos)
   {
     std::string fIndex;
-    fIndex = myBuffer.substr(myBuffer.find(".root.")+5, myBuffer.length() );
+    fIndex = myBuffer.substr(myBuffer.find(".root.")+6, myBuffer.length() );
     biasVoltage = sec.bias + "." + fIndex;
     biasVoltage2 = sec.bias + "findex" + fIndex;
   }
@@ -122,6 +122,7 @@ void result( PlotConfigMgr::ConfigSection sec, int dut_channel, int trigger_chan
 void getResults(std::string plotConfig_fname, std::string outDir = "Results/" )
 {
   gROOT->SetBatch(true);
+  gStyle->SetOptFit(1);
 
   ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2");
   ROOT::EnableThreadSafety();

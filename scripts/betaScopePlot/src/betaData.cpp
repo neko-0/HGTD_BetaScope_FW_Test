@@ -195,9 +195,10 @@ void DataOutputFormat::ParseRawOutputToINI(
   }
   catch(std::exception &pt_ex )
   {
-    std::cerr << pt_ex.what() << std::endl;  
+    std::cerr << pt_ex.what() << std::endl;
   }
 
+  fmt::print("writing {}_{}\n", biasVoltage, temperature);
   for(const auto &odata : outData )
   {
     pt.put(fmt::format("{}_{}.{}", biasVoltage, temperature, odata.first), odata.second.param );

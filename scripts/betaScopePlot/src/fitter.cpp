@@ -153,9 +153,9 @@ FitResult Fitter::fitter_RooLanGausArea(
     paveText.Draw();
 
     TImage *img = TImage::Create();
+    gSystem->ProcessEvents();
     img->FromPad(oCanvas);
     img->WriteImage(Form("%s_%s_lxg_RooFit.png", i_histo.get_tfile_name().c_str(), i_histo.get_simple_tag().c_str()));
-    delete img;
 
     //if (histo_fit != NULL)delete histo_fit;
     //if (paveText != NULL)delete paveText;
@@ -296,9 +296,9 @@ FitResult Fitter::fitter_RooLanGaus(HistoPackage &i_histo, bool savePlot)
     paveText.Draw();
 
     TImage *img = TImage::Create();
+    gSystem->ProcessEvents();
     img->FromPad(oCanvas);
     img->WriteImage(Form("%s_%s_lxg_RooFit.png", i_histo.get_tfile_name().c_str(), i_histo.get_simple_tag().c_str()));
-    delete img;
 
     if( oCanvas != NULL ){ delete oCanvas; }
   }
@@ -316,7 +316,7 @@ FitResult Fitter::fitter_RooLanGaus(HistoPackage &i_histo, bool savePlot)
 }
 
 FitResult Fitter::fitter_fit(HistoPackage &i_histo, std::string fitName, bool savePlot)
-{  
+{
   TF1 fitter( fmt::format("{}_{}",fitName, std::rand()).c_str(), fitName.c_str());
   fitter.AddToGlobalList(false);
 
@@ -374,10 +374,10 @@ FitResult Fitter::fitter_fit(HistoPackage &i_histo, std::string fitName, bool sa
     oCanvas->cd();
     i_histo.get_histo()->Draw();
     //fitter.Draw("same");
+    gSystem->ProcessEvents();
     TImage *img = TImage::Create();
     img->FromPad(oCanvas);
     img->WriteImage(Form("%s_%s.png", i_histo.get_tfile_name().c_str(), i_histo.get_simple_tag().c_str()));
-    delete img;
     delete oCanvas;
   }
 
