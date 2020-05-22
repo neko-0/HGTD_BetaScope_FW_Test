@@ -206,6 +206,8 @@ bool BetaScopeWaveformAna::Initialize() {
   bool file_opened = this->beta_scope.FileOpen(ifile.c_str());
   if(!file_opened){return false;}
 
+  BETA_LOG::LOG_LEVEL = 0;
+
   ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2");
   gErrorIgnoreLevel = kFatal;
 
@@ -354,6 +356,8 @@ bool BetaScopeWaveformAna::Initialize() {
     this->beta_scope.SetInBranch<TTreeReaderValue, int>("cycle", "cycle");
     this->beta_scope.BuildOutBranch<int>("cycle");
   }
+
+  BETA_LOG::LOG_LEVEL = 4;
 
   // this->beta_scope.treeReader->Restart();
   return true;

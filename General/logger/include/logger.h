@@ -34,6 +34,8 @@ namespace BETA_LOG
   static const std::string BOLDCYAN =  "\033[1m\033[36m";    /* Bold Cyan */
   static const std::string BOLDWHITE =  "\033[1m\033[37m";   /* Bold White */
 
+  static int LOG_LEVEL = 1;
+
   class Logger
   {
     private:
@@ -88,18 +90,19 @@ namespace BETA_LOG
       const char* func_name
     )
     {
-      if(level_ == 0)
+      if(level_ == 0 && level_ <= BETA_LOG::LOG_LEVEL)
       {
         Logger::info(content, file_name, line_num, func_name);
       }
-      else if (level_ == 1)
+      else if (level_ == 1 && level_ <= BETA_LOG::LOG_LEVEL )
       {
         Logger::warning(content, file_name, line_num, func_name);
       }
-      else
+      else if (level_ == 2 && level_ <= BETA_LOG::LOG_LEVEL )
       {
         Logger::error(content, file_name, line_num, func_name);
       }
+      else{}
     }
 
     void error(
