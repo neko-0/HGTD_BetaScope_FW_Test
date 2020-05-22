@@ -17,7 +17,7 @@ bool BetaScope::RawTreeReader(const char *itreeName) {
   this->input_tree_reader_ = new TTreeReader(itreeName, this->input_tfile_);
   this->input_num_event_ = this->input_tree_reader_->GetEntries(true);
 
-  LOG_INFO( "Number of events: " + std::to_string(this->input_num_event_));
+  LOG_INFO( this->input_file_nick_name_ + ", found number of events: " + std::to_string(this->input_num_event_));
 
   LOG_INFO("Looping through raw scope channels.");
 

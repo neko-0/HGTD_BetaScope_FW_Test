@@ -30,9 +30,11 @@ public:
 
   virtual void Run()
   {
-    BetaScope_AnaFramework::Initialize();
-    BetaScope_AnaFramework::LoopEvents(&BetaScope_AnaFramework::Analysis);
-    BetaScope_AnaFramework::Finalize();
+    if(BetaScope_AnaFramework::Initialize())
+    {
+      BetaScope_AnaFramework::LoopEvents(&BetaScope_AnaFramework::Analysis);
+      BetaScope_AnaFramework::Finalize();
+    }
   };
 };
 

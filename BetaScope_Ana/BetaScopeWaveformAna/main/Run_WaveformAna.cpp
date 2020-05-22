@@ -17,7 +17,7 @@ namespace bpo = boost::program_options;
 #include <TROOT.h>
 #include <TThread.h>
 
-void runAna(
+int runAna(
   const std::string &fileName,
   const std::string &config = "WaveformAnaConfig.ini",
   const bool &skipWaveform = false,
@@ -36,6 +36,11 @@ void runAna(
   {
     doAna.LoopEvents();
     doAna.Finalize();
+    return 0;
+  }
+  else
+  {
+    return 1;
   }
 }
 
