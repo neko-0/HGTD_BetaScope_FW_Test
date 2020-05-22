@@ -95,19 +95,22 @@ void result( PlotConfigMgr::ConfigSection sec, int dut_channel, int trigger_chan
   std::lock_guard<std::mutex> lck(MTX);
   DataOutputFormat outfile;
   std::string biasVoltage;
+  std::string biasVoltage2;
   std::string myBuffer = sec.file_name;
   if(myBuffer.find(".root.")!=std::string::npos)
   {
     std::string fIndex;
     fIndex = myBuffer.substr(myBuffer.find(".root.")+5, myBuffer.length() );
     biasVoltage = sec.bias + "." + fIndex;
+    biasVoltage2 = sec.bias + "findex" + fIndex;
   }
   else
   {
     biasVoltage = sec.bias;
+    biasVoltage2 = sec.bias;
   }
   outfile.CreateBetaScopeOutputFile( biasVoltage.c_str(), oData, sec.temperature, sec.trigger_bias );
-  outfile.ParseRawOutputToINI(biasVoltage, oData, sec.temperature );
+  outfile.ParseRawOutputToINI(biasVoltage2, oData, sec.temperature );
 
   fmt::print("{} is Finished.\n", sec.file_name);
   my_cut_v.clear();
