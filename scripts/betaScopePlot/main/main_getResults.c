@@ -126,7 +126,7 @@ void getResults(std::string plotConfig_fname, std::string outDir = "Results/" )
 
   ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2");
   ROOT::EnableThreadSafety();
-  //ROOT::EnableImplicitMT(std::thread::hardware_concurrency());
+  ROOT::EnableImplicitMT(std::thread::hardware_concurrency());
 
   PlotConfigMgr plotConfig = PlotConfigMgr::ParseConfig(plotConfig_fname);
 
