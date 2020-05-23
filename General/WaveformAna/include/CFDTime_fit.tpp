@@ -10,8 +10,6 @@
 #include <TVectorF.h>
 #include <Math/MinimizerOptions.h>
 
-#include "WaveformAna/include/Waveform_Analysis.hpp"
-
 template <class data_type>
 WaveformAnalysis::FitResult WaveformAnalysis::Fit_CFD(
   WaveformAna<data_type,data_type> &waveform, const double &cfd
@@ -39,13 +37,13 @@ WaveformAnalysis::FitResult WaveformAnalysis::Fit_CFD(
   }
 
   auto sub_waveform = waveform.sub_waveform(index_at_cfd-1, index_at_cfd+1);
-
-  std::string title = std::to_string(index_at_cfd+std::rand());
+  std::string title = std::to_string(std::rand()) + "_" + std::to_string(index_at_cfd+std::rand());
   TGraph gr(sub_waveform.size(), &sub_waveform.get_v1()[0], &sub_waveform.get_v2()[0] );
   gr.SetTitle(title.c_str());
+  gr.SetName(title.c_str());
 
   title = "f_" + title;
-  TF1 fu(title.c_str(), "[0]*x+[1]");
+  TF1 fu(title.c_str(), "[0]*x+[1]", sub_waveform.get_v1_value(0)-1000, sub_waveform.get_v1_value(0)+1000);
   fu.AddToGlobalList(false);
   TFitResultPtr res = gr.Fit(&fu, "SQ");
   time_at_cfd = fu.GetX(value_at_cfd);
