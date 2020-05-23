@@ -80,6 +80,11 @@ void BetaScopeWaveformAna::event_ana(int ch, WaveformAna<double, double> wavefor
   WaveformAnalysis::FitResult tmaxFitHolder = WaveAna.Get_Fit_Tmax( waveform.get_v2(), waveform.get_v1(), waveform.max_index() );
   WaveformAnalysis::FitResult tmaxZeroHolder = WaveAna.Get_Zero_Cross_Tmax( waveform.get_v2(), waveform.get_v1(), waveform.max_index() );
 
+  WaveformAnalysis::FitResult fit_cfd_50 = WaveformAnalysis::Fit_CFD<double>(waveform, 0.5);
+  this->beta_scope.SetOutBranchValue(Form("fit_cfd%i_g", ch), fit_cfd_50.graph);
+  this->beta_scope.SetOutBranchValue(Form("fit_cfd%i_chi", ch), fit_cfd_50.chi);
+  this->beta_scope.SetOutBranchValue(Form("fit_cfd%i", ch), fit_cfd_50.value);
+
   this->fit_tmax[ch]->emplace_back(tmaxFitHolder.value );
   this->fit_tmax_chi[ch]->emplace_back(tmaxFitHolder.chi );
   this->zero_cross_tmax[ch]->emplace_back(tmaxZeroHolder.value);
@@ -278,6 +283,10 @@ bool BetaScopeWaveformAna::Initialize() {
     this->beta_scope.BuildOutBranch<double>(Form("undershoot_tmax%i", ch) );
     this->beta_scope.BuildOutBranch<bool>(Form("isGoodTrig%i", ch) );
     this->beta_scope.BuildOutBranch<std::vector<double>>(Form("tot%i", ch) );
+
+    this->beta_scope.BuildOutBranch<double>(Form("fit_cfd%i", ch) );
+    this->beta_scope.BuildOutBranch<double>(Form("fit_cfd%i_chi", ch) );
+    this->beta_scope.BuildOutBranch<TGraph>(Form("fit_cfd%i_g", ch) );
 
     if(!this->skipWaveform)
     {
