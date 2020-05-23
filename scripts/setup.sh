@@ -37,6 +37,8 @@ alias run_RunConfig='${BETASCOPE_SCRIPTS}/betaScopePlot/bin/genPlotConfig'
 alias run_GetResults='${BETASCOPE_SCRIPTS}/betaScopePlot/bin/getResults run_info_v08022018.ini'
 alias run_beta_excel='python2 ${BETASCOPE_SCRIPTS}/betaScope_pyScript/parseBetaResultsToExcel.py -task '
 
+export BETA_PLOT_JOBS=$BETASCOPE_SCRIPTS/betaScopePlot/src/plot_list.json
+
 function LGAD(){
   if [ "$1" = "--test" ]
   then
