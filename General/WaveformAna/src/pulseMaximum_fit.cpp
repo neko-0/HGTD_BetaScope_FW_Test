@@ -180,7 +180,7 @@ WaveformAnalysis::FitResult WaveformAnalysis::Get_Fit_Tmax( WaveformAna<data_typ
 
     waveform.fit_tmax(tmax_fitted);
     waveform.fit_tmax_chi(chi2_fitted);
-    return FitResult{tmax_fitted, chi2_fitted, gr};
+    return WaveformAnalysis::FitResult{tmax_fitted, chi2_fitted, gr};
   }
 }
 
@@ -229,6 +229,6 @@ WaveformAnalysis::FitResult WaveformAnalysis::Get_Zero_Cross_Tmax( WaveformAna<d
 
     waveform.zero_cross_tmax(tmax_zerocross);
     waveform.zero_cross_tmax_chi(chi2_fitted);
-    return FitResult{tmax_zerocross, chi2_fitted, gr};
+    return WaveformAnalysis::FitResult{tmax_zerocross, chi2_fitted, gr};
   }
 }

@@ -8,10 +8,10 @@ template <class data_type, class input_type>
 class WaveformAna : public Waveform<data_type, input_type>, public WaveformAnaBase
 {
 private:
-    int channel_;
-    int max_index_;
-    double pmax_;
-    double tmax_;
+    int channel_ = -1;
+    int max_index_ = -1;
+    double pmax_ = -1.0;
+    double tmax_ = -1.0;
     double fit_tmax_;
     double fit_tmax_chi_;
     double zero_cross_tmax_;
