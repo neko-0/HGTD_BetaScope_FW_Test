@@ -75,7 +75,8 @@ int main(int argc, char **argv) {
 
     LOG_INFO("Preparation: Thread configuration.");
     unsigned numThreads = vm["thread"].as<unsigned>();
-    LOG_INFO("Get number of threads" + std::to_string(numThreads) );
+    if(numThreads!=1){numThreads = numThreads/2;}
+    LOG_INFO("number of simultaneously processing files = " + std::to_string(numThreads) );
     boost::asio::thread_pool pool(numThreads);
     ROOT::EnableThreadSafety();
     ROOT::EnableImplicitMT(numThreads);

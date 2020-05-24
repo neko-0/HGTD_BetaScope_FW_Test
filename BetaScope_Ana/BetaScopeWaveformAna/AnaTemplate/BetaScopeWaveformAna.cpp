@@ -159,7 +159,8 @@ void BetaScopeWaveformAna::Analysis()
     );
 
     workers.emplace_back(
-        std::async( std::launch::async | std::launch::deferred, &BetaScopeWaveformAna::event_ana, this, ch, waveform)
+        //std::async( std::launch::async | std::launch::deferred, &BetaScopeWaveformAna::event_ana, this, ch, waveform)
+        std::async( std::launch::deferred, &BetaScopeWaveformAna::event_ana, this, ch, waveform)
     );
   }
 
