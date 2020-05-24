@@ -2,7 +2,7 @@
 
 
 template <typename dtype>
-bool BetaScope::BuildOutBranch(std::string branchName, int size) {
+bool BetaScope::BuildOutBranch(const std::string &branchName, const int size) {
   try
   {
     this->output_branches_buffer_[this->output_branch_counter_] = new PrimitiveDataType_Container<dtype>();
@@ -74,8 +74,7 @@ bool BetaScope::BuildOutBranch(std::string branchName, int size) {
 }
 
 template <typename dtype>
-typename DataType<dtype>::type *
-BetaScope::GetOutBranch(std::string branchName)
+typename DataType<dtype>::type *BetaScope::GetOutBranch(const std::string &branchName)
 {
   return static_cast<PrimitiveDataType_Container<dtype> *>(this->output_branch_map_[branchName])->get();
 }
