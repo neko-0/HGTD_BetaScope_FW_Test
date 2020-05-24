@@ -5,6 +5,8 @@
 #include <unistd.h>
 #include <stdio.h>
 
+#include <omp.h>
+
 #include <boost/thread.hpp>
 #include <boost/asio.hpp>
 #include <boost/asio/thread_pool.hpp>
@@ -95,19 +97,22 @@ void result( PlotConfigMgr::ConfigSection sec, int dut_channel, int trigger_chan
   std::lock_guard<std::mutex> lck(MTX);
   DataOutputFormat outfile;
   std::string biasVoltage;
+  std::string biasVoltage2;
   std::string myBuffer = sec.file_name;
   if(myBuffer.find(".root.")!=std::string::npos)
   {
     std::string fIndex;
-    fIndex = myBuffer.substr(myBuffer.find(".root.")+5, myBuffer.length() );
+    fIndex = myBuffer.substr(myBuffer.find(".root.")+6, myBuffer.length() );
     biasVoltage = sec.bias + "." + fIndex;
+    biasVoltage2 = sec.bias + "findex" + fIndex;
   }
   else
   {
     biasVoltage = sec.bias;
+    biasVoltage2 = sec.bias;
   }
   outfile.CreateBetaScopeOutputFile( biasVoltage.c_str(), oData, sec.temperature, sec.trigger_bias );
-  outfile.ParseRawOutputToINI(biasVoltage, oData, sec.temperature );
+  outfile.ParseRawOutputToINI(biasVoltage2, oData, sec.temperature );
 
   fmt::print("{} is Finished.\n", sec.file_name);
   my_cut_v.clear();
@@ -118,20 +123,24 @@ void result( PlotConfigMgr::ConfigSection sec, int dut_channel, int trigger_chan
 
 void getResults(std::string plotConfig_fname, std::string outDir = "Results/" )
 {
+  gSystem->Load("libMinuit2");
   gROOT->SetBatch(true);
+  gStyle->SetOptFit(1);
+  gErrorIgnoreLevel = kFatal;
+  RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR) ;
 
   ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2");
   ROOT::EnableThreadSafety();
-  //ROOT::EnableImplicitMT(std::thread::hardware_concurrency());
+  ROOT::EnableImplicitMT(std::thread::hardware_concurrency());
 
   PlotConfigMgr plotConfig = PlotConfigMgr::ParseConfig(plotConfig_fname);
 
   int dut_channel = plotConfig.header.dut_channel;
 	int trigger_channel = plotConfig.header.trigger_channel;
 
+  /*
   //std::vector<std::future<void>> workers;
   boost::asio::thread_pool pool(5);
-
   // looping through files
   for( auto &sec : plotConfig.sections )
   {
@@ -139,9 +148,16 @@ void getResults(std::string plotConfig_fname, std::string outDir = "Results/" )
     //workers.emplace_back( std::async(std::launch::async | std::launch::deferred, result, sec, dut_channel, trigger_channel) );
     boost::asio::post(pool, boost::bind(result, sec, dut_channel, trigger_channel));
   }
-
   //for( std::size_t id = 0; id < workers.size(); id++ ){ workers[id].wait(); }
   pool.join();
+  */
+
+  #pragma omp parallel for num_threads(std::thread::hardware_concurrency())
+  for( std::size_t it =0; it<plotConfig.sections.size(); it++ )
+  {
+    auto &sec = plotConfig.sections.at(it);
+    result(sec, dut_channel, trigger_channel);
+  }
 
   fmt::print("Start dumping plots...\n");
 	if(mkdir( outDir.c_str(), ACCESSPERMS ) == 0)

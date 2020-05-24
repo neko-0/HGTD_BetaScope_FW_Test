@@ -46,6 +46,7 @@ WaveformAnalysis::Get_Fit_Tmax(
       std::string title = std::to_string(timeVec.at(pmax_index) + std::rand());
       TGraph gr(small_timeVec, small_voltageVec);
       gr.SetTitle(title.c_str());
+      gr.SetName(title.c_str());
 
       title = "f_" + title;
       TF1 fu(title.c_str(), "gaus", timeVec.at(pmax_index) - 300., timeVec.at(pmax_index) + 300.);
@@ -70,6 +71,7 @@ WaveformAnalysis::Get_Fit_Tmax(
   else
   {
     TGraph gr(n_points);
+
     return WaveformAnalysis::FitResult{tmax_fitted, chi2_fitted, gr};
   }
 }
@@ -108,6 +110,7 @@ WaveformAnalysis::Get_Zero_Cross_Tmax(
       std::string title = std::to_string(timeVec.at(pmax_index) + std::rand());
       TGraph gr(small_timeVec, small_voltageVec);
       gr.SetTitle(title.c_str());
+      gr.SetName(title.c_str());
 
       title = "f_" + title;
       TF1 fu(title.c_str(), "[0]*x+[1]", timeVec.at(pmax_index) - 300., timeVec.at(pmax_index) + 300.);
@@ -130,6 +133,7 @@ WaveformAnalysis::Get_Zero_Cross_Tmax(
   else
   {
     TGraph gr(n_points);
+
     return WaveformAnalysis::FitResult{tmax_zerocross, chi2_fitted, gr};
   }
 }
@@ -154,6 +158,7 @@ WaveformAnalysis::FitResult WaveformAnalysis::Get_Fit_Tmax( WaveformAna<data_typ
     std::string title = std::to_string(waveform.max_index()+std::rand());
     TGraph gr(sub_waveform.size(), &sub_waveform.get_v1()[0], &sub_waveform.get_v2()[0] );
     gr.SetTitle(title.c_str());
+    gr.SetName(title.c_str());
 
     title = "f_" + title;
     TF1 fu(title.c_str(), "gaus", waveform.tmax()-300.0, waveform.tmax()+300.0);
@@ -180,7 +185,7 @@ WaveformAnalysis::FitResult WaveformAnalysis::Get_Fit_Tmax( WaveformAna<data_typ
 
     waveform.fit_tmax(tmax_fitted);
     waveform.fit_tmax_chi(chi2_fitted);
-    return FitResult{tmax_fitted, chi2_fitted, gr};
+    return WaveformAnalysis::FitResult{tmax_fitted, chi2_fitted, gr};
   }
 }
 
@@ -204,6 +209,7 @@ WaveformAnalysis::FitResult WaveformAnalysis::Get_Zero_Cross_Tmax( WaveformAna<d
     std::string title = std::to_string(waveform.max_index()+std::rand());
     TGraph gr(deri_subwaveform.size(), &deri_subwaveform.get_v1()[0], &deri_subwaveform.get_v2()[0] );
     gr.SetTitle(title.c_str());
+    gr.SetName(title.c_str());
 
     title = "f_" + title;
     TF1 fu(title.c_str(), "[0]*x+[1]", waveform.tmax()-300.0, waveform.tmax()+300.0);
@@ -229,6 +235,6 @@ WaveformAnalysis::FitResult WaveformAnalysis::Get_Zero_Cross_Tmax( WaveformAna<d
 
     waveform.zero_cross_tmax(tmax_zerocross);
     waveform.zero_cross_tmax_chi(chi2_fitted);
-    return FitResult{tmax_zerocross, chi2_fitted, gr};
+    return WaveformAnalysis::FitResult{tmax_zerocross, chi2_fitted, gr};
   }
 }

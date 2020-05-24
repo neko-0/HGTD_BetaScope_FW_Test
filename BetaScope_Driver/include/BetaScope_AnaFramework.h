@@ -17,7 +17,7 @@ public:
   BetaScope_AnaFramework(){};
   virtual ~BetaScope_AnaFramework(){};
 
-  virtual void Initialize(std::string addBranches = "BetaScope_Driver/src/additionalBranches.ini", std::string rawBranches = "");
+  virtual bool Initialize(std::string addBranches = "BetaScope_Driver/src/additionalBranches.ini", std::string rawBranches = "");
 
   virtual void Analysis()
   {
@@ -30,18 +30,21 @@ public:
 
   virtual void Run()
   {
-    BetaScope_AnaFramework::Initialize();
-    BetaScope_AnaFramework::LoopEvents(&BetaScope_AnaFramework::Analysis);
-    BetaScope_AnaFramework::Finalize();
+    if(BetaScope_AnaFramework::Initialize())
+    {
+      BetaScope_AnaFramework::LoopEvents(&BetaScope_AnaFramework::Analysis);
+      BetaScope_AnaFramework::Finalize();
+    }
   };
 };
 
 template <typename beta_scope_type>
-void BetaScope_AnaFramework<beta_scope_type>::Initialize( std::string addBranches, std::string rawBranches)
+bool BetaScope_AnaFramework<beta_scope_type>::Initialize( std::string addBranches, std::string rawBranches)
 {
   this->beta_scope.RawTreeReader();
   //if (addBranches.compare("") != 0)
   this->beta_scope.NewTreeMaker(addBranches);
+  return true;
 }
 
 template <typename beta_scope_type>

@@ -8,6 +8,8 @@
 #include <unistd.h>
 #include <vector>
 
+#include <omp.h>
+
 #include <boost/thread.hpp>
 #include <boost/asio.hpp>
 #include <boost/asio/thread_pool.hpp>
@@ -17,7 +19,7 @@ namespace bpo = boost::program_options;
 #include <TROOT.h>
 #include <TThread.h>
 
-void runAna(
+int runAna(
   const std::string &fileName,
   const std::string &config = "WaveformAnaConfig.ini",
   const bool &skipWaveform = false,
@@ -29,11 +31,19 @@ void runAna(
   if (skipWaveform){doAna.setWaveform(skipWaveform);}
   doAna.readWaveformConfig(config);
   doAna.skim_output = skim;
-  doAna.Initialize();
+  bool initialized = doAna.Initialize();
   TThread::UnLock();
   // doAna.run();
-  doAna.LoopEvents();
-  doAna.Finalize();
+  if(initialized)
+  {
+    doAna.LoopEvents();
+    doAna.Finalize();
+    return 0;
+  }
+  else
+  {
+    return 1;
+  }
 }
 
 int main(int argc, char **argv) {
@@ -67,22 +77,33 @@ int main(int argc, char **argv) {
 
     LOG_INFO("Preparation: Thread configuration.");
     unsigned numThreads = vm["thread"].as<unsigned>();
-    LOG_INFO("Get number of threads" + std::to_string(numThreads) );
-    boost::asio::thread_pool pool(numThreads);
+    if(numThreads!=1){numThreads = numThreads/2;}
+    LOG_INFO("number of simultaneously processing files = " + std::to_string(numThreads) );
+
     ROOT::EnableThreadSafety();
     ROOT::EnableImplicitMT(numThreads);
+
     LOG_INFO(" Preparing workers.");
 
     BetaScopeWaveformAna my_ana;
     my_ana.readWaveformConfig(vm["config"].as<std::string>());
 
     std::vector<std::string> fileList = BetaScope_Utilities::Dir::getFiles(my_ana.rawFilesDir.c_str(), ".root");
+
+    /*
+    boost::asio::thread_pool pool(numThreads);
     for( auto file : fileList )
     {
       boost::asio::post(pool, boost::bind(runAna, file, vm["config"].as<std::string>(), vm["skipWaveform"].as<bool>(), vm["skim"].as<bool>()));
     }
-
     pool.join();
+    */
+
+    #pragma omp parallel for num_threads(numThreads)
+    for( std::size_t i = 0; i < fileList.size(); i++ )
+    {
+      runAna(fileList.at(i), vm["config"].as<std::string>(), vm["skipWaveform"].as<bool>(), vm["skim"].as<bool>());
+    }
 
     LOG_INFO("Finished. Time cost: " + std::to_string(std::time(nullptr) - main_time));
 

@@ -52,6 +52,7 @@ template <class N, class A> struct is_vector<std::vector<N, A>>
 //==============================================================================
 
 template <typename T> struct DataType { using type = T; };
+
 struct PrimitiveDataType_BaseContainer
 {
   PrimitiveDataType_BaseContainer(){};
@@ -236,13 +237,15 @@ public:
   //=========================================================================
   // building and getting branches methods for ouput ttree
 
-  template <typename dtype> bool BuildOutBranch(std::string branchName, int size=2000);
+  template <typename dtype>
+  bool BuildOutBranch(const std::string &branchName, const int size=2000);
 
   template <typename dtype>
-  typename DataType<dtype>::type *GetOutBranch(std::string branchName);
+  typename DataType<dtype>::type *GetOutBranch(const std::string &branchName);
 
   template <typename dtype>
-  void SetOutBranchValue(std::string branchName, dtype i_value) {
+  void SetOutBranchValue(const std::string &branchName, const dtype i_value)
+  {
     *GetOutBranch<dtype>(branchName) = i_value;
   }
 

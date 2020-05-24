@@ -18,6 +18,9 @@
 //#define LOG_WARNING(message) BETA_LOG::make_logger(std::string(__FILE__), 1)(std::string(message), __FILE__, __LINE__, __func__);
 //#define LOG_ERROR(message) BETA_LOG::make_logger(std::string(__FILE__), 2)(std::string(message), __FILE__, __LINE__, __func__);
 
+namespace BETA_LOG{
+    int LOG_LEVEL = 0;
+}
 
 BETA_LOG::Logger &BETA_LOG::make_logger(const std::string &name, const int &level)
 {

@@ -105,7 +105,7 @@ public:
     //==========================================================================
     // Pulse Maximum (Pmax)
     std::pair<double, unsigned int>
-    Find_Singal_Maximum(
+    static Find_Singal_Maximum(
         const std::vector<double> &voltageVec,
         const std::vector<double> &timeVec,
         const bool &confineSearchRegion,
@@ -220,7 +220,13 @@ public:
         const int &fraction,
         const std::vector<double> &voltageVec,
         const std::vector<double> &timeVec,
-        const std::pair<double, unsigned int> &Pmax);
+        const std::pair<double, unsigned int> &Pmax
+    );
+
+    template <class data_type>
+    static WaveformAnalysis::FitResult Fit_CFD(
+      WaveformAna<data_type,data_type> &waveform, const double &cfd
+    );
 
     //==========================================================================
     // Rise Time
@@ -320,5 +326,6 @@ public:
     );
 };
 
+#include "CFDTime_fit.tpp"
 
 #endif // WAVEFORM_ANALYSIS_H

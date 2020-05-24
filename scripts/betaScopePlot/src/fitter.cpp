@@ -35,6 +35,7 @@ FitResult Fitter::fitter_RooLanGausArea(
   double histo_max = i_histo.get_max_bin_xvalue();
 
   TF1 frontBaselineFitter(fmt::format("frontBaselineFitter_{}",i_histo.get_tag()).c_str(), "gaus");
+  frontBaselineFitter.AddToGlobalList(false);
   frontBaseArea.get_histo()->Fit(&frontBaselineFitter, "Q0");
 
   double baseline_area_mean = frontBaselineFitter.GetParameter(1);
@@ -42,6 +43,7 @@ FitResult Fitter::fitter_RooLanGausArea(
   double baseline_area_sigma_error = frontBaselineFitter.GetParError(2);
 
   TF1 backBaselineFitter(fmt::format("backBaselineFitter_{}",i_histo.get_tag()).c_str(), "gaus");
+  backBaselineFitter.AddToGlobalList(false);
   backBaseArea.get_histo()->Fit(&backBaselineFitter, "Q0");
 
   double backBaseline_param1 = backBaselineFitter.GetParameter(1);
@@ -69,23 +71,26 @@ FitResult Fitter::fitter_RooLanGausArea(
   */
 
   x.setBins(10000, "cache");
+  //x.setBins(10000, fmt::format("cache_",i_histo.get_tag()).c_str());
 
   RooFFTConvPdf lxg( fmt::format("lxg_{}",i_histo.get_tag()).c_str(), "landau conv gauss", x, roo_landau, roo_gaus);
 
   RooDataHist dataHist( fmt::format("dataHist_{}",i_histo.get_tag()).c_str(), i_histo.get_title().c_str(), x, RooFit::Import(*i_histo.get_histo()));
 
   //std::unique_lock<std::mutex> lck(MTX);
-  //auto my_mini = RooFi::Minimizer("Minutit2","Migrad");
+  //auto my_mini = RooFit::Minimizer("Minutit2","Migrad");
   //auto my_mini = RooMinimizer(lxg);
-  //my_mini.setMinimizerType("Minutit2");
+  //my_mini.setMinimizerType("Minuit2");
   //RooFit::Minimizer("Minutit2","Migrad"), RooFit::NumCPU(3)
+  //auto my_mini = RooFit::Minimizer("Minuit2","Migrad");
   RooFitResult *emptyFit = lxg.fitTo(dataHist, RooFit::Save()); // Normalization(histo->GetEntries(),RooAbsReal::NumEvent)
-  //RooFitResult *emptyFit = my_mini.fit(fmt::format("dataHist_{}",i_histo.get_tag()).c_str());
+  //RooFitResult *emptyFit = my_mini.fit("r");
   //lck.unlock();
 
   double landau_mean_error = roo_landau_mean.getPropagatedError(*emptyFit);
 
   TF1 *lxg_tf = lxg.asTF(RooArgList(x));
+  lxg_tf->AddToGlobalList(false);
   double peak = lxg_tf->GetMaximumX();
   double peak_y = lxg_tf->Eval(peak);
   double left_50per = lxg_tf->GetX(peak_y / 2.0, -1000, peak);
@@ -130,6 +135,7 @@ FitResult Fitter::fitter_RooLanGausArea(
     TPaveText paveText(0.7, 0.9, 0.5, 0.7, "brNDC");
 
     TF1 histo_fit(Form("%s_root_fit", i_histo.get_histoName().c_str()), "landau");
+    histo_fit.AddToGlobalList(false);
     histo_fit.SetLineColor(kGreen);
     i_histo.get_histo()->SetLineColor(kRed);
     i_histo.get_histo()->SetLineWidth(3);
@@ -153,9 +159,9 @@ FitResult Fitter::fitter_RooLanGausArea(
     paveText.Draw();
 
     TImage *img = TImage::Create();
+    gSystem->ProcessEvents();
     img->FromPad(oCanvas);
     img->WriteImage(Form("%s_%s_lxg_RooFit.png", i_histo.get_tfile_name().c_str(), i_histo.get_simple_tag().c_str()));
-    delete img;
 
     //if (histo_fit != NULL)delete histo_fit;
     //if (paveText != NULL)delete paveText;
@@ -212,6 +218,7 @@ FitResult Fitter::fitter_RooLanGaus(HistoPackage &i_histo, bool savePlot)
   RooRealVar roo_landau_sigma( fmt::format("Roo_landau_sigma_",i_histo.get_tag()).c_str(), "Roo_landau_sigma",std::abs(sampleSigma), 0.001, 3 * std::abs(sampleSigma));
   RooLandau roo_landau( fmt::format("Roo_landau_",i_histo.get_tag()).c_str(), "Roo_landau", x, roo_landau_mean, roo_landau_sigma);
 
+  //x.setBins(10000,  fmt::format("cache_",i_histo.get_tag()).c_str());
   x.setBins(10000, "cache");
 
   RooFFTConvPdf lxg( fmt::format("lxg_{}",i_histo.get_tag()).c_str(), "landau conv gauss", x, roo_landau, roo_gaus);
@@ -223,13 +230,15 @@ FitResult Fitter::fitter_RooLanGaus(HistoPackage &i_histo, bool savePlot)
   //auto my_mini = RooMinimizer(lxg);
   //my_mini.setMinimizerType("Minutit2");
   //RooFit::Minimizer("Minutit2","Migrad"), RooFit::NumCPU(3)
+  //auto my_mini = RooFit::Minimizer("Minuit2","Migrad");
   RooFitResult *emptyFit = lxg.fitTo( dataHist, RooFit::Save());
-  //RooFitResult *emptyFit = my_mini.fit(fmt::format("dataHist_{}",i_histo.get_tag()).c_str());
+  //RooFitResult *emptyFit = my_mini.fit("r");
   //lck.unlock();
 
   double landau_mean_error = roo_landau_mean.getPropagatedError(*emptyFit);
 
   TF1 *lxg_tf = lxg.asTF(RooArgList(x));
+  lxg_tf->AddToGlobalList(false);
   double peak = lxg_tf->GetMaximumX();
   double peak_y = lxg_tf->Eval(peak);
   double left_50per = lxg_tf->GetX(peak_y / 2.0, -1000, peak);
@@ -273,6 +282,7 @@ FitResult Fitter::fitter_RooLanGaus(HistoPackage &i_histo, bool savePlot)
     //TF1 *histo_fit = new TF1;
 
     TF1 histo_fit(Form("%s_root_fit", i_histo.get_histoName().c_str()), "landau");
+    histo_fit.AddToGlobalList(false);
     histo_fit.SetLineColor(kGreen);
     i_histo.get_histo()->SetLineColor(kRed);
     i_histo.get_histo()->SetLineWidth(3);
@@ -296,9 +306,9 @@ FitResult Fitter::fitter_RooLanGaus(HistoPackage &i_histo, bool savePlot)
     paveText.Draw();
 
     TImage *img = TImage::Create();
+    gSystem->ProcessEvents();
     img->FromPad(oCanvas);
     img->WriteImage(Form("%s_%s_lxg_RooFit.png", i_histo.get_tfile_name().c_str(), i_histo.get_simple_tag().c_str()));
-    delete img;
 
     if( oCanvas != NULL ){ delete oCanvas; }
   }
@@ -316,7 +326,7 @@ FitResult Fitter::fitter_RooLanGaus(HistoPackage &i_histo, bool savePlot)
 }
 
 FitResult Fitter::fitter_fit(HistoPackage &i_histo, std::string fitName, bool savePlot)
-{  
+{
   TF1 fitter( fmt::format("{}_{}",fitName, std::rand()).c_str(), fitName.c_str());
   fitter.AddToGlobalList(false);
 
@@ -374,10 +384,10 @@ FitResult Fitter::fitter_fit(HistoPackage &i_histo, std::string fitName, bool sa
     oCanvas->cd();
     i_histo.get_histo()->Draw();
     //fitter.Draw("same");
+    gSystem->ProcessEvents();
     TImage *img = TImage::Create();
     img->FromPad(oCanvas);
     img->WriteImage(Form("%s_%s.png", i_histo.get_tfile_name().c_str(), i_histo.get_simple_tag().c_str()));
-    delete img;
     delete oCanvas;
   }
 

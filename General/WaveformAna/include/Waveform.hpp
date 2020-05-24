@@ -58,6 +58,9 @@ public:
     std::vector<data_type> v1(){ return this->v1_; }
     std::vector<data_type> v2(){ return this->v2_; }
 
+    const std::vector<data_type> &v1() const { return this->v1_; }
+    const std::vector<data_type> &v2() const { return this->v2_; }
+
     const std::vector<data_type> &get_v1() const { return this->v1_; }
     const std::vector<data_type> &get_v2() const { return this->v2_; }
 

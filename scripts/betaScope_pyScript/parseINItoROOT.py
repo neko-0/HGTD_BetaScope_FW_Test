@@ -257,7 +257,7 @@ def parseRawINIToROOT(filename = "raw_results.ini"):
         for key in config[sec]:
             output_file[key][0] = float(config[sec][key])
         output_file["bias"][0] = float(sec.split("V")[0])
-        output_file["cycle"][0] = int(sec.split(".")[1]) if "." in sec else 1
+        output_file["cycle"][0] = int(sec.split("findex")[1].split("_")[0]) if "findex" in sec else 1
         '''
         try:
             output_file["bias"][0] = sec.split("V")[0]

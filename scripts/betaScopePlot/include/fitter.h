@@ -71,10 +71,7 @@ private:
   std::string fitOpt = "SRQ";
 
 public:
-  Fitter(){
-    gStyle->SetOptFit(1);
-    gSystem->ProcessEvents();
-  };
+  Fitter(){};
   virtual ~Fitter(){};
 
   FitResult fitter_RooLanGausArea(

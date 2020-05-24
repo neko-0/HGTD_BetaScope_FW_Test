@@ -100,15 +100,17 @@ public:
   ~BetaScopeWaveformAna(){};
 
   // required, user can add more to the existing methods;
-  void Initialize();
+  bool Initialize();
   void Analysis();
   void LoopEvents();
   void Finalize();
 
   void run(){
-    Initialize();
-    LoopEvents();
-    Finalize();
+    if(Initialize())
+    {
+      LoopEvents();
+      Finalize();
+    }
   };
 
   void event_ana(int ch, WaveformAna<double, double> waveform);
