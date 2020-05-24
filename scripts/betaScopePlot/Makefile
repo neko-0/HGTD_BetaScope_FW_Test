@@ -19,7 +19,7 @@ ROOT_LINKS   = `root-config --cflags --glibs`
 ROOFIT       = -lRooFit -lHtml -lMinuit -lRooFitCore -lRooStats
 ROOT_LIBS    = -L${ROOTSYS}/lib -lTreePlayer -lCore
 ROOT_INCLUDE = -I${ROOTSYS}/include
-BOOST_LIB    = -L/usr/include/boost/property_tree -L/usr/include/boost/ -lboost_thread -lboost_system
+BOOST_LIB    = -L/usr/include/boost/property_tree -L/usr/include/boost/ -lboost_thread -lboost_system -fopenmp
 
 GENERAL_DIR = ../General/
 
