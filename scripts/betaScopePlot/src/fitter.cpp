@@ -2,6 +2,8 @@
 #include <fmt/format.h>
 
 #include <RooMinimizer.h>
+#include <RooChi2Var.h>
+#include <RooNLLVar.h>
 
 #include "betaScopePlot/include/fitter.h"
 
@@ -70,12 +72,25 @@ FitResult Fitter::fitter_RooLanGausArea(
   roo_landau = new RooLandau("Roo_landau", "Roo_landau", x, *roo_landau_mean, *roo_landau_sigma);
   */
 
-  x.setBins(10000, "cache");
-  //x.setBins(10000, fmt::format("cache_",i_histo.get_tag()).c_str());
+  //x.setBins(10000, "cache");
+  x.setBins(10000, fmt::format("cache_",i_histo.get_tag()).c_str());
 
-  RooFFTConvPdf lxg( fmt::format("lxg_{}",i_histo.get_tag()).c_str(), "landau conv gauss", x, roo_landau, roo_gaus);
+  RooFFTConvPdf lxg( fmt::format("lxg_",i_histo.get_tag()).c_str(), "landau conv gauss", x, roo_landau, roo_gaus);
 
-  RooDataHist dataHist( fmt::format("dataHist_{}",i_histo.get_tag()).c_str(), i_histo.get_title().c_str(), x, RooFit::Import(*i_histo.get_histo()));
+  RooDataHist dataHist( fmt::format("dataHist_",i_histo.get_tag()).c_str(), i_histo.get_title().c_str(), x, RooFit::Import(*i_histo.get_histo()));
+
+  /*
+  std::cout<<"break before ROOChi2\n";
+  std::unique_lock<std::mutex> lck(MTX);
+  RooNLLVar chi2(fmt::format("chi2_{}",i_histo.get_tag()).c_str(), "chi2", lxg, dataHist);//, DataError(RooAbsData::SumW2));
+  lck.unlock();
+  std::cout<<"break after ROOChi2\n";
+  RooMinimizer my_mini(chi2);
+  my_mini.setMinimizerType("Minutit2");
+  my_mini.migrad();
+  my_mini.hesse();
+  RooFitResult *emptyFit = my_mini.save();
+  */
 
   //std::unique_lock<std::mutex> lck(MTX);
   //auto my_mini = RooFit::Minimizer("Minutit2","Migrad");
@@ -83,7 +98,7 @@ FitResult Fitter::fitter_RooLanGausArea(
   //my_mini.setMinimizerType("Minuit2");
   //RooFit::Minimizer("Minutit2","Migrad"), RooFit::NumCPU(3)
   //auto my_mini = RooFit::Minimizer("Minuit2","Migrad");
-  RooFitResult *emptyFit = lxg.fitTo(dataHist, RooFit::Save()); // Normalization(histo->GetEntries(),RooAbsReal::NumEvent)
+  RooFitResult *emptyFit = lxg.fitTo(dataHist, RooFit::Save(), RooFit::PrintLevel(-1), RooFit::Verbose(false)); // Normalization(histo->GetEntries(),RooAbsReal::NumEvent)
   //RooFitResult *emptyFit = my_mini.fit("r");
   //lck.unlock();
 
@@ -127,6 +142,15 @@ FitResult Fitter::fitter_RooLanGausArea(
 
   RooPlot *frame = x.frame(RooFit::Title(i_histo.get_title().c_str()));
 
+  dataHist.plotOn(frame, RooFit::Name(fmt::format("dataHist_",i_histo.get_tag()).c_str())); //, Normalization(histo->GetEntries(),// RooAbsReal::NumEvent));
+  dataHist.statOn(frame, RooFit::Layout(0.45, 0.90, 0.6));
+  lxg.plotOn(frame, RooFit::Name(fmt::format("lxg_",i_histo.get_tag()).c_str())); //, Normalization(histo->GetEntries(), // RooAbsReal::NumEvent));
+  lxg.paramOn(frame, RooFit::Layout(0.45, 0.90, 0.4));
+  auto roo_landau_name = fmt::format("Roo_landau_",i_histo.get_tag());
+  roo_landau.plotOn(frame, RooFit::LineStyle(kDashed),RooFit::LineColor(kOrange),RooFit::Name(roo_landau_name.c_str())); //,// Normalization(histo->GetEntries(),RooAbsReal::NumEvent)//);
+  auto roo_gaus_name = fmt::format("Roo_landau_",i_histo.get_tag());
+  roo_gaus.plotOn(frame, RooFit::LineStyle(kDashed),RooFit::LineColor(kPink), RooFit::Name(roo_gaus_name.c_str()));
+
   if( savePlot )
   {
     TCanvas *oCanvas = new TCanvas(Form("%s_canvas", i_histo.get_histoName().c_str()));
@@ -144,12 +168,6 @@ FitResult Fitter::fitter_RooLanGausArea(
     i_histo.get_histo()->GetYaxis()->SetRangeUser(0, i_histo.get_max_bin_xvalue()*1.5);
     i_histo.get_histo()->Draw("same");
 
-    dataHist.plotOn(frame, RooFit::Name(fmt::format("dataHist_{}",i_histo.get_tag()).c_str())); //, Normalization(histo->GetEntries(),// RooAbsReal::NumEvent));
-    dataHist.statOn(frame, RooFit::Layout(0.45, 0.90, 0.6));
-    lxg.plotOn(frame, RooFit::Name(fmt::format("lxg_{}",i_histo.get_tag()).c_str())); //, Normalization(histo->GetEntries(), // RooAbsReal::NumEvent));
-    lxg.paramOn(frame, RooFit::Layout(0.45, 0.90, 0.4));
-    roo_landau.plotOn(frame, RooFit::LineStyle(kDashed),RooFit::LineColor(kOrange),RooFit::Name("landau")); //,// Normalization(histo->GetEntries(),RooAbsReal::NumEvent)//);
-    roo_gaus.plotOn(frame, RooFit::LineStyle(kDashed),RooFit::LineColor(kPink),RooFit::Name("gaus"));
     frame->Draw("same");
 
     //paveText = new TPaveText(0.7, 0.9, 0.5, 0.7, "brNDC");
@@ -171,7 +189,10 @@ FitResult Fitter::fitter_RooLanGausArea(
   double ndf = lxg_tf->GetNDF();
   double chi_square = lxg_tf->GetChisquare();
   double prob = lxg_tf->GetProb();
-  double chi_ndf = frame->chiSquare(fmt::format("lxg_{}",i_histo.get_tag()).c_str(), fmt::format("dataHist_{}",i_histo.get_tag()).c_str(), 3);
+  //double chi_ndf = frame->chiSquare(fmt::format("lxg_{}",i_histo.get_tag()).c_str(), fmt::format("dataHist_{}",i_histo.get_tag()).c_str(), 3);
+  //std::cout << lxg.GetName() << std::endl;
+  //frame->Print("v");
+  double chi_ndf = frame->chiSquare( lxg.GetName(), dataHist.GetName(), 3);
 
   FitResult fitResult{
     Par, ParErr, range_min, range_max, ndf, chi_square, prob, chi_ndf, Par2, Par2Err
@@ -218,12 +239,25 @@ FitResult Fitter::fitter_RooLanGaus(HistoPackage &i_histo, bool savePlot)
   RooRealVar roo_landau_sigma( fmt::format("Roo_landau_sigma_",i_histo.get_tag()).c_str(), "Roo_landau_sigma",std::abs(sampleSigma), 0.001, 3 * std::abs(sampleSigma));
   RooLandau roo_landau( fmt::format("Roo_landau_",i_histo.get_tag()).c_str(), "Roo_landau", x, roo_landau_mean, roo_landau_sigma);
 
-  //x.setBins(10000,  fmt::format("cache_",i_histo.get_tag()).c_str());
-  x.setBins(10000, "cache");
+  //x.setBins(10000, "cache");
+  x.setBins(10000,  fmt::format("cache_",i_histo.get_tag()).c_str());
 
-  RooFFTConvPdf lxg( fmt::format("lxg_{}",i_histo.get_tag()).c_str(), "landau conv gauss", x, roo_landau, roo_gaus);
+  RooFFTConvPdf lxg( fmt::format("lxg_",i_histo.get_tag()).c_str(), "landau conv gauss", x, roo_landau, roo_gaus);
 
-  RooDataHist dataHist( fmt::format("dataHist_{}",i_histo.get_tag()).c_str(), i_histo.get_title().c_str(), x, RooFit::Import(*i_histo.get_histo()));
+  RooDataHist dataHist( fmt::format("dataHist_",i_histo.get_tag()).c_str(), i_histo.get_title().c_str(), x, RooFit::Import(*i_histo.get_histo()));
+
+  /*
+  std::cout<<"break before ROOChi2\n";
+  std::unique_lock<std::mutex> lck(MTX);
+  RooNLLVar chi2(fmt::format("chi2_{}",i_histo.get_tag()).c_str(), "chi2", lxg, dataHist);//DataError(RooAbsData::SumW2));
+  lck.unlock();
+  std::cout<<"break after ROOChi2\n";
+  RooMinimizer my_mini(chi2);
+  my_mini.setMinimizerType("Minutit2");
+  my_mini.migrad();
+  my_mini.hesse();
+  RooFitResult *emptyFit = my_mini.save();
+  */
 
   //std::unique_lock<std::mutex> lck(MTX);
   //auto my_mini = RooFit::Minimizer("Minutit2","Migrad");
@@ -231,7 +265,7 @@ FitResult Fitter::fitter_RooLanGaus(HistoPackage &i_histo, bool savePlot)
   //my_mini.setMinimizerType("Minutit2");
   //RooFit::Minimizer("Minutit2","Migrad"), RooFit::NumCPU(3)
   //auto my_mini = RooFit::Minimizer("Minuit2","Migrad");
-  RooFitResult *emptyFit = lxg.fitTo( dataHist, RooFit::Save());
+  RooFitResult *emptyFit = lxg.fitTo( dataHist, RooFit::Save(), RooFit::PrintLevel(-1), RooFit::Verbose(false));
   //RooFitResult *emptyFit = my_mini.fit("r");
   //lck.unlock();
 
@@ -275,6 +309,15 @@ FitResult Fitter::fitter_RooLanGaus(HistoPackage &i_histo, bool savePlot)
 
   RooPlot *frame = x.frame(RooFit::Title(i_histo.get_title().c_str()));
 
+  dataHist.plotOn( frame, RooFit::Name(fmt::format("dataHist_",i_histo.get_tag()).c_str()));
+  dataHist.statOn(frame, RooFit::Layout(0.45, 0.90, 0.6));
+  lxg.plotOn(frame, RooFit::Name(fmt::format("lxg_",i_histo.get_tag()).c_str()));
+  lxg.paramOn(frame, RooFit::Layout(0.45, 0.90, 0.4));
+  auto roo_landau_name = fmt::format("Roo_landau_",i_histo.get_tag());
+  roo_landau.plotOn( frame, RooFit::LineStyle(kDashed), RooFit::LineColor(kOrange), RooFit::Name(roo_landau_name.c_str()));
+  auto roo_gaus_name = fmt::format("Roo_landau_",i_histo.get_tag());
+  roo_gaus.plotOn(frame, RooFit::LineStyle(kDashed), RooFit::LineColor(kPink), RooFit::Name(roo_gaus_name.c_str()));
+
   if( savePlot )
   {
     TCanvas *oCanvas = new TCanvas(Form("%s_canvas", i_histo.get_histoName().c_str()));
@@ -291,12 +334,6 @@ FitResult Fitter::fitter_RooLanGaus(HistoPackage &i_histo, bool savePlot)
     i_histo.get_histo()->GetYaxis()->SetRangeUser(0, i_histo.get_max_bin_xvalue() * 1.5);
     i_histo.get_histo()->Draw("same");
 
-    dataHist.plotOn( frame, RooFit::Name(fmt::format("dataHist_{}",i_histo.get_tag()).c_str()));
-    dataHist.statOn(frame, RooFit::Layout(0.45, 0.90, 0.6));
-    lxg.plotOn(frame, RooFit::Name(fmt::format("lxg_{}",i_histo.get_tag()).c_str()));
-    lxg.paramOn(frame, RooFit::Layout(0.45, 0.90, 0.4));
-    roo_landau.plotOn( frame, RooFit::LineStyle(kDashed), RooFit::LineColor(kOrange), RooFit::Name("landau"));
-    roo_gaus.plotOn(frame, RooFit::LineStyle(kDashed), RooFit::LineColor(kPink), RooFit::Name("gaus"));
     frame->Draw("same");
 
     TPaveText paveText(0.7, 0.9, 0.5, 0.7, "brNDC");
@@ -316,7 +353,10 @@ FitResult Fitter::fitter_RooLanGaus(HistoPackage &i_histo, bool savePlot)
   double ndf = lxg_tf->GetNDF();
   double chi_square = lxg_tf->GetChisquare();
   double prob = lxg_tf->GetProb();
-  double chi_ndf = frame->chiSquare( fmt::format("lxg_{}",i_histo.get_tag()).c_str(), fmt::format("dataHist_{}",i_histo.get_tag()).c_str(), 3);
+  //double chi_ndf = frame->chiSquare( fmt::format("lxg_{}",i_histo.get_tag()).c_str(), fmt::format("dataHist_{}",i_histo.get_tag()).c_str(), 3);
+  //std::cout << lxg.GetName() << std::endl;
+  //frame->Print("v");
+  double chi_ndf = frame->chiSquare( lxg.GetName(), dataHist.GetName(), 3);
 
   FitResult fitResult{
     Par, ParErr, range_min, range_max, ndf, chi_square, prob, chi_ndf, Par2, Par2Err
