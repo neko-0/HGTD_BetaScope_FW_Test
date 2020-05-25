@@ -81,7 +81,7 @@ void BetaScopeWaveformAna::event_ana(int ch, WaveformAna<double, double> wavefor
   WaveformAnalysis::FitResult tmaxZeroHolder = WaveAna.Get_Zero_Cross_Tmax( waveform.get_v2(), waveform.get_v1(), waveform.max_index() );
 
   WaveformAnalysis::FitResult fit_cfd_50 = WaveformAnalysis::Fit_CFD<double>(waveform, 0.5);
-  this->beta_scope.SetOutBranchValue(Form("fit_cfd%i_g", ch), TGraph(fit_cfd_50.graph));
+  this->beta_scope.SetOutBranchValue(Form("fit_cfd%i_g", ch), fit_cfd_50.graph);
   this->beta_scope.SetOutBranchValue(Form("fit_cfd%i_chi", ch), fit_cfd_50.chi);
   this->beta_scope.SetOutBranchValue(Form("fit_cfd%i", ch), fit_cfd_50.value);
 
@@ -92,8 +92,8 @@ void BetaScopeWaveformAna::event_ana(int ch, WaveformAna<double, double> wavefor
 
   if(!this->skipWaveform)
   {
-    this->beta_scope.SetOutBranchValue(Form("fit_tmax%i_g", ch), TGraph(tmaxFitHolder.graph));
-    this->beta_scope.SetOutBranchValue(Form("zero_cross_tmax%i_g", ch), TGraph(tmaxZeroHolder.graph) );
+    this->beta_scope.SetOutBranchValue(Form("fit_tmax%i_g", ch), tmaxFitHolder.graph);
+    this->beta_scope.SetOutBranchValue(Form("zero_cross_tmax%i_g", ch), tmaxZeroHolder.graph);
   }
 
 
