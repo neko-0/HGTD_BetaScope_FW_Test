@@ -32,7 +32,7 @@ public:
       TGraph graph;
 
       FitResult(double value, double chi, TGraph graph)
-        : value(value), chi(chi), graph(TGraph(graph)) {};
+        : value(value), chi(chi), graph(graph) {};
     };
 
     WaveformAnalysis()
