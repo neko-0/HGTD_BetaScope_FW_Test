@@ -30,6 +30,9 @@ public:
       double value;
       double chi;
       TGraph graph;
+
+      FitResult(double value, double chi, TGraph graph)
+        : value(value), chi(chi), graph(TGraph(graph)) {};
     };
 
     WaveformAnalysis()

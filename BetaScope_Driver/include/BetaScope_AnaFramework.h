@@ -1,6 +1,8 @@
 #ifndef BETASCOPE_ANAFRAMEWORK_H
 #define BETASCOPE_ANAFRAMEWORK_H
 
+#include <mutex>
+
 #include "BetaScope_Driver/include/BetaScope_Class.h"
 #include "BetaScope_Driver/include/BetaScope_Templates.h"
 
@@ -12,6 +14,7 @@ template <typename beta_scope_type> class BetaScope_AnaFramework {
 
 protected:
   beta_scope_type beta_scope;
+  std::mutex BETA_MTX;
 
 public:
   BetaScope_AnaFramework(){};
@@ -41,8 +44,8 @@ public:
 template <typename beta_scope_type>
 bool BetaScope_AnaFramework<beta_scope_type>::Initialize( std::string addBranches, std::string rawBranches)
 {
+  std::lock_guard<std::mutex> lck(this->BETA_MTX);
   this->beta_scope.RawTreeReader();
-  //if (addBranches.compare("") != 0)
   this->beta_scope.NewTreeMaker(addBranches);
   return true;
 }
@@ -73,6 +76,7 @@ void BetaScope_AnaFramework<beta_scope_type>::FillData()
 template <typename beta_scope_type>
 void BetaScope_AnaFramework<beta_scope_type>::Finalize()
 {
+  std::lock_guard<std::mutex> lck(this->BETA_MTX);
   this->beta_scope.FileClose();
 }
 

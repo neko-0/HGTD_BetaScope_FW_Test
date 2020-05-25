@@ -1,13 +1,15 @@
 # HGTD_BetaScope_FW_Test
 Beta-Scope Ana Framework for analyzing waveform.
 
-## Installations
+## Installations and Requirements
 To begin:
 
   cd scripts/ \
-  source setup.sh
+  source setup.sh  
 
-## Usage 
+Tested with ROOT-6.18
+
+## Usage
 
 ### LGAD Interface.
 After sourcing the setup.sh, you will now have a function call "LGAD".
