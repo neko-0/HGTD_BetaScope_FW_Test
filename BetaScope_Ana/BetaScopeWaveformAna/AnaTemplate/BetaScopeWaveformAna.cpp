@@ -57,10 +57,10 @@ void BetaScopeWaveformAna::event_ana(int ch, WaveformAna<double, double> wavefor
   this->riseTime[ch]->emplace_back(waveform.rise_time());
 
   int thcount =  WaveAna.Get_Number_Of_Multiple_Signals( 20, waveform.get_v2() );
-  this->beta_scope.SetOutBranchValue( Form("countTH20_%i", ch), thcount );
-  this->beta_scope.SetOutBranchValue( Form("undershoot_pmax%i", ch), waveform.undershoot_pmax() );
-  this->beta_scope.SetOutBranchValue( Form("undershoot_tmax%i", ch), waveform.undershoot_tmax() );
-  this->beta_scope.SetOutBranchValue( Form("isGoodTrig%i", ch), (isGoodTrig(waveform) && thcount<3) ? 1:0 );
+  this->beta_scope.SetOutBranchValue<int>( Form("countTH20_%i", ch), thcount );
+  this->beta_scope.SetOutBranchValue<double>( Form("undershoot_pmax%i", ch), waveform.undershoot_pmax() );
+  this->beta_scope.SetOutBranchValue<double>( Form("undershoot_tmax%i", ch), waveform.undershoot_tmax() );
+  this->beta_scope.SetOutBranchValue<bool>( Form("isGoodTrig%i", ch), (isGoodTrig(waveform) && thcount<3) ? 1:0 );
 
 
   *this->cfd[ch] = waveform.cfd();
@@ -81,9 +81,9 @@ void BetaScopeWaveformAna::event_ana(int ch, WaveformAna<double, double> wavefor
   WaveformAnalysis::FitResult tmaxZeroHolder = WaveAna.Get_Zero_Cross_Tmax( waveform.get_v2(), waveform.get_v1(), waveform.max_index() );
 
   WaveformAnalysis::FitResult fit_cfd_50 = WaveformAnalysis::Fit_CFD<double>(waveform, 0.5);
-  this->beta_scope.SetOutBranchValue(Form("fit_cfd%i_g", ch), fit_cfd_50.graph);
-  this->beta_scope.SetOutBranchValue(Form("fit_cfd%i_chi", ch), fit_cfd_50.chi);
-  this->beta_scope.SetOutBranchValue(Form("fit_cfd%i", ch), fit_cfd_50.value);
+  this->beta_scope.SetOutBranchValue<TGraph>(Form("fit_cfd%i_g", ch), TGraph(fit_cfd_50.graph));
+  this->beta_scope.SetOutBranchValue<double>(Form("fit_cfd%i_chi", ch), fit_cfd_50.chi);
+  this->beta_scope.SetOutBranchValue<double>(Form("fit_cfd%i", ch), fit_cfd_50.value);
 
   this->fit_tmax[ch]->emplace_back(tmaxFitHolder.value );
   this->fit_tmax_chi[ch]->emplace_back(tmaxFitHolder.chi );
@@ -92,8 +92,8 @@ void BetaScopeWaveformAna::event_ana(int ch, WaveformAna<double, double> wavefor
 
   if(!this->skipWaveform)
   {
-    this->beta_scope.SetOutBranchValue(Form("fit_tmax%i_g", ch), tmaxFitHolder.graph);
-    this->beta_scope.SetOutBranchValue(Form("zero_cross_tmax%i_g", ch), tmaxZeroHolder.graph );
+    this->beta_scope.SetOutBranchValue<TGraph>(Form("fit_tmax%i_g", ch), TGraph(tmaxFitHolder.graph));
+    this->beta_scope.SetOutBranchValue<TGraph>(Form("zero_cross_tmax%i_g", ch), TGraph(tmaxZeroHolder.graph) );
   }
 
 
@@ -158,7 +158,7 @@ void BetaScopeWaveformAna::Analysis()
       this->dt
     );
 
-    workers.emplace_back(
+    workers.push_back(
         //std::async( std::launch::async | std::launch::deferred, &BetaScopeWaveformAna::event_ana, this, ch, waveform)
         std::async( std::launch::deferred, &BetaScopeWaveformAna::event_ana, this, ch, waveform)
     );
@@ -178,31 +178,31 @@ void BetaScopeWaveformAna::Analysis()
   // filling value that's indep of scope channels
   if (this->has_daq_cycle)
   {
-    this->beta_scope.SetOutBranchValue( "cycle", this->beta_scope.GetInBranchValue<TTreeReaderValue, int>("cycle"));
+    this->beta_scope.SetOutBranchValue<int>( "cycle", this->beta_scope.GetInBranchValue<TTreeReaderValue, int>("cycle"));
   }
   if (this->has_daq_temperature)
   {
-    this->beta_scope.SetOutBranchValue( "temperature", this->beta_scope.GetInBranchValue<TTreeReaderValue, double>("temperature"));
+    this->beta_scope.SetOutBranchValue<double>( "temperature", this->beta_scope.GetInBranchValue<TTreeReaderValue, double>("temperature"));
   }
   if (this->has_daq_humidity)
   {
-    this->beta_scope.SetOutBranchValue( "humidity", this->beta_scope.GetInBranchValue<TTreeReaderValue, double>("humidity"));
+    this->beta_scope.SetOutBranchValue<double>( "humidity", this->beta_scope.GetInBranchValue<TTreeReaderValue, double>("humidity"));
   }
   if (this->has_daq_bias)
   {
-    this->beta_scope.SetOutBranchValue( "bias", this->beta_scope.GetInBranchValue<TTreeReaderValue, double>("bias"));
+    this->beta_scope.SetOutBranchValue<double>( "bias", this->beta_scope.GetInBranchValue<TTreeReaderValue, double>("bias"));
   }
   if (this->has_daq_timestamp)
   {
-    this->beta_scope.SetOutBranchValue("timestamp", this->beta_scope.GetInBranchValue<TTreeReaderValue, double>("timestamp"));
+    this->beta_scope.SetOutBranchValue<double>("timestamp", this->beta_scope.GetInBranchValue<TTreeReaderValue, double>("timestamp"));
   }
   if (this->has_daq_current)
   {
-    this->beta_scope.SetOutBranchValue("current", this->beta_scope.GetInBranchValue<TTreeReaderValue, double>("current"));
+    this->beta_scope.SetOutBranchValue<double>("current", this->beta_scope.GetInBranchValue<TTreeReaderValue, double>("current"));
   }
   if (this->has_daq_eventNum)
   {
-    this->beta_scope.SetOutBranchValue( "ievent", this->beta_scope.GetInBranchValue<TTreeReaderValue, int>("ievent"));
+    this->beta_scope.SetOutBranchValue<int>( "ievent", this->beta_scope.GetInBranchValue<TTreeReaderValue, int>("ievent"));
   }
 }
 
@@ -214,7 +214,6 @@ bool BetaScopeWaveformAna::Initialize() {
 
   BETA_LOG::LOG_LEVEL = 5;
 
-  ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2");
   gErrorIgnoreLevel = kFatal;
 
   char *check_path = getenv("BETASCOPE_SCRIPTS");

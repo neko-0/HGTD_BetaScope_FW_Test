@@ -82,6 +82,7 @@ int main(int argc, char **argv) {
 
     ROOT::EnableThreadSafety();
     ROOT::EnableImplicitMT(numThreads);
+    ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2");
 
     LOG_INFO(" Preparing workers.");
 
@@ -99,11 +100,13 @@ int main(int argc, char **argv) {
     pool.join();
     */
 
+
     #pragma omp parallel for num_threads(numThreads)
     for( std::size_t i = 0; i < fileList.size(); i++ )
     {
       runAna(fileList.at(i), vm["config"].as<std::string>(), vm["skipWaveform"].as<bool>(), vm["skim"].as<bool>());
     }
+
 
     LOG_INFO("Finished. Time cost: " + std::to_string(std::time(nullptr) - main_time));
 

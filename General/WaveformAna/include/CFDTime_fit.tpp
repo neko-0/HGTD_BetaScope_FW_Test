@@ -8,6 +8,8 @@
 #include <TCanvas.h>
 #include <TFitResult.h>
 #include <TVectorF.h>
+#include <TVectorD.h>
+#include <TVector.h>
 #include <Math/MinimizerOptions.h>
 
 #include <fmt/format.h>
@@ -40,23 +42,27 @@ WaveformAnalysis::FitResult WaveformAnalysis::Fit_CFD(
     }
   }
 
-  auto sub_waveform = waveform.sub_waveform(index_at_cfd-1, index_at_cfd+1);
-  std::string title = fmt::format("{}_{}", index_at_cfd, value_at_cfd);
-  TGraph gr(sub_waveform.size(), &sub_waveform.get_v1()[0], &sub_waveform.get_v2()[0] );
+  if(index_at_cfd == waveform.size()){index_at_cfd = waveform.size()-2;}
+  auto sub_waveform = waveform.sub_waveform(index_at_cfd-1, index_at_cfd+2);
+  std::string title = fmt::format("fit_cfd_id{}_{}_{}", std::rand(), index_at_cfd, value_at_cfd);
+  TVectorD x(sub_waveform.v1().size(), &sub_waveform.v1()[0]);
+  TVectorD y(sub_waveform.v2().size(), &sub_waveform.v2()[0]);
+  TGraph gr(x,y);
   gr.SetTitle(title.c_str());
   gr.SetName(title.c_str());
 
   title = "f_" + title;
-  TF1 fu(title.c_str(), "[0]*x+[1]", sub_waveform.get_v1_value(0)-50, sub_waveform.get_v1_value(sub_waveform.size()-1)+50);
+  TF1 fu(title.c_str(), "[0]*x+[1]");
   fu.AddToGlobalList(false);
   TFitResultPtr res = gr.Fit(&fu, "SQ");
   time_at_cfd = fu.GetX(value_at_cfd);
-  if(TMath::IsNaN(time_at_cfd))
+  double chi2 = res->Chi2();
+  if(TMath::IsNaN(time_at_cfd)|| TMath::IsNaN(chi2))
   {
-    return WaveformAnalysis::FitResult{time_at_cfd, -9999.0, gr};
+    return WaveformAnalysis::FitResult(-9999.0, -9999.0, gr);
   }
   else
   {
-    return WaveformAnalysis::FitResult{time_at_cfd, res->Chi2(), gr};
+    return WaveformAnalysis::FitResult(time_at_cfd, chi2, gr);
   }
 }
