@@ -55,7 +55,7 @@ WaveformAnalysis::FitResult WaveformAnalysis::Fit_CFD(
   TF1 fu(title.c_str(), "[0]*x+[1]");
   fu.AddToGlobalList(false);
   TFitResultPtr res = gr.Fit(&fu, "SQ");
-  time_at_cfd = fu->GetX(value_at_cfd);
+  time_at_cfd = fu.GetX(value_at_cfd, sub_waveform.get_v1_value(0), sub_waveform.get_v1_value(sub_waveform.size()));
   double chi2 = res->Chi2();
   if(TMath::IsNaN(time_at_cfd)|| TMath::IsNaN(chi2))
   {
