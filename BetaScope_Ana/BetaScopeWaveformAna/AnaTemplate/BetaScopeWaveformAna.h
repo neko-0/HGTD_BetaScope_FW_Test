@@ -25,6 +25,8 @@ private:
   double dt = 0.0;
   double xorigin = 0.0;
 
+  bool enable_fit = false;
+
 public:
   // this is are required.
   std::string ifile;

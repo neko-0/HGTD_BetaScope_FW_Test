@@ -77,24 +77,28 @@ void BetaScopeWaveformAna::event_ana(int ch, WaveformAna<double, double> wavefor
     //this->waveform_ana[ch]->emplace_back(waveform);
   }
 
-  WaveformAnalysis::FitResult tmaxFitHolder = WaveAna.Get_Fit_Tmax( waveform.get_v2(), waveform.get_v1(), waveform.max_index() );
-  WaveformAnalysis::FitResult tmaxZeroHolder = WaveAna.Get_Zero_Cross_Tmax( waveform.get_v2(), waveform.get_v1(), waveform.max_index() );
-
-  WaveformAnalysis::FitResult fit_cfd_50 = WaveformAnalysis::Fit_CFD<double>(waveform, 0.5);
-  this->beta_scope.SetOutBranchValue(Form("fit_cfd%i_g", ch), fit_cfd_50.graph);
-  this->beta_scope.SetOutBranchValue(Form("fit_cfd%i_chi", ch), fit_cfd_50.chi);
-  this->beta_scope.SetOutBranchValue(Form("fit_cfd%i", ch), fit_cfd_50.value);
-
-  this->fit_tmax[ch]->emplace_back(tmaxFitHolder.value );
-  this->fit_tmax_chi[ch]->emplace_back(tmaxFitHolder.chi );
-  this->zero_cross_tmax[ch]->emplace_back(tmaxZeroHolder.value);
-  this->zero_cross_tmax_chi[ch]->emplace_back(tmaxZeroHolder.chi);
-
-  if(!this->skipWaveform)
+  if( this->enable_fit )
   {
-    this->beta_scope.SetOutBranchValue(Form("fit_tmax%i_g", ch), tmaxFitHolder.graph);
-    this->beta_scope.SetOutBranchValue(Form("zero_cross_tmax%i_g", ch), tmaxZeroHolder.graph);
+    WaveformAnalysis::FitResult tmaxFitHolder = WaveAna.Get_Fit_Tmax( waveform.get_v2(), waveform.get_v1(), waveform.max_index() );
+    WaveformAnalysis::FitResult tmaxZeroHolder = WaveAna.Get_Zero_Cross_Tmax( waveform.get_v2(), waveform.get_v1(), waveform.max_index() );
+
+    WaveformAnalysis::FitResult fit_cfd_50 = WaveformAnalysis::Fit_CFD<double>(waveform, 0.5);
+    this->beta_scope.SetOutBranchValue(Form("fit_cfd%i_g", ch), fit_cfd_50.graph);
+    this->beta_scope.SetOutBranchValue(Form("fit_cfd%i_chi", ch), fit_cfd_50.chi);
+    this->beta_scope.SetOutBranchValue(Form("fit_cfd%i", ch), fit_cfd_50.value);
+
+    this->fit_tmax[ch]->emplace_back(tmaxFitHolder.value );
+    this->fit_tmax_chi[ch]->emplace_back(tmaxFitHolder.chi );
+    this->zero_cross_tmax[ch]->emplace_back(tmaxZeroHolder.value);
+    this->zero_cross_tmax_chi[ch]->emplace_back(tmaxZeroHolder.chi);
+
+    if(!this->skipWaveform)
+    {
+      this->beta_scope.SetOutBranchValue(Form("fit_tmax%i_g", ch), tmaxFitHolder.graph);
+      this->beta_scope.SetOutBranchValue(Form("zero_cross_tmax%i_g", ch), tmaxZeroHolder.graph);
+    }
   }
+
 
 
 
@@ -136,11 +140,11 @@ void BetaScopeWaveformAna::Analysis()
 
   //std::vector<std::thread> workers;
   std::vector<std::future<void>> workers;
-  for (int chh = 0; chh < this->activeChannels.size(); chh++)
+  for( std::size_t chh = 0; chh < this->activeChannels.size(); chh++ )
   {
     int ch = this->activeChannels.at(chh);
 
-    if( this->resample_time && this->dt <= 0.0)
+    if( this->resample_time || this->dt <= 0.0)
     {
       this->xorigin = this->i_t[ch]->At(0);
       this->dt = this->i_t[ch]->At(1) - this->i_t[ch]->At(0);
@@ -207,7 +211,8 @@ void BetaScopeWaveformAna::Analysis()
 }
 
 
-bool BetaScopeWaveformAna::Initialize() {
+bool BetaScopeWaveformAna::Initialize()
+{
   // required
   bool file_opened = this->beta_scope.FileOpen(ifile.c_str());
   if(!file_opened){return false;}
@@ -234,14 +239,11 @@ bool BetaScopeWaveformAna::Initialize() {
   this->my_anaParam.pmaxSearchRange[1] = this->pmaxSearchMaxRange;
   //----------------------
 
-  if (!this->skipWaveform)
+  if( !this->skipWaveform )
   {
-    for (auto ch : this->beta_scope.channel)
+    for( auto ch : this->beta_scope.channel )
     {
-      bool branch_checker;
-      int branch_counter = 0;
       LOG_INFO("CH:"+std::to_string(ch) );
-
       LOG_INFO("Creating branches for storing scope channels: " );
       if( this->beta_scope.BuildOutBranch<std::vector<double>>(Form("w%i", ch)) )
       {
@@ -257,17 +259,15 @@ bool BetaScopeWaveformAna::Initialize() {
 
   // do your own stuffs here
   // this->beta_scope.treeReader->Next();
-  for (int chh = 0; chh < this->activeChannels.size(); chh++)
+  for( const int &ch : this->activeChannels )
   {
-    int ch = this->activeChannels.at(chh);
 
-    if (!this->skipWaveform)
+    if( !this->skipWaveform)
     {
       this->w[ch] = this->beta_scope.GetOutBranch<std::vector<double>>( "w" + std::to_string(ch));
       this->t[ch] = this->beta_scope.GetOutBranch<std::vector<double>>( "t" + std::to_string(ch));
       //this->beta_scope.BuildOutBranch<std::vector<WaveformAna<double, double>>>("waveform" + std::to_string(ch));
       //this->waveform_ana[ch] = this->beta_scope.GetOutBranch<std::vector<WaveformAna<double, double>>>("waveform" + std::to_string(ch));
-
     }
     else
     {
@@ -284,22 +284,26 @@ bool BetaScopeWaveformAna::Initialize() {
     this->beta_scope.BuildOutBranch<bool>(Form("isGoodTrig%i", ch) );
     this->beta_scope.BuildOutBranch<std::vector<double>>(Form("tot%i", ch) );
 
-    this->beta_scope.BuildOutBranch<double>(Form("fit_cfd%i", ch) );
-    this->beta_scope.BuildOutBranch<double>(Form("fit_cfd%i_chi", ch) );
-    this->beta_scope.BuildOutBranch<TGraph>(Form("fit_cfd%i_g", ch) );
-
-    if(!this->skipWaveform)
+    if( this->enable_fit )
     {
-      this->beta_scope.BuildOutBranch<TGraph>(Form("zero_cross_tmax%i_g", ch) );
-      this->beta_scope.BuildOutBranch<TGraph>(Form("fit_tmax%i_g", ch) );
+      this->beta_scope.BuildOutBranch<double>(Form("fit_cfd%i", ch) );
+      this->beta_scope.BuildOutBranch<double>(Form("fit_cfd%i_chi", ch) );
+      this->beta_scope.BuildOutBranch<TGraph>(Form("fit_cfd%i_g", ch) );
+
+      this->fit_tmax[ch] = this->beta_scope.GetOutBranch<std::vector<double>>( "fit_tmax"+std::to_string(ch) );
+      this->fit_tmax_chi[ch] = this->beta_scope.GetOutBranch<std::vector<double>>( "fit_tmax_chi"+std::to_string(ch) );
+      this->zero_cross_tmax[ch] = this->beta_scope.GetOutBranch<std::vector<double>>( "zero_cross_tmax"+std::to_string(ch) );
+      this->zero_cross_tmax_chi[ch] = this->beta_scope.GetOutBranch<std::vector<double>>( "zero_cross_tmax_chi"+std::to_string(ch) );
+
+      if(!this->skipWaveform)
+      {
+        this->beta_scope.BuildOutBranch<TGraph>(Form("zero_cross_tmax%i_g", ch) );
+        this->beta_scope.BuildOutBranch<TGraph>(Form("fit_tmax%i_g", ch) );
+      }
     }
 
     this->pmax[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("pmax" + std::to_string(ch));
     this->tmax[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("tmax" + std::to_string(ch));
-    this->fit_tmax[ch] = this->beta_scope.GetOutBranch<std::vector<double>>( "fit_tmax"+std::to_string(ch) );
-    this->fit_tmax_chi[ch] = this->beta_scope.GetOutBranch<std::vector<double>>( "fit_tmax_chi"+std::to_string(ch) );
-    this->zero_cross_tmax[ch] = this->beta_scope.GetOutBranch<std::vector<double>>( "zero_cross_tmax"+std::to_string(ch) );
-    this->zero_cross_tmax_chi[ch] = this->beta_scope.GetOutBranch<std::vector<double>>( "zero_cross_tmax_chi"+std::to_string(ch) );
     this->neg_pmax[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("neg_pmax" + std::to_string(ch));
     this->neg_tmax[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("neg_tmax" + std::to_string(ch));
     this->riseTime[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("riseTime" + std::to_string(ch));
@@ -316,50 +320,50 @@ bool BetaScopeWaveformAna::Initialize() {
     this->i_w[ch] = this->beta_scope.GetInBranch<TTreeReaderArray, double>("w" + std::to_string(ch));
     this->i_t[ch] = this->beta_scope.GetInBranch<TTreeReaderArray, double>("t" + std::to_string(ch));
     this->tot[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("tot"+std::to_string(ch));
-    if (!this->i_w[ch])
+    if( !this->i_w[ch] )
     {
       std::cout << this->i_w[ch] << std::endl;
       std::cout << this->beta_scope.GetInBranch<TTreeReaderArray, double>("w" + std::to_string(ch)) << std::endl;
     }
   }
 
-  if (beta_scope.IsBranchExists("ievent"))
+  if( beta_scope.IsBranchExists("ievent") )
   {
     this->has_daq_eventNum = true;
     this->beta_scope.SetInBranch<TTreeReaderValue, int>("ievent", "ievent");
     this->beta_scope.BuildOutBranch<int>("ievent");
   }
-  if (beta_scope.IsBranchExists("temperature"))
+  if( beta_scope.IsBranchExists("temperature") )
   {
     this->has_daq_temperature = true;
     this->beta_scope.SetInBranch<TTreeReaderValue, double>("temperature", "temperature");
     this->beta_scope.BuildOutBranch<double>("temperature");
   }
-  if (beta_scope.IsBranchExists("humidity"))
+  if( beta_scope.IsBranchExists("humidity"))
   {
     this->has_daq_humidity = true;
     this->beta_scope.SetInBranch<TTreeReaderValue, double>("humidity", "humidity");
     this->beta_scope.BuildOutBranch<double>("humidity");
   }
-  if (beta_scope.IsBranchExists("i_timestamp"))
+  if( beta_scope.IsBranchExists("i_timestamp"))
   {
     this->has_daq_timestamp = true;
     this->beta_scope.SetInBranch<TTreeReaderValue, double>("i_timestamp", "timestamp");
     this->beta_scope.BuildOutBranch<double>("timestamp");
   }
-  if (beta_scope.IsBranchExists("i_current"))
+  if( beta_scope.IsBranchExists("i_current"))
   {
     this->has_daq_current = true;
     this->beta_scope.SetInBranch<TTreeReaderValue, double>("i_current", "current");
     this->beta_scope.BuildOutBranch<double>("current");
   }
-  if (beta_scope.IsBranchExists("bias"))
+  if( beta_scope.IsBranchExists("bias"))
   {
     this->has_daq_bias = true;
     this->beta_scope.SetInBranch<TTreeReaderValue, double>("bias", "bias");
     this->beta_scope.BuildOutBranch<double>("bias");
   }
-  if (beta_scope.IsBranchExists("cycle"))
+  if( beta_scope.IsBranchExists("cycle"))
   {
     this->has_daq_cycle = true;
     this->beta_scope.SetInBranch<TTreeReaderValue, int>("cycle", "cycle");
@@ -417,6 +421,7 @@ void BetaScopeWaveformAna::readWaveformConfig(std::string configName)
   this->assistThreshold = pt.get<double>("General.assistThreshold");
   this->triggerCh = pt.get<int>("General.triggerCh");
   this->rawFilesDir = pt.get<std::string>("General.rawFilesDir");
+  this->enable_fit = pt.get<bool>("General.enable_fit");
 
   for (int i = 1; i < 7; i++)
   {
@@ -445,6 +450,7 @@ void BetaScopeWaveformAna::generateWaveformConfig()
   configFile << "assistThreshold = 10.0 " << std::endl;
   configFile << "triggerCh = 3 " << std::endl;
   configFile << "rawFilesDir = " << std::endl;
+  configFile << "enable_fit = false" << std::endl;
 
   configFile << std::endl;
 
