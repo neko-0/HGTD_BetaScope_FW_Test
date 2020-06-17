@@ -132,21 +132,21 @@ public:
     Get_Fit_Tmax(
       const std::vector<double> &timeVec,
       const std::vector<double> &voltageVec,
-      const int &pmax_index
+      const unsigned int &pmax_index
     );
 
     WaveformAnalysis::FitResult
     Get_Zero_Cross_Tmax(
       const std::vector<double> &timeVec,
       const std::vector<double> &voltageVec,
-      const int &pmax_index
+      const unsigned int &pmax_index
     );
 
     template <class data_type>
-    WaveformAnalysis::FitResult Get_Fit_Tmax( WaveformAna<data_type,data_type> &waveform, const int &npt);
+    WaveformAnalysis::FitResult Get_Fit_Tmax( WaveformAna<data_type,data_type> &waveform, const unsigned int &npt);
 
     template <class data_type>
-    WaveformAnalysis::FitResult Get_Zero_Cross_Tmax( WaveformAna<data_type,data_type> &waveform, const int &npt);
+    WaveformAnalysis::FitResult Get_Zero_Cross_Tmax( WaveformAna<data_type,data_type> &waveform, const unsigned int &npt);
 
     void Find_Bunch_Negative_Signal_Maximum(
         const std::vector<double> &voltageVec,

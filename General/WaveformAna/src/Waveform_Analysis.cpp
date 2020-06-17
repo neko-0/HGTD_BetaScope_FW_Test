@@ -361,7 +361,7 @@ int WaveformAnalysis::Get_Number_Of_Multiple_Signals(
   std::string function_name = "WaveformAnalysis::Get_Number_Of_Multiple_Signals";
 
   double pmax = 0.0;
-  double pmax_i = 0;
+  unsigned int pmax_i = 0;
   bool candidate_signal = false;
   bool noisy_event = true;
   int num_pulses = 0;

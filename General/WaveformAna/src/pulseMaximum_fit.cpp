@@ -21,7 +21,7 @@ WaveformAnalysis::FitResult
 WaveformAnalysis::Get_Fit_Tmax(
   const std::vector<double> &voltageVec,
   const std::vector<double> &timeVec,
-  const int &pmax_index
+  const unsigned int &pmax_index
 )
 {
   //TODO: add fitting code here
@@ -29,13 +29,15 @@ WaveformAnalysis::Get_Fit_Tmax(
   double tmax_fitted = -9999.;
   double chi2_fitted = -9999.;
   int n_points = 4;
-  //std::cout<<"\n**** start *** \n";
   TVectorF small_voltageVec (2*n_points); // = new float[2*n_points];
   TVectorF small_timeVec (2*n_points);// = new float[2*n_points];
 
-  if(timeVec.at(pmax_index) > -1000. and timeVec.at(pmax_index) < 1000.){
-    if(pmax_index > 10 and pmax_index < (timeVec.size() - 10)){
-      for(int i = 0; i < 2*n_points; i++){
+  if(timeVec.at(pmax_index) > -1000. and timeVec.at(pmax_index) < 1000.)
+  {
+    if(pmax_index > 10 and pmax_index < (timeVec.size() - 10))
+    {
+      for(int i = 0; i < 2*n_points; i++)
+      {
           double t_point = timeVec.at(pmax_index - n_points + i);
           double v_point = voltageVec.at(pmax_index - n_points + i);
 
@@ -67,6 +69,11 @@ WaveformAnalysis::Get_Fit_Tmax(
 
       return WaveformAnalysis::FitResult{tmax_fitted, chi2_fitted, gr};
     }
+    else
+    {
+      TGraph gr(n_points);
+      return WaveformAnalysis::FitResult{-9999.0, -9999.0, gr};
+    }
   }
   else
   {
@@ -84,7 +91,7 @@ WaveformAnalysis::FitResult
 WaveformAnalysis::Get_Zero_Cross_Tmax(
   const std::vector<double> &voltageVec,
   const std::vector<double> &timeVec,
-  const int &pmax_index
+  const unsigned int &pmax_index
 )
 {
   double tmax_zerocross = -9999.;
@@ -152,7 +159,7 @@ Give the time of the singal maximum (Tmax) using Gaussian fit
 Reimplementation
 ==============================================================================*/
 template <class data_type>
-WaveformAnalysis::FitResult WaveformAnalysis::Get_Fit_Tmax( WaveformAna<data_type,data_type> &waveform, const int &npt)
+WaveformAnalysis::FitResult WaveformAnalysis::Get_Fit_Tmax( WaveformAna<data_type,data_type> &waveform, const unsigned int &npt)
 {
 
   gROOT->SetBatch(true);
@@ -204,7 +211,10 @@ Give the time of the singal maximum (Tmax) using linear fit to the 1st derivatve
 Reimplementation
 ==============================================================================*/
 template <class data_type>
-WaveformAnalysis::FitResult WaveformAnalysis::Get_Zero_Cross_Tmax( WaveformAna<data_type,data_type> &waveform, const int &npt)
+WaveformAnalysis::FitResult WaveformAnalysis::Get_Zero_Cross_Tmax(
+  WaveformAna<data_type,data_type> &waveform,
+  const unsigned int &npt
+)
 {
   double tmax_zerocross = -9999.;
   double chi2_fitted = -9999.;
