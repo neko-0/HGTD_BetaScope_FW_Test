@@ -197,7 +197,7 @@ class Lgad(cmd.Cmd, object):
         parser.set("Channel_Activation", "channel_2", "1")
         parser.set("Channel_Activation", "channel_3", "1")
         parser.set("Channel_Invertion", "channel_2", "1")
-        with open("WaveformAnaConfig.ini", "wb") as config:
+        with open("WaveformAnaConfig.ini", "w") as config:
             parser.write(config)
 
     def do_set_active_channel(self, ch):
@@ -205,7 +205,7 @@ class Lgad(cmd.Cmd, object):
 
         parser = configparser.ConfigParser()
         parser.set("Channel_Activation", "channel_{ch}".format(ch=ch), 1)
-        with open("WaveformAnaConfig.ini", "wb") as config:
+        with open("WaveformAnaConfig.ini", "w") as config:
             parser.write(config)
 
     def do_show_ana_progress(self, opt=""):
