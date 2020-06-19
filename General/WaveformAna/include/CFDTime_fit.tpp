@@ -43,7 +43,7 @@ WaveformAnalysis::FitResult WaveformAnalysis::Fit_CFD(
   }
 
   if(index_at_cfd == waveform.size()){index_at_cfd = waveform.size()-2;}
-  auto sub_waveform = waveform.sub_waveform(index_at_cfd-1, index_at_cfd+1);
+  auto sub_waveform = waveform.sub_waveform(index_at_cfd-1, index_at_cfd+2);
   std::string title = fmt::format("fit_cfd_id{}_{}_{}", std::rand(), index_at_cfd, value_at_cfd);
   TVectorD x(sub_waveform.v1().size(), &sub_waveform.v1()[0]);
   TVectorD y(sub_waveform.v2().size(), &sub_waveform.v2()[0]);
