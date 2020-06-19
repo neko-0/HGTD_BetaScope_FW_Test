@@ -25,6 +25,7 @@ WaveformAnalysis::Get_Fit_Tmax(
 )
 {
   //TODO: add fitting code here
+  TH1::AddDirectory(kFALSE);
   gROOT->SetBatch(true);
   double tmax_fitted = -9999.;
   double chi2_fitted = -9999.;
@@ -94,6 +95,8 @@ WaveformAnalysis::Get_Zero_Cross_Tmax(
   const unsigned int &pmax_index
 )
 {
+  TH1::AddDirectory(kFALSE);
+
   double tmax_zerocross = -9999.;
   double chi2_fitted = -9999.;
 
@@ -162,6 +165,7 @@ template <class data_type>
 WaveformAnalysis::FitResult WaveformAnalysis::Get_Fit_Tmax( WaveformAna<data_type,data_type> &waveform, const unsigned int &npt)
 {
 
+  TH1::AddDirectory(kFALSE);
   gROOT->SetBatch(true);
   double tmax_fitted = -9999.;
   double chi2_fitted = -9999.;
@@ -216,6 +220,8 @@ WaveformAnalysis::FitResult WaveformAnalysis::Get_Zero_Cross_Tmax(
   const unsigned int &npt
 )
 {
+  TH1::AddDirectory(kFALSE);
+  
   double tmax_zerocross = -9999.;
   double chi2_fitted = -9999.;
 

@@ -21,6 +21,7 @@ WaveformAnalysis::FitResult WaveformAnalysis::Fit_CFD(
   WaveformAna<data_type,data_type> &waveform, const double &cfd
 )
 {
+  TH1::AddDirectory(kFALSE);
   gROOT->SetBatch(true);
   double range[2] = {-1000, 1000};
   if( waveform.pmax() < 0 )
