@@ -59,7 +59,8 @@ WaveformAnalysis::FitResult WaveformAnalysis::Fit_CFD(
   double chi2 = res->Chi2();
   if(TMath::IsNaN(time_at_cfd)|| TMath::IsNaN(chi2))
   {
-    return WaveformAnalysis::FitResult(-9999.0, -9999.0, gr);
+    TGraph no_gr(2);
+    return WaveformAnalysis::FitResult(-9999.0, -9999.0, no_gr);
   }
   else
   {
