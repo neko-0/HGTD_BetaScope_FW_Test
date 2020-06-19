@@ -83,9 +83,14 @@ void BetaScopeWaveformAna::event_ana(int ch, WaveformAna<double, double> wavefor
     WaveformAnalysis::FitResult tmaxZeroHolder = WaveAna.Get_Zero_Cross_Tmax( waveform.get_v2(), waveform.get_v1(), waveform.max_index() );
 
     WaveformAnalysis::FitResult fit_cfd_50 = WaveformAnalysis::Fit_CFD<double>(waveform, 0.5);
-    this->beta_scope.SetOutBranchValue(Form("fit_cfd%i_g", ch), fit_cfd_50.graph);
-    this->beta_scope.SetOutBranchValue(Form("fit_cfd%i_chi", ch), fit_cfd_50.chi);
-    this->beta_scope.SetOutBranchValue(Form("fit_cfd%i", ch), fit_cfd_50.value);
+    this->beta_scope.SetOutBranchValue(Form("fit_50cfd%i_g", ch), fit_cfd_50.graph);
+    this->beta_scope.SetOutBranchValue(Form("fit_50cfd%i_chi", ch), fit_cfd_50.chi);
+    this->beta_scope.SetOutBranchValue(Form("fit_50cfd%i", ch), fit_cfd_50.value);
+
+    WaveformAnalysis::FitResult fit_cfd_20 = WaveformAnalysis::Fit_CFD<double>(waveform, 0.2);
+    this->beta_scope.SetOutBranchValue(Form("fit_20cfd%i_g", ch), fit_cfd_20.graph);
+    this->beta_scope.SetOutBranchValue(Form("fit_20cfd%i_chi", ch), fit_cfd_20.chi);
+    this->beta_scope.SetOutBranchValue(Form("fit_20cfd%i", ch), fit_cfd_20.value);
 
     this->fit_tmax[ch]->emplace_back(tmaxFitHolder.value );
     this->fit_tmax_chi[ch]->emplace_back(tmaxFitHolder.chi );
@@ -286,9 +291,13 @@ bool BetaScopeWaveformAna::Initialize()
 
     if( this->enable_fit )
     {
-      this->beta_scope.BuildOutBranch<double>(Form("fit_cfd%i", ch) );
-      this->beta_scope.BuildOutBranch<double>(Form("fit_cfd%i_chi", ch) );
-      this->beta_scope.BuildOutBranch<TGraph>(Form("fit_cfd%i_g", ch) );
+      this->beta_scope.BuildOutBranch<double>(Form("fit_20cfd%i", ch) );
+      this->beta_scope.BuildOutBranch<double>(Form("fit_20cfd%i_chi", ch) );
+      this->beta_scope.BuildOutBranch<TGraph>(Form("fit_20cfd%i_g", ch) );
+
+      this->beta_scope.BuildOutBranch<double>(Form("fit_50cfd%i", ch) );
+      this->beta_scope.BuildOutBranch<double>(Form("fit_50cfd%i_chi", ch) );
+      this->beta_scope.BuildOutBranch<TGraph>(Form("fit_50cfd%i_g", ch) );
 
       this->fit_tmax[ch] = this->beta_scope.GetOutBranch<std::vector<double>>( "fit_tmax"+std::to_string(ch) );
       this->fit_tmax_chi[ch] = this->beta_scope.GetOutBranch<std::vector<double>>( "fit_tmax_chi"+std::to_string(ch) );
