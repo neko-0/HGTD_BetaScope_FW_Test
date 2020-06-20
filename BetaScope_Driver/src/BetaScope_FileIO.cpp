@@ -54,7 +54,7 @@ void BetaScope::FileClose() {
 
   this->output_tfile_->cd();
   this->output_ttree_->Write();
-  delete this->output_tfile_;
+  this->output_tfile_->Close();
 
   if(this->input_tfile_){ this->input_tfile_->Close(); }
 
