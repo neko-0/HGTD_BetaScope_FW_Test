@@ -157,12 +157,12 @@ protected:
   // output stl vector keepers
 
   std::vector<int> output_vector_reserved_index_ = {};
-  std::vector<PrimitiveDataType_BaseContainer *> output_vector_keeper_ = {nullptr};
-  std::vector<std::vector<int> *> output_int_vector_keeper_ = {nullptr};
-  std::vector<std::vector<double> *> output_double_vector_keeper_ = {nullptr};
-  std::vector<std::vector<float> *> output_float_vector_keeper_ = {nullptr};
-  std::vector<std::vector<bool> *> output_bool_vector_keeper_ = {nullptr};
-  std::vector<std::vector<char> *> output_char_vector_keeper_ = {nullptr};
+  std::vector<PrimitiveDataType_BaseContainer *> output_vector_keeper_ = {};
+  std::vector<std::vector<int> *> output_int_vector_keeper_ = {};
+  std::vector<std::vector<double> *> output_double_vector_keeper_ = {};
+  std::vector<std::vector<float> *> output_float_vector_keeper_ = {};
+  std::vector<std::vector<bool> *> output_bool_vector_keeper_ = {};
+  std::vector<std::vector<char> *> output_char_vector_keeper_ = {};
 
   // input stuff are here
 
@@ -198,7 +198,7 @@ public:
   ~BetaScope()
   {
     LOG_INFO( boost::str(boost::format("%1% call destructor at location %2%")%this%this->object_location_ ) );
-    if(this->output_tfile_){delete output_tfile_;}
+    if(this->output_tfile_){delete this->output_tfile_;}
   };
 
   bool FileOpen(const char *ifileName);
