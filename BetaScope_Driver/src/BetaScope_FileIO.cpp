@@ -67,7 +67,19 @@ void BetaScope::FileClose() {
       delete val;
     }
     counter++;
-    if(counter == this->input_branch_counter_){break;}
+    if(counter == this->input_branch_counter_) {break; }
+  }
+
+  counter = 0;
+  for(const auto &val : this->output_branches_buffer_)
+  {
+    if(val)
+    {
+      LOG_INFO("Calling delete");
+      delete val;
+    }
+    counter++;
+    if(counter == this->output_branch_counter_){ break; }
   }
 
   LOG_INFO("file " + this->input_file_name_ + " is finished, extiting.");
