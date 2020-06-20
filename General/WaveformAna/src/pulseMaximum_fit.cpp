@@ -64,10 +64,9 @@ WaveformAnalysis::Get_Fit_Tmax(
 
       if(TMath::IsNaN(tmax_fitted))
       {
-        tmax_fitted = -9999.0;
-        chi2_fitted = -9999.0;
+        TGraph loc_gr(n_points);
+        return WaveformAnalysis::FitResult{-9999.0, -9999.0, loc_gr};
       }
-
       return WaveformAnalysis::FitResult{tmax_fitted, chi2_fitted, gr};
     }
     else
@@ -79,7 +78,6 @@ WaveformAnalysis::Get_Fit_Tmax(
   else
   {
     TGraph gr(n_points);
-
     return WaveformAnalysis::FitResult{tmax_fitted, chi2_fitted, gr};
   }
 }
@@ -136,10 +134,9 @@ WaveformAnalysis::Get_Zero_Cross_Tmax(
 
       if(TMath::IsNaN(tmax_zerocross))
       {
-        tmax_zerocross = -9999.0;
-        chi2_fitted = -9999.0;
+        TGraph loc_gr(n_points);
+        return WaveformAnalysis::FitResult{-9999.0, -9999.0, loc_gr};
       }
-
       return WaveformAnalysis::FitResult(tmax_zerocross, chi2_fitted, gr);
     }
     else
@@ -151,7 +148,6 @@ WaveformAnalysis::Get_Zero_Cross_Tmax(
   else
   {
     TGraph gr(n_points);
-
     return WaveformAnalysis::FitResult(tmax_zerocross, chi2_fitted, gr);
   }
 }
@@ -221,7 +217,7 @@ WaveformAnalysis::FitResult WaveformAnalysis::Get_Zero_Cross_Tmax(
 )
 {
   TH1::AddDirectory(kFALSE);
-  
+
   double tmax_zerocross = -9999.;
   double chi2_fitted = -9999.;
 
