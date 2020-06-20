@@ -54,7 +54,7 @@ void BetaScope::FileClose() {
 
   this->output_tfile_->cd();
   this->output_ttree_->Write();
-  this->output_tfile_->Close();
+  delete this->output_tfile_;
 
   if(this->input_tfile_){ this->input_tfile_->Close(); }
 
@@ -65,11 +65,7 @@ void BetaScope::FileClose() {
   int counter = 0;
   for(const auto &val : this->input_branches_buffer_)
   {
-    if(val)
-    {
-      LOG_INFO("Calling delete");
-      delete val;
-    }
+    if(val){ delete val; }
     counter++;
     if(counter == this->input_branch_counter_) {break; }
   }
@@ -77,11 +73,7 @@ void BetaScope::FileClose() {
   counter = 0;
   for(const auto &val : this->output_branches_buffer_)
   {
-    if(val)
-    {
-      LOG_INFO("Calling delete");
-      delete val;
-    }
+    if(val){ delete val; }
     counter++;
     if(counter == this->output_branch_counter_){ break; }
   }
