@@ -14,7 +14,7 @@ bool BetaScope::FileOpen(const char *ifile_path) {
   LOG_INFO("Entering" );
   LOG_INFO("Preparing IO." );
 
-  this->input_tfile_ = new TFile(ifile_path);
+  this->input_tfile_ = TFile::Open(ifile_path);
   if (this->input_tfile_->IsZombie()) {
     LOG_ERROR("Zombie file. return false.");
     this->is_file_opened_ = false;
@@ -55,6 +55,10 @@ void BetaScope::FileClose() {
   this->output_tfile_->cd();
   this->output_ttree_->Write();
   this->output_tfile_->Close();
+
+  if(this->input_tfile_){ this->input_tfile_->Close(); }
+
+  if(this->input_tree_reader_){ delete this->input_tree_reader_; }
 
   LOG_INFO("Clean up allocated memory");
 

@@ -141,8 +141,8 @@ class BetaScope {
 protected:
   // output stuff are here.
 
-  TFile *output_tfile_ = new TFile;
-  TTree *output_ttree_;//= new TTree;
+  TFile *output_tfile_ = nullptr;
+  TTree *output_ttree_ = nullptr;
   std::string output_file_prefix_ = "stats_";
   std::string output_file_name_;
   int compression_level_ = 8;
@@ -172,8 +172,8 @@ protected:
   bool is_file_opened_ = false;
   std::string object_location_ = "default";
 
-  TFile *input_tfile_ = new TFile;
-  TTreeReader *input_tree_reader_;//= new TTreeReader;
+  TFile *input_tfile_ = nullptr;
+  TTreeReader *input_tree_reader_ = nullptr;
   std::string input_tree_name_ = "wfm";
 
   PrimitiveDataType_BaseContainer *input_branches_buffer_[500] = {nullptr};
