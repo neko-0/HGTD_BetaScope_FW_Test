@@ -197,8 +197,6 @@ public:
   ~BetaScope()
   {
     LOG_INFO( boost::str(boost::format("%1% call destructor at location %2%")%this%this->object_location_ ) );
-    if(this->output_tfile_){delete output_tfile_;}
-    if(this->input_tfile_){delete input_tfile_;}
   };
 
   bool FileOpen(const char *ifileName);
