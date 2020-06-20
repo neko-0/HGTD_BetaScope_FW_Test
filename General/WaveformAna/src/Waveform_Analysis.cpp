@@ -245,8 +245,8 @@ WaveformAna<double, double> WaveformAnalysis::analyze_waveform(
     waveform.back_baseline_int( WaveformAnalysis::Pulse_Integration_with_Fixed_Window_Size( back_temp_voltage, back_temp_time, back_baseline_pmax_corr, "Simpson",1000.0, 3000.0));
 
     double baselineRange[2] = {
-      tmax_for_baseline - temp_riseTime - 3000.0,
-      tmax_for_baseline - temp_riseTime - 1000.0
+      tmax_for_baseline - temp_riseTime - 30000.0,
+      tmax_for_baseline - temp_riseTime - 15000.0
     };
 
     //std::vector<double> corr_v = waveform.get_v2();

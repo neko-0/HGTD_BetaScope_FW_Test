@@ -40,7 +40,8 @@ Baseline correction using point from 0 to N.
 =============================================================================*/
 double WaveformAnalysis::Correct_Baseline(
     std::vector<double> &voltageVec,
-    const int &ptN)
+    const int &ptN
+)
 {
     double mean = 0;
 
