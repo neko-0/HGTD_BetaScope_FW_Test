@@ -104,7 +104,7 @@ int main(int argc, char **argv) {
     #pragma omp parallel for num_threads(numThreads)
     for( std::size_t i = 0; i < fileList.size(); i++ )
     {
-      runAna(fileList.at(i), vm["config"].as<std::string>(), vm["skipWaveform"].as<bool>(), vm["skim"].as<bool>());
+      LOG_INFO( std::to_string( runAna(fileList.at(i), vm["config"].as<std::string>(), vm["skipWaveform"].as<bool>(), vm["skim"].as<bool>()) ) );
     }
 
 
