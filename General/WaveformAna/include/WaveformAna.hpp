@@ -76,18 +76,18 @@ public:
     void fall_time(const double &value){ this->fall_time_ = value; }
     void pulse_area(const double &value){ this->pulse_area_ = value; }
     void pulse_area_undershoot(const double &value){ this->pulse_area_undershoot_ = value; }
-    void dvdt(const std::vector<double> &value){ this->dvdt_ = value; }
-    void cfd(const std::vector<double> &value){ this->cfd_ = value; }
-    void cfd_fall(const std::vector<double> &value){ this->cfd_fall_ = value; }
-    void fine_cfd(const std::vector<double> &value){ this->fine_cfd_ = value; }
-    void fine_cfd_fall(const std::vector<double> &value){ this->fine_cfd_fall_ = value; }
     void front_baseline_int(const double &value){ this->front_baseline_int_ = value; }
     void back_baseline_int(const double &value){ this->back_baseline_int_ = value; }
-    void threashold_time(const std::vector<double> &value){ this->threshold_time_ = value; }
     void rms(const double &value){ this->rms_ = value; }
     void undershoot_pmax(const double &value){ this->undershoot_pmax_ = value;}
     void undershoot_tmax(const double &value){ this->undershoot_tmax_ = value;}
-    void tot(const std::vector<double> &value){ this->tot_ = value;}
+    void dvdt(std::vector<double> value){ this->dvdt_ = std::move(value); }
+    void cfd(std::vector<double> value){ this->cfd_ = std::move(value); }
+    void cfd_fall(std::vector<double> value){ this->cfd_fall_ = std::move(value); }
+    void fine_cfd(std::vector<double> value){ this->fine_cfd_ = std::move(value); }
+    void fine_cfd_fall(std::vector<double> value){ this->fine_cfd_fall_ = std::move(value); }
+    void tot(std::vector<double> value){ this->tot_ = std::move(value);}
+    void threashold_time(std::vector<double> value){ this->threshold_time_ = std::move(value); }
 
     int channel() const { return this->channel_; }
     int max_index() const { return this->max_index_; }

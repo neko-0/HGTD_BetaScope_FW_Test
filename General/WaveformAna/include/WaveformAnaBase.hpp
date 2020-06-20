@@ -24,18 +24,18 @@ public:
   virtual void fall_time(const double &value) = 0;
   virtual void pulse_area(const double &value) = 0;
   virtual void pulse_area_undershoot(const double &value) = 0;
-  virtual void dvdt(const std::vector<double> &value) = 0;
-  virtual void cfd(const std::vector<double> &value) = 0;
-  virtual void cfd_fall(const std::vector<double> &value) = 0;
-  virtual void fine_cfd(const std::vector<double> &value) = 0;
-  virtual void fine_cfd_fall(const std::vector<double> &value) = 0;
   virtual void front_baseline_int(const double &value) = 0;
   virtual void back_baseline_int(const double &value) = 0;
-  virtual void threashold_time(const std::vector<double> &value) = 0;
   virtual void rms(const double &value) = 0;
   virtual void undershoot_pmax(const double &value) = 0;
   virtual void undershoot_tmax(const double &value) = 0;
-  virtual void tot(const std::vector<double> &value) = 0;
+  virtual void dvdt(std::vector<double> value) = 0;
+  virtual void cfd(std::vector<double> value) = 0;
+  virtual void cfd_fall(std::vector<double> value) = 0;
+  virtual void fine_cfd(std::vector<double> value) = 0;
+  virtual void fine_cfd_fall(std::vector<double> value) = 0;
+  virtual void tot(std::vector<double> value) = 0;
+  virtual void threashold_time(std::vector<double> value) = 0;
 
   virtual int channel() const = 0;
   virtual int max_index() const = 0;
