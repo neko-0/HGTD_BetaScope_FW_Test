@@ -73,8 +73,8 @@ public:
     void set_v1_value(const int &index, const data_type &value){ this->v1_.at(index) = value; }
     void set_v2_value(const int &index, const data_type &value){ this->v2_.at(index) = value; }
 
-    void set_v1(std::vector<data_type> value){ this->v1_ = value; }
-    void set_v2(std::vector<data_type> value){ this->v2_ = value; }
+    void set_v1(std::vector<data_type> value){ this->v1_ = std::move(value); }
+    void set_v2(std::vector<data_type> value){ this->v2_ = std::move(value); }
 
     std::size_t size() const {return this->v1_.size();}
 
