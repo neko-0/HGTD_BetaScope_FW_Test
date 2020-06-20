@@ -148,7 +148,7 @@ protected:
   int compression_level_ = 8;
   int new_branch_counter_ = 0;
 
-  PrimitiveDataType_BaseContainer *output_branches_buffer_[500];
+  PrimitiveDataType_BaseContainer *output_branches_buffer_[500] = {nullptr};
   std::map<std::string, PrimitiveDataType_BaseContainer *> output_branch_map_;
   std::map<std::string, int> output_branch_map_index_;
   int output_branch_counter_ = 0;
@@ -176,7 +176,7 @@ protected:
   TTreeReader *input_tree_reader_;//= new TTreeReader;
   std::string input_tree_name_ = "wfm";
 
-  PrimitiveDataType_BaseContainer *input_branches_buffer_[500];
+  PrimitiveDataType_BaseContainer *input_branches_buffer_[500] = {nullptr};
   std::map<std::string, PrimitiveDataType_BaseContainer *> input_branch_map_;
   std::map<std::string, int> input_branch_map_index_;
   int input_branch_counter_ = 0;
@@ -199,6 +199,8 @@ public:
     LOG_INFO( boost::str(boost::format("%1% call destructor at location %2%")%this%this->object_location_ ) );
     if(this->output_tfile_){delete output_tfile_;}
     if(this->input_tfile_){delete input_tfile_;}
+    for(auto &ptr : this->input_branches_buffer_){ if(ptr){delete ptr;} }
+    for(auto &ptr : this->output_branches_buffer_){ if(ptr){delete ptr;} }
   };
 
   bool FileOpen(const char *ifileName);

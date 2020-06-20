@@ -30,11 +30,8 @@ private:
 
 public:
   TH_Container(){};
-  ~TH_Container() {
-    if (this->th)
-      delete th;
-  };
-  TH_Type *get() { return this->th; };
+  ~TH_Container(){ if (this->th){ delete th; } };
+  TH_Type *get(){ return this->th; };
 };
 
 /*==============================================================================
@@ -87,8 +84,13 @@ private:
   std::map<std::string, TH1D *> oTree_TH1D_Map;
 
 public:
-  BetaScope_Ext() { std::cout << this->class_name << std::endl; };
-  ~BetaScope_Ext() { std::cout << this->class_name << "call destructor at"; };
+  BetaScope_Ext() { };
+  ~BetaScope_Ext(){
+    for(auto &ptr : this->oTree_TH )
+    {
+      if(ptr){ delete ptr; }
+    }
+  };
 
   void FillEvent();
 
