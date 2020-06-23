@@ -31,6 +31,10 @@ WAVEFORM_ANA_INC = $(GENERAL_DIR)/WaveformAna/include/
 WAVEFORM_ANA_DEPS = $(wildcard $(GENERAL_DIR)/WaveformAna/build/*.o)
 WAVEFORM_ANA_DEPS += $(wildcard $(GENERAL_DIR)/WaveformAna/build/*.so)
 
+TRIGGER_INC = $(GENERAL_DIR)/Trigger/include/
+TRIGGER_DEPS = $(wildcard $(GENERAL_DIR)/Trigger/build/*.o)
+TRIGGER_DEPS += $(wildcard $(GENERAL_DIR)/Trigger/build/*.so)
+
 UTILITIES_INC = $(GENERAL_DIR)/utilities/include/
 UTILITIES_DEPS = $(wildcard $(GENERAL_DIR)/utilities/build/*.o)
 
@@ -41,7 +45,7 @@ DEPS = $(BETASCOPE_DRIVER_DEPS)
 DEPS += $(WAVEFORM_ANA_DEPS)
 DEPS += $(UTILITIES_DEPS)
 DEPS += $(LOGGER_DEPS)
-
+DEPS += $(TRIGGER_DEPS)
 
 #--BetaScopeWaveformAna
 BETASCOPE_ANA = $(BETASCOPE_ANALYSIS_DIR)/BetaScopeWaveformAna/

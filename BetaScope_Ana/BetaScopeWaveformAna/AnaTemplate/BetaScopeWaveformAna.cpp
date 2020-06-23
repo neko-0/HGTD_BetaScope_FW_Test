@@ -8,6 +8,7 @@
 #include <boost/property_tree/ptree.hpp>
 
 #include "General/WaveformAna/include/general.hpp"
+#include "General/Trigger/include/Trigger.hpp"
 
 #include <ctime>
 #include <future>
@@ -62,6 +63,7 @@ int BetaScopeWaveformAna::event_ana(int ch, WaveformAna<double, double> waveform
   this->beta_scope.SetOutBranchValue( Form("undershoot_pmax%i", ch), waveform.undershoot_pmax() );
   this->beta_scope.SetOutBranchValue( Form("undershoot_tmax%i", ch), waveform.undershoot_tmax() );
   this->beta_scope.SetOutBranchValue( Form("isGoodTrig%i", ch), (isGoodTrig(waveform) && thcount<3) ? 1:0 );
+  this->beta_scope.SetOutBranchValue( Form("CalTrig%i", ch), Trigger::Calibrated_LGAD_Trigger(waveform));
 
 
   *this->cfd[ch] = waveform.cfd();
@@ -152,7 +154,8 @@ void BetaScopeWaveformAna::Analysis()
   {
     int ch = this->activeChannels.at(chh);
 
-    if( this->resample_time || this->dt <= 0.0)
+    // using one time traces;
+    if( this->resample_time && this->dt <= 0.0)
     {
       this->xorigin = this->i_t[ch]->At(0);
       this->dt = this->i_t[ch]->At(1) - this->i_t[ch]->At(0);
@@ -294,6 +297,7 @@ bool BetaScopeWaveformAna::Initialize()
     this->beta_scope.BuildOutBranch<double>(Form("undershoot_pmax%i", ch) );
     this->beta_scope.BuildOutBranch<double>(Form("undershoot_tmax%i", ch) );
     this->beta_scope.BuildOutBranch<bool>(Form("isGoodTrig%i", ch) );
+    this->beta_scope.BuildOutBranch<bool>(Form("CalTrig%i", ch) );
     this->beta_scope.BuildOutBranch<std::vector<double>>(Form("tot%i", ch) );
 
     if( this->enable_fit )
