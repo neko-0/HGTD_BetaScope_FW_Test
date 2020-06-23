@@ -104,18 +104,27 @@ public:
     double fall_time() const { return this->fall_time_; }
     double pulse_area() const { return this->pulse_area_; }
     double pulse_area_undershoot() const { return this->pulse_area_undershoot_; }
+    double front_baseline_int() const { return this->front_baseline_int_; }
+    double back_baseline_int() const { return this->back_baseline_int_; }
+    double rms() const { return this->rms_; }
+    double undershoot_pmax() const {return this->undershoot_pmax_; }
+    double undershoot_tmax() const {return this->undershoot_tmax_; }
+
+    std::vector<double> tot() const {return this->tot_; }
     std::vector<double> dvdt() const { return this->dvdt_; }
     std::vector<double> cfd() const { return this->cfd_; }
     std::vector<double> cfd_fall() const { return this->cfd_fall_; }
     std::vector<double> fine_cfd() const { return this->fine_cfd_; }
     std::vector<double> fine_cfd_fall() const { return this->fine_cfd_fall_; }
-    double front_baseline_int() const { return this->front_baseline_int_; }
-    double back_baseline_int() const { return this->back_baseline_int_; }
     std::vector<double> threshold_time() const { return this->threshold_time_; }
-    double rms() const { return this->rms_; }
-    double undershoot_pmax() const {return this->undershoot_pmax_; }
-    double undershoot_tmax() const {return this->undershoot_tmax_; }
-    std::vector<double> tot() const {return this->tot_; }
+
+    double tot(const int &index) const {return this->tot_.at(index); }
+    double dvdt(const int &index) const { return this->dvdt_.at(index); }
+    double cfd(const int &index) const { return this->cfd_.at(index); }
+    double cfd_fall(const int &index) const { return this->cfd_fall_.at(index); }
+    double fine_cfd(const int &index) const { return this->fine_cfd_.at(index); }
+    double fine_cfd_fall(const int &index) const { return this->fine_cfd_fall_.at(index); }
+    double threshold_time(const int &index) const { return this->threshold_time_.at(index); }
 
     ClassDef(WaveformAna, 1)
 };

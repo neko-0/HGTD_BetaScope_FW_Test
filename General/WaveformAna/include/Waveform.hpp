@@ -171,9 +171,14 @@ Waveform<data_type, input_type>::Waveform( TTreeReaderArray<input_type> *amp, TT
 
 template <class data_type, class input_type>
 Waveform<data_type, input_type>::Waveform(
-  TTreeReaderArray<input_type> *amp, TTreeReaderArray<input_type> *t,
-  const bool &invert, const float &ampFactor, const float &tFactor,
-  const bool &tResample, const float &xori, const float &dt
+  TTreeReaderArray<input_type> *amp,
+  TTreeReaderArray<input_type> *t,
+  const bool &invert,
+  const float &ampFactor,
+  const float &tFactor,
+  const bool &tResample,
+  const float &xori,
+  const float &dt
 )
 {
   this->v1_.reserve(2000);

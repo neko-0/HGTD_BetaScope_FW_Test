@@ -248,7 +248,7 @@ WaveformAna<double, double> WaveformAnalysis::analyze_waveform(
 
     double baselineRange[2] = {
       tmax_for_baseline - temp_riseTime - 30000.0,
-      tmax_for_baseline - temp_riseTime - 15000.0
+      tmax_for_baseline - temp_riseTime - 20000.0
     };
 
     //std::vector<double> corr_v = waveform.get_v2();
