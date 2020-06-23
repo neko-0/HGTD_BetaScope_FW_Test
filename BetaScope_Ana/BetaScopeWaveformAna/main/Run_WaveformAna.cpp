@@ -7,6 +7,8 @@
 #include <thread>
 #include <unistd.h>
 #include <vector>
+#include <stdlib.h>
+#include <stdio.h>
 
 #include <omp.h>
 
@@ -19,11 +21,39 @@ namespace bpo = boost::program_options;
 #include <TROOT.h>
 #include <TThread.h>
 
+// stackoverflow
+// https://stackoverflow.com/questions/63166/how-to-determine-cpu-and-memory-consumption-from-inside-a-process
+int parseLine(char* line){
+    // This assumes that a digit will be found and the line ends in " Kb".
+    int i = strlen(line);
+    const char* p = line;
+    while (*p <'0' || *p > '9') p++;
+    line[i-3] = '\0';
+    i = atoi(p);
+    return i;
+}
+
+int get_ram(){ //Note: this value is in KB!
+    FILE* file = fopen("/proc/self/status", "r");
+    int result = -1;
+    char line[128];
+
+    while (fgets(line, 128, file) != NULL){
+        if (strncmp(line, "VmRSS:", 6) == 0){
+            result = parseLine(line);
+            break;
+        }
+    }
+    fclose(file);
+    return result;
+}
+
 int runAna(
   const std::string &fileName,
   const std::string &config = "WaveformAnaConfig.ini",
   const bool &skipWaveform = false,
-  const bool &skim = false
+  const bool &skim = false,
+  const bool &mp = false
 )
 {
   TThread::Lock();
@@ -31,6 +61,7 @@ int runAna(
   if (skipWaveform){doAna.setWaveform(skipWaveform);}
   doAna.readWaveformConfig(config);
   doAna.skim_output = skim;
+  doAna.internal_mp = mp;
   bool initialized = doAna.Initialize();
   TThread::UnLock();
   // doAna.run();
@@ -59,6 +90,7 @@ int main(int argc, char **argv) {
   ("config", bpo::value<std::string>(), "configuration file")
   ("skipWaveform", bpo::bool_switch()->default_value(false), "skipping waveform in output file.")
   ("skim", bpo::bool_switch()->default_value(false), "skim the output file.")
+  ("mp", bpo::bool_switch()->default_value(false), "internal mp")
   ("thread,j", bpo::value<unsigned>()->default_value(std::thread::hardware_concurrency()), "using number of thread.")
   ;
   bpo::store(bpo::parse_command_line(argc, argv, desc, style), vm);
@@ -95,17 +127,19 @@ int main(int argc, char **argv) {
     boost::asio::thread_pool pool(numThreads);
     for( auto file : fileList )
     {
-      boost::asio::post(pool, boost::bind(runAna, file, vm["config"].as<std::string>(), vm["skipWaveform"].as<bool>(), vm["skim"].as<bool>()));
+      boost::asio::post(pool, boost::bind(runAna, file, vm["config"].as<std::string>(), vm["skipWaveform"].as<bool>(), vm["skim"].as<bool>(), vm["mp"].as<bool>()));
+      //runAna(file, vm["config"].as<std::string>(), vm["skipWaveform"].as<bool>(), vm["skim"].as<bool>(), vm["mp"].as<bool>());
     }
     pool.join();
     */
 
-
+    ///*
     #pragma omp parallel for num_threads(numThreads)
     for( std::size_t i = 0; i < fileList.size(); i++ )
     {
-      runAna(fileList.at(i), vm["config"].as<std::string>(), vm["skipWaveform"].as<bool>(), vm["skim"].as<bool>());
+      runAna(fileList.at(i), vm["config"].as<std::string>(), vm["skipWaveform"].as<bool>(), vm["skim"].as<bool>(), vm["mp"].as<bool>());
     }
+    //*/
 
 
     LOG_INFO("Finished. Time cost: " + std::to_string(std::time(nullptr) - main_time));

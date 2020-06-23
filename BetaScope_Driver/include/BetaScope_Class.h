@@ -26,6 +26,7 @@
 #include <boost/format.hpp>
 
 //------ROOT----------------//
+#include <TROOT.h>
 #include <TFile.h>
 #include <TThread.h>
 #include <TTree.h>
@@ -65,9 +66,11 @@ template <typename dtype>
 struct PrimitiveDataType_Container : public PrimitiveDataType_BaseContainer
 {
 private:
-  dtype *data_type = new dtype;
+  dtype *data_type = nullptr;
   is_vector<dtype> _isVec;
   bool __isVec = _isVec.value;
+
+  std::string class_name = "PrimitiveDataType_Container";
 
   template <class vClass>
   typename std::enable_if<is_vector<vClass>::value>::type _clear()
@@ -79,14 +82,11 @@ private:
   typename std::enable_if<!is_vector<vClass>::value>::type _clear(){};
 
 public:
-  PrimitiveDataType_Container(){};
-  ~PrimitiveDataType_Container()
-  {
-    if (this->data_type)
-    {
-      LOG_INFO("~PrimitiveDataType_Container: clean up." );
-      delete this->data_type;
-    }
+  PrimitiveDataType_Container(){ this->data_type = new dtype; };
+  ~PrimitiveDataType_Container(){
+    //LOG_INFO(this->class_name+" delete ");
+    delete this->data_type;
+    this->data_type=nullptr;
   };
 
   dtype *get() { return this->data_type; };
@@ -108,13 +108,10 @@ private:
 
 public:
   PrimitiveDataType_TemplateContainer(){};
-  ~PrimitiveDataType_TemplateContainer()
-  {
-    if (this->data_type)
-    {
-      LOG_INFO("~PrimitiveDataType_TemplateContainer: clean up." );
-      delete this->data_type;
-    }
+  ~PrimitiveDataType_TemplateContainer(){
+    //LOG_INFO(this->class_name+" delete ");
+    delete this->data_type;
+    this->data_type=nullptr;
   };
 
   c<dtype> *get() { return this->data_type; };
@@ -144,12 +141,16 @@ protected:
 
   TFile *output_tfile_ = nullptr;
   TTree *output_ttree_ = nullptr;
+  TTree *skim_output_tree_ = nullptr;
   std::string output_file_prefix_ = "stats_";
-  std::string output_file_name_;
-  int compression_level_ = 8;
+  std::string output_file_name_ = "output";
+  std::string output_tree_name_ = "wfm";
+  int compression_level_ = 1;
   int new_branch_counter_ = 0;
+  bool write_skim_ = false;
 
-  PrimitiveDataType_BaseContainer *output_branches_buffer_[500] = {nullptr};
+  //PrimitiveDataType_BaseContainer *output_branches_buffer_[500] = {nullptr};
+  std::vector<PrimitiveDataType_BaseContainer*> output_branches_buffer_ = {};
   std::map<std::string, PrimitiveDataType_BaseContainer *> output_branch_map_;
   std::map<std::string, int> output_branch_map_index_;
   int output_branch_counter_ = 0;
@@ -166,9 +167,9 @@ protected:
 
   // input stuff are here
 
-  unsigned int input_num_event_;
-  std::string input_file_name_;
-  std::string input_file_nick_name_;
+  unsigned int input_num_event_ = 0;
+  std::string input_file_name_ = "";
+  std::string input_file_nick_name_ = "";
   bool skip_bad_vector_ = false;
   bool is_file_opened_ = false;
   std::string object_location_ = "default";
@@ -177,7 +178,8 @@ protected:
   TTreeReader *input_tree_reader_ = nullptr;
   std::string input_tree_name_ = "wfm";
 
-  PrimitiveDataType_BaseContainer *input_branches_buffer_[500] = {nullptr};
+  //PrimitiveDataType_BaseContainer *input_branches_buffer_[500] = {nullptr};
+  std::vector<PrimitiveDataType_BaseContainer*> input_branches_buffer_ = {};
   std::map<std::string, PrimitiveDataType_BaseContainer *> input_branch_map_;
   std::map<std::string, int> input_branch_map_index_;
   int input_branch_counter_ = 0;
@@ -193,13 +195,8 @@ public:
 
   BetaScope(){};
   BetaScope(const char *ipath);
-  BetaScope(const char *ipath, const char *iTreeBranch_config,
-            const char *oTreeBranch_config);
-  ~BetaScope()
-  {
-    LOG_INFO( boost::str(boost::format("%1% call destructor at location %2%")%this%this->object_location_ ) );
-    if(this->output_tfile_){delete this->output_tfile_;}
-  };
+  BetaScope(const char *ipath, const char *iTreeBranch_config, const char *oTreeBranch_config);
+  ~BetaScope();
 
   bool FileOpen(const char *ifileName);
   void FileClose();
@@ -207,8 +204,6 @@ public:
   bool NewTreeMaker(std::string additional_branch_list);
   void FillEvent();
   bool IsBranchExists(const char *branchName);
-
-  void Filter(const char *selection);
 
   void _ClearVecBuffer();
   void _ClearVecBuffer(std::string mode);

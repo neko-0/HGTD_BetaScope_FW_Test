@@ -45,15 +45,22 @@ WaveformAnalysis::FitResult WaveformAnalysis::Fit_CFD(
 
   if(index_at_cfd == waveform.size()){index_at_cfd = waveform.size()-2;}
   auto sub_waveform = waveform.sub_waveform(index_at_cfd-1, index_at_cfd+2);
+
   std::string title = fmt::format("fit_cfd_id{}_{}_{}", std::rand(), index_at_cfd, value_at_cfd);
   TGraph gr(sub_waveform.size(), &sub_waveform.v1()[0], &sub_waveform.v2()[0]);
   gr.SetTitle(title.c_str());
   gr.SetName(title.c_str());
 
+  TThread::Lock();
+  //static std::mutex mu;
+  //std::unique_lock<std::mutex> lck(mu);
   title = "f_" + title;
   TF1 fu(title.c_str(), "[0]*x+[1]");
   fu.AddToGlobalList(false);
   TFitResultPtr res = gr.Fit(&fu, "SQ");
+  //lck.unlock();
+  TThread::UnLock();
+
   time_at_cfd = fu.GetX(value_at_cfd, sub_waveform.get_v1_value(0), sub_waveform.get_v1_value(sub_waveform.size()-1));
   double chi2 = res->Chi2();
   if(TMath::IsNaN(time_at_cfd)|| TMath::IsNaN(chi2))

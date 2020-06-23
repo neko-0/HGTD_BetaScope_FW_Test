@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 
+#include <TObject.h>
 #include <TFile.h>
 #include <TThread.h>
 
@@ -15,7 +16,8 @@ bool BetaScope::FileOpen(const char *ifile_path) {
   LOG_INFO("Preparing IO." );
 
   this->input_tfile_ = TFile::Open(ifile_path);
-  if (this->input_tfile_->IsZombie()) {
+  if (this->input_tfile_->IsZombie())
+  {
     LOG_ERROR("Zombie file. return false.");
     this->is_file_opened_ = false;
     return false;
@@ -24,7 +26,8 @@ bool BetaScope::FileOpen(const char *ifile_path) {
 
   std::string delimiter = "/";
   std::string ofile_name = ifile_path;
-  while (int(ofile_name.find(delimiter)) != -1) {
+  while (int(ofile_name.find(delimiter)) != -1)
+  {
     ofile_name.erase(0, ofile_name.find(delimiter) + delimiter.length());
   }
   this->output_file_name_ = this->output_file_prefix_ += ofile_name;
@@ -34,7 +37,8 @@ bool BetaScope::FileOpen(const char *ifile_path) {
   LOG_INFO( "Create output file");
   LOG_INFO( "compressionLevel: " + std::to_string(this->compression_level_));
 
-  this->output_tfile_ = new TFile(this->output_file_name_.c_str(), "RECREATE", "", this->compression_level_);
+  this->output_tfile_ = TFile::Open(this->output_file_name_.c_str(), "RECREATE", this->output_file_name_.c_str(), this->compression_level_);
+  //this->output_ttree_->SetDirectory(this->output_tfile_);
 
   LOG_INFO("Fininished, exiting");
   // TThread::UnLock();
@@ -52,31 +56,11 @@ void BetaScope::FileClose() {
   LOG_INFO("Entering");
   LOG_INFO("Writing output files.");
 
-  this->output_tfile_->cd();
-  this->output_ttree_->Write();
+  //this->output_ttree_->Write("", TObject::kOverwrite);
+  this->output_ttree_->AutoSave();
+  delete this->output_ttree_;
   this->output_tfile_->Close();
-
-  if(this->input_tfile_){ this->input_tfile_->Close(); }
-
-  if(this->input_tree_reader_){ delete this->input_tree_reader_; }
-
-  LOG_INFO("Clean up allocated memory");
-
-  int counter = 0;
-  for(const auto &val : this->input_branches_buffer_)
-  {
-    if(val){ delete val; }
-    counter++;
-    if(counter == this->input_branch_counter_) {break; }
-  }
-
-  counter = 0;
-  for(const auto &val : this->output_branches_buffer_)
-  {
-    if(val){ delete val; }
-    counter++;
-    if(counter == this->output_branch_counter_){ break; }
-  }
+  this->input_tfile_->Close();
 
   LOG_INFO("file " + this->input_file_name_ + " is finished, extiting.");
   std::time_t _t_end_of_program = std::time(nullptr);
@@ -84,5 +68,6 @@ void BetaScope::FileClose() {
   this->cpu_time = std::clock() - this->cpu_time;
   LOG_INFO(this->input_file_nick_name_ + " Wall Time used: " + std::to_string(_t_end_of_program - this->kTimeObjCreation) );
   LOG_INFO(this->input_file_nick_name_ + " CPU Time used: " + std::to_string(_t_end_of_program_cpu - this->cpu_time) );
+  this->write_skim_ = true;
   // TThread::UnLock();
 }

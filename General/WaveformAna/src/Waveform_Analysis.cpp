@@ -1,6 +1,8 @@
 #include "General/WaveformAna/include/general.hpp"
 #include "WaveformAna/include/Waveform_Analysis.hpp"
 
+std::mutex WaveformAnalysis::mu;
+
 int THREAD_COUNT = 0;
 
 /*

@@ -14,6 +14,7 @@ bool BetaScope::RawTreeReader(const char *itreeName) {
   LOG_INFO("Entering");
   LOG_INFO("Preparing raw tree reader.");
 
+  //BETA_LOG::NEW_=true;
   this->input_tree_reader_ = new TTreeReader(itreeName, this->input_tfile_);
   this->input_num_event_ = this->input_tree_reader_->GetEntries(true);
 

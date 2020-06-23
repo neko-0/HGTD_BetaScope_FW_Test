@@ -20,8 +20,8 @@ bool BetaScope::NewTreeMaker(std::string additional_branch_list) {
   LOG_INFO("Preparing new tree. Default name: wfm" );
 
   //int branch_counter = 0;
-
-  this->output_ttree_ = new TTree("wfm", "BetaScope waveform ana.");
+  //BETA_LOG::NEW_=true;
+  this->output_ttree_ = new TTree("wfm", this->input_file_nick_name_.c_str());
   this->output_ttree_->SetDirectory(this->output_tfile_);
 
   LOG_INFO("Creating default branches");

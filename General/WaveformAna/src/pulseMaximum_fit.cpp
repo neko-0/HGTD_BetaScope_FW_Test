@@ -51,13 +51,17 @@ WaveformAnalysis::Get_Fit_Tmax(
       gr.SetTitle(title.c_str());
       gr.SetName(title.c_str());
 
+      TThread::Lock();
+      //static std::mutex mu;
+      //std::unique_lock<std::mutex> lck(mu);
       title = "f_" + title;
       TF1 fu(title.c_str(), "gaus", timeVec.at(pmax_index) - 300., timeVec.at(pmax_index) + 300.);
       fu.AddToGlobalList(false);
-
       fu.SetParameter(0, timeVec.at(pmax_index));
       fu.SetParameter(1, 100.);
       TFitResultPtr res = gr.Fit(&fu, "SQR");
+      //lck.unlock();
+      TThread::UnLock();
 
       tmax_fitted = fu.GetParameter(1);
       chi2_fitted = res->Chi2();
@@ -123,11 +127,15 @@ WaveformAnalysis::Get_Zero_Cross_Tmax(
       gr.SetTitle(title.c_str());
       gr.SetName(title.c_str());
 
+      TThread::Lock();
+      //static std::mutex mu;
+      //std::unique_lock<std::mutex> lck(mu);
       title = "f_" + title;
       TF1 fu(title.c_str(), "[0]*x+[1]", timeVec.at(pmax_index) - 300., timeVec.at(pmax_index) + 300.);
       fu.AddToGlobalList(false);
-
       TFitResultPtr res = gr.Fit(&fu, "SQR");
+      //lck.unlock();
+      TThread::UnLock();
 
       tmax_zerocross = fu.GetX(0);
       chi2_fitted = res->Chi2();
@@ -175,12 +183,17 @@ WaveformAnalysis::FitResult WaveformAnalysis::Get_Fit_Tmax( WaveformAna<data_typ
     gr.SetTitle(title.c_str());
     gr.SetName(title.c_str());
 
+    TThread::Lock();
+    //static std::mutex mu;
+    //std::unique_lock<std::mutex> lck(mu);
     title = "f_" + title;
     TF1 fu(title.c_str(), "gaus", waveform.tmax()-300.0, waveform.tmax()+300.0);
     fu.AddToGlobalList(false);
     fu.SetParameter(0, waveform.tmax());
     fu.SetParameter(1, 100.);
     TFitResultPtr res = gr.Fit(&fu, "SQR");
+    //lck.unlock();
+    TThread::UnLock();
 
     tmax_fitted = fu.GetParameter(1);
     chi2_fitted = res->Chi2();
@@ -231,11 +244,15 @@ WaveformAnalysis::FitResult WaveformAnalysis::Get_Zero_Cross_Tmax(
     gr.SetTitle(title.c_str());
     gr.SetName(title.c_str());
 
+    TThread::Lock();
+    //static std::mutex mu;
+    //std::unique_lock<std::mutex> lck(mu);
     title = "f_" + title;
     TF1 fu(title.c_str(), "[0]*x+[1]", waveform.tmax()-300.0, waveform.tmax()+300.0);
     fu.AddToGlobalList(false);
-
     TFitResultPtr res = gr.Fit(&fu, "SQ");
+    //lck.unlock();
+    TThread::UnLock();
 
     tmax_zerocross = fu.GetX(0);
     chi2_fitted = res->Chi2();

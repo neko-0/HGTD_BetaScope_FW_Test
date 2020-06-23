@@ -74,7 +74,7 @@ void result( PlotConfigMgr::ConfigSection sec, int dut_channel, int trigger_chan
         HistoPackage backBaseArea( sec.file_name, Form("backBaselineInt_indepBaseCorr%i[0]/1.0E-15", job.channel ), "back base area");
         frontBaseArea.fillFromTree( itree );
 
-        std::lock_guard<std::mutex> lck(MTX);
+        std::unique_lock<std::mutex> lck(MTX);
         fitResult = my_fitter.fitter_RooLanGausArea( job.histo_pack, frontBaseArea, backBaseArea, savePlot);
       }
       else if( job.fitFunc == "LanGaus" )
@@ -123,7 +123,6 @@ void result( PlotConfigMgr::ConfigSection sec, int dut_channel, int trigger_chan
 
 void getResults(std::string plotConfig_fname, std::string outDir = "Results/" )
 {
-  gSystem->Load("libMinuit2");
   gROOT->SetBatch(true);
   gStyle->SetOptFit(1);
   gErrorIgnoreLevel = kFatal;
@@ -152,7 +151,10 @@ void getResults(std::string plotConfig_fname, std::string outDir = "Results/" )
   pool.join();
   */
 
-  #pragma omp parallel for num_threads(std::thread::hardware_concurrency())
+  unsigned numThreads = std::thread::hardware_concurrency();
+  if(numThreads!=1){numThreads = numThreads/2;}
+
+  #pragma omp parallel for num_threads(numThreads)
   for( std::size_t it =0; it<plotConfig.sections.size(); it++ )
   {
     auto &sec = plotConfig.sections.at(it);

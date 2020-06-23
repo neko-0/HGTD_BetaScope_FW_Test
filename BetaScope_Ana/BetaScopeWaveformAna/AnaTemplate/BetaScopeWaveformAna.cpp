@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <functional>
 
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
@@ -25,7 +26,7 @@ bool BetaScopeWaveformAna::isGoodTrig( const WaveformAna<double,double> &wavefor
   else{ return false; }
 }
 
-void BetaScopeWaveformAna::event_ana(int ch, WaveformAna<double, double> waveform)
+int BetaScopeWaveformAna::event_ana(int ch, WaveformAna<double, double> waveform)
 {
   WaveformAnalysis WaveAna;
 
@@ -81,31 +82,31 @@ void BetaScopeWaveformAna::event_ana(int ch, WaveformAna<double, double> wavefor
   {
     WaveformAnalysis::FitResult tmaxFitHolder = WaveAna.Get_Fit_Tmax( waveform.get_v2(), waveform.get_v1(), waveform.max_index() );
     WaveformAnalysis::FitResult tmaxZeroHolder = WaveAna.Get_Zero_Cross_Tmax( waveform.get_v2(), waveform.get_v1(), waveform.max_index() );
-
     WaveformAnalysis::FitResult fit_cfd_50 = WaveformAnalysis::Fit_CFD<double>(waveform, 0.5);
-    this->beta_scope.SetOutBranchValue(Form("fit_50cfd%i_g", ch), fit_cfd_50.graph);
-    this->beta_scope.SetOutBranchValue(Form("fit_50cfd%i_chi", ch), fit_cfd_50.chi);
-    this->beta_scope.SetOutBranchValue(Form("fit_50cfd%i", ch), fit_cfd_50.value);
-
     WaveformAnalysis::FitResult fit_cfd_20 = WaveformAnalysis::Fit_CFD<double>(waveform, 0.2);
-    this->beta_scope.SetOutBranchValue(Form("fit_20cfd%i_g", ch), fit_cfd_20.graph);
-    this->beta_scope.SetOutBranchValue(Form("fit_20cfd%i_chi", ch), fit_cfd_20.chi);
-    this->beta_scope.SetOutBranchValue(Form("fit_20cfd%i", ch), fit_cfd_20.value);
 
     this->fit_tmax[ch]->emplace_back(tmaxFitHolder.value );
     this->fit_tmax_chi[ch]->emplace_back(tmaxFitHolder.chi );
+
+
     this->zero_cross_tmax[ch]->emplace_back(tmaxZeroHolder.value);
     this->zero_cross_tmax_chi[ch]->emplace_back(tmaxZeroHolder.chi);
+
+
+    this->beta_scope.SetOutBranchValue(Form("fit_50cfd%i_chi", ch), fit_cfd_50.chi);
+    this->beta_scope.SetOutBranchValue(Form("fit_50cfd%i", ch), fit_cfd_50.value);
+
+    this->beta_scope.SetOutBranchValue(Form("fit_20cfd%i_chi", ch), fit_cfd_20.chi);
+    this->beta_scope.SetOutBranchValue(Form("fit_20cfd%i", ch), fit_cfd_20.value);
 
     if(!this->skipWaveform)
     {
       this->beta_scope.SetOutBranchValue(Form("fit_tmax%i_g", ch), tmaxFitHolder.graph);
       this->beta_scope.SetOutBranchValue(Form("zero_cross_tmax%i_g", ch), tmaxZeroHolder.graph);
+      this->beta_scope.SetOutBranchValue(Form("fit_20cfd%i_g", ch), fit_cfd_20.graph);
+      this->beta_scope.SetOutBranchValue(Form("fit_50cfd%i_g", ch), fit_cfd_50.graph);
     }
   }
-
-
-
 
   /*
   if( !this->skipWaveform )
@@ -128,6 +129,7 @@ void BetaScopeWaveformAna::event_ana(int ch, WaveformAna<double, double> wavefor
 
 
   //this->waveform_ana[ch]->emplace_back(waveform);
+  return 0;
 }
 
 
@@ -144,7 +146,8 @@ void BetaScopeWaveformAna::Analysis()
   // loop through all the possible channels
 
   //std::vector<std::thread> workers;
-  std::vector<std::future<void>> workers;
+  //std::vector<std::future<int>> workers;
+  boost::asio::thread_pool pool(activeChannels.size());
   for( std::size_t chh = 0; chh < this->activeChannels.size(); chh++ )
   {
     int ch = this->activeChannels.at(chh);
@@ -167,22 +170,26 @@ void BetaScopeWaveformAna::Analysis()
       this->dt
     );
 
+    /*
     workers.push_back(
-        std::async( std::launch::async | std::launch::deferred, &BetaScopeWaveformAna::event_ana, this, ch, waveform)
-        //std::async( std::launch::deferred, &BetaScopeWaveformAna::event_ana, this, ch, waveform)
+        //std::async( std::launch::async | std::launch::deferred, &BetaScopeWaveformAna::event_ana, this, ch, waveform)
+      std::async( std::launch::deferred, &BetaScopeWaveformAna::event_ana, this, ch, waveform)
     );
+    */
+    if(this->internal_mp)
+    {
+      boost::asio::post(pool, boost::bind(&BetaScopeWaveformAna::event_ana, this, ch, waveform) );
+    }
+    else
+    {
+      BetaScopeWaveformAna::event_ana(ch, waveform);
+    }
   }
 
-    //BetaScopeWaveformAna::event_ana(ch, waveform);
+  //for( std::size_t id = 0; id < workers.size(); id++ ){ workers[id].wait(); }
+  pool.join();
 
     //BetaScopeWaveformAna::event_ana(ch, this->invertChannels.at(chh),this->voltageMultiFactor,this->timeMultiFactor,this->resample_time,this->xorigin,this->dt);
-
-  for( std::size_t id = 0; id < workers.size(); id++ )
-  {
-     //workers[id].join();
-     //delete workers[id];
-    workers[id].wait();
-  }
 
   // filling value that's indep of scope channels
   if (this->has_daq_cycle)
@@ -293,11 +300,9 @@ bool BetaScopeWaveformAna::Initialize()
     {
       this->beta_scope.BuildOutBranch<double>(Form("fit_20cfd%i", ch) );
       this->beta_scope.BuildOutBranch<double>(Form("fit_20cfd%i_chi", ch) );
-      this->beta_scope.BuildOutBranch<TGraph>(Form("fit_20cfd%i_g", ch) );
 
       this->beta_scope.BuildOutBranch<double>(Form("fit_50cfd%i", ch) );
       this->beta_scope.BuildOutBranch<double>(Form("fit_50cfd%i_chi", ch) );
-      this->beta_scope.BuildOutBranch<TGraph>(Form("fit_50cfd%i_g", ch) );
 
       this->fit_tmax[ch] = this->beta_scope.GetOutBranch<std::vector<double>>( "fit_tmax"+std::to_string(ch) );
       this->fit_tmax_chi[ch] = this->beta_scope.GetOutBranch<std::vector<double>>( "fit_tmax_chi"+std::to_string(ch) );
@@ -308,6 +313,8 @@ bool BetaScopeWaveformAna::Initialize()
       {
         this->beta_scope.BuildOutBranch<TGraph>(Form("zero_cross_tmax%i_g", ch) );
         this->beta_scope.BuildOutBranch<TGraph>(Form("fit_tmax%i_g", ch) );
+        this->beta_scope.BuildOutBranch<TGraph>(Form("fit_20cfd%i_g", ch) );
+        this->beta_scope.BuildOutBranch<TGraph>(Form("fit_50cfd%i_g", ch) );
       }
     }
 
@@ -388,28 +395,24 @@ bool BetaScopeWaveformAna::Initialize()
 void BetaScopeWaveformAna::LoopEvents()
 {
   LOG_INFO("running Derived class LoopEvents." );
-  BetaScope_AnaFramework::LoopEvents(&BetaScope_AnaFramework::Analysis);
+  if(this->skim_output)
+  {
+    BetaScope_AnaFramework::LoopEvents(&BetaScope_AnaFramework::Analysis, std::bind(&BetaScopeWaveformAna::Selector, this) );
+  }
+  else
+  {
+    BetaScope_AnaFramework::LoopEvents(&BetaScope_AnaFramework::Analysis);
+  }
+}
+
+bool BetaScopeWaveformAna::Selector()
+{
+  return *(this->beta_scope.GetOutBranch<bool>("isGoodTrig3"));
 }
 
 void BetaScopeWaveformAna::Finalize()
 {
   // do your own stuffs here
-  /*
-  if(this->skipWaveform)
-  {
-    for(int chh = 0; chh < this->activeChannels.size(); chh ++)
-    {
-      int ch = this->activeChannels.at(chh);
-      if(this->w[ch]!=NULL)delete this->w[ch];
-      if(this->t[ch]!=NULL)delete this->t[ch];
-    }
-  }
-  */
-
-  if(this->skim_output)
-  {
-    this->beta_scope.Filter("isGoodTrig3==1");
-  }
 
   // required
   BetaScope_AnaFramework::Finalize();

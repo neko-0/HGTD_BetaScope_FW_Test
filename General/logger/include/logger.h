@@ -36,6 +36,15 @@ namespace BETA_LOG
 
   extern int LOG_LEVEL;
 
+  extern int NEW_COUNTER;
+  extern int DELETE_COUNTER;
+
+  extern int OTHER_NEW_COUNTER;
+  extern int OTHER_DELETE_COUNTER;
+
+  extern bool NEW_;
+  extern bool DELETE_;
+
   class Logger
   {
     private:
@@ -137,6 +146,5 @@ namespace BETA_LOG
 #define LOG_WARNING(message) BETA_LOG::make_logger(std::string(__FILE__), 1)(std::string(message), __FILE__, __LINE__, __func__);
 #define LOG_ERROR(message) BETA_LOG::make_logger(std::string(__FILE__), 2)(std::string(message), __FILE__, __LINE__, __func__);
 //*/
-
 
 #endif // LOGGER_H

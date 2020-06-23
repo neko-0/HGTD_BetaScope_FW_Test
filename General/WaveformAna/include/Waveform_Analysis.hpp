@@ -21,15 +21,15 @@ class WaveformAnalysis
 
     std::vector<double> buffer_[6];
 
-    std::mutex mu;
+    static std::mutex mu;
 
 public:
 
     struct FitResult
     {
-      double value;
-      double chi;
-      TGraph graph;
+      double value = -11e11;
+      double chi = -11e11;
+      TGraph graph = TGraph(1);
 
       FitResult(double value, double chi, TGraph graph)
         : value(value), chi(chi), graph(graph) {};

@@ -20,6 +20,12 @@
 
 namespace BETA_LOG{
     int LOG_LEVEL = 0;
+    int NEW_COUNTER = 0;
+    int DELETE_COUNTER = 0;
+    int OTHER_NEW_COUNTER = 0;
+    int OTHER_DELETE_COUNTER = 0;
+    bool NEW_ = false;
+    bool DELETE_ = false;
 }
 
 BETA_LOG::Logger &BETA_LOG::make_logger(const std::string &name, const int &level)
@@ -69,3 +75,20 @@ void BETA_LOG::Logger::warning(
 
   std::cout << prefix << " " << colored_cotent << std::endl;
 }
+
+/*
+void* operator new(std::size_t sz)
+{
+  if(BETA_LOG::NEW_){ BETA_LOG::NEW_COUNTER++; BETA_LOG::NEW_=false; }
+  else{ BETA_LOG::OTHER_NEW_COUNTER++; }
+  void *m = std::malloc(sz);
+  return m;
+}
+
+void operator delete(void *m)
+{
+  if(BETA_LOG::DELETE_){ BETA_LOG::DELETE_COUNTER++; BETA_LOG::DELETE_=false; }
+  else{ BETA_LOG::OTHER_DELETE_COUNTER++; }
+  std::free(m);
+}
+*/
