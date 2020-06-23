@@ -98,6 +98,10 @@ void BetaScope_AnaFramework<beta_scope_type>::FillData( bool fill )
   {
       this->beta_scope.FillEvent();
   }
+  else
+  {
+    this->beta_scope._ClearVecBuffer();
+  }
   if(this->event_counter % 1000 == 0 || (this->event_counter % 10 == 0 &&  this->event_counter <= 100) )
   {
     LOG_INFO(this->beta_scope.GetInFileNickName() + " Proccessed events: " + std::to_string(this->event_counter) + " /" + std::to_string(this->beta_scope.GetInNumEvent()) );
