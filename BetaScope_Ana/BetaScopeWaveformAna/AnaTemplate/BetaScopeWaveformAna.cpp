@@ -110,27 +110,6 @@ int BetaScopeWaveformAna::event_ana(int ch, WaveformAna<double, double> waveform
     }
   }
 
-  /*
-  if( !this->skipWaveform )
-  {
-    for( const auto &value : waveform.get_v2())
-    {
-      this->w[ch]->emplace_back(-value);
-    }
-    for( const auto &value : waveform.get_v1())
-    {
-      this->t[ch]->emplace_back(value);
-    }
-  }
-  else
-  {
-    this->w[ch]->clear();
-    this->t[ch]->clear();
-  }
-  */
-
-
-  //this->waveform_ana[ch]->emplace_back(waveform);
   return 0;
 }
 
@@ -148,8 +127,8 @@ void BetaScopeWaveformAna::Analysis()
   // loop through all the possible channels
 
   //std::vector<std::thread> workers;
-  //std::vector<std::future<int>> workers;
-  boost::asio::thread_pool pool(activeChannels.size());
+  std::vector<std::future<int>> workers;
+  //boost::asio::thread_pool pool(activeChannels.size());
   for( std::size_t chh = 0; chh < this->activeChannels.size(); chh++ )
   {
     int ch = this->activeChannels.at(chh);
@@ -181,18 +160,26 @@ void BetaScopeWaveformAna::Analysis()
     */
     if(this->internal_mp)
     {
-      boost::asio::post(pool, boost::bind(&BetaScopeWaveformAna::event_ana, this, ch, waveform) );
+      //boost::asio::post(pool, boost::bind(&BetaScopeWaveformAna::event_ana, this, ch, waveform) );
+      ///*
+      workers.push_back(
+          //std::async( std::launch::async | std::launch::deferred, &BetaScopeWaveformAna::event_ana, this, ch, waveform)
+        std::async( std::launch::deferred, &BetaScopeWaveformAna::event_ana, this, ch, waveform)
+      );
+      //*/
     }
     else
     {
       BetaScopeWaveformAna::event_ana(ch, waveform);
     }
   }
+  if(this->internal_mp)
+  {
+    for( auto &worker : workers ){ worker.wait(); }
+    //pool.join();
+  }
 
-  //for( std::size_t id = 0; id < workers.size(); id++ ){ workers[id].wait(); }
-  pool.join();
-
-    //BetaScopeWaveformAna::event_ana(ch, this->invertChannels.at(chh),this->voltageMultiFactor,this->timeMultiFactor,this->resample_time,this->xorigin,this->dt);
+  //BetaScopeWaveformAna::event_ana(ch, this->invertChannels.at(chh),this->voltageMultiFactor,this->timeMultiFactor,this->resample_time,this->xorigin,this->dt);
 
   // filling value that's indep of scope channels
   if (this->has_daq_cycle)
