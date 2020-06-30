@@ -59,7 +59,7 @@ template <typename beta_scope_type>
 void BetaScope_AnaFramework<beta_scope_type>::LoopEvents( void (BetaScope_AnaFramework::*func)() )
 {
   LOG_INFO("BetaScope_AnaFramework::LoopEvents is used for driving event looping." );
-  while (this->beta_scope.GetInTreeReader()->Next())
+  while( this->beta_scope.NextEvent() )
   {
     (this->*func)();
     BetaScope_AnaFramework<beta_scope_type>::FillData();
@@ -71,7 +71,7 @@ template <typename beta_scope_type>
 void BetaScope_AnaFramework<beta_scope_type>::LoopEvents( void (BetaScope_AnaFramework::*func)(), std::function<bool()> selector)
 {
   LOG_INFO("BetaScope_AnaFramework::LoopEvents is used for driving event looping." );
-  while( this->beta_scope.GetInTreeReader()->Next() )
+  while( this->beta_scope.NextEvent() )
   {
     (this->*func)();
     BetaScope_AnaFramework<beta_scope_type>::FillData( selector() );

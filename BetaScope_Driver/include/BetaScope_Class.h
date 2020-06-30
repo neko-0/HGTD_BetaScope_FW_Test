@@ -205,6 +205,8 @@ public:
   void FillEvent();
   bool IsBranchExists(const char *branchName);
 
+  bool NextEvent();
+
   void _ClearVecBuffer();
   void _ClearVecBuffer(std::string mode);
 

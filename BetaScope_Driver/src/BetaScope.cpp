@@ -74,3 +74,8 @@ bool BetaScope::IsBranchExists(const char *branchName) {
   else
     return false;
 }
+
+bool BetaScope::NextEvent()
+{
+  return this->input_tree_reader_->Next();
+}
