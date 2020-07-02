@@ -118,6 +118,7 @@ def MergeExcel(ifile="_results.xlxs"):
         with open(f"{output_dir}/user_data/merged_log.json", "w") as newf:
             json.dump(meta_data, newf)
     else:
+        new_rows = 0
         with open(f"{output_dir}/user_data/merged_log.json", "w") as f:
             start_row_in_merge = merged_max_row + 1
             end_row_in_merge = start_row_in_merge + input_max_row
