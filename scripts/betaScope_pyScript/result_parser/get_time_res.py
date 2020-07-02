@@ -95,7 +95,7 @@ def Get_Time_Resolution(
     config_file = ConfigReader.open(config)
 
     output = []
-    for run in config_file:
+    for runIndex,run in enumerate(config_file):
 
         if run_number:
             run_num = run_number
