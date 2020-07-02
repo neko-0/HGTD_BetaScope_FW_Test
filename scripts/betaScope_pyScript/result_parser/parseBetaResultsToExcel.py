@@ -107,14 +107,24 @@ def MergeExcel(ifile="_results.xlxs"):
         with open(f"{output_dir}/user_data/merged_log.json") as f:
             meta_data = json.load(f)
             keyName = f"run{input_run_number}"
-            start_row_in_merge = meta_data[keyName]["start"]
-            end_row_in_merge = meta_data[keyName]["end"]
-            diff = end_row_in_merge-start_row_in_merge
-            if input_max_row > diff:
-                new_rows = input_max_row - diff
+            if keyName in meta_data:
+                start_row_in_merge = meta_data[keyName]["start"]
+                end_row_in_merge = meta_data[keyName]["end"]
+                diff = end_row_in_merge-start_row_in_merge
+                if input_max_row > diff:
+                    new_rows = input_max_row - diff
+                else:
+                    new_rows = 0
+                end_row_in_merge += new_rows
             else:
                 new_rows = 0
-
+                start_row_in_merge = merged_max_row + 1
+                end_row_in_merge = start_row_in_merge + input_max_row
+            meta_data[f"run{input_run_number}"] = {
+                "sensor": f"{input_sensor_name}",
+                "start": start_row_in_merge,
+                "end": end_row_in_merge,
+            }
         with open(f"{output_dir}/user_data/merged_log.json", "w") as newf:
             json.dump(meta_data, newf)
     else:
