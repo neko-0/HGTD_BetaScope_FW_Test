@@ -98,45 +98,29 @@ def MergeExcel(ifile="_results.xlxs"):
     sensor_name_cell = f"{beta_excel_dict['SensorName']}1"
     input_run_number = input_dut_wp[run_number_cell].value.split("->")[0]
     input_sensor_name = input_dut_wp[sensor_name_cell].value
-    start_row_in_merge = None
-    end_row_in_merge = None
 
-    sheets = ["DUT", "TRIG"]
-    for sheet in sheets:
-        merged_ws = merged_wb[sheet]
-        input_ws = input_wb[sheet]
-        input_max_row = input_ws.max_row
-        max_row = merged_ws.max_row
-        for par in beta_excel_dict.keys():
-            rowCounter = 2
-            for row in range(1, input_max_row + 1):
-                if start_row_in_merge == None:
-                    start_row_in_merge = max_row + rowCounter
-                input_cell = f"{beta_excel_dict[par]}{row}"
-                merged_cell = f"{beta_excel_dict[par]}{max_row+rowCounter}"
-                merged_ws[merged_cell] = input_ws[input_cell].value
-                end_row_in_merge = max_row + rowCounter
-                rowCounter += 1
+    input_max_row = input_wb["DUT"].max_row
+    merged_max_row = merged_wb["DUT"].max_row
 
-    merged_wb.save(f"{output_dir}/user_data/merged_beta_results.xlsx")
-
+    # check meta data
     if os.path.exists(f"{output_dir}/user_data/merged_log.json"):
         with open(f"{output_dir}/user_data/merged_log.json") as f:
             meta_data = json.load(f)
             keyName = f"run{input_run_number}"
-            duplicate = 2
-            while keyName in meta_data.keys():
-                keyName = f"{keyName.split('p')[0]}p{duplicate}"
-                duplicate += 1
-            meta_data[keyName] = {
-                "sensor": str(input_sensor_name),
-                "start": start_row_in_merge,
-                "end": end_row_in_merge,
-            }
+            start_row_in_merge = meta_data[keyName]["start"]
+            end_row_in_merge = meta_data[keyName]["end"]
+            diff = end_row_in_merge-start_row_in_merge
+            if input_max_row > diff:
+                new_rows = input_max_row - diff
+            else:
+                new_rows = 0
+
         with open(f"{output_dir}/user_data/merged_log.json", "w") as newf:
             json.dump(meta_data, newf)
     else:
         with open(f"{output_dir}/user_data/merged_log.json", "w") as f:
+            start_row_in_merge = merged_max_row + 1
+            end_row_in_merge = start_row_in_merge + input_max_row
             meta_data = {}
             meta_data[f"run{input_run_number}"] = {
                 "sensor": f"{input_sensor_name}",
@@ -145,8 +129,24 @@ def MergeExcel(ifile="_results.xlxs"):
             }
             json.dump(meta_data, f)
 
+    sheets = ["DUT", "TRIG"]
+    for sheet in sheets:
+        merged_ws = merged_wb[sheet]
+        input_ws = input_wb[sheet]
+        for i in range(new_rows):
+            merged_ws.insert(end_row_in_merge)
+        for par in beta_excel_dict.keys():
+            rowCounter = start_row_in_merge
+            for row in range(1, input_max_row + 1):
+                input_cell = f"{beta_excel_dict[par]}{row}"
+                merged_cell = f"{beta_excel_dict[par]}{rowCounter}"
+                merged_ws[merged_cell] = input_ws[input_cell].value
+                rowCounter += 1
 
-def ParseINIToExcel(fname="_results.ini"):
+    merged_wb.save(f"{output_dir}/user_data/merged_beta_results.xlsx")
+
+
+def ParseINIToExcel(fname="_results.ini", update_merge=True):
     """
     Parse data in ini file to excel
     """
@@ -288,7 +288,8 @@ def ParseINIToExcel(fname="_results.ini"):
 
     wb.save("_results.xlsx")
 
-    MergeExcel("_results.xlsx")
+    if update_merge:
+        MergeExcel("_results.xlsx")
 
 
 # ===============================================================================
