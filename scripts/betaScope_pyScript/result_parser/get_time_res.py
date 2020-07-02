@@ -127,7 +127,7 @@ def Get_Time_Resolution(
         )
 
         output.append(
-            [run_num, run.temperature, run.bias, dut_time_res, dut_time_res_err, cycle]
+            [run_num, run.temperature, run.bias, dut_time_res, dut_time_res_err, run.cycle]
         )
 
         # saving plots
