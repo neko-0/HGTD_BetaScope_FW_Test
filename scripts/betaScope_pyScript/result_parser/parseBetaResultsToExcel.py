@@ -118,7 +118,7 @@ def MergeExcel(ifile="_results.xlxs"):
                 end_row_in_merge += new_rows
             else:
                 new_rows = 0
-                start_row_in_merge = merged_max_row + 1
+                start_row_in_merge = merged_max_row + 2
                 end_row_in_merge = start_row_in_merge + input_max_row
             meta_data[f"run{input_run_number}"] = {
                 "sensor": f"{input_sensor_name}",
