@@ -69,7 +69,7 @@ def parseINItoROOT(fname="_results.ini"):
         rowCounter = 1
 
         ttree = ROOT.TTree("run" + str(RunNum), "from _results.ini")
-        for par in par_dict.keys():
+        for par in beta_excel_dict.keys():
             if "SensorName" in par:
                 branches[par] = array("b").frombytes(str(SensorName).encode())
                 ttree.Branch(par, branches[par], "{}/C".format(par))
@@ -201,7 +201,7 @@ def parseINItoROOT2(fileout, title="Hi", run_folder="./", fname="_results.ini"):
         rowCounter = 1
         # print RunNum, title
         ttree = ROOT.TTree(str(RunNum), title)
-        for par in par_dict.keys():
+        for par in beta_excel_dict.keys():
             if "SensorName" in par:
                 branches[par] = array("b").frombytes(str(SensorName).encode())
                 ttree.Branch(par, branches[par], "{}/C".format(par))

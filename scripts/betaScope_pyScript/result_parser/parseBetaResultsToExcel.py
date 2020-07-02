@@ -261,7 +261,10 @@ def ParseINIToExcel(fname="_results.ini"):
                     elif par == "Resistance":
                         ws[cell] = float(resistance)
                     else:
-                        ws[cell] = float(config[bias][par])
+                        try:
+                            ws[cell] = float(config[bias][par])
+                        except:
+                            continue
                 row += 1
         row += 1  # skip one line
 
