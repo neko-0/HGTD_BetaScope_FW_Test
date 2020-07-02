@@ -369,10 +369,10 @@ if __name__ == "__main__":
     argv = cml_parser.parse_args()
 
     if argv.task == "parse":
-        parseINIToExcel()
+        ParseINIToExcel()
     elif argv.task == "merge":
-        mergeExcel()
+        MergeExcel()
     elif argv.task == "toROOT":
         toROOT()
     else:
-        parseINIToExcel()
+        ParseINIToExcel()
