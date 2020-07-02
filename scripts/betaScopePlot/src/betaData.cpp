@@ -4,22 +4,22 @@
 #include <boost/property_tree/ini_parser.hpp>
 
 void DataOutputFormat::CreateBetaScopeOutputFile(
-    std::string biasVoltage, std::map<std::string, FitResult> outData,
-    int temperature, int trigger_bias)
+    std::string biasVoltage,
+    std::map<std::string, FitResult> outData,
+    int temperature,
+    int trigger_bias
+)
 {
 
-  std::string dutHeader =
-      "DUT_" + biasVoltage + "_" + std::to_string(temperature);
+  std::string dutHeader = "DUT_" + biasVoltage + "_" + std::to_string(temperature);
   DataOutputFormat::WriteHeader(dutHeader);
 
   DataOutputFormat::WriteKey("PulseArea", outData["area_zero2"].param);
-  DataOutputFormat::WriteKey("PulseArea_Error",
-                             outData["area_zero2"].param_err);
+  DataOutputFormat::WriteKey("PulseArea_Error", outData["area_zero2"].param_err);
   DataOutputFormat::WriteKey("PulseArea_NDF", outData["area_zero2"].ndf);
   DataOutputFormat::WriteKey("PulseArea_CHI", outData["area_zero2"].chi_square);
   DataOutputFormat::WriteKey("PulseArea_PROB", outData["area_zero2"].prob);
-  DataOutputFormat::WriteKey("PulseArea_CHI_NDF",
-                             outData["area_zero2"].chi_ndf);
+  DataOutputFormat::WriteKey("PulseArea_CHI_NDF", outData["area_zero2"].chi_ndf);
 
   DataOutputFormat::WriteKey("Pmax", outData["pmax2"].param);
   DataOutputFormat::WriteKey("Pmax_Error", outData["pmax2"].param_err);
@@ -108,8 +108,7 @@ void DataOutputFormat::CreateBetaScopeOutputFile(
   DataOutputFormat::WriteKey("temperature", temperature);
   DataOutputFormat::WriteKey("trigger_bias", trigger_bias);
 
-  std::string triggerHeader =
-      "Trig_" + biasVoltage + "_" + std::to_string(temperature);
+  std::string triggerHeader = "Trig_" + biasVoltage + "_" + std::to_string(temperature);
   DataOutputFormat::WriteHeader(triggerHeader);
 
   DataOutputFormat::WriteKey("PulseArea", 0.0);
@@ -162,14 +161,11 @@ void DataOutputFormat::CreateBetaScopeOutputFile(
   DataOutputFormat::WriteKey("jitter_20_CHI_NDF", outData["jitter3"].chi_ndf);
 
   DataOutputFormat::WriteKey("NewPulseArea", outData["area_under3"].param);
-  DataOutputFormat::WriteKey("NewPulseArea_Error",
-                             outData["area_under3"].param_err);
+  DataOutputFormat::WriteKey("NewPulseArea_Error", outData["area_under3"].param_err);
   DataOutputFormat::WriteKey("NewPulseArea_NDF", outData["area_under3"].ndf);
-  DataOutputFormat::WriteKey("NewPulseArea_CHI",
-                             outData["area_under3"].chi_square);
+  DataOutputFormat::WriteKey("NewPulseArea_CHI", outData["area_under3"].chi_square);
   DataOutputFormat::WriteKey("NewPulseArea_PROB", outData["area_under3"].prob);
-  DataOutputFormat::WriteKey("NewPulseArea_CHI_NDF",
-                             outData["area_under3"].chi_ndf);
+  DataOutputFormat::WriteKey("NewPulseArea_CHI_NDF", outData["area_under3"].chi_ndf);
 
   DataOutputFormat::WriteKey("FallTime", outData["fall3"].param);
   DataOutputFormat::WriteKey("FallTime_Error", outData["fall3"].param_err);

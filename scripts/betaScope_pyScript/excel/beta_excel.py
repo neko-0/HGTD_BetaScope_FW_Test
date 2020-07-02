@@ -31,11 +31,13 @@ class BetaExcel(ExcelBase):
     cfd20_res = "DD"
     cfd20_res_error = "DE"
     leakage = "C"
-    charge = "M" #"={c1}{row}/{c2}{row}".format(c1=pulse_area,c2=resistance, row="{row}")
+    charge = (
+        "M"  # "={c1}{row}/{c2}{row}".format(c1=pulse_area,c2=resistance, row="{row}")
+    )
     charge_error = "N"
     num_e = "O"
     pin = "P"
-    new_charge = "CC" #"={c1}{row}/{c2}{row}".format(c1=new_pulse_area,c2=resistance, row="{row}")
+    new_charge = "CC"  # "={c1}{row}/{c2}{row}".format(c1=new_pulse_area,c2=resistance, row="{row}")
     new_charge_error = "CD"
     snr = "X"
     snr_corr = "Y"

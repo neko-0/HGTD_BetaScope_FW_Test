@@ -2,7 +2,6 @@ from plotMaker.runMatch import runMatch, runlist_from_root
 from plotMaker.plotMaker import PlotMaker
 
 
-
 # (?!abc)
 plot = PlotMaker("./dataCollector/test_run.root")
 
@@ -27,7 +26,7 @@ print(my_graph['442'][0].plot_data)
 """
 
 # hpk = plot.filter("1e15", "(.*)(HPK)(.*)(3[.p]?2)(.*)(S8664)(.*)")
-#plot.filter("test", "^((?!UBM).)*$")
+# plot.filter("test", "^((?!UBM).)*$")
 plot.filter("test", "(.*)(Sr_Run649)(.*)")
 # hpk.filter("3e15","(.*)(3[eE]15)")
 

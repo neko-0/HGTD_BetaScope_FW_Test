@@ -2,7 +2,10 @@ import configparser
 
 
 class Run(object):
-    def __init__(self, bias, file_name, temperature, cycle, dut_ch, trig_ch, cuts):
+    def __init__(
+        self, sensor, bias, file_name, temperature, cycle, dut_ch, trig_ch, cuts
+    ):
+        self.sensor = sensor
         self.bias = bias
         self.file_name = file_name
         self.temperature = temperature
@@ -11,15 +14,18 @@ class Run(object):
         self.trig_ch = trig_ch
         self.cuts = cuts
 
+
 def __init__(self):
     pass
 
-class ConfigReader(object):
 
+class ConfigReader(object):
     @staticmethod
     def open(config="run_info_v08022018.ini"):
         config_file = configparser.ConfigParser()
         config_file.read(config)
+
+        sensor = config_file["header"]["sensor"]
 
         dut_ch = config_file["header"]["dut_channel"]
         trig_ch = config_file["header"]["trigger_channel"]
@@ -28,21 +34,19 @@ class ConfigReader(object):
 
         for run_num in range(int(config_file["header"]["number_of_runs"])):
 
-            fname = config_file["run{}".format(run_num)]["file_name"]
+            fname = config_file[f"run{run_num}"]["file_name"]
 
             cycle = 1
             if "root." in fname:
                 cycle = int(fname.split("root.")[1])
 
-            bias = int(config_file["run{}".format(run_num)]["bias"].split("V")[0])
+            bias = int(config_file[f"run{run_num}"]["bias"].split("V")[0])
             try:
-                temperature = config_file["run{}".format(run_num)]["temperature"]
+                temperature = config_file[f"run{run_num}"]["temperature"]
             except:
                 temperature = -30
 
-            raw_cut = config_file["run{}".format(run_num)][
-                "cut_{}".format(dut_ch)
-            ].split(" ")
+            raw_cut = config_file[f"run{run_num}"][f"cut_{dut_ch}"].split(" ")
 
             dut_cut = "tmax{dut_ch}[0]-cfd{trig_ch}[20] > {dut[0]} && tmax{dut_ch}[0]-cfd{trig_ch}[20] < {dut[1]} && pmax{dut_ch}[0] > {dut[2]} && pmax{dut_ch}[0] < {dut[3]}".format(
                 dut_ch=dut_ch, trig_ch=trig_ch, dut=raw_cut[:4]
@@ -52,14 +56,14 @@ class ConfigReader(object):
                 trig_ch=trig_ch, trig=raw_cut[4:8]
             )
             if len(raw_cut) == 8:
-                cuts = "{} && {}".format(dut_cut, trig_cut)
+                cuts = f"{dut_cut} && {trig_cut}"
             elif len(raw_cut) == 9:
-                cuts = "{} && {} && {}".format(dut_cut, trig_cut, raw_cut[8])
+                cuts = f"{dut_cut} && {trig_cut} && {raw_cut[8]}"
             else:
-                cuts = "{} && {}".format(dut_cut, trig_cut)
+                cuts = f"{dut_cut} && {trig_cut}"
 
             run_list.append(
-                Run(bias, fname, temperature, cycle, dut_ch, trig_ch, cuts)
+                Run(sensor, bias, fname, temperature, cycle, dut_ch, trig_ch, cuts)
             )
 
         return run_list

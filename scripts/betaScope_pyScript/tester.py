@@ -1,4 +1,4 @@
-#from dataCollector.core import BetaScopeResult
+# from dataCollector.core import BetaScopeResult
 from plotMaker.runMatch import runMatch, runlist_from_root
 from plotMaker.plotMaker import PlotMaker
 

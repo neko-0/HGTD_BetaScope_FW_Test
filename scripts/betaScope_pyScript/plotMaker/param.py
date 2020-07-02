@@ -1,7 +1,7 @@
 param = {
     "bias_voltage_vs_charge": {
         "expr": "bias_voltage:new_pulse_area/4700.0",
-        "selection":"",
+        "selection": "",
         "xtitle": "Bias Voltage [V]",
         "ytitle": "Charge [fC]",
     },
@@ -32,7 +32,7 @@ param = {
     },
     "bias_voltage_vs_res50": {
         "expr": "bias_voltage:time_resolution_50",
-        "selection":"new_pulse_area_chi<1",
+        "selection": "new_pulse_area_chi<1",
         "xtitle": "Bias Voltage [V]",
         "ytitle": "Time Resolution [ps]",
     },

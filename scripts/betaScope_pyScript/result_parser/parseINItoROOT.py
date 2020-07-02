@@ -10,6 +10,7 @@ logging.basicConfig()
 log = logging.getLogger(__name__)
 coloredlogs.install(level="CRITICAL", logger=log)
 
+
 def parseINItoROOT(fname="_results.ini"):
     config = configparser.ConfigParser()
     config.read(fname)
@@ -40,8 +41,18 @@ def parseINItoROOT(fname="_results.ini"):
             RunNum = description_file["Run_Description"]["Run_Number"]
 
             SensorName = description_file["Run_Description"]["DUT_Senor_Name"]
-            SensorName += "-Fluence "+description_file["Run_Description"]["DUT_Fluence_Type"]+"-"+description_file["Run_Description"]["DUT_Fluence"]
-            SensorName += "--"+description_file["Run_Description"]["DUT_Readout_Board"]+"-"+description_file["Run_Description"]["DUT_Readout_Board_Number"]
+            SensorName += (
+                "-Fluence "
+                + description_file["Run_Description"]["DUT_Fluence_Type"]
+                + "-"
+                + description_file["Run_Description"]["DUT_Fluence"]
+            )
+            SensorName += (
+                "--"
+                + description_file["Run_Description"]["DUT_Readout_Board"]
+                + "-"
+                + description_file["Run_Description"]["DUT_Readout_Board_Number"]
+            )
 
             Temp = description_file["Run_Description"]["Temperature"]
             trigBias = description_file["Run_Description"]["Trigger_Voltage"]
@@ -57,32 +68,34 @@ def parseINItoROOT(fname="_results.ini"):
     for ch in dut_trig:
         rowCounter = 1
 
-        ttree = ROOT.TTree("run"+str(RunNum),"from _results.ini")
+        ttree = ROOT.TTree("run" + str(RunNum), "from _results.ini")
         for par in par_dict.keys():
             if "SensorName" in par:
                 branches[par] = array("b").frombytes(str(SensorName).encode())
-                ttree.Branch(par, branches[par], "{}/C".format(par) )
+                ttree.Branch(par, branches[par], "{}/C".format(par))
             elif "runNumber" in par:
                 continue
             else:
                 branches[par] = array("d", [0])
-                ttree.Branch(par, branches[par], "{}/D".format(par) )
+                ttree.Branch(par, branches[par], "{}/D".format(par))
 
         for bias in config_section:
-            myRunNum = str(RunNum)+"->"+str(rowCounter)
+            myRunNum = str(RunNum) + "->" + str(rowCounter)
             if ch in bias:
                 if ch != "Trig":
                     if ".." in bias:
-                        Bias = bias[bias.find("_")+1:bias.find("V")]
+                        Bias = bias[bias.find("_") + 1 : bias.find("V")]
                         cycle = bias.split("..")[1]
                         if "_" in cycle:
                             cycle = cycle.split("_")[0]
                     else:
-                        Bias = bias[bias.find("_")+1:bias.find("V")]
+                        Bias = bias[bias.find("_") + 1 : bias.find("V")]
                         cycle = 1
                 else:
                     try:
-                        SensorName = description_file["Run_Description"]["Trigger_Sensor_Name"]
+                        SensorName = description_file["Run_Description"][
+                            "Trigger_Sensor_Name"
+                        ]
                     except:
                         pass
                     try:
@@ -97,36 +110,36 @@ def parseINItoROOT(fname="_results.ini"):
                         Bias = -390
                         cycle = 1
                 for par in par_list:
-                    if (par == "SensorName"):
+                    if par == "SensorName":
                         continue
-                    elif(par=="runNumber"):
+                    elif par == "runNumber":
                         continue
-                    elif (par == "Temp"):
+                    elif par == "Temp":
                         try:
                             Temp = config[bias]["temperature"]
                         except:
                             Temp = "-30"
-                        branches[par][0]=float(Temp)
-                    elif (par == "Bias"):
+                        branches[par][0] = float(Temp)
+                    elif par == "Bias":
                         branches[par][0] = float(Bias)
-                    elif par=="cycle":
-                            branches[par][0] = float(cycle)
-                    elif (par == "Resistance"):
+                    elif par == "cycle":
+                        branches[par][0] = float(cycle)
+                    elif par == "Resistance":
                         branches[par][0] = float(Resistance)
                     else:
                         branches[par][0] = float(config[bias][par])
             ttree.Fill()
 
-        ttree.Write("run"+str(RunNum), ROOT.TObject.kOverwrite)
+        ttree.Write("run" + str(RunNum), ROOT.TObject.kOverwrite)
         tfile.Close()
 
 
-def parseINItoROOT2(fileout, title = "Hi", run_folder="./", fname="_results.ini"):
+def parseINItoROOT2(fileout, title="Hi", run_folder="./", fname="_results.ini"):
     fileout.cd()
     config = configparser.ConfigParser()
     config.read(fname)
     config_section = config.sections()
-    #print(config_section)
+    # print(config_section)
 
     description_file = None
     try:
@@ -155,16 +168,27 @@ def parseINItoROOT2(fileout, title = "Hi", run_folder="./", fname="_results.ini"
     if "_neg30C" in title:
         trigBias = 390
         Temp = -30
-    if "_neg20C" in title: Temp = -20
-    if "_neg10C" in title: Temp = -10
-
+    if "_neg20C" in title:
+        Temp = -20
+    if "_neg10C" in title:
+        Temp = -10
 
     if description_file:
         try:
             RunNum = description_file["Run_Description"]["Run_Number"]
             SensorName = description_file["Run_Description"]["DUT_Senor_Name"]
-            SensorName += "-Fluence "+description_file["Run_Description"]["DUT_Fluence_Type"]+"-"+description_file["Run_Description"]["DUT_Fluence"]
-            SensorName += "--"+description_file["Run_Description"]["DUT_Readout_Board"]+"-"+description_file["Run_Description"]["DUT_Readout_Board_Number"]
+            SensorName += (
+                "-Fluence "
+                + description_file["Run_Description"]["DUT_Fluence_Type"]
+                + "-"
+                + description_file["Run_Description"]["DUT_Fluence"]
+            )
+            SensorName += (
+                "--"
+                + description_file["Run_Description"]["DUT_Readout_Board"]
+                + "-"
+                + description_file["Run_Description"]["DUT_Readout_Board_Number"]
+            )
 
             Temp = description_file["Run_Description"]["Temperature"]
             trigBias = description_file["Run_Description"]["Trigger_Voltage"]
@@ -175,33 +199,35 @@ def parseINItoROOT2(fileout, title = "Hi", run_folder="./", fname="_results.ini"
 
     for ch in dut_trig:
         rowCounter = 1
-        #print RunNum, title
-        ttree = ROOT.TTree(str(RunNum),title)
+        # print RunNum, title
+        ttree = ROOT.TTree(str(RunNum), title)
         for par in par_dict.keys():
             if "SensorName" in par:
                 branches[par] = array("b").frombytes(str(SensorName).encode())
-                ttree.Branch(par, branches[par], "{}/C".format(par) )
+                ttree.Branch(par, branches[par], "{}/C".format(par))
             elif "runNumber" in par:
                 continue
             else:
                 branches[par] = array("d", [0])
-                ttree.Branch(par, branches[par], "{}/D".format(par) )
+                ttree.Branch(par, branches[par], "{}/D".format(par))
 
         for bias in config_section:
-            myRunNum = str(RunNum)+"->"+str(rowCounter)
+            myRunNum = str(RunNum) + "->" + str(rowCounter)
             if ch in bias:
                 if ch != "Trig":
                     if ".." in bias:
-                        Bias = bias[bias.find("_")+1:bias.find("V")]
+                        Bias = bias[bias.find("_") + 1 : bias.find("V")]
                         cycle = bias.split("..")[1]
                         if "_" in cycle:
                             cycle = cycle.split("_")[0]
                     else:
-                        Bias = bias[bias.find("_")+1:bias.find("V")]
+                        Bias = bias[bias.find("_") + 1 : bias.find("V")]
                         cycle = 1
                 else:
                     try:
-                        SensorName = description_file["Run_Description"]["Trigger_Sensor_Name"]
+                        SensorName = description_file["Run_Description"][
+                            "Trigger_Sensor_Name"
+                        ]
                     except:
                         pass
                     try:
@@ -216,21 +242,21 @@ def parseINItoROOT2(fileout, title = "Hi", run_folder="./", fname="_results.ini"
                         Bias = -390
                         cycle = 1
                 for par in par_list:
-                    if (par == "SensorName"):
+                    if par == "SensorName":
                         continue
-                    elif(par=="runNumber"):
+                    elif par == "runNumber":
                         continue
-                    elif (par == "Temp"):
+                    elif par == "Temp":
                         try:
                             Temp = config[bias]["temperature"]
                         except:
                             Temp = "-30"
-                        branches[par][0]=float(Temp)
-                    elif (par == "Bias"):
+                        branches[par][0] = float(Temp)
+                    elif par == "Bias":
                         branches[par][0] = float(Bias)
-                    elif par=="cycle":
-                            branches[par][0] = float(cycle)
-                    elif (par == "Resistance"):
+                    elif par == "cycle":
+                        branches[par][0] = float(cycle)
+                    elif par == "Resistance":
                         branches[par][0] = float(Resistance)
                     else:
                         try:
@@ -240,9 +266,10 @@ def parseINItoROOT2(fileout, title = "Hi", run_folder="./", fname="_results.ini"
 
             ttree.Fill()
 
-        ttree.Write() #"run"+str(RunNum), ROOT.TObject.kOverwrite)
+        ttree.Write()  # "run"+str(RunNum), ROOT.TObject.kOverwrite)
 
-def parseRawINIToROOT(filename = "raw_results.ini"):
+
+def parseRawINIToROOT(filename="raw_results.ini"):
     config = configparser.ConfigParser()
     config.read(filename)
     output_file = RootFile("raw_results.root", "raw")
@@ -257,8 +284,10 @@ def parseRawINIToROOT(filename = "raw_results.ini"):
         for key in config[sec]:
             output_file[key][0] = float(config[sec][key])
         output_file["bias"][0] = float(sec.split("V")[0])
-        output_file["cycle"][0] = int(sec.split("findex")[1].split("_")[0]) if "findex" in sec else 1
-        '''
+        output_file["cycle"][0] = (
+            int(sec.split("findex")[1].split("_")[0]) if "findex" in sec else 1
+        )
+        """
         try:
             output_file["bias"][0] = sec.split("V")[0]
         except Exception as excep:
@@ -267,9 +296,10 @@ def parseRawINIToROOT(filename = "raw_results.ini"):
             output_file["cycle"][0] = int(sec.split(".")[1]) if sec.split(".")[1] != "" else 1
         except Exception as excep:
             log.warning(excep)
-        '''
+        """
         output_file.fill()
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     parseINItoROOT()
     parseRawINIToROOT()

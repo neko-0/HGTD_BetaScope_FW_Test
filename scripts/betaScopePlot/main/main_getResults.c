@@ -171,8 +171,8 @@ void getResults(std::string plotConfig_fname, std::string outDir = "Results/" )
     fmt::print("Directory {} already exists! Previous data will be replaced...\n", outDir);
   }
 
-	system( "python3  $BETASCOPE_SCRIPTS/betaScope_pyScript/parseBetaResultsToExcel.py");
-  system( "python3  $BETASCOPE_SCRIPTS/betaScope_pyScript/parseINItoROOT.py");
+	system( "python3  $BETASCOPE_SCRIPTS/betaScope_pyScript/result_parser/parseBetaResultsToExcel.py");
+  system( "python3  $BETASCOPE_SCRIPTS/betaScope_pyScript/result_parser/parseINItoROOT.py");
   system( fmt::format("mkdir plots_{}", outDir).c_str() );
   system( fmt::format("mv *.png plots_{}", outDir).c_str() );
   system( fmt::format("mv *_results.ini {}", outDir).c_str() );
