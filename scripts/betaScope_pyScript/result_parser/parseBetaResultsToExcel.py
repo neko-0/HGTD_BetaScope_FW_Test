@@ -270,6 +270,7 @@ def ParseINIToExcel(fname="_results.ini"):
 
     end_row = len(config_section)
 
+    log.info("Getting time resolution")
     res50_result = Get_Time_Resolution(
         "run_info_v08022018.ini", "50", "keysight", run_number
     )
@@ -278,8 +279,8 @@ def ParseINIToExcel(fname="_results.ini"):
     res20_result = Get_Time_Resolution(
         "run_info_v08022018.ini", "20", "keysight", run_number
     )
-    res50 = [item[3] for item in res20_result]
-    res50_err = [item[4] for item in res20_result]
+    res20 = [item[3] for item in res20_result]
+    res20_err = [item[4] for item in res20_result]
     InjectData(wb["DUT"], 1, beta_excel_dict["CFD50Time"], res50)
     InjectData(wb["DUT"], 1, beta_excel_dict["CFD50Time_Err"], res50_err)
     InjectData(wb["DUT"], 1, beta_excel_dict["CFD20Time"], res20)
