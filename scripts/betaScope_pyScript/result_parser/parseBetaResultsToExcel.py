@@ -3,7 +3,7 @@ import configparser
 import os
 import json
 
-from .get_time_res import Get_Time_Resolution
+from get_time_res import Get_Time_Resolution
 
 import logging
 

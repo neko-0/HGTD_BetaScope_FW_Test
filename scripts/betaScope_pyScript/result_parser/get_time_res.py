@@ -7,7 +7,7 @@ import configparser
 
 import ROOT
 
-from .config_reader import ConfigReader
+from config_reader import ConfigReader
 
 
 def _get_time_resolution(
