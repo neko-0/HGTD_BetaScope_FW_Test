@@ -107,7 +107,7 @@ def MergeExcel(ifile="_results.xlxs"):
         input_ws = input_wb[sheet]
         input_max_row = input_ws.max_row
         max_row = merged_ws.max_row
-        for par in par_list:
+        for par in beta_excel_dict.keys():
             rowCounter = 2
             for row in range(1, input_max_row + 1):
                 if start_row_in_merge == None:
