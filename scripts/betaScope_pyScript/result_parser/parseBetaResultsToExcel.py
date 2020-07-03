@@ -254,6 +254,8 @@ def ParseINIToExcel(fname="_results.ini", update_merge=True):
                             cycle = bias.split("..")[1]
                             if "_" in cycle:
                                 cycle = cycle.split("_")[0]
+                        elif "V." in bias:
+                            cycle = bias.split("V.")[1].split("_")[0]
                         else:
                             cycle = 1
                     except:
