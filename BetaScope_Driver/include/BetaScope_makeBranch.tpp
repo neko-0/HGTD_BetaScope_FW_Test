@@ -5,7 +5,10 @@ template <typename dtype>
 bool BetaScope::BuildOutBranch(const std::string &branchName, const int size) {
   try
   {
-    this->output_branches_buffer_[this->output_branch_counter_] = new PrimitiveDataType_Container<dtype>();
+    //this->output_branches_buffer_[this->output_branch_counter_] = new PrimitiveDataType_Container<dtype>();
+    //BETA_LOG::NEW_=true;
+    auto my_ptr = new PrimitiveDataType_Container<dtype>();
+    this->output_branches_buffer_.push_back( my_ptr );
     this->output_branch_map_.insert( std::pair<std::string, PrimitiveDataType_BaseContainer *>( branchName, this->output_branches_buffer_[this->output_branch_counter_]));
     this->output_ttree_->Branch( branchName.c_str(), static_cast<PrimitiveDataType_Container<dtype> *>( this->output_branches_buffer_[this->output_branch_counter_])->get());
     this->output_branch_map_index_.insert(std::pair<std::string, int>(branchName, this->output_branch_counter_));

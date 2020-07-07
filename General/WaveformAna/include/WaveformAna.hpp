@@ -10,32 +10,32 @@ class WaveformAna : public Waveform<data_type, input_type>, public WaveformAnaBa
 private:
     int channel_ = -1;
     int max_index_ = -1;
-    double pmax_ = -1.0;
-    double tmax_ = -1.0;
-    double fit_tmax_;
-    double fit_tmax_chi_;
-    double zero_cross_tmax_;
-    double zero_cross_tmax_chi_;
-    double neg_pmax_;
-    double neg_tmax_;
-    int neg_max_index_;
-    double rise_time_;
-    double fall_time_;
-    double pulse_area_;
-    double pulse_area_undershoot_;
-    double undershoot_pmax_;
-    double undershoot_tmax_;
-    std::vector<double> dvdt_;
-    std::vector<double> cfd_;
-    std::vector<double> cfd_fall_;
-    std::vector<double> fine_cfd_;
-    std::vector<double> fine_cfd_fall_;
-    std::vector<double> threshold_time_;
-    std::vector<double> tot_;
-    double rms_;
+    double pmax_ = -11e11;
+    double tmax_ = -11e11;
+    double fit_tmax_ = -11e11;
+    double fit_tmax_chi_ = -11e11;
+    double zero_cross_tmax_ = -11e11;
+    double zero_cross_tmax_chi_ = -11e11;
+    double neg_pmax_ = -11e11;
+    double neg_tmax_ = -11e11;
+    int neg_max_index_ = -1;
+    double rise_time_ = -11e11;
+    double fall_time_ = -11e11;
+    double pulse_area_ = -11e11;
+    double pulse_area_undershoot_ = -11e11;
+    double undershoot_pmax_ = -11e11;
+    double undershoot_tmax_ = -11e11;
+    std::vector<double> dvdt_ = {};
+    std::vector<double> cfd_ = {};
+    std::vector<double> cfd_fall_ = {};
+    std::vector<double> fine_cfd_ = {};
+    std::vector<double> fine_cfd_fall_ = {};
+    std::vector<double> threshold_time_ = {};
+    std::vector<double> tot_ = {};
+    double rms_ = -11e11;
 
-    double front_baseline_int_;
-    double back_baseline_int_;
+    double front_baseline_int_ = -11e11;
+    double back_baseline_int_ = -11e11;
 
 public:
     WaveformAna() {};
@@ -76,18 +76,18 @@ public:
     void fall_time(const double &value){ this->fall_time_ = value; }
     void pulse_area(const double &value){ this->pulse_area_ = value; }
     void pulse_area_undershoot(const double &value){ this->pulse_area_undershoot_ = value; }
-    void dvdt(const std::vector<double> &value){ this->dvdt_ = value; }
-    void cfd(const std::vector<double> &value){ this->cfd_ = value; }
-    void cfd_fall(const std::vector<double> &value){ this->cfd_fall_ = value; }
-    void fine_cfd(const std::vector<double> &value){ this->fine_cfd_ = value; }
-    void fine_cfd_fall(const std::vector<double> &value){ this->fine_cfd_fall_ = value; }
     void front_baseline_int(const double &value){ this->front_baseline_int_ = value; }
     void back_baseline_int(const double &value){ this->back_baseline_int_ = value; }
-    void threashold_time(const std::vector<double> &value){ this->threshold_time_ = value; }
     void rms(const double &value){ this->rms_ = value; }
     void undershoot_pmax(const double &value){ this->undershoot_pmax_ = value;}
     void undershoot_tmax(const double &value){ this->undershoot_tmax_ = value;}
-    void tot(const std::vector<double> &value){ this->tot_ = value;}
+    void dvdt(std::vector<double> value){ this->dvdt_ = std::move(value); }
+    void cfd(std::vector<double> value){ this->cfd_ = std::move(value); }
+    void cfd_fall(std::vector<double> value){ this->cfd_fall_ = std::move(value); }
+    void fine_cfd(std::vector<double> value){ this->fine_cfd_ = std::move(value); }
+    void fine_cfd_fall(std::vector<double> value){ this->fine_cfd_fall_ = std::move(value); }
+    void tot(std::vector<double> value){ this->tot_ = std::move(value);}
+    void threashold_time(std::vector<double> value){ this->threshold_time_ = std::move(value); }
 
     int channel() const { return this->channel_; }
     int max_index() const { return this->max_index_; }
@@ -104,18 +104,27 @@ public:
     double fall_time() const { return this->fall_time_; }
     double pulse_area() const { return this->pulse_area_; }
     double pulse_area_undershoot() const { return this->pulse_area_undershoot_; }
+    double front_baseline_int() const { return this->front_baseline_int_; }
+    double back_baseline_int() const { return this->back_baseline_int_; }
+    double rms() const { return this->rms_; }
+    double undershoot_pmax() const {return this->undershoot_pmax_; }
+    double undershoot_tmax() const {return this->undershoot_tmax_; }
+
+    std::vector<double> tot() const {return this->tot_; }
     std::vector<double> dvdt() const { return this->dvdt_; }
     std::vector<double> cfd() const { return this->cfd_; }
     std::vector<double> cfd_fall() const { return this->cfd_fall_; }
     std::vector<double> fine_cfd() const { return this->fine_cfd_; }
     std::vector<double> fine_cfd_fall() const { return this->fine_cfd_fall_; }
-    double front_baseline_int() const { return this->front_baseline_int_; }
-    double back_baseline_int() const { return this->back_baseline_int_; }
     std::vector<double> threshold_time() const { return this->threshold_time_; }
-    double rms() const { return this->rms_; }
-    double undershoot_pmax() const {return this->undershoot_pmax_; }
-    double undershoot_tmax() const {return this->undershoot_tmax_; }
-    std::vector<double> tot() const {return this->tot_; }
+
+    double tot(const int &index) const {return this->tot_.at(index); }
+    double dvdt(const int &index) const { return this->dvdt_.at(index); }
+    double cfd(const int &index) const { return this->cfd_.at(index); }
+    double cfd_fall(const int &index) const { return this->cfd_fall_.at(index); }
+    double fine_cfd(const int &index) const { return this->fine_cfd_.at(index); }
+    double fine_cfd_fall(const int &index) const { return this->fine_cfd_fall_.at(index); }
+    double threshold_time(const int &index) const { return this->threshold_time_.at(index); }
 
     ClassDef(WaveformAna, 1)
 };

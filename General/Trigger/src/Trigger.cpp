@@ -40,3 +40,20 @@ bool Trigger::LGAD_Trigger( const WaveformAna <double, double> &waveform )
     return false;
   }
 }
+
+bool Trigger::Calibrated_LGAD_Trigger( const WaveformAna <double, double> &waveform )
+{
+  if(
+    waveform.tmax()-waveform.cfd(20) > 200 &&
+    waveform.tmax()-waveform.cfd(20) < 450 &&
+    waveform.rise_time() > 270 &&
+    waveform.cfd_fall(50)-waveform.cfd(50)>540
+  )
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}

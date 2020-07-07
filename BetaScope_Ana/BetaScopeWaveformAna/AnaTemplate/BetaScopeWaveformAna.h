@@ -5,6 +5,9 @@
 #include <iostream>
 #include <string>
 
+#include <boost/asio.hpp>
+#include <boost/asio/thread_pool.hpp>
+
 struct AnaParam {
   bool limiting_search_region_OnOff;
   double pmaxSearchRange[2];
@@ -25,16 +28,19 @@ private:
   double dt = 0.0;
   double xorigin = 0.0;
 
+  bool enable_fit = false;
+
 public:
   // this is are required.
   std::string ifile;
 
   // user define class variables
-  std::vector<int> invertChannels;
-  std::vector<int> activeChannels;
+  std::vector<int> invertChannels = {};
+  std::vector<int> activeChannels = {};
 
   bool skipWaveform = false;
   bool skim_output = false;
+  bool internal_mp = false;
   bool save_fit = this->skipWaveform;
 
   bool limitPmaxSearchRange = true;
@@ -105,6 +111,8 @@ public:
   void LoopEvents();
   void Finalize();
 
+  bool Selector();
+
   void run(){
     if(Initialize())
     {
@@ -113,7 +121,7 @@ public:
     }
   };
 
-  void event_ana(int ch, WaveformAna<double, double> waveform);
+  int event_ana(int ch, WaveformAna<double, double> waveform);
 
   void fill_worker(std::vector<double> *buffer, std::vector<double> input);
 

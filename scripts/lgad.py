@@ -30,6 +30,11 @@ predefined_path = {
     "__old_remake": "/media/mnt/gunter/betaAna3/",
 }
 
+SRC_PATH = [
+"/media/mnt/BigHD/Beta_DAQ_Data/",
+"/media/mnt/gunter/Beta_DAQ_Data_2/",
+"/media/mnt/COVID-19/Beta_DAQ_Data_3/",
+]
 
 class Lgad(cmd.Cmd, object):
 
@@ -39,9 +44,7 @@ class Lgad(cmd.Cmd, object):
     global predefined_path
 
     def __init__(self):
-        self.raw_dir = []
-        self.raw_dir.append(predefined_path["__raw"])
-        self.raw_dir.append(predefined_path["__raw2"])
+        self.raw_dir = SRC_PATH
         self.files = os.listdir(os.getcwd())
         self.package_dir = os.environ["BETASCOPE_SCRIPTS"]
         try:
@@ -197,7 +200,7 @@ class Lgad(cmd.Cmd, object):
         parser.set("Channel_Activation", "channel_2", "1")
         parser.set("Channel_Activation", "channel_3", "1")
         parser.set("Channel_Invertion", "channel_2", "1")
-        with open("WaveformAnaConfig.ini", "wb") as config:
+        with open("WaveformAnaConfig.ini", "w") as config:
             parser.write(config)
 
     def do_set_active_channel(self, ch):
@@ -205,7 +208,7 @@ class Lgad(cmd.Cmd, object):
 
         parser = configparser.ConfigParser()
         parser.set("Channel_Activation", "channel_{ch}".format(ch=ch), 1)
-        with open("WaveformAnaConfig.ini", "wb") as config:
+        with open("WaveformAnaConfig.ini", "w") as config:
             parser.write(config)
 
     def do_show_ana_progress(self, opt=""):

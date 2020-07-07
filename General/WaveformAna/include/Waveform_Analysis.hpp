@@ -21,15 +21,15 @@ class WaveformAnalysis
 
     std::vector<double> buffer_[6];
 
-    std::mutex mu;
+    static std::mutex mu;
 
 public:
 
     struct FitResult
     {
-      double value;
-      double chi;
-      TGraph graph;
+      double value = -11e11;
+      double chi = -11e11;
+      TGraph graph = TGraph(1);
 
       FitResult(double value, double chi, TGraph graph)
         : value(value), chi(chi), graph(graph) {};
@@ -132,21 +132,21 @@ public:
     Get_Fit_Tmax(
       const std::vector<double> &timeVec,
       const std::vector<double> &voltageVec,
-      const int &pmax_index
+      const unsigned int &pmax_index
     );
 
     WaveformAnalysis::FitResult
     Get_Zero_Cross_Tmax(
       const std::vector<double> &timeVec,
       const std::vector<double> &voltageVec,
-      const int &pmax_index
+      const unsigned int &pmax_index
     );
 
     template <class data_type>
-    WaveformAnalysis::FitResult Get_Fit_Tmax( WaveformAna<data_type,data_type> &waveform, const int &npt);
+    WaveformAnalysis::FitResult Get_Fit_Tmax( WaveformAna<data_type,data_type> &waveform, const unsigned int &npt);
 
     template <class data_type>
-    WaveformAnalysis::FitResult Get_Zero_Cross_Tmax( WaveformAna<data_type,data_type> &waveform, const int &npt);
+    WaveformAnalysis::FitResult Get_Zero_Cross_Tmax( WaveformAna<data_type,data_type> &waveform, const unsigned int &npt);
 
     void Find_Bunch_Negative_Signal_Maximum(
         const std::vector<double> &voltageVec,

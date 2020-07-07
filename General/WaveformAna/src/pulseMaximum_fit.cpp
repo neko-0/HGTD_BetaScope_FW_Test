@@ -21,21 +21,24 @@ WaveformAnalysis::FitResult
 WaveformAnalysis::Get_Fit_Tmax(
   const std::vector<double> &voltageVec,
   const std::vector<double> &timeVec,
-  const int &pmax_index
+  const unsigned int &pmax_index
 )
 {
   //TODO: add fitting code here
+  TH1::AddDirectory(kFALSE);
   gROOT->SetBatch(true);
   double tmax_fitted = -9999.;
   double chi2_fitted = -9999.;
   int n_points = 4;
-  //std::cout<<"\n**** start *** \n";
   TVectorF small_voltageVec (2*n_points); // = new float[2*n_points];
   TVectorF small_timeVec (2*n_points);// = new float[2*n_points];
 
-  if(timeVec.at(pmax_index) > -1000. and timeVec.at(pmax_index) < 1000.){
-    if(pmax_index > 10 and pmax_index < (timeVec.size() - 10)){
-      for(int i = 0; i < 2*n_points; i++){
+  if(timeVec.at(pmax_index) > -1000. and timeVec.at(pmax_index) < 1000.)
+  {
+    if(pmax_index > 10 and pmax_index < (timeVec.size() - 10))
+    {
+      for(int i = 0; i < 2*n_points; i++)
+      {
           double t_point = timeVec.at(pmax_index - n_points + i);
           double v_point = voltageVec.at(pmax_index - n_points + i);
 
@@ -48,30 +51,37 @@ WaveformAnalysis::Get_Fit_Tmax(
       gr.SetTitle(title.c_str());
       gr.SetName(title.c_str());
 
+      TThread::Lock();
+      //static std::mutex mu;
+      //std::unique_lock<std::mutex> lck(mu);
       title = "f_" + title;
       TF1 fu(title.c_str(), "gaus", timeVec.at(pmax_index) - 300., timeVec.at(pmax_index) + 300.);
       fu.AddToGlobalList(false);
-
       fu.SetParameter(0, timeVec.at(pmax_index));
       fu.SetParameter(1, 100.);
       TFitResultPtr res = gr.Fit(&fu, "SQR");
+      //lck.unlock();
+      TThread::UnLock();
 
       tmax_fitted = fu.GetParameter(1);
       chi2_fitted = res->Chi2();
 
       if(TMath::IsNaN(tmax_fitted))
       {
-        tmax_fitted = -9999.0;
-        chi2_fitted = -9999.0;
+        TGraph loc_gr(n_points);
+        return WaveformAnalysis::FitResult{-9999.0, -9999.0, loc_gr};
       }
-
       return WaveformAnalysis::FitResult{tmax_fitted, chi2_fitted, gr};
+    }
+    else
+    {
+      TGraph gr(n_points);
+      return WaveformAnalysis::FitResult{-9999.0, -9999.0, gr};
     }
   }
   else
   {
     TGraph gr(n_points);
-
     return WaveformAnalysis::FitResult{tmax_fitted, chi2_fitted, gr};
   }
 }
@@ -84,9 +94,11 @@ WaveformAnalysis::FitResult
 WaveformAnalysis::Get_Zero_Cross_Tmax(
   const std::vector<double> &voltageVec,
   const std::vector<double> &timeVec,
-  const int &pmax_index
+  const unsigned int &pmax_index
 )
 {
+  TH1::AddDirectory(kFALSE);
+
   double tmax_zerocross = -9999.;
   double chi2_fitted = -9999.;
 
@@ -115,21 +127,24 @@ WaveformAnalysis::Get_Zero_Cross_Tmax(
       gr.SetTitle(title.c_str());
       gr.SetName(title.c_str());
 
+      TThread::Lock();
+      //static std::mutex mu;
+      //std::unique_lock<std::mutex> lck(mu);
       title = "f_" + title;
       TF1 fu(title.c_str(), "[0]*x+[1]", timeVec.at(pmax_index) - 300., timeVec.at(pmax_index) + 300.);
       fu.AddToGlobalList(false);
-
       TFitResultPtr res = gr.Fit(&fu, "SQR");
+      //lck.unlock();
+      TThread::UnLock();
 
       tmax_zerocross = fu.GetX(0);
       chi2_fitted = res->Chi2();
 
       if(TMath::IsNaN(tmax_zerocross))
       {
-        tmax_zerocross = -9999.0;
-        chi2_fitted = -9999.0;
+        TGraph loc_gr(n_points);
+        return WaveformAnalysis::FitResult{-9999.0, -9999.0, loc_gr};
       }
-
       return WaveformAnalysis::FitResult(tmax_zerocross, chi2_fitted, gr);
     }
     else
@@ -141,7 +156,6 @@ WaveformAnalysis::Get_Zero_Cross_Tmax(
   else
   {
     TGraph gr(n_points);
-
     return WaveformAnalysis::FitResult(tmax_zerocross, chi2_fitted, gr);
   }
 }
@@ -152,9 +166,10 @@ Give the time of the singal maximum (Tmax) using Gaussian fit
 Reimplementation
 ==============================================================================*/
 template <class data_type>
-WaveformAnalysis::FitResult WaveformAnalysis::Get_Fit_Tmax( WaveformAna<data_type,data_type> &waveform, const int &npt)
+WaveformAnalysis::FitResult WaveformAnalysis::Get_Fit_Tmax( WaveformAna<data_type,data_type> &waveform, const unsigned int &npt)
 {
 
+  TH1::AddDirectory(kFALSE);
   gROOT->SetBatch(true);
   double tmax_fitted = -9999.;
   double chi2_fitted = -9999.;
@@ -168,12 +183,17 @@ WaveformAnalysis::FitResult WaveformAnalysis::Get_Fit_Tmax( WaveformAna<data_typ
     gr.SetTitle(title.c_str());
     gr.SetName(title.c_str());
 
+    TThread::Lock();
+    //static std::mutex mu;
+    //std::unique_lock<std::mutex> lck(mu);
     title = "f_" + title;
     TF1 fu(title.c_str(), "gaus", waveform.tmax()-300.0, waveform.tmax()+300.0);
     fu.AddToGlobalList(false);
     fu.SetParameter(0, waveform.tmax());
     fu.SetParameter(1, 100.);
     TFitResultPtr res = gr.Fit(&fu, "SQR");
+    //lck.unlock();
+    TThread::UnLock();
 
     tmax_fitted = fu.GetParameter(1);
     chi2_fitted = res->Chi2();
@@ -204,8 +224,13 @@ Give the time of the singal maximum (Tmax) using linear fit to the 1st derivatve
 Reimplementation
 ==============================================================================*/
 template <class data_type>
-WaveformAnalysis::FitResult WaveformAnalysis::Get_Zero_Cross_Tmax( WaveformAna<data_type,data_type> &waveform, const int &npt)
+WaveformAnalysis::FitResult WaveformAnalysis::Get_Zero_Cross_Tmax(
+  WaveformAna<data_type,data_type> &waveform,
+  const unsigned int &npt
+)
 {
+  TH1::AddDirectory(kFALSE);
+
   double tmax_zerocross = -9999.;
   double chi2_fitted = -9999.;
 
@@ -219,11 +244,15 @@ WaveformAnalysis::FitResult WaveformAnalysis::Get_Zero_Cross_Tmax( WaveformAna<d
     gr.SetTitle(title.c_str());
     gr.SetName(title.c_str());
 
+    TThread::Lock();
+    //static std::mutex mu;
+    //std::unique_lock<std::mutex> lck(mu);
     title = "f_" + title;
     TF1 fu(title.c_str(), "[0]*x+[1]", waveform.tmax()-300.0, waveform.tmax()+300.0);
     fu.AddToGlobalList(false);
-
     TFitResultPtr res = gr.Fit(&fu, "SQ");
+    //lck.unlock();
+    TThread::UnLock();
 
     tmax_zerocross = fu.GetX(0);
     chi2_fitted = res->Chi2();

@@ -2,6 +2,7 @@
 #define BETASCOPE_ANAFRAMEWORK_H
 
 #include <mutex>
+#include <functional>
 
 #include "BetaScope_Driver/include/BetaScope_Class.h"
 #include "BetaScope_Driver/include/BetaScope_Templates.h"
@@ -14,22 +15,26 @@ template <typename beta_scope_type> class BetaScope_AnaFramework {
 
 protected:
   beta_scope_type beta_scope;
-  std::mutex BETA_MTX;
+  static std::mutex mu;
+
 
 public:
   BetaScope_AnaFramework(){};
   virtual ~BetaScope_AnaFramework(){};
 
   virtual bool Initialize(std::string addBranches = "BetaScope_Driver/src/additionalBranches.ini", std::string rawBranches = "");
+  virtual void Finalize();
 
   virtual void Analysis()
   {
-    LOG_INFO("this is a virtual analysis().");
+    LOG_INFO("this is a virtual Analysis().");
   };
 
-  virtual void LoopEvents(void (BetaScope_AnaFramework::*func)());
-  virtual void Finalize();
+  virtual void LoopEvents( void (BetaScope_AnaFramework::*func)() );
+  virtual void LoopEvents( void (BetaScope_AnaFramework::*func)(), std::function<bool()> selector );
+
   virtual void FillData();
+  virtual void FillData( bool fill );
 
   virtual void Run()
   {
@@ -44,20 +49,32 @@ public:
 template <typename beta_scope_type>
 bool BetaScope_AnaFramework<beta_scope_type>::Initialize( std::string addBranches, std::string rawBranches)
 {
-  std::lock_guard<std::mutex> lck(this->BETA_MTX);
+  std::lock_guard<std::mutex> lck(this->mu);
   this->beta_scope.RawTreeReader();
   this->beta_scope.NewTreeMaker(addBranches);
   return true;
 }
 
 template <typename beta_scope_type>
-void BetaScope_AnaFramework<beta_scope_type>::LoopEvents( void (BetaScope_AnaFramework::*func)())
+void BetaScope_AnaFramework<beta_scope_type>::LoopEvents( void (BetaScope_AnaFramework::*func)() )
 {
   LOG_INFO("BetaScope_AnaFramework::LoopEvents is used for driving event looping." );
-  while (this->beta_scope.GetInTreeReader()->Next())
+  while( this->beta_scope.NextEvent() )
   {
     (this->*func)();
     BetaScope_AnaFramework<beta_scope_type>::FillData();
+  }
+  LOG_INFO("Finished loopEvents.");
+}
+
+template <typename beta_scope_type>
+void BetaScope_AnaFramework<beta_scope_type>::LoopEvents( void (BetaScope_AnaFramework::*func)(), std::function<bool()> selector)
+{
+  LOG_INFO("BetaScope_AnaFramework::LoopEvents is used for driving event looping." );
+  while( this->beta_scope.NextEvent() )
+  {
+    (this->*func)();
+    BetaScope_AnaFramework<beta_scope_type>::FillData( selector() );
   }
   LOG_INFO("Finished loopEvents.");
 }
@@ -74,10 +91,31 @@ void BetaScope_AnaFramework<beta_scope_type>::FillData()
 }
 
 template <typename beta_scope_type>
+void BetaScope_AnaFramework<beta_scope_type>::FillData( bool fill )
+{
+  this->event_counter++;
+  if(fill)
+  {
+      this->beta_scope.FillEvent();
+  }
+  else
+  {
+    this->beta_scope._ClearVecBuffer();
+  }
+  if(this->event_counter % 1000 == 0 || (this->event_counter % 10 == 0 &&  this->event_counter <= 100) )
+  {
+    LOG_INFO(this->beta_scope.GetInFileNickName() + " Proccessed events: " + std::to_string(this->event_counter) + " /" + std::to_string(this->beta_scope.GetInNumEvent()) );
+  }
+}
+
+template <typename beta_scope_type>
 void BetaScope_AnaFramework<beta_scope_type>::Finalize()
 {
-  std::lock_guard<std::mutex> lck(this->BETA_MTX);
+  std::lock_guard<std::mutex> lck(this->mu);
   this->beta_scope.FileClose();
 }
+
+template <typename beta_scope_type>
+std::mutex BetaScope_AnaFramework<beta_scope_type>::mu;
 
 #endif // BETASCOPE_ANAFRAMEWORK_H

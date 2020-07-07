@@ -1,6 +1,8 @@
 #include "General/WaveformAna/include/general.hpp"
 #include "WaveformAna/include/Waveform_Analysis.hpp"
 
+std::mutex WaveformAnalysis::mu;
+
 int THREAD_COUNT = 0;
 
 /*
@@ -245,8 +247,8 @@ WaveformAna<double, double> WaveformAnalysis::analyze_waveform(
     waveform.back_baseline_int( WaveformAnalysis::Pulse_Integration_with_Fixed_Window_Size( back_temp_voltage, back_temp_time, back_baseline_pmax_corr, "Simpson",1000.0, 3000.0));
 
     double baselineRange[2] = {
-      tmax_for_baseline - temp_riseTime - 3000.0,
-      tmax_for_baseline - temp_riseTime - 1000.0
+      tmax_for_baseline - temp_riseTime - 30000.0,
+      tmax_for_baseline - temp_riseTime - 20000.0
     };
 
     //std::vector<double> corr_v = waveform.get_v2();
@@ -361,7 +363,7 @@ int WaveformAnalysis::Get_Number_Of_Multiple_Signals(
   std::string function_name = "WaveformAnalysis::Get_Number_Of_Multiple_Signals";
 
   double pmax = 0.0;
-  double pmax_i = 0;
+  unsigned int pmax_i = 0;
   bool candidate_signal = false;
   bool noisy_event = true;
   int num_pulses = 0;

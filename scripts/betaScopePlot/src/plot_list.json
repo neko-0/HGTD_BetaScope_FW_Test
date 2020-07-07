@@ -3,7 +3,7 @@
 
     {
       "channel" : 2,
-      "expression" : "cfd2[50]-cfd3[50]",
+      "expression" : "cfd2[50]-cfd3[20]",
       "fit" : "gaus",
       "title" : "Time Resolution CFD50% [ps]",
       "bin" : {"nbin":100, "xmin":-100, "xmax":500},

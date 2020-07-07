@@ -14,6 +14,7 @@ public:
   static bool MatchTmax( const WaveformAna<double, double> &waveform, const double &start=0, const double &end=500);
 
   static bool LGAD_Trigger( const WaveformAna <double, double> &waveform );
+  static bool Calibrated_LGAD_Trigger( const WaveformAna <double, double> &waveform );
 };
 
 #endif //TRIGGER

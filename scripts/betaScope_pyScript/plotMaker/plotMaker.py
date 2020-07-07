@@ -31,7 +31,15 @@ class PlotSensor(object):
 
 class PlotData(object):
     def __init__(
-        self, ttree, expression, selection, name, xtitle, ytitle, marker_style, marker_color
+        self,
+        ttree,
+        expression,
+        selection,
+        name,
+        xtitle,
+        ytitle,
+        marker_style,
+        marker_color,
     ):
         self.expression = expression
         self.name = name
@@ -49,7 +57,7 @@ class PlotData(object):
             self.raw_y = ttree.GetV2()
             self.np_x = numpy.ndarray(self.npt, "d", self.raw_x)
             self.np_y = numpy.ndarray(self.npt, "d", self.raw_y)
-            self._x , self._y = zip(*sorted(zip(list(self.np_x), list(self.np_y))))
+            self._x, self._y = zip(*sorted(zip(list(self.np_x), list(self.np_y))))
             self.x = numpy.array(self._x)
             self.y = numpy.array(self._y)
             self._find_max()
@@ -64,13 +72,13 @@ class PlotData(object):
         ymax = 0
         xmax = 0
         i = 0
-        while i<100:
+        while i < 100:
             if self.raw_x[i]:
                 if xmax < self.raw_x[i]:
                     xmax = self.raw_x[i]
                 if ymax < self.raw_y[i]:
                     ymax = self.raw_y[i]
-                i+=1
+                i += 1
             else:
                 break
         self.xmax = xmax
@@ -127,7 +135,9 @@ class PlotMaker(PlotMakerBase):
         else:
             runlist_for_compare = self.matched_runs[name_tag]
         matched = runMatch(name_pattern, runlist_for_compare)
-        self.matched_runs[name_tag] = [(run, run_name) for run, run_name in matched if tree_tag in run]
+        self.matched_runs[name_tag] = [
+            (run, run_name) for run, run_name in matched if tree_tag in run
+        ]
         input(self.matched_runs[name_tag])
 
     # ===========================================================================
@@ -247,7 +257,7 @@ class PlotMaker(PlotMakerBase):
 
                 g = ROOT.TGraph(plotdata.npt, plotdata.x, plotdata.y)
 
-                if not(fitFunc is None):
+                if not (fitFunc is None):
                     fit = fitFunc(0, plotdata.xmax)
                     fit.SetLineColor(color)
                     g.Fit(fit)
@@ -269,7 +279,13 @@ class PlotMaker(PlotMakerBase):
             color += 1
 
     def make_plots(
-        self, plot_params, name_tag_list, output_dir, output_name="", attach_fit_var=True, var_at_calc=""
+        self,
+        plot_params,
+        name_tag_list,
+        output_dir,
+        output_name="",
+        attach_fit_var=True,
+        var_at_calc="",
     ):
         ROOT.gROOT.SetBatch(True)
         if output_name:

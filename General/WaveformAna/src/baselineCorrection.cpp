@@ -40,7 +40,8 @@ Baseline correction using point from 0 to N.
 =============================================================================*/
 double WaveformAnalysis::Correct_Baseline(
     std::vector<double> &voltageVec,
-    const int &ptN)
+    const int &ptN
+)
 {
     double mean = 0;
 
@@ -277,7 +278,7 @@ void WaveformAnalysis::SSRL_Baseline(
     {
         voltage_histogram->Fill(w.at(i));
     }
-    double sample_mean = voltage_histogram->GetMean(1);
+    //double sample_mean = voltage_histogram->GetMean(1);
     double sample_sigma = voltage_histogram->GetStdDev(1);
     double peak =voltage_histogram->GetBinCenter(voltage_histogram->GetMaximumBin());
     double fwhm = 2.32 * sample_sigma;

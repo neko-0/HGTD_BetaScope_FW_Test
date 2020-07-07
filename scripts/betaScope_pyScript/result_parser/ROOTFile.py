@@ -7,8 +7,8 @@ logging.basicConfig()
 log = logging.getLogger(__name__)
 coloredlogs.install(level="CRITICAL", logger=log)
 
-class RootFile(object):
 
+class RootFile(object):
     def __init__(self, filename, treename, descri=""):
         self.filename = filename
         self.treename = treename

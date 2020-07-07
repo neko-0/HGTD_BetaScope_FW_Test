@@ -73,8 +73,8 @@ public:
     void set_v1_value(const int &index, const data_type &value){ this->v1_.at(index) = value; }
     void set_v2_value(const int &index, const data_type &value){ this->v2_.at(index) = value; }
 
-    void set_v1(std::vector<data_type> value){ this->v1_ = value; }
-    void set_v2(std::vector<data_type> value){ this->v2_ = value; }
+    void set_v1(std::vector<data_type> value){ this->v1_ = std::move(value); }
+    void set_v2(std::vector<data_type> value){ this->v2_ = std::move(value); }
 
     std::size_t size() const {return this->v1_.size();}
 
@@ -171,9 +171,14 @@ Waveform<data_type, input_type>::Waveform( TTreeReaderArray<input_type> *amp, TT
 
 template <class data_type, class input_type>
 Waveform<data_type, input_type>::Waveform(
-  TTreeReaderArray<input_type> *amp, TTreeReaderArray<input_type> *t,
-  const bool &invert, const float &ampFactor, const float &tFactor,
-  const bool &tResample, const float &xori, const float &dt
+  TTreeReaderArray<input_type> *amp,
+  TTreeReaderArray<input_type> *t,
+  const bool &invert,
+  const float &ampFactor,
+  const float &tFactor,
+  const bool &tResample,
+  const float &xori,
+  const float &dt
 )
 {
   this->v1_.reserve(2000);
