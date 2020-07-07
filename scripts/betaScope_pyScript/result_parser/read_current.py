@@ -1,50 +1,37 @@
 import ROOT
-import configparser
 import argparse
+import multiprocessing as mp
+
+from config_reader import ConfigReader
 
 
-def read_current(config):
-    config_file = configparser.ConfigParser()
-    config_file.read(config)
-    num_file = config_file["header"]["number_of_runs"]
-    file_prefix = ""
-    if config_file["header"]["use_selected_events"] == "true":
-        file_prefix = "Selected_"
+def _read_current(run):
+    tfile = ROOT.TFile.Open(run.file_name)
+    ttree = tfile.Get("wfm")
+    currentValue = 0
+    histo = ROOT.TH1D(f"{run.file_name}_histo", "", 100, 1, 1)
+    ttree.Project(histo.GetName(), "current")
+    current = histo.GetMean()
+    return [
+        run.sensor,
+        run.temperature,
+        run.bias,
+        current,
+        run.file_name.split("Sr_Run")[1].split("_")[0],
+        run.cycle,
+    ]
 
-    output = []
-    sensor_name = config_file["header"]["sensor"]
-    run_num = ""
-    for runIndex in range(int(num_file)):
-        fileName = file_prefix + config_file["run%s" % runIndex]["file_name"]
-        cycle = 1
-        if "root." in fileName:
-            cycle = fileName.split("root.")[1]
-        if not run_num:
-            run_num = fileName.split("Sr_Run")[1].split("_")[0]
-        bias = config_file["run%s" % runIndex]["bias"]
-        bias_value = int(bias.split("V")[0])
-        try:
-            temperature = config_file["run%s" % runIndex]["temperature"]
-        except:
-            temperature = -273
-        tfile = ROOT.TFile.Open(fileName)
-        ttree = tfile.Get("wfm")
-        currentValue = 0
-        histo = ROOT.TH1D("histo", "", 100, 1, 1)
-        ttree.Project("histo", "current")
-        current = histo.GetMean()
-        output.append(
-            [
-                config_file["header"]["sensor"],
-                temperature,
-                bias,
-                current,
-                run_num,
-                cycle,
-            ]
-        )
 
-    return output
+def Read_Current(config):
+
+    config_file = ConfigReader.open(config)
+
+    pool = mp.Pool()
+    output = pool.map_async(_read_current, config_file)
+    pool.close()
+    pool.join()
+
+    return output.get()
 
 
 if __name__ == "__main__":
@@ -70,15 +57,12 @@ if __name__ == "__main__":
 
     argv = commandline_ArgsParser.parse_args()
 
-    current_data = read_current(argv.configFile)
-    print("Sensor: %s" % current_data[0][0])
+    current_data = Read_Current(argv.configFile)
+    print(f"Sensor: {current_data[0][0]}")
     print("Run,Temp,Bias,Current[uA],cycle")
     for item in current_data:
-        print("%s,%s,%s,%s,%s" % (item[4], item[1], item[2], item[3] * 1000.0, item[5]))
+        print(f"{item[4]},{item[1]},{item[2]},{ item[3] * 1000.0},{item[5]}")
 
     with open("leakage.txt", "w") as f:
         for item in current_data:
-            f.write(
-                "%s,%s,%s,%s,%s\n"
-                % (item[4], item[1], item[2], item[3] * 1000.0, item[5])
-            )
+            f.write(f"{item[4]},{item[1]},{item[2]},{item[3] * 1000.0},{item[5]}\n")

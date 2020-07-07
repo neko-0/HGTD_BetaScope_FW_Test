@@ -30,6 +30,11 @@ predefined_path = {
     "__old_remake": "/media/mnt/gunter/betaAna3/",
 }
 
+SRC_PATH = [
+"/media/mnt/BigHD/Beta_DAQ_Data/",
+"/media/mnt/gunter/Beta_DAQ_Data_2/",
+"/media/mnt/COVID-19/Beta_DAQ_Data_3/",
+]
 
 class Lgad(cmd.Cmd, object):
 
@@ -39,9 +44,7 @@ class Lgad(cmd.Cmd, object):
     global predefined_path
 
     def __init__(self):
-        self.raw_dir = []
-        self.raw_dir.append(predefined_path["__raw"])
-        self.raw_dir.append(predefined_path["__raw2"])
+        self.raw_dir = SRC_PATH
         self.files = os.listdir(os.getcwd())
         self.package_dir = os.environ["BETASCOPE_SCRIPTS"]
         try:

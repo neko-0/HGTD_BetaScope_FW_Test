@@ -4,6 +4,7 @@ import os
 import json
 
 from get_time_res import Get_Time_Resolution
+from read_current import Read_Current
 
 import logging
 
@@ -110,7 +111,7 @@ def MergeExcel(ifile="_results.xlxs"):
             if keyName in meta_data:
                 start_row_in_merge = meta_data[keyName]["start"]
                 end_row_in_merge = meta_data[keyName]["end"]
-                diff = end_row_in_merge-start_row_in_merge
+                diff = end_row_in_merge - start_row_in_merge
                 if input_max_row > diff:
                     new_rows = input_max_row - diff
                 else:
@@ -237,6 +238,7 @@ def ParseINIToExcel(fname="_results.ini", update_merge=True):
                         if "_" in cycle:
                             cycle = cycle.split("_")[0]
                     elif "V." in bias:
+                        my_bias = bias[bias.find("_") + 1 : bias.find("V")]
                         cycle = bias.split("V.")[1].split("_")[0]
                     else:
                         my_bias = bias[bias.find("_") + 1 : bias.find("V")]
@@ -255,6 +257,7 @@ def ParseINIToExcel(fname="_results.ini", update_merge=True):
                             if "_" in cycle:
                                 cycle = cycle.split("_")[0]
                         elif "V." in bias:
+                            my_bias = bias[bias.find("_") + 1 : bias.find("V")]
                             cycle = bias.split("V.")[1].split("_")[0]
                         else:
                             cycle = 1
@@ -270,7 +273,10 @@ def ParseINIToExcel(fname="_results.ini", update_merge=True):
                     elif par == "Temp":
                         ws[cell] = temperature
                     elif par == "Bias":
-                        ws[cell] = my_bias
+                        try:
+                            ws[cell] = float(my_bias)
+                        except:
+                            ws[cell] = my_bias
                     elif par == "cycle":
                         ws[cell] = int(cycle)
                     elif par == "Resistance":
@@ -286,20 +292,35 @@ def ParseINIToExcel(fname="_results.ini", update_merge=True):
     end_row = len(config_section)
 
     log.info("Getting time resolution")
+
     res50_result = Get_Time_Resolution(
         "run_info_v08022018.ini", "50", "keysight", run_number
     )
-    res50 = [item[3] for item in res50_result]
-    res50_err = [item[4] for item in res50_result]
+    res = {}
+    res["CFD50Time"] = [item[3] for item in res50_result]
+    res["CFD50Time_Err"] = [item[4] for item in res50_result]
+    res["cycle"] = [item[5] for item in res50_result]
+    res["Bias"] = [item[2] for item in res50_result]
+    InjectSortColData(wb["DUT"], 1, "CFD50Time", ["Bias", "cycle"], res)
+    InjectSortColData(wb["DUT"], 1, "CFD50Time_Err", ["Bias", "cycle"], res)
+
     res20_result = Get_Time_Resolution(
         "run_info_v08022018.ini", "20", "keysight", run_number
     )
-    res20 = [item[3] for item in res20_result]
-    res20_err = [item[4] for item in res20_result]
-    InjectData(wb["DUT"], 1, beta_excel_dict["CFD50Time"], res50)
-    InjectData(wb["DUT"], 1, beta_excel_dict["CFD50Time_Err"], res50_err)
-    InjectData(wb["DUT"], 1, beta_excel_dict["CFD20Time"], res20)
-    InjectData(wb["DUT"], 1, beta_excel_dict["CFD20Time_Err"], res20_err)
+    res = {}
+    res["CFD20Time"] = [item[3] for item in res20_result]
+    res["CFD20Time_Err"] = [item[4] for item in res20_result]
+    res["cycle"] = [item[5] for item in res20_result]
+    res["Bias"] = [item[2] for item in res20_result]
+    InjectSortColData(wb["DUT"], 1, "CFD20Time", ["Bias", "cycle"], res)
+    InjectSortColData(wb["DUT"], 1, "CFD20Time_Err", ["Bias", "cycle"], res)
+
+    leakage_data = Read_Current("run_info_v08022018.ini")
+    leakage_current = {}
+    leakage_current["Leakage"] = [item[3] * 1000 for item in leakage_data]
+    leakage_current["cycle"] = [item[5] for item in leakage_data]
+    leakage_current["Bias"] = [item[2] for item in leakage_data]
+    InjectSortColData(wb["DUT"], 1, "Leakage", ["Bias", "cycle"], leakage_current)
 
     wb.save("_results.xlsx")
 
@@ -308,7 +329,7 @@ def ParseINIToExcel(fname="_results.ini", update_merge=True):
 
 
 # ===============================================================================
-def InjectData(ws, start_row, par, data_list):
+def InjectColData(ws, start_row, par, data_list):
     """
     Method for injecting data
     """
@@ -317,6 +338,31 @@ def InjectData(ws, start_row, par, data_list):
         cell = f"{par}{row}"
         ws[cell] = data
         row += 1
+
+
+def InjectSortColData(ws, start_row, par, sort_pars, data_list):
+    """
+    Similar to InjectColData. data_list is tuple (data, data for sorting)
+    """
+    sorting_buffer = []
+    row = start_row
+    for i in range(len(data_list[par])):
+        buffer = []
+        for sort_par in sort_pars:
+            cell = f"{beta_excel_dict[sort_par]}{row}"
+            buffer.append(ws[cell].value)
+        sorting_buffer.append((row, tuple(buffer)))
+        row += 1
+
+    for i, data in enumerate(data_list[par]):
+        fill_row = None
+        buffer = []
+        for name in sort_pars:
+            buffer.append(data_list[name][i])
+
+        for item in sorting_buffer:
+            if tuple(buffer) == item[1]:
+                ws[f"{beta_excel_dict[par]}{item[0]}"] = data
 
 
 # ===============================================================================

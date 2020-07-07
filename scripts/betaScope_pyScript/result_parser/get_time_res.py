@@ -95,7 +95,7 @@ def Get_Time_Resolution(
     config_file = ConfigReader.open(config)
 
     output = []
-    for runIndex,run in enumerate(config_file):
+    for runIndex, run in enumerate(config_file):
 
         if run_number:
             run_num = run_number
@@ -114,6 +114,26 @@ def Get_Time_Resolution(
             nbin=nbin,
         )
 
+        if result["sigma"] < 1:
+            result = _get_time_resolution(
+                run.file_name,
+                run.cuts,
+                CFD,
+                run.dut_ch,
+                run.trig_ch,
+                return_histo=True,
+                xmin=1,
+                xmax=1,
+                nbin=100,
+            )
+
+        # saving plots
+        result["histo"].GetXaxis().SetTitle("Time Difference")
+        c = ROOT.TCanvas(f"c{runIndex}")
+        c.cd()
+        result["histo"].Draw()
+        c.SaveAs(f"bias_{run.bias}_temp_{run.temperature}C_tdiff_fit_CFD{CFD}.png")
+
         dut_time_res = math.sqrt(
             math.pow(result["sigma"], 2) - math.pow(trigger_resolution, 2)
         )
@@ -127,15 +147,15 @@ def Get_Time_Resolution(
         )
 
         output.append(
-            [run_num, run.temperature, run.bias, dut_time_res, dut_time_res_err, run.cycle]
+            [
+                run_num,
+                run.temperature,
+                run.bias,
+                dut_time_res,
+                dut_time_res_err,
+                run.cycle,
+            ]
         )
-
-        # saving plots
-        result["histo"].GetXaxis().SetTitle("Time Difference")
-        c = ROOT.TCanvas(f"c{runIndex}")
-        c.cd()
-        result["histo"].Draw()
-        c.SaveAs(f"bias_{run.bias}_temp_{run.temperature}C_tdiff_fit_CFD{CFD}.png")
 
     return output
 

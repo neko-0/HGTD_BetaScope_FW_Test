@@ -72,12 +72,15 @@ def parseINItoROOT(fname="_results.ini"):
         for par in beta_excel_dict.keys():
             if "SensorName" in par:
                 branches[par] = array("b").frombytes(str(SensorName).encode())
-                ttree.Branch(par, branches[par], "{}/C".format(par))
+                if branches[par]:
+                    ttree.Branch(par, branches[par], f"{par}/C")
+                else:
+                    ttree.Branch(par, "NA", f"{par}/C")
             elif "runNumber" in par:
                 continue
             else:
                 branches[par] = array("d", [0])
-                ttree.Branch(par, branches[par], "{}/D".format(par))
+                ttree.Branch(par, branches[par], f"{par}/D")
 
         for bias in config_section:
             myRunNum = str(RunNum) + "->" + str(rowCounter)
@@ -204,12 +207,12 @@ def parseINItoROOT2(fileout, title="Hi", run_folder="./", fname="_results.ini"):
         for par in beta_excel_dict.keys():
             if "SensorName" in par:
                 branches[par] = array("b").frombytes(str(SensorName).encode())
-                ttree.Branch(par, branches[par], "{}/C".format(par))
+                ttree.Branch(par, branches[par], f"{par}/C")
             elif "runNumber" in par:
                 continue
             else:
                 branches[par] = array("d", [0])
-                ttree.Branch(par, branches[par], "{}/D".format(par))
+                ttree.Branch(par, branches[par], f"{par}/D")
 
         for bias in config_section:
             myRunNum = str(RunNum) + "->" + str(rowCounter)
