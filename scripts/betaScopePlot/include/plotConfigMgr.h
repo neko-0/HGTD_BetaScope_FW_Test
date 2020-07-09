@@ -43,7 +43,7 @@ struct PlotConfigMgr {
   PlotConfigMgr(){};
 
   PlotConfigMgr(ConfigHeader header, std::vector<ConfigSection> sections)
-  :header(header), sections(sections){};
+    :header(header), sections(sections){};
 
   virtual ~PlotConfigMgr(){};
 

@@ -19,7 +19,7 @@
 #include "betaScopePlot/include/plotConfigMgr.h"
 #include "betaScopePlot/include/plotJobMgr.h"
 #include "betaScopePlot/include/histoPackage.h"
-#include "betaScopePlot/include/dataOutputFormat.h"
+#include "betaScopePlot/include/output_format.h"
 #include "betaScopePlot/include/dataSelection.h"
 
 void result( PlotConfigMgr::ConfigSection sec, int dut_channel, int trigger_channel )
