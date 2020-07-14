@@ -115,7 +115,7 @@ def parseINItoROOT(fname="_results.ini"):
                     Bias = config[bias]["trigger_bias"]
                     run_header = bias.split(",")
                     cycle = run_header[2]
-                for par in par_list:
+                for par in INI_TO_EXCEL.keys():
                     if par == "SensorName":
                         continue
                     elif par == "runNumber":
@@ -133,7 +133,10 @@ def parseINItoROOT(fname="_results.ini"):
                     elif par == "Resistance":
                         branches[par][0] = float(resistance)
                     else:
-                        branches[par][0] = float(config[bias][par])
+                        try:
+                            branches[par][0] = float(config[bias][par])
+                        except:
+                            pass
             ttree.Fill()
 
         ttree.Write(f"run{run_number}", ROOT.TObject.kOverwrite)
