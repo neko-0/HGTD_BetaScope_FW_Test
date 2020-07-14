@@ -72,7 +72,6 @@ void DataOutputFormat::CreateBetaScopeOutputFile(
       DataOutputFormat::WriteKey( fmt::format("{}_Par2", pair.first), my_outData.param2);
       DataOutputFormat::WriteKey( fmt::format("{}_Par2Err", pair.first), my_outData.param2_err);
     }
-    }
     catch(...)
     {
       fmt::print("cannot write Trig {}_{}\n", pair.first, pair.second);
