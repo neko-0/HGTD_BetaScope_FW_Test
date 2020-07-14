@@ -37,7 +37,7 @@ par_list = [
     "cycle",
 ]
 
-beta_excel_dict = {
+INI_TO_EXCEL = {
     "runNumber": "A",
     "SensorName": "B",
     "Temp": "G",
@@ -95,8 +95,8 @@ def MergeExcel(ifile="_results.xlxs"):
 
     # for meta data
     input_dut_wp = input_wb["DUT"]
-    run_number_cell = f"{beta_excel_dict['runNumber']}1"
-    sensor_name_cell = f"{beta_excel_dict['SensorName']}1"
+    run_number_cell = f"{INI_TO_EXCEL['runNumber']}1"
+    sensor_name_cell = f"{INI_TO_EXCEL['SensorName']}1"
     input_run_number = input_dut_wp[run_number_cell].value.split("->")[0]
     input_sensor_name = input_dut_wp[sensor_name_cell].value
 
@@ -147,11 +147,11 @@ def MergeExcel(ifile="_results.xlxs"):
         input_ws = input_wb[sheet]
         for i in range(new_rows):
             merged_ws.insert(end_row_in_merge)
-        for par in beta_excel_dict.keys():
+        for par in INI_TO_EXCEL.keys():
             rowCounter = start_row_in_merge
             for row in range(1, input_max_row + 1):
-                input_cell = f"{beta_excel_dict[par]}{row}"
-                merged_cell = f"{beta_excel_dict[par]}{rowCounter}"
+                input_cell = f"{INI_TO_EXCEL[par]}{row}"
+                merged_cell = f"{INI_TO_EXCEL[par]}{rowCounter}"
                 merged_ws[merged_cell] = input_ws[input_cell].value
                 rowCounter += 1
 
@@ -162,9 +162,9 @@ def ParseINIToExcel(fname="_results.ini", update_merge=True):
     """
     Parse data in ini file to excel
     """
-    config = configparser.ConfigParser()
-    config.read(fname)
-    config_section = config.sections()
+    data_ini = configparser.ConfigParser()
+    data_ini.read(fname)
+    data_ini_section = data_ini.sections()
 
     # creating new work book and pages
     wb = Workbook()
@@ -185,41 +185,50 @@ def ParseINIToExcel(fname="_results.ini", update_merge=True):
         run_description = description_file["Run_Description"]
     except:
         run_description = None
-    try:
-        run_number = run_description["Run_Number"]
-    except:
+    if run_description:
+        try:
+            run_number = run_description["Run_Number"]
+        except:
+            run_number = "NA"
+        try:
+            dut_name = run_description["DUT_Senor_Name"]
+        except:
+            dut_name = "DUT_Name_NA"
+        try:
+            fluence_type = run_description["DUT_Fluence_Type"]
+        except:
+            fluence_type = "Fluence_Type_NA"
+        try:
+            fluence = run_description["DUT_Fluence"]
+        except:
+            fluence = "Fluence_NA"
+        try:
+            board = run_description["DUT_Readout_Board"]
+        except:
+            board = "Board_NA"
+        try:
+            board_number = run_description["DUT_Readout_Board_Number"]
+        except:
+            board_number = "Board_Number_NA"
+        try:
+            temperature = run_description["Temperature"]
+        except:
+            temperature = "Temperature_NA"
+        try:
+            trig_bias = run_description["Trigger_Voltage"]
+        except:
+            trig_bias = "Trigger_Voltage_NA"
+    else:
         run_number = "NA"
-    try:
-        dut_name = run_description["DUT_Senor_Name"]
-    except:
         dut_name = "DUT_Name_NA"
-    try:
-        fluence_type = run_description["DUT_Fluence_Type"]
-    except:
-        fluence_type = "NA"
-    try:
-        fluence = run_description["DUT_Fluence"]
-    except:
-        fluence = "NA"
-    try:
-        board = run_description["DUT_Readout_Board"]
-    except:
-        board = "NA"
-    try:
-        board_number = run_description["DUT_Readout_Board_Number"]
-    except:
-        board_number = "NA"
+        fluence_type = "Fluence_Type_NA"
+        fluence = "Fluence_NA"
+        board = "Board_NA"
+        board_number = "Board_Number_NA"
+        temperature = "Temperature_NA"
+        trig_bias = "Trigger_Voltage_NA"
 
     sensor_name = f"{dut_name}-Fluence {fluence_type}-{fluence}--{board}{board_number}"
-
-    try:
-        temperature = run_description["Temperature"]
-    except:
-        temperature = "NA"
-    try:
-        trig_bias = run_description["Trigger_Voltage"]
-    except:
-        trig_bias = "NA"
 
     # total transipedence (include amp)
     resistance = 4700
@@ -227,45 +236,26 @@ def ParseINIToExcel(fname="_results.ini", update_merge=True):
     # start writing data to excel workbook
     for ch in ["DUT", "Trig"]:
         row = 1
-        for bias in config_section:
+        for bias in data_ini_section:
             my_run_num = f"{run_number}->{row}"
             if ch in bias:
                 if ch == "DUT":
                     ws = wb["DUT"]
-                    if ".." in bias:
-                        my_bias = bias[bias.find("_") + 1 : bias.find("V")]
-                        cycle = bias.split("..")[1]
-                        if "_" in cycle:
-                            cycle = cycle.split("_")[0]
-                    elif "V." in bias:
-                        my_bias = bias[bias.find("_") + 1 : bias.find("V")]
-                        cycle = bias.split("V.")[1].split("_")[0]
-                    else:
-                        my_bias = bias[bias.find("_") + 1 : bias.find("V")]
-                        cycle = 1
+                    run_header = bias.split(",")
+                    my_bias = run_header[1]
+                    cycle = run_header[2]
                     my_sensor_name = sensor_name
                 else:
                     ws = wb["TRIG"]
                     try:
                         my_sensor_name = run_description["Trigger_Sensor_Name"]
                     except:
-                        pass
-                    try:
-                        my_bias = config[bias]["trigger_bias"]
-                        if ".." in bias:
-                            cycle = bias.split("..")[1]
-                            if "_" in cycle:
-                                cycle = cycle.split("_")[0]
-                        elif "V." in bias:
-                            my_bias = bias[bias.find("_") + 1 : bias.find("V")]
-                            cycle = bias.split("V.")[1].split("_")[0]
-                        else:
-                            cycle = 1
-                    except:
-                        my_bias = "NA"
-                        cycle = 1
-                for par in beta_excel_dict.keys():
-                    cell = f"{beta_excel_dict[par]}{row}"
+                        my_sensor_name = "Trigger_Name_NA"
+                    run_header = bias.split(",")
+                    my_bias = run_header[1].replace("V", "")
+                    cycle = run_header[2]
+                for par in INI_TO_EXCEL.keys():
+                    cell = f"{INI_TO_EXCEL[par]}{row}"
                     if par == "SensorName":
                         ws[cell] = my_sensor_name
                     elif par == "runNumber":
@@ -283,13 +273,13 @@ def ParseINIToExcel(fname="_results.ini", update_merge=True):
                         ws[cell] = float(resistance)
                     else:
                         try:
-                            ws[cell] = float(config[bias][par])
+                            ws[cell] = float(data_ini[bias][par])
                         except:
                             continue
                 row += 1
         row += 1  # skip one line
 
-    end_row = len(config_section)
+    end_row = len(data_ini_section)
 
     log.info("Getting time resolution")
 
@@ -349,7 +339,7 @@ def InjectSortColData(ws, start_row, par, sort_pars, data_list):
     for i in range(len(data_list[par])):
         buffer = []
         for sort_par in sort_pars:
-            cell = f"{beta_excel_dict[sort_par]}{row}"
+            cell = f"{INI_TO_EXCEL[sort_par]}{row}"
             buffer.append(ws[cell].value)
         sorting_buffer.append((row, tuple(buffer)))
         row += 1
@@ -362,7 +352,7 @@ def InjectSortColData(ws, start_row, par, sort_pars, data_list):
 
         for item in sorting_buffer:
             if tuple(buffer) == item[1]:
-                ws[f"{beta_excel_dict[par]}{item[0]}"] = data
+                ws[f"{INI_TO_EXCEL[par]}{item[0]}"] = data
 
 
 # ===============================================================================

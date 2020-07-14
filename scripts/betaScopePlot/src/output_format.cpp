@@ -29,7 +29,7 @@ void DataOutputFormat::CreateBetaScopeOutputFile(
   output_name_ref.push_back( std::make_pair<std::string,std::string>("DeltaT_resZeroCross", "resZeroCross") );
 
 
-  std::string dutHeader = "DUT_" + biasVoltage + "_" + std::to_string(temperature);
+  std::string dutHeader = "DUT," + biasVoltage + "," + std::to_string(temperature);
   DataOutputFormat::WriteHeader(dutHeader);
 
   for(auto &pair : output_name_ref)
@@ -43,6 +43,8 @@ void DataOutputFormat::CreateBetaScopeOutputFile(
       DataOutputFormat::WriteKey( fmt::format("{}_CHI", pair.first), my_outData.chi_square);
       DataOutputFormat::WriteKey( fmt::format("{}_PROB", pair.first), my_outData.prob);
       DataOutputFormat::WriteKey( fmt::format("{}_CHI_NDF", pair.first), my_outData.chi_ndf);
+      DataOutputFormat::WriteKey( fmt::format("{}_Param2", pair.first), my_outData.param2);
+      DataOutputFormat::WriteKey( fmt::format("{}_Param2_Error", pair.first), my_outData.param2_err);
     }
     catch(...)
     {
@@ -53,7 +55,7 @@ void DataOutputFormat::CreateBetaScopeOutputFile(
   DataOutputFormat::WriteKey("temperature", temperature);
   DataOutputFormat::WriteKey("trigger_bias", trigger_bias);
 
-  std::string triggerHeader = "Trig_" + biasVoltage + "_" + std::to_string(temperature);
+  std::string triggerHeader = "Trig," + biasVoltage + "," + std::to_string(temperature);
   DataOutputFormat::WriteHeader(triggerHeader);
 
   for(auto &pair : output_name_ref)
@@ -67,6 +69,9 @@ void DataOutputFormat::CreateBetaScopeOutputFile(
       DataOutputFormat::WriteKey( fmt::format("{}_CHI", pair.first), my_outData.chi_square);
       DataOutputFormat::WriteKey( fmt::format("{}_PROB", pair.first), my_outData.prob);
       DataOutputFormat::WriteKey( fmt::format("{}_CHI_NDF", pair.first), my_outData.chi_ndf);
+      DataOutputFormat::WriteKey( fmt::format("{}_Par2", pair.first), my_outData.param2);
+      DataOutputFormat::WriteKey( fmt::format("{}_Par2Err", pair.first), my_outData.param2_err);
+    }
     }
     catch(...)
     {
@@ -97,7 +102,7 @@ void DataOutputFormat::ParseRawOutputToINI(
     std::cerr << pt_ex.what() << std::endl;
   }
 
-  fmt::print("writing {}_{}\n", biasVoltage, temperature);
+  fmt::print("writing {},{}\n", biasVoltage, temperature);
   for(const auto &odata : outData )
   {
     pt.put(fmt::format("{}_{}.{}", biasVoltage, temperature, odata.first), odata.second.param );
