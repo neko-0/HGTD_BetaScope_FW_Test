@@ -34,7 +34,7 @@ void DataOutputFormat::CreateBetaScopeOutputFile(
 
   for(auto &pair : output_name_ref)
   {
-    try
+    if( outData.find(fmt::format("{}2", pair.second)) != outData.end() )
     {
       auto &my_outData = outData.at(fmt::format("{}2", pair.second));
       DataOutputFormat::WriteKey( pair.first, my_outData.param);
@@ -46,9 +46,21 @@ void DataOutputFormat::CreateBetaScopeOutputFile(
       DataOutputFormat::WriteKey( fmt::format("{}_Param2", pair.first), my_outData.param2);
       DataOutputFormat::WriteKey( fmt::format("{}_Param2_Error", pair.first), my_outData.param2_err);
     }
-    catch(...)
+    else if( outData.find(fmt::format("{}", pair.second)) != outData.end() )
     {
-      fmt::print("cannot write DUT {} {}\n", pair.first, pair.second);
+      auto &my_outData = outData.at(fmt::format("{}", pair.second));
+      DataOutputFormat::WriteKey( pair.first, my_outData.param);
+      DataOutputFormat::WriteKey( fmt::format("{}_Error", pair.first), my_outData.param_err);
+      DataOutputFormat::WriteKey( fmt::format("{}_NDF", pair.first), my_outData.ndf);
+      DataOutputFormat::WriteKey( fmt::format("{}_CHI", pair.first), my_outData.chi_square);
+      DataOutputFormat::WriteKey( fmt::format("{}_PROB", pair.first), my_outData.prob);
+      DataOutputFormat::WriteKey( fmt::format("{}_CHI_NDF", pair.first), my_outData.chi_ndf);
+      DataOutputFormat::WriteKey( fmt::format("{}_Param2", pair.first), my_outData.param2);
+      DataOutputFormat::WriteKey( fmt::format("{}_Param2_Error", pair.first), my_outData.param2_err);
+    }
+    else
+    {
+        fmt::print("cannot write DUT {} {}\n", pair.first, pair.second);
     }
   }
 
