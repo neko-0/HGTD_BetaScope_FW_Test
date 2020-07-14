@@ -86,7 +86,7 @@ def parseINItoROOT(fname="_results.ini"):
     for ch in dut_trig:
         rowCounter = 1
 
-        ttree = ROOT.TTree(f"run{RunNum}", "from _results.ini")
+        ttree = ROOT.TTree(f"run{run_number}", "from _results.ini")
         for par in INI_TO_EXCEL.keys():
             if "SensorName" in par:
                 branches[par] = array("b").frombytes(sensor_name.encode())
