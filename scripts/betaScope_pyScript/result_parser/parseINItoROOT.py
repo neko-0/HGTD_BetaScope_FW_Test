@@ -131,12 +131,12 @@ def parseINItoROOT(fname="_results.ini"):
                     elif par == "cycle":
                         branches[par][0] = float(cycle)
                     elif par == "Resistance":
-                        branches[par][0] = float(Resistance)
+                        branches[par][0] = float(resistance)
                     else:
                         branches[par][0] = float(config[bias][par])
             ttree.Fill()
 
-        ttree.Write("run" + str(RunNum), ROOT.TObject.kOverwrite)
+        ttree.Write("run" + str(run_number), ROOT.TObject.kOverwrite)
         tfile.Close()
 
 
@@ -277,8 +277,8 @@ def parseRawINIToROOT(filename="raw_results.ini"):
         for key in config[sec]:
             output_file[key][0] = float(config[sec][key])
         run_header = sec.split(",")
-        output_file["bias"][0] = float(run_header[1].replace("V", ""))
-        cycle = int(run_header[2])
+        output_file["bias"][0] = float(run_header[0].replace("V", ""))
+        cycle = int(run_header[1])
         output_file.fill()
 
 

@@ -104,14 +104,14 @@ void DataOutputFormat::ParseRawOutputToINI(
   fmt::print("writing {},{}\n", biasVoltage, temperature);
   for(const auto &odata : outData )
   {
-    pt.put(fmt::format("{}_{}.{}", biasVoltage, temperature, odata.first), odata.second.param );
-    pt.put(fmt::format("{}_{}.{}_Error", biasVoltage, temperature, odata.first), odata.second.param_err );
-    pt.put(fmt::format("{}_{}.{}_NDF", biasVoltage, temperature, odata.first), odata.second.ndf );
-    pt.put(fmt::format("{}_{}.{}_CHI", biasVoltage, temperature, odata.first), odata.second.chi_square );
-    pt.put(fmt::format("{}_{}.{}_PROB", biasVoltage, temperature, odata.first), odata.second.prob );
-    pt.put(fmt::format("{}_{}.{}_CHI_NDF", biasVoltage, temperature, odata.first), odata.second.chi_ndf );
-    pt.put(fmt::format("{}_{}.{}_Par2", biasVoltage, temperature, odata.first), odata.second.param2 );
-    pt.put(fmt::format("{}_{}.{}_Par2Err", biasVoltage, temperature, odata.first), odata.second.param2_err );
+    pt.put(fmt::format("{},{}.{}", biasVoltage, temperature, odata.first), odata.second.param );
+    pt.put(fmt::format("{},{}.{}_Error", biasVoltage, temperature, odata.first), odata.second.param_err );
+    pt.put(fmt::format("{},{}.{}_NDF", biasVoltage, temperature, odata.first), odata.second.ndf );
+    pt.put(fmt::format("{},{}.{}_CHI", biasVoltage, temperature, odata.first), odata.second.chi_square );
+    pt.put(fmt::format("{},{}.{}_PROB", biasVoltage, temperature, odata.first), odata.second.prob );
+    pt.put(fmt::format("{},{}.{}_CHI_NDF", biasVoltage, temperature, odata.first), odata.second.chi_ndf );
+    pt.put(fmt::format("{},{}.{}_Par2", biasVoltage, temperature, odata.first), odata.second.param2 );
+    pt.put(fmt::format("{},{}.{}_Par2Err", biasVoltage, temperature, odata.first), odata.second.param2_err );
   }
 
   boost::property_tree::ini_parser::write_ini("raw_results.ini", pt);
