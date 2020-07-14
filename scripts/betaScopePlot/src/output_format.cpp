@@ -23,8 +23,8 @@ void DataOutputFormat::CreateBetaScopeOutputFile(
   output_name_ref.push_back( std::make_pair<std::string,std::string>("jitter_20", "jitter") );
   output_name_ref.push_back( std::make_pair<std::string,std::string>("NewPulseArea", "area_under") );
   output_name_ref.push_back( std::make_pair<std::string,std::string>("FallTime", "fall") );
-  output_name_ref.push_back( std::make_pair<std::string,std::string>("DeltaT_Res50", "res50") );
-  output_name_ref.push_back( std::make_pair<std::string,std::string>("DeltaT_Res20", "res20") );
+  output_name_ref.push_back( std::make_pair<std::string,std::string>("CFD50Time", "res50") );
+  output_name_ref.push_back( std::make_pair<std::string,std::string>("CFD50Time", "res20") );
   output_name_ref.push_back( std::make_pair<std::string,std::string>("DeltaT_resTmax", "resTmax") );
   output_name_ref.push_back( std::make_pair<std::string,std::string>("DeltaT_resZeroCross", "resZeroCross") );
 
