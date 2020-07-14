@@ -101,7 +101,7 @@ def parseINItoROOT(fname="_results.ini"):
                 ttree.Branch(par, branches[par], f"{par}/D")
 
         for bias in config_section:
-            myRunNum = f"{RunNum}->{rowCounter}"
+            myRunNum = f"{run_number}->{rowCounter}"
             if ch in bias:
                 if ch != "Trig":
                     run_header = bias.split(",")

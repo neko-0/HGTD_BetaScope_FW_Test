@@ -48,7 +48,7 @@ void DataOutputFormat::CreateBetaScopeOutputFile(
     }
     catch(...)
     {
-      fmt::print("cannot write DUT {}_{}\n", pair.first, pair.second);
+      fmt::print("cannot write DUT {} {}\n", pair.first, pair.second);
     }
   }
 
@@ -74,7 +74,7 @@ void DataOutputFormat::CreateBetaScopeOutputFile(
     }
     catch(...)
     {
-      fmt::print("cannot write Trig {}_{}\n", pair.first, pair.second);
+      fmt::print("cannot write Trig {} {}\n", pair.first, pair.second);
     }
   }
 
