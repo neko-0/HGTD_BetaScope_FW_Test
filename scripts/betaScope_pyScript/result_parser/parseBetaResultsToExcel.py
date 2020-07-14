@@ -64,6 +64,10 @@ INI_TO_EXCEL = {
     "CFD50Time_Err": "BX",
     "CFD20Time": "DD",
     "CFD20Time_Err": "DE",
+    "CFD50Time_Par2": "BW",
+    "CFD50Time_Par2Err": "BX",
+    "CFD20Time_Par2": "DD",
+    "CFD20Time_Par2Err": "DE",
     "Leakage": "C",
 }
 
