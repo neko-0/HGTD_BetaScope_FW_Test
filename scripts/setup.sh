@@ -28,13 +28,14 @@ echo "going to betaScopePlot folder"
 cd betaScopePlot
 make
 
+export RUN_INFO_VER="2020_7_14"
 cd ${current_path}
 echo "creating user data direcotry"
 mkdir user_data
 mkdir user_data/bkup
 echo "setting up alias"
 alias run_RunConfig='${BETASCOPE_SCRIPTS}/betaScopePlot/bin/genPlotConfig'
-alias run_GetResults='${BETASCOPE_SCRIPTS}/betaScopePlot/bin/getResults run_info_v08022018.ini'
+alias run_GetResults='${BETASCOPE_SCRIPTS}/betaScopePlot/bin/getResults run_info_v${RUN_INFO_VER}.ini'
 alias run_beta_excel='python2 ${BETASCOPE_SCRIPTS}/betaScope_pyScript/parseBetaResultsToExcel.py -task '
 
 export BETA_PLOT_JOBS=$BETASCOPE_SCRIPTS/betaScopePlot/src/plot_list.json

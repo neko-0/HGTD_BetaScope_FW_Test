@@ -25,7 +25,7 @@ class DAQInfo(object):
         self.trig_bias = "Trigger_Voltage_NA"
         self.trig_name = "Trigger_Name_NA"
         self.scope = "Scope_Name_NA"
-        self.full_name = f"{self.dut_name}-Fluence {self.fluence_type}-{self.fluence}--{self.board}{self.board_number}"
+        self.full_name = f"{daq_info.dut_name}-{daq_info.fluence_type}-{daq_info.fluence}-{daq_info.board}{daq_info.board_number}-{daq_info.temperature}"
 
     @classmethod
     def open(cls, daq_description_name=""):
@@ -84,6 +84,6 @@ class DAQInfo(object):
             except:
                 daq_info.scope = "Scope_Name_NA"
 
-        daq_info.full_name = f"{daq_info.dut_name}-Fluence {daq_info.fluence_type}-{daq_info.fluence}--{daq_info.board}{daq_info.board_number}"
+        daq_info.full_name = f"{daq_info.dut_name}-{daq_info.fluence_type}-{daq_info.fluence}-{daq_info.board}{daq_info.board_number}-{daq_info.temperature}"
 
         return daq_info

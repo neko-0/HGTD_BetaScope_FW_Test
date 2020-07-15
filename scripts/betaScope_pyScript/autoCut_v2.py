@@ -407,7 +407,7 @@ if __name__ == "__main__":
         "--configFile",
         dest="configFile",
         nargs="?",
-        default="run_info_v08022018.ini",
+        default=f"run_info_v{os.environ['RUN_INFO_VER']}.ini",
         type=str,
         help="Configuration file",
     )
