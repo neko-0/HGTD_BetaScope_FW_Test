@@ -1,11 +1,6 @@
 """
 structure class for sensor's data
 """
-import logging, coloredlogs
-
-logging.basicConfig()
-log = logging.getLogger(__name__)
-coloredlogs.install(level="CRITICAL", logger=log)
 
 import configparser
 import pickle
@@ -15,6 +10,12 @@ from array import array
 from copy import deepcopy
 
 import inspect
+
+import logging, coloredlogs
+
+logging.basicConfig()
+log = logging.getLogger(__name__)
+coloredlogs.install(level="CRITICAL", logger=log)
 
 
 class BetaResult(object):
@@ -68,11 +69,7 @@ class BetaResult(object):
                                     line_split[4]
                                 )
             except Exception as e:
-                log.warning(
-                    "{}-> Error encounter during time resolution. Error: {}".format(
-                        self.__class__.__name__, e
-                    )
-                )
+                log.warning(f"{self.__class__.__name__}-> Error encounter during time resolution. Error: {e}")
 
         def load_leakage(self, fname):
             try:
@@ -85,11 +82,8 @@ class BetaResult(object):
                             self.leakage = float(line_split[3])
                             self.temperature = float(line_split[1])
             except Exception as e:
-                log.warning(
-                    "{}-> Error entounter during leakage. Error: {}".format(
-                        self.__class__.__name__, e
-                    )
-                )
+                log.warning(f"{self.__class__.__name__}-> Error entounter during leakage. Error: {e}")
+
 
     # ===========================================================================
     # ===========================================================================
@@ -104,41 +98,23 @@ class BetaResult(object):
             if daq_description_name:
                 try:
                     self.daq_description.read(daq_description_name)
-                    self.sensor_name = self.daq_description["Run_Description"][
-                        "DUT_Senor_Name"
-                    ]
-                    self.temperature = self.daq_description["Run_Description"][
-                        "Temperature"
-                    ]
-                    self.trigger_bias = self.daq_description["Run_Description"][
-                        "Trigger_Voltage"
-                    ]
-                    self.dut_board = self.daq_description["Run_Description"][
-                        "DUT_Readout_Board"
-                    ]
-                    self.dut_board_number = self.daq_description["Run_Description"][
-                        "DUT_Readout_Board_Number"
-                    ]
-                    self.dut_fluence_type = self.daq_description["Run_Description"][
-                        "DUT_Fluence_Type"
-                    ]
-                    self.dut_fluence = self.daq_description["Run_Description"][
-                        "DUT_Fluence"
-                    ]
+                    run_description =  self.daq_description["Run_Description"]
+                    self.sensor_name = run_description["DUT_Senor_Name"]
+                    self.temperature = run_description["Temperature"]
+                    self.trigger_bias = run_description["Trigger_Voltage"]
+                    self.dut_board = run_description["DUT_Readout_Board"]
+                    self.dut_board_number = run_description["DUT_Readout_Board_Number"]
+                    self.dut_fluence_type = run_description["DUT_Fluence_Type"]
+                    self.dut_fluence = run_description["DUT_Fluence"]
                 except Exception as e:
-                    log.warning(
-                        "{}-> Error in reading DAQ info. Error: {}".format(
-                            self.__class__.__name__, e
-                        )
-                    )
+                    log.warning(f"{self.__class__.__name__}-> Error in reading DAQ info. Error: {e}")
 
     # ===========================================================================
     # ===========================================================================
-    """
-    __init__ and methods for BetaResult class
-    """
-
     def __init__(self, run_number, name):
+        """
+        __init__ and methods for BetaResult class
+        """
         self.run_number = run_number
         self.name = name
         self.fit_result = {}

@@ -8,9 +8,12 @@ import configparser
 import ROOT
 
 from config_reader import ConfigReader
+from config_reader import RUN_INFO_VER
+
+from trig_cali import TRIG_CALI
 
 
-def _get_time_resolution(
+def _get_time_diff(
     tfile_name,
     cuts,
     cfd,
@@ -25,13 +28,14 @@ def _get_time_resolution(
     ttree_wfm = tfile.wfm
 
     # parameter to project on the histogram. Time difference of dut and trig
+    res_type_dict = {
+        "tmax": f"tmax{dut_ch}-cfd{trig_ch}[20]",
+        "fit_tmax": f"fit_tmax{dut_ch}-cfd{trig_ch}[20]",
+        "zero_cross_tmax": f"zero_cross_tmax{dut_ch}-cfd{trig_ch}[20]",
+    }
 
-    if cfd == "tmax":
-        tdiff = f"tmax{dut_ch}-cfd{trig_ch}[20]"
-    elif cfd == "fit_tmax":
-        tdiff = f"fit_tmax{dut_ch}-cfd{trig_ch}[20]"
-    elif cfd == "zero_cross_tmax":
-        tdiff = "zero_cross_tmax%s-cfd%s[20]"
+    if cfd in res_type_dict.keys():
+        tdiff = res_type[cfd]
     else:
         tdiff = f"cfd{dut_ch}[{cfd}]-cfd{trig_ch}[20]"
 
@@ -47,17 +51,15 @@ def _get_time_resolution(
     bin_width = 2 * IQR / pow(num_events, 1.0 / 3.0)
     min_range = sample_mean - 5.0 * sample_std
     max_range = sample_mean + 5.0 * sample_std
-    num_bins = int((max_range - min_range) / bin_width)
+    nbin = int((max_range - min_range) / bin_width)
     if xmin:
         min_range = xmin
     if xmax:
         max_range = xmax
     if nbin:
-        num_bins = nbin
-    tdiff_histo = ROOT.TH1D(
-        "tdiff_histo", "tdiff_histo", num_bins, min_range, max_range
-    )
-    ttree_wfm.Project("tdiff_histo", tdiff, cuts)
+        nbin = nbin
+    tdiff_histo = ROOT.TH1D("tdiff_h", "tdiff_h", nbin, min_range, max_range)
+    ttree_wfm.Project("tdiff_h", tdiff, cuts)
     gaussian = ROOT.TF1("gaussian", "gaus")
     tdiff_histo.Fit(gaussian)
     sigma = gaussian.GetParameter(2)
@@ -85,14 +87,14 @@ def Get_Time_Resolution(
     ROOT.gROOT.SetBatch(True)
     ROOT.gStyle.SetOptFit(1)
 
+    config_file = ConfigReader.open(config)
+
     if "keysight" in scope:
         trigger_resolution = 14.8  # ps 14.8+-0.1 for keysight 16.7 for lecroy
         trigger_resolution_err = 0.1
     else:
         trigger_resolution = 16.7  # ps 14.8+-0.1 for keysight 16.7 for lecroy
         trigger_resolution_err = 0.7
-
-    config_file = ConfigReader.open(config)
 
     output = []
     for runIndex, run in enumerate(config_file):
@@ -102,7 +104,7 @@ def Get_Time_Resolution(
         else:
             run_num = run.file_name.split("Sr_Run")[1].split("_")[0]
 
-        result = _get_time_resolution(
+        result = _get_time_diff(
             run.file_name,
             run.cuts,
             CFD,
@@ -115,7 +117,7 @@ def Get_Time_Resolution(
         )
 
         if result["sigma"] < 1:
-            result = _get_time_resolution(
+            result = _get_time_diff(
                 run.file_name,
                 run.cuts,
                 CFD,
@@ -137,13 +139,14 @@ def Get_Time_Resolution(
         dut_time_res = math.sqrt(
             math.pow(result["sigma"], 2) - math.pow(trigger_resolution, 2)
         )
+
+        sig_sq = math.pow(result["sigma"], 2)
+        sig_err_sq = math.pow(result["sigma_err"], 2)
+        trig_sq = math.pow(trigger_resolution, 2)
+        trig_err_sq = math.pow(trigger_resolution_err, 2)
         dut_time_res_err = math.sqrt(
-            math.pow(result["sigma"], 2)
-            / (math.pow(result["sigma"], 2) - math.pow(trigger_resolution, 2))
-            * math.pow(result["sigma_err"], 2)
-            + math.pow(trigger_resolution, 2)
-            / (math.pow(result["sigma"], 2) - math.pow(trigger_resolution, 2))
-            * math.pow(trigger_resolution_err, 2)
+            sig_sq / (sig_sq - trig_sq) * sig_err_sq
+            + trig_sq / (sig_sq - trig_sq) * trig_err_sq
         )
 
         output.append(
@@ -188,7 +191,7 @@ if __name__ == "__main__":
     argv = cml_parser.parse_args()
 
     output = Get_Time_Resolution(
-        config="run_info_v08022018.ini",
+        config=f"run_info_v{RUN_INFO_VER}.ini",
         CFD=argv.CFD,
         scope=argv.scope,
         run_number=argv.run,

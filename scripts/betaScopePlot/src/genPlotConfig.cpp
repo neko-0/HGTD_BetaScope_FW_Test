@@ -13,7 +13,7 @@
 
 #include "betaScopePlot/include/plotConfigMgr.h"
 
-const std::string PLOT_CONFIG_VER = "08022018";
+const std::string PLOT_CONFIG_VER = "2020_7_14";
 
 bool PlotConfigMgr::GenerateRunInfo()
 {
@@ -41,12 +41,16 @@ bool PlotConfigMgr::GenerateRunInfo()
   boost::property_tree::ptree pt;
 
   // Header
+  pt.put("header.run_number", "?");
+  pt.put("header.scope", "keysight");
+  pt.put("header.trigger", "HPKS8664");
+  pt.put("header.trigger_res", "?");
   pt.put("header.sensor", "?");
   pt.put("header.fluence", "?");
   pt.put("header.temperature", "?");
   pt.put("header.time_bin", 50);
-  pt.put("header.time_range_min", -50000);
-  pt.put("header.time_range_max", 50000);
+  pt.put("header.time_range_min", -25000);
+  pt.put("header.time_range_max", 25000);
   pt.put("header.average_pulse_ofile_name", "run_avePluse.root");
   pt.put("header.self_correct", false);
   pt.put("header.number_of_runs", file_name.size() );

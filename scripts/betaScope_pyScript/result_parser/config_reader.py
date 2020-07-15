@@ -1,5 +1,7 @@
 import configparser
 
+RUN_INFO_VER = "2020_7_14"
+
 
 class Run(object):
     def __init__(
@@ -21,7 +23,7 @@ def __init__(self):
 
 class ConfigReader(object):
     @staticmethod
-    def open(config="run_info_v08022018.ini"):
+    def open(config=f"run_info_v{RUN_INFO_VER}.ini"):
         config_file = configparser.ConfigParser()
         config_file.read(config)
 
