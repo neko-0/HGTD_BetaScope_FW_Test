@@ -9,7 +9,7 @@ mdir_list = [
     "/media/mnt/BigHD/BetaScope_Data/Analyzed_YZ/",
     "/media/mnt/gunter/betaAna3/",
     "/media/mnt/gunter/betaAna2/",
-    "/media/mnt/COVID-19/betaAna4/",
+    "/media/mnt/COVID-19/betaAna4/"
 ]
 
 dirlist = [[x for x in os.listdir(mdir_list[i])] for i in range(len(mdir_list))]
@@ -28,10 +28,10 @@ for mdir in mdir_list:
             if run in fold:
                 os.chdir(mdir + "/" + fold)
                 # import subprocess
-                #p = subprocess.call("python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/get_time_res.py --CFD 50", shell=True)
-                #p = subprocess.call("python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/get_time_res.py --CFD 20", shell=True)
-                #p = subprocess.call("python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/read_current.py", shell=True)
-                #p = subprocess.Popen("$BETASCOPE_SCRIPTS/betaScopePlot//bin/getResults run_info_v08022018.ini", shell=True)
+                # p = subprocess.call("python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/get_time_res.py --CFD 50", shell=True)
+                # p = subprocess.call("python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/get_time_res.py --CFD 20", shell=True)
+                # p = subprocess.call("python2 $BETASCOPE_SCRIPTS/betaScope_pyScript/read_current.py", shell=True)
+                # p = subprocess.Popen("$BETASCOPE_SCRIPTS/betaScopePlot//bin/getResults run_info_v08022018.ini", shell=True)
                 """
                 pList.append(p)
                 if len(pList)==12:
@@ -43,7 +43,7 @@ for mdir in mdir_list:
 
                 beta_run = BetaResult(run, fold)
                 fit_result_file = "{master_dir}/{dir}/Results/_results.ini".format(
-                    master_dir=mdir, dir=fold
+                    master_dir=mdir, 4dir=fold
                 )
                 time_res_file = [
                     (mdir + "/" + fold + "/res50.txt", 50),
@@ -64,5 +64,5 @@ for mdir in mdir_list:
                 beta_scope.add_run(beta_run)
 
 
-# beta_scope.save("test.pkl")
+#beta_scope.save("test.pkl")
 beta_scope.to_root("test_run.root")

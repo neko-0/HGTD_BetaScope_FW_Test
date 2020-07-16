@@ -147,9 +147,14 @@ class BetaResult(object):
                         if "_" in fit_result.cycle:
                             fit_result.cycle = int(fit_result.cycle.split("_")[0])
                     else:
-                        fit_result.bias_voltage = int(
-                            sec[sec.find("_") + 1 : sec.find("V")]
-                        )
+                        try:
+                            fit_result.bias_voltage = int(
+                                sec[sec.find("_") + 1 : sec.find("V")]
+                            )
+                        except:
+                            fit_result.bias_voltage = int(
+                                sec[sec.find(",") + 1 : sec.find("V")]
+                            )
                         fit_result.cycle = 1
                 else:
                     try:
