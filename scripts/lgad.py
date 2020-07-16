@@ -281,14 +281,14 @@ class Lgad(cmd.Cmd, object):
                 )
 
                 p = subprocess.Popen(
-                    f"{nohup} $BETASCOPE_SCRIPTS/betaScopePlot/bin/getResults run_info_v08022018.ini {nohup_log}",
+                    f"{nohup} $BETASCOPE_SCRIPTS/betaScopePlot/bin/getResults run_info_v{os.environ['RUN_INFO_VER']}.ini {nohup_log}",
                     shell=True,
                 )
                 p.wait()
 
             elif "no_autocut" in mode[0]:
                 p = subprocess.Popen(
-                    f"{nohup} $BETASCOPE_SCRIPTS/betaScopePlot/bin/getResults run_info_v08022018.ini {nohup_log}",
+                    f"{nohup} $BETASCOPE_SCRIPTS/betaScopePlot/bin/getResults run_info_v{os.environ['RUN_INFO_VER']}.ini {nohup_log}",
                     shell=True,
                 )
                 p.wait()
@@ -311,7 +311,7 @@ class Lgad(cmd.Cmd, object):
                     shell=True,
                 )
                 p = subprocess.Popen(
-                    f"{nohup} $BETASCOPE_SCRIPTS/betaScopePlot//bin/getResults run_info_v08022018.ini {nohup_log}",
+                    f"{nohup} $BETASCOPE_SCRIPTS/betaScopePlot//bin/getResults run_info_v{os.environ['RUN_INFO_VER']}.ini {nohup_log}",
                     shell=True,
                 )
                 p.wait()
