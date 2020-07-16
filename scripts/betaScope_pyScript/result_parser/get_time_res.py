@@ -96,7 +96,7 @@ def Get_Time_Resolution(
         trigger_resolution = 16.7  # ps 14.8+-0.1 for keysight 16.7 for lecroy
         trigger_resolution_err = 0.7
 
-    output = []
+    output = {}
     for runIndex, run in enumerate(config_file):
 
         if run_number:
@@ -149,16 +149,14 @@ def Get_Time_Resolution(
             + trig_sq / (sig_sq - trig_sq) * trig_err_sq
         )
 
-        output.append(
-            [
-                run_num,
-                run.temperature,
-                run.bias,
-                dut_time_res,
-                dut_time_res_err,
-                run.cycle,
-            ]
-        )
+        output[(run.bias, run.cycle)] = [
+            run_num,
+            run.temperature,
+            run.bias,
+            dut_time_res,
+            dut_time_res_err,
+            run.cycle,
+        ]
 
     return output
 
@@ -201,8 +199,8 @@ if __name__ == "__main__":
     )
 
     print("Run,Temp,Bias,Res,ResErr,cycle")
-    for o in output:
-        print(o)
+    for key, value in output.items():
+        print(value)
     with open(f"res{CFD}.txt", "w") as f:
-        for o in output:
-            f.write(f"{','.join(o)}\n")
+        for key, value in output:
+            f.write(f"{','.join(value)}\n")

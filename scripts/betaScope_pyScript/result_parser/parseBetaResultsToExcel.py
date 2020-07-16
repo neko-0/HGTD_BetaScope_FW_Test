@@ -39,38 +39,41 @@ par_list = [
     "cycle",
 ]
 
+# name_ref : (ini_key, excel_col)
+# if ini_key or excel_col is None, the corresponding data in ini or excel
+# will not be parsed
 INI_TO_EXCEL = {
-    "runNumber": "A",
-    "SensorName": "B",
-    "Temp": "G",
-    "Bias": "H",
-    "Resistance": "L",
-    "pulseArea": "J",
-    "pulseArea_Error": "K",
-    "Pmax": "R",
-    "Pmax_Error": "S",
-    "RMS": "T",
-    "RMS_Error": "U",
-    "Rise_Time": "Z",
-    "Rise_Time_Error": "AA",
-    "dvdt": "AB",
-    "dvdt_Error": "AC",
-    "FWHM": "AL",
-    "FWHM_Error": "AM",
-    "NewPulseArea": "CA",
-    "NewPulseArea_Error": "CB",
-    "FallTime": "DG",
-    "FallTime_Error": "DH",
-    "cycle": "F",
-    "CFD50Time": "BW",
-    "CFD50Time_Err": "BX",
-    "CFD20Time": "DD",
-    "CFD20Time_Err": "DE",
-    "CFD50Time_Par2": "BW",
-    "CFD50Time_Par2Err": "BX",
-    "CFD20Time_Par2": "DD",
-    "CFD20Time_Par2Err": "DE",
-    "Leakage": "C",
+    "runNumber": (None, "A"),
+    "SensorName": (None, "B"),
+    "Temp": (None, "G"),
+    "Bias": (None, "H"),
+    "Resistance": (None, "L"),
+    "pulseArea": ("pulseArea", "J"),
+    "pulseArea_Error": ("pulseArea_Error", "K"),
+    "Pmax": ("Pmax", "R"),
+    "Pmax_Error": ("Pmax_Error", "S"),
+    "RMS": ("RMS", "T"),
+    "RMS_Error": ("RMS_Error", "U"),
+    "Rise_Time": ("Rise_Time", "Z"),
+    "Rise_Time_Error": ("Rise_Time_Error", "AA"),
+    "dvdt": ("dvdt", "AB"),
+    "dvdt_Error": ("dvdt_Error", "AC"),
+    "FWHM": ("FWHM", "AL"),
+    "FWHM_Error": ("FWHM_Error", "AM"),
+    "NewPulseArea": ("NewPulseArea", "CA"),
+    "NewPulseArea_Error": ("NewPulseArea_Error", "CB"),
+    "FallTime": ("FallTime", "DG"),
+    "FallTime_Error": ("FallTime_Error", "DH"),
+    "cycle": (None, "F"),
+    "CFD50Time": (None, "BW"),
+    "CFD50Time_Err": (None, "BX"),
+    "CFD20Time": (None, "DD"),
+    "CFD20Time_Err": (None, "DE"),
+    "DeltaT_CFD50Time": ("DeltaT_CFD50Time_Par2", None),
+    "DeltaT_CFD50Time_Err": ("DeltaT_CFD50Time_Par2Err", None),
+    "DeltaT_CFD20Time": ("DeltaT_CFD20Time_Par2", None),
+    "DeltaT_CFD20Time_Err": ("DeltaT_CFD20Time_Par2Err", None),
+    "Leakage": (None, "C"),
 }
 
 
@@ -101,8 +104,8 @@ def MergeExcel(ifile="_results.xlxs"):
 
     # for meta data
     input_dut_wp = input_wb["DUT"]
-    run_number_cell = f"{INI_TO_EXCEL['runNumber']}1"
-    sensor_name_cell = f"{INI_TO_EXCEL['SensorName']}1"
+    run_number_cell = f"{INI_TO_EXCEL['runNumber'][1]}1"
+    sensor_name_cell = f"{INI_TO_EXCEL['SensorName'][1]}1"
     input_run_number = input_dut_wp[run_number_cell].value.split("->")[0]
     input_sensor_name = input_dut_wp[sensor_name_cell].value
 
@@ -154,10 +157,12 @@ def MergeExcel(ifile="_results.xlxs"):
         for i in range(new_rows):
             merged_ws.insert(end_row_in_merge)
         for par in INI_TO_EXCEL.keys():
+            if INI_TO_EXCEL[par][1] == None:
+                continue
             rowCounter = start_row_in_merge
             for row in range(1, input_max_row + 1):
-                input_cell = f"{INI_TO_EXCEL[par]}{row}"
-                merged_cell = f"{INI_TO_EXCEL[par]}{rowCounter}"
+                input_cell = f"{INI_TO_EXCEL[par][1]}{row}"
+                merged_cell = f"{INI_TO_EXCEL[par][1]}{rowCounter}"
                 merged_ws[merged_cell] = input_ws[input_cell].value
                 rowCounter += 1
 
@@ -210,7 +215,7 @@ def ParseINIToExcel(fname="_results.ini", update_merge=True):
                     my_bias = run_header[1].replace("V", "")
                     cycle = run_header[2]
                 for par in INI_TO_EXCEL.keys():
-                    cell = f"{INI_TO_EXCEL[par]}{row}"
+                    cell = f"{INI_TO_EXCEL[par][1]}{row}"
                     if par == "SensorName":
                         ws[cell] = my_sensor_name
                     elif par == "runNumber":
@@ -221,14 +226,22 @@ def ParseINIToExcel(fname="_results.ini", update_merge=True):
                         try:
                             ws[cell] = float(my_bias)
                         except:
-                            ws[cell] = my_bias
+                            if "V" in my_bias:
+                                my_bias = my_bias.replace("V", "")
+                                ws[cell] = float(my_bias)
+                            else:
+                                ws[cell] = my_bias
                     elif par == "cycle":
                         ws[cell] = int(cycle)
                     elif par == "Resistance":
                         ws[cell] = float(resistance)
                     else:
+                        if None in INI_TO_EXCEL[par]:
+                            continue
                         try:
-                            ws[cell] = float(data_ini[bias][par])
+                            ini_key = INI_TO_EXCEL[par][0]
+                            value = data_ini[bias][ini_key]
+                            ws[cell] = float(value)
                         except:
                             continue
                 row += 1
@@ -242,10 +255,10 @@ def ParseINIToExcel(fname="_results.ini", update_merge=True):
         f"run_info_v{RUN_INFO_VER}.ini", "50", "keysight", description_file.run_number
     )
     res = {}
-    res["CFD50Time"] = [item[3] for item in res50_result]
-    res["CFD50Time_Err"] = [item[4] for item in res50_result]
-    res["cycle"] = [item[5] for item in res50_result]
-    res["Bias"] = [item[2] for item in res50_result]
+    res["CFD50Time"] = {key: item[3] for key, item in res50_result.items()}
+    res["CFD50Time_Err"] = {key: item[4] for key, item in res50_result.items()}
+    # res["cycle"] = [item[5] for item in res50_result]
+    # res["Bias"] = [item[2] for item in res50_result]
     InjectSortColData(wb["DUT"], 1, "CFD50Time", ["Bias", "cycle"], res)
     InjectSortColData(wb["DUT"], 1, "CFD50Time_Err", ["Bias", "cycle"], res)
 
@@ -253,18 +266,20 @@ def ParseINIToExcel(fname="_results.ini", update_merge=True):
         f"run_info_v{RUN_INFO_VER}.ini", "20", "keysight", description_file.run_number
     )
     res = {}
-    res["CFD20Time"] = [item[3] for item in res20_result]
-    res["CFD20Time_Err"] = [item[4] for item in res20_result]
-    res["cycle"] = [item[5] for item in res20_result]
-    res["Bias"] = [item[2] for item in res20_result]
+    res["CFD20Time"] = {key: item[3] for key, item in res20_result.items()}
+    res["CFD20Time_Err"] = {key: item[4] for key, item in res20_result.items()}
+    # res["cycle"] = [item[5] for item in res20_result]
+    # res["Bias"] = [item[2] for item in res20_result]
     InjectSortColData(wb["DUT"], 1, "CFD20Time", ["Bias", "cycle"], res)
     InjectSortColData(wb["DUT"], 1, "CFD20Time_Err", ["Bias", "cycle"], res)
 
     leakage_data = Read_Current(f"run_info_v{RUN_INFO_VER}.ini")
     leakage_current = {}
-    leakage_current["Leakage"] = [item[3] * 1000 for item in leakage_data]
-    leakage_current["cycle"] = [item[5] for item in leakage_data]
-    leakage_current["Bias"] = [item[2] for item in leakage_data]
+    leakage_current["Leakage"] = {
+        key: item[3] * 1000 for key, item in leakage_data.items()
+    }
+    # leakage_current["cycle"] = [item[5] for item in leakage_data]
+    # leakage_current["Bias"] = [item[2] for item in leakage_data]
     InjectSortColData(wb["DUT"], 1, "Leakage", ["Bias", "cycle"], leakage_current)
 
     wb.save("_results.xlsx")
@@ -289,25 +304,35 @@ def InjectSortColData(ws, start_row, par, sort_pars, data_list):
     """
     Similar to InjectColData. data_list is tuple (data, data for sorting)
     """
+    if INI_TO_EXCEL[par][1] == None:
+        raise ValueError(f"excel col cannot be None for {par}")
+
     sorting_buffer = []
     row = start_row
     for i in range(len(data_list[par])):
         buffer = []
         for sort_par in sort_pars:
-            cell = f"{INI_TO_EXCEL[sort_par]}{row}"
+            if INI_TO_EXCEL[sort_par][1] == None:
+                raise ValueError(f"excel col cannot be None for {par}")
+            cell = f"{INI_TO_EXCEL[sort_par][1]}{row}"
             buffer.append(ws[cell].value)
         sorting_buffer.append((row, tuple(buffer)))
         row += 1
 
-    for i, data in enumerate(data_list[par]):
-        fill_row = None
-        buffer = []
-        for name in sort_pars:
-            buffer.append(data_list[name][i])
-
-        for item in sorting_buffer:
-            if tuple(buffer) == item[1]:
-                ws[f"{INI_TO_EXCEL[par]}{item[0]}"] = data
+    if isinstance(data_list[par], list):
+        for i, data in enumerate(data_list[par]):
+            fill_row = None
+            buffer = []
+            for name in sort_pars:
+                buffer.append(data_list[name][i])
+            for item in sorting_buffer:
+                if tuple(buffer) == item[1]:
+                    ws[f"{INI_TO_EXCEL[par][1]}{item[0]}"] = data
+    elif isinstance(data_list[par], dict):
+        for row, key in sorting_buffer:
+            ws[f"{INI_TO_EXCEL[par][1]}{row}"] = data_list[par][key]
+    else:
+        pass
 
 
 # ===============================================================================

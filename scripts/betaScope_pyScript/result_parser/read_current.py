@@ -12,14 +12,17 @@ def _read_current(run):
     histo = ROOT.TH1D(f"{run.file_name}_histo", "", 100, 1, 1)
     ttree.Project(histo.GetName(), "current")
     current = histo.GetMean()
-    return [
-        run.sensor,
-        run.temperature,
-        run.bias,
-        current,
-        run.file_name.split("Sr_Run")[1].split("_")[0],
-        run.cycle,
-    ]
+    return (
+        (run.bias, run.cycle),
+        [
+            run.sensor,
+            run.temperature,
+            run.bias,
+            current,
+            run.file_name.split("Sr_Run")[1].split("_")[0],
+            run.cycle,
+        ],
+    )
 
 
 def Read_Current(config):
@@ -31,7 +34,9 @@ def Read_Current(config):
     pool.close()
     pool.join()
 
-    return output.get()
+    output_data = output.get()
+
+    return {key: value for key, value in output_data}
 
 
 if __name__ == "__main__":
@@ -58,11 +63,10 @@ if __name__ == "__main__":
     argv = commandline_ArgsParser.parse_args()
 
     current_data = Read_Current(argv.configFile)
-    print(f"Sensor: {current_data[0][0]}")
     print("Run,Temp,Bias,Current[uA],cycle")
-    for item in current_data:
+    for _, item in current_data.items():
         print(f"{item[4]},{item[1]},{item[2]},{ item[3] * 1000.0},{item[5]}")
 
     with open("leakage.txt", "w") as f:
-        for item in current_data:
+        for _, item in current_data.items():
             f.write(f"{item[4]},{item[1]},{item[2]},{item[3] * 1000.0},{item[5]}\n")

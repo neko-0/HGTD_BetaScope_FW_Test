@@ -32,7 +32,21 @@ class RootFile(object):
             log.warning(f"branch {name} is already existed.")
         else:
             self.branches[name] = array(type, [0])
-            self.ttree.Branch(name, self.branches[name], f"{name}/{type}")
+            self.ttree.Branch(name, self.branches[name], f"{name}/{type.upper()}")
+
+    def set_branch_value(self, name, value):
+        self.branches[name][0] = value
+
+    def create_char_branch(self, name):
+        if name in self.branches:
+            log.warning(f"char branch {name} is already existed.")
+        else:
+            self.branches[name] = bytearray(1024)
+            self.ttree.Branch(name, self.branches[name], f"{name}[1024]/C")
+
+    def set_char_branch_value(self, name, value):
+        value_encode = value.encode()
+        self.branches[name][: len(value_encode)] = value_encode
 
     def fill(self):
         self.ttree.Fill()
