@@ -42,12 +42,13 @@ par_list = [
 # name_ref : (ini_key, excel_col)
 # if ini_key or excel_col is None, the corresponding data in ini or excel
 # will not be parsed
+# if the ini_key dose not exist, it will be skipped
 INI_TO_EXCEL = {
-    "runNumber": (None, "A"),
-    "SensorName": (None, "B"),
-    "Temp": (None, "G"),
-    "Bias": (None, "H"),
-    "Resistance": (None, "L"),
+    "runNumber": ("runNumber", "A"),
+    "SensorName": ("SensorName", "B"),
+    "Temp": ("Temp", "G"),
+    "Bias": ("Bias", "H"),
+    "Resistance": ("Resistance", "L"),
     "pulseArea": ("pulseArea", "J"),
     "pulseArea_Error": ("pulseArea_Error", "K"),
     "Pmax": ("Pmax", "R"),
@@ -64,7 +65,7 @@ INI_TO_EXCEL = {
     "NewPulseArea_Error": ("NewPulseArea_Error", "CB"),
     "FallTime": ("FallTime", "DG"),
     "FallTime_Error": ("FallTime_Error", "DH"),
-    "cycle": (None, "F"),
+    "cycle": ("cycle", "F"),
     "CFD50Time": (None, "BW"),
     "CFD50Time_Err": (None, "BX"),
     "CFD20Time": (None, "DD"),
@@ -73,7 +74,7 @@ INI_TO_EXCEL = {
     "DeltaT_CFD50Time_Err": ("DeltaT_CFD50Time_Par2Err", None),
     "DeltaT_CFD20Time": ("DeltaT_CFD20Time_Par2", None),
     "DeltaT_CFD20Time_Err": ("DeltaT_CFD20Time_Par2Err", None),
-    "Leakage": (None, "C"),
+    "Leakage": ("Leakage", "C"),
 }
 
 
@@ -252,7 +253,11 @@ def ParseINIToExcel(fname="_results.ini", update_merge=True):
     log.info("Getting time resolution")
 
     res50_result = Get_Time_Resolution(
-        f"run_info_v{RUN_INFO_VER}.ini", "50", "keysight", description_file.run_number
+        f"run_info_v{RUN_INFO_VER}.ini",
+        "50",
+        description_file.scope.lower(),
+        description_file.trig_name.lower(),
+        description_file.run_number,
     )
     res = {}
     res["CFD50Time"] = {key: item[3] for key, item in res50_result.items()}
@@ -263,13 +268,15 @@ def ParseINIToExcel(fname="_results.ini", update_merge=True):
     InjectSortColData(wb["DUT"], 1, "CFD50Time_Err", ["Bias", "cycle"], res)
 
     res20_result = Get_Time_Resolution(
-        f"run_info_v{RUN_INFO_VER}.ini", "20", "keysight", description_file.run_number
+        f"run_info_v{RUN_INFO_VER}.ini",
+        "20",
+        description_file.scope.lower(),
+        description_file.trig_name.lower(),
+        description_file.run_number,
     )
     res = {}
     res["CFD20Time"] = {key: item[3] for key, item in res20_result.items()}
     res["CFD20Time_Err"] = {key: item[4] for key, item in res20_result.items()}
-    # res["cycle"] = [item[5] for item in res20_result]
-    # res["Bias"] = [item[2] for item in res20_result]
     InjectSortColData(wb["DUT"], 1, "CFD20Time", ["Bias", "cycle"], res)
     InjectSortColData(wb["DUT"], 1, "CFD20Time_Err", ["Bias", "cycle"], res)
 
@@ -278,8 +285,6 @@ def ParseINIToExcel(fname="_results.ini", update_merge=True):
     leakage_current["Leakage"] = {
         key: item[3] * 1000 for key, item in leakage_data.items()
     }
-    # leakage_current["cycle"] = [item[5] for item in leakage_data]
-    # leakage_current["Bias"] = [item[2] for item in leakage_data]
     InjectSortColData(wb["DUT"], 1, "Leakage", ["Bias", "cycle"], leakage_current)
 
     wb.save("_results.xlsx")
@@ -303,6 +308,7 @@ def InjectColData(ws, start_row, par, data_list):
 def InjectSortColData(ws, start_row, par, sort_pars, data_list):
     """
     Similar to InjectColData. data_list is tuple (data, data for sorting)
+    data_list[par] needs to be dict, the key is tuple with values from sort_pars
     """
     if INI_TO_EXCEL[par][1] == None:
         raise ValueError(f"excel col cannot be None for {par}")
@@ -319,16 +325,7 @@ def InjectSortColData(ws, start_row, par, sort_pars, data_list):
         sorting_buffer.append((row, tuple(buffer)))
         row += 1
 
-    if isinstance(data_list[par], list):
-        for i, data in enumerate(data_list[par]):
-            fill_row = None
-            buffer = []
-            for name in sort_pars:
-                buffer.append(data_list[name][i])
-            for item in sorting_buffer:
-                if tuple(buffer) == item[1]:
-                    ws[f"{INI_TO_EXCEL[par][1]}{item[0]}"] = data
-    elif isinstance(data_list[par], dict):
+    if isinstance(data_list[par], dict):
         for row, key in sorting_buffer:
             ws[f"{INI_TO_EXCEL[par][1]}{row}"] = data_list[par][key]
     else:

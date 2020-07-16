@@ -4,6 +4,7 @@ TRIG_CALI = {
     660: {
         ("keysight", "hpks8864", "default"): {
             "res": 14.9,
+            "res_err": 0.7,
             "var": "cfd{trig_ch}[20]",
             "default_cuts": "pmax3[0]>70 && pmax3[0]<350 && tmax3[0]-cfd3[20]>200 && tmax3[0]-cfd3[20]<500",
             "recommand_cuts": [
@@ -15,6 +16,7 @@ TRIG_CALI = {
         },
         ("keysight", "hpks8864", "2"): {
             "res": 13.4,
+            "res_err": 0.7,
             "var": "cfd{trig_ch}[20]",
             "default_cuts": "tmax3[0]-cfd3[20]>200 && tmax3[0]-cfd3[20]<450 && isGoodTrig3 && riseTime3[0]>270 && cfd_fall3[50]-cfd3[50]>540",
             "recommand_cuts": [
@@ -29,6 +31,7 @@ TRIG_CALI = {
     520: {
         ("lecroy", "hpks8864", "default"): {
             "res": 16.9,
+            "res_err": 0.7,
             "var": "cfd{trig_ch}[20]",
             "default_cuts": "pmax3[0]>70 && pmax3[0]<350 && tmax3[0]-cfd3[20]>200 && tmax3[0]-cfd3[20]<500",
             "recommand_cuts": [
@@ -42,6 +45,7 @@ TRIG_CALI = {
     400: {
         ("lecroy", "hpks8864", "default"): {
             "res": 17.6,
+            "res_err": 0.7,
             "var": "cfd{trig_ch}[20]",
             "default_cuts": "pmax3[0]>70 && pmax3[0]<350 && tmax3[0]-cfd3[20]>200 && tmax3[0]-cfd3[20]<500",
             "recommand_cuts": [

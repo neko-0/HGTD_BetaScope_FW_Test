@@ -28,16 +28,18 @@ def generate_cuts(
     tmax_expr = f"tmax{dutCh}[0]-cfd{trigCh}[20]"
     pmax_expr = f"pmax{dutCh}[0]"
 
+    betaRunConfig.set("header", "run_number", runNum)
+
     for i in range(num_file):
-        runNum = f"run{i}"
-        fileName = betaRunConfig[runNum]["file_name"]
+        fIndex = f"run{i}"
+        fileName = betaRunConfig[fIndex]["file_name"]
         try:
             spliter = f"stats_Sr_Run{betaRunNum}_"
             biasVoltage = fileName.split(spliter)[1].split("_trig")[0]
         except:
             spliter = f"stats_unseg_Sr_Run{betaRunNum}_"
             biasVoltage = fileName.split(spliter)[1].split("_trig")[0]
-        betaRunConfig.set(runNum, "bias", biasVoltage)
+        betaRunConfig.set(fIndex, "bias", biasVoltage)
 
         tfile = ROOT.TFile.Open(fileName)
         ttree = tfile.Get("wfm")
@@ -358,22 +360,22 @@ def generate_cuts(
         # raw_input()
 
         allCut = f"{tCut} {pmaxCut} {trigger_preset} isGoodTrig3"
-        betaRunConfig.set(runNum, f"cut_{dutCh}", allCut)
+        betaRunConfig.set(fIndex, f"cut_{dutCh}", allCut)
 
         # parse the temperature and trigger bias voltage, for temperatrue scan measurement.
         try:
             temperature = (
-                betaRunConfig[runNum]["file_name"].split("_temp")[1].split(".root")[0]
+                betaRunConfig[fIndex]["file_name"].split("_temp")[1].split(".root")[0]
             )
         except:
             temperature = "-273"
         trigger_bias = (
-            betaRunConfig[runNum]["file_name"].split("_trig")[1].split("V_")[0]
+            betaRunConfig[fIndex]["file_name"].split("_trig")[1].split("V_")[0]
         )
         if "V.root" in trigger_bias:
             trigger_bias = trigger_bias.split("V.root")[0]
-        betaRunConfig.set(runNum, "temperature", temperature)
-        betaRunConfig.set(runNum, "trigger_bias", trigger_bias)
+        betaRunConfig.set(fIndex, "temperature", temperature)
+        betaRunConfig.set(fIndex, "trigger_bias", trigger_bias)
 
         outPlot.SaveAs(f"{fileName}_ch{dutCh}_tmax_pmax.png")
 

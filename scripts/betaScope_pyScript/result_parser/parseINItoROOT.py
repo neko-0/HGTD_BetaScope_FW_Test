@@ -36,7 +36,9 @@ def ParseINItoROOT(fname="_results.ini"):
         rowCounter = 1
 
         output_file = RootFile(
-            "_results.root", f"run{description_file.run_number}", "from _results.ini"
+            "_results.root",
+            f"run{description_file.run_number}",
+            "data parsed from _results.ini",
         )
         for par in INI_TO_EXCEL.keys():
             if "SensorName" in par:
@@ -45,20 +47,16 @@ def ParseINItoROOT(fname="_results.ini"):
             elif "runNumber" in par:
                 output_file.create_branch(par, "i")
             else:
+                if INI_TO_EXCEL[par][0] == None:
+                    continue
                 output_file.create_branch(par, "d")
 
         for bias in data_ini_section:
             myRunNum = f"{description_file.run_number}->{rowCounter}"
             if ch in bias:
-                if ch != "Trig":
-                    run_header = bias.split(",")
-                    Bias = run_header[1].replace("V", "")
-                    cycle = run_header[2]
-                else:
-                    SensorName = description_file.trig_name
-                    Bias = data_ini[bias]["trigger_bias"]
-                    run_header = bias.split(",")
-                    cycle = run_header[2]
+                run_header = bias.split(",")
+                Bias = run_header[1].replace("V", "")
+                cycle = run_header[2]
                 for par in INI_TO_EXCEL.keys():
                     if par == "SensorName":
                         continue
@@ -77,14 +75,16 @@ def ParseINItoROOT(fname="_results.ini"):
                     elif par == "Resistance":
                         output_file.set_branch_value(par, float(resistance))
                     else:
+                        data_ini_key = INI_TO_EXCEL[par][0]
+                        if data_ini_key == None:
+                            continue
                         try:
-                            data_ini_key = INI_TO_EXCEL[par][1]
-                            if data_ini_key == None:
-                                continue
                             value = data_ini[bias][data_ini_key]
                             output_file.set_branch_value(par, float(value))
                         except:
-                            pass
+                            continue
+            else:
+                continue
             output_file.fill()
 
 

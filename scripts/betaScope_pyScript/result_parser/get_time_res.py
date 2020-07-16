@@ -18,7 +18,7 @@ def _get_time_diff(
     cuts,
     cfd,
     dut_ch,
-    trig_ch,
+    trig_var="cfd3[20]",
     return_histo=False,
     xmin=None,
     xmax=None,
@@ -29,15 +29,15 @@ def _get_time_diff(
 
     # parameter to project on the histogram. Time difference of dut and trig
     res_type_dict = {
-        "tmax": f"tmax{dut_ch}-cfd{trig_ch}[20]",
-        "fit_tmax": f"fit_tmax{dut_ch}-cfd{trig_ch}[20]",
-        "zero_cross_tmax": f"zero_cross_tmax{dut_ch}-cfd{trig_ch}[20]",
+        "tmax": f"tmax{dut_ch}-{trig_var}",
+        "fit_tmax": f"fit_tmax{dut_ch}-{trig_var}",
+        "zero_cross_tmax": f"zero_cross_tmax{dut_ch}-{trig_var}",
     }
 
     if cfd in res_type_dict.keys():
         tdiff = res_type[cfd]
     else:
-        tdiff = f"cfd{dut_ch}[{cfd}]-cfd{trig_ch}[20]"
+        tdiff = f"cfd{dut_ch}[{cfd}]-{trig_var}"
 
     # create default histogram for pre-processing.
     preHisto = ROOT.TH1D("preHisto", "preHisto", 100, 1, 1)
@@ -76,8 +76,10 @@ def _get_time_diff(
 def Get_Time_Resolution(
     config,
     CFD="20",
-    scope="keysight",
+    scope=None,
+    trig_name=None,
     run_number=None,
+    trig_cali="default",
     *,
     xmin=None,
     xmax=None,
@@ -87,14 +89,35 @@ def Get_Time_Resolution(
     ROOT.gROOT.SetBatch(True)
     ROOT.gStyle.SetOptFit(1)
 
-    config_file = ConfigReader.open(config)
+    header, config_file = ConfigReader.open(config)
 
-    if "keysight" in scope:
-        trigger_resolution = 14.8  # ps 14.8+-0.1 for keysight 16.7 for lecroy
-        trigger_resolution_err = 0.1
+    # getting trigger time resolution information
+    if header["trigger_res"] != "NA":
+        trig_res = header["trigger_res"]
+        trig_res_err = header["trigger_res_err"]
+        trig_var = header["trigger_var"]
     else:
-        trigger_resolution = 16.7  # ps 14.8+-0.1 for keysight 16.7 for lecroy
-        trigger_resolution_err = 0.7
+        if not scope:
+            scope = header["scope"].lower()
+        if not trig_name:
+            trig_name = header["trigger_name"].lower()
+        if not run_number:
+            run_number = int(header["run_number"])
+
+        try:
+            trig_cali_run = sorted(list(TRIG_CALI.keys()))
+            use_cali_run = None
+            for i in range(len(trig_cali_run)):
+                if trig_cali_run[i] <= run_number:
+                    use_cali_run = trig_cali_run[i]
+            trig_info = TRIG_CALI[use_cali_run]
+            trig_res = trig_info[(scope, trig_name, trig_cali)]["res"]
+            trig_res_err = trig_info[(scope, trig_name, trig_cali)]["res_err"]
+            trig_var = trig_info[(scope, trig_name, trig_cali)]["trig_var"]
+        except:
+            raise ValueError("Cannot find trigger time resolution")
+
+    log.info(f"Trigger info: {trig_res}+-{trig_res_err}, var {trig_var}")
 
     output = {}
     for runIndex, run in enumerate(config_file):
@@ -109,7 +132,7 @@ def Get_Time_Resolution(
             run.cuts,
             CFD,
             run.dut_ch,
-            run.trig_ch,
+            trig_var.fomat(trig_ch=run.trig_ch),
             return_histo=True,
             xmin=xmin,
             xmax=xmax,
@@ -122,7 +145,7 @@ def Get_Time_Resolution(
                 run.cuts,
                 CFD,
                 run.dut_ch,
-                run.trig_ch,
+                trig_var.fomat(trig_ch=run.trig_ch),
                 return_histo=True,
                 xmin=1,
                 xmax=1,

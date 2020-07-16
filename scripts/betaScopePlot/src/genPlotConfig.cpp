@@ -41,10 +41,12 @@ bool PlotConfigMgr::GenerateRunInfo()
   boost::property_tree::ptree pt;
 
   // Header
-  pt.put("header.run_number", "?");
+  pt.put("header.run_number", "-1");
   pt.put("header.scope", "keysight");
   pt.put("header.trigger", "HPKS8664");
-  pt.put("header.trigger_res", "?");
+  pt.put("header.trigger_res", "NA");
+  pt.put("header.trigger_res_err", "NA");
+  pt.put("header.trigger_var", "cfd3[20]")
   pt.put("header.sensor", "?");
   pt.put("header.fluence", "?");
   pt.put("header.temperature", "?");

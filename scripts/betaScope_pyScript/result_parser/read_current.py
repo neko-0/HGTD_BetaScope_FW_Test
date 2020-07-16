@@ -27,7 +27,7 @@ def _read_current(run):
 
 def Read_Current(config):
 
-    config_file = ConfigReader.open(config)
+    header, config_file = ConfigReader.open(config)
 
     pool = mp.Pool()
     output = pool.map_async(_read_current, config_file)

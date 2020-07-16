@@ -17,10 +17,6 @@ class Run(object):
         self.cuts = cuts
 
 
-def __init__(self):
-    pass
-
-
 class ConfigReader(object):
     @staticmethod
     def open(config=f"run_info_v{RUN_INFO_VER}.ini"):
@@ -33,6 +29,8 @@ class ConfigReader(object):
         trig_ch = config_file["header"]["trigger_channel"]
 
         run_list = []
+
+        header = {key: config_file["header"][key] for key in config_file["header"]}
 
         for run_num in range(int(config_file["header"]["number_of_runs"])):
 
@@ -68,4 +66,4 @@ class ConfigReader(object):
                 Run(sensor, bias, fname, temperature, cycle, dut_ch, trig_ch, cuts)
             )
 
-        return run_list
+        return (header, run_list)
