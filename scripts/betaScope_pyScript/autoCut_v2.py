@@ -28,7 +28,7 @@ def generate_cuts(
     tmax_expr = f"tmax{dutCh}[0]-cfd{trigCh}[20]"
     pmax_expr = f"pmax{dutCh}[0]"
 
-    betaRunConfig.set("header", "run_number", runNum)
+    betaRunConfig.set("header", "run_number", str(runNum))
 
     for i in range(num_file):
         fIndex = f"run{i}"

@@ -42,7 +42,7 @@ class DAQInfo(object):
 
         if daq_info.is_open:
             try:
-                daq_info.run_number = daq_info.run_description["Run_Number"]
+                daq_info.run_number = int(daq_info.run_description["Run_Number"])
             except:
                 daq_info.run_number = "Run_Number_NA"
             try:

@@ -2,7 +2,7 @@
 # with the form run_number : (scope, trigger_name, run_number, cali_setting)
 TRIG_CALI = {
     660: {
-        ("keysight", "hpks8864", "default"): {
+        ("keysight", "hpks8664", "default"): {
             "res": 14.9,
             "res_err": 0.7,
             "var": "cfd{trig_ch}[20]",
@@ -14,7 +14,7 @@ TRIG_CALI = {
                 "tmax{trig_ch}[0]-cfd{trig_ch}[20]<500",
             ],
         },
-        ("keysight", "hpks8864", "2"): {
+        ("keysight", "hpks8664", "2"): {
             "res": 13.4,
             "res_err": 0.7,
             "var": "cfd{trig_ch}[20]",
@@ -29,7 +29,7 @@ TRIG_CALI = {
         },
     },
     520: {
-        ("lecroy", "hpks8864", "default"): {
+        ("lecroy", "hpks8664", "default"): {
             "res": 16.9,
             "res_err": 0.7,
             "var": "cfd{trig_ch}[20]",
@@ -43,7 +43,7 @@ TRIG_CALI = {
         },
     },
     400: {
-        ("lecroy", "hpks8864", "default"): {
+        ("lecroy", "hpks8664", "default"): {
             "res": 17.6,
             "res_err": 0.7,
             "var": "cfd{trig_ch}[20]",

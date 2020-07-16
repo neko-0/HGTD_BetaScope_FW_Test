@@ -70,10 +70,10 @@ INI_TO_EXCEL = {
     "CFD50Time_Err": (None, "BX"),
     "CFD20Time": (None, "DD"),
     "CFD20Time_Err": (None, "DE"),
-    "DeltaT_CFD50Time": ("DeltaT_CFD50Time_Par2", None),
-    "DeltaT_CFD50Time_Err": ("DeltaT_CFD50Time_Par2Err", None),
-    "DeltaT_CFD20Time": ("DeltaT_CFD20Time_Par2", None),
-    "DeltaT_CFD20Time_Err": ("DeltaT_CFD20Time_Par2Err", None),
+    "res50": ("DeltaT_CFD50Time_Par2", None),
+    "res50_err": ("DeltaT_CFD50Time_Par2Err", None),
+    "res20": ("DeltaT_CFD20Time_Par2", None),
+    "res20_err": ("DeltaT_CFD20Time_Par2Err", None),
     "Leakage": ("Leakage", "C"),
 }
 
@@ -252,11 +252,15 @@ def ParseINIToExcel(fname="_results.ini", update_merge=True):
 
     log.info("Getting time resolution")
 
+    my_trig_name = description_file.trig_name.lower()
+    if "hpk" in my_trig_name and "s8664" in my_trig_name:
+        my_trig_name = "hpks8664"
+
     res50_result = Get_Time_Resolution(
         f"run_info_v{RUN_INFO_VER}.ini",
         "50",
         description_file.scope.lower(),
-        description_file.trig_name.lower(),
+        my_trig_name,
         description_file.run_number,
     )
     res = {}
@@ -271,7 +275,7 @@ def ParseINIToExcel(fname="_results.ini", update_merge=True):
         f"run_info_v{RUN_INFO_VER}.ini",
         "20",
         description_file.scope.lower(),
-        description_file.trig_name.lower(),
+        my_trig_name,
         description_file.run_number,
     )
     res = {}

@@ -1,8 +1,10 @@
 import ROOT
+import os
 from array import array
 from parseBetaResultsToExcel import *
 from ROOTFile import RootFile
 from daq_info import DAQInfo
+from get_time_res import Get_Time_Resolution
 
 import logging, coloredlogs
 
@@ -31,6 +33,28 @@ def ParseINItoROOT(fname="_results.ini"):
 
     # total transipedence (include amp)
     resistance = 4700
+
+    my_trig_name = description_file.trig_name.lower()
+    if "hpk" in my_trig_name and "s8664" in my_trig_name:
+        my_trig_name = "hpks8664"
+
+    res50_result = Get_Time_Resolution(
+        f"run_info_v{os.environ['RUN_INFO_VER']}.ini",
+        "50",
+        description_file.scope.lower(),
+        my_trig_name,
+        description_file.run_number,
+    )
+
+    res20_result = Get_Time_Resolution(
+        f"run_info_v{os.environ['RUN_INFO_VER']}.ini",
+        "20",
+        description_file.scope.lower(),
+        my_trig_name,
+        description_file.run_number,
+    )
+
+    leakage_data = Read_Current(f"run_info_v{os.environ['RUN_INFO_VER']}.ini")
 
     for ch in dut_trig:
         rowCounter = 1
@@ -74,6 +98,26 @@ def ParseINItoROOT(fname="_results.ini"):
                         output_file.set_branch_value(par, float(cycle))
                     elif par == "Resistance":
                         output_file.set_branch_value(par, float(resistance))
+                    elif par == "res50":
+                        output_file.set_branch_value(
+                            par, res50_result[(float(Bias), int(cycle))][3]
+                        )
+                    elif par == "res50_res":
+                        output_file.set_branch_value(
+                            par, res50_result[(float(Bias), int(cycle))][4]
+                        )
+                    elif par == "res20":
+                        output_file.set_branch_value(
+                            par, res20_result[(float(Bias), int(cycle))][3]
+                        )
+                    elif par == "res20_res":
+                        output_file.set_branch_value(
+                            par, res20_result[(float(Bias), int(cycle))][4]
+                        )
+                    elif par == "Leakage":
+                        output_file.set_branch_value(
+                            par, leakage_data[(float(Bias), int(cycle))][3]
+                        )
                     else:
                         data_ini_key = INI_TO_EXCEL[par][0]
                         if data_ini_key == None:

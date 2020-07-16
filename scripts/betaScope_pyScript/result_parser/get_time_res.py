@@ -12,8 +12,29 @@ from config_reader import RUN_INFO_VER
 
 from trig_cali import TRIG_CALI
 
+import logging
 
-def _get_time_diff(
+logging.basicConfig()
+logging.getLogger().setLevel(logging.INFO)
+log = logging.getLogger(__name__)
+
+
+def Compute_Res(sigma, sigma_err, trig_res, trig_res_err):
+    dut_time_res = math.sqrt(math.pow(sigma, 2) - math.pow(trig_res, 2))
+
+    sig_sq = math.pow(sigma, 2)
+    sig_err_sq = math.pow(sigma_err, 2)
+    trig_sq = math.pow(trig_res, 2)
+    trig_err_sq = math.pow(trig_res_err, 2)
+    dut_time_res_err = math.sqrt(
+        sig_sq / (sig_sq - trig_sq) * sig_err_sq
+        + trig_sq / (sig_sq - trig_sq) * trig_err_sq
+    )
+
+    return (dut_time_res, dut_time_res_err)
+
+
+def Get_Time_Diff(
     tfile_name,
     cuts,
     cfd,
@@ -68,6 +89,7 @@ def _get_time_diff(
     # returning histogram
     if return_histo:
         tdiff_histo.SetDirectory(0)
+        tdiff_histo.GetXaxis().SetTitle(f"Time Difference: {tdiff}")
         return {"histo": tdiff_histo, "sigma": sigma, "sigma_err": sigma_err}
     else:
         return {"sigma": sigma, "sigma_err": sigma_err}
@@ -81,6 +103,7 @@ def Get_Time_Resolution(
     run_number=None,
     trig_cali="default",
     *,
+    get_histo=True,
     xmin=None,
     xmax=None,
     nbin=None,
@@ -91,26 +114,23 @@ def Get_Time_Resolution(
 
     header, config_file = ConfigReader.open(config)
 
-    print(header)
-
     # getting trigger time resolution information
     if header["trigger_res"] != "NA":
         trig_res = header["trigger_res"]
         trig_res_err = header["trigger_res_err"]
         trig_var = header["trigger_var"]
     else:
-        try:
-            trig_cali_run = sorted(list(TRIG_CALI.keys()))
-            use_cali_run = None
-            for i in range(len(trig_cali_run)):
-                if trig_cali_run[i] <= run_number:
-                    use_cali_run = trig_cali_run[i]
-            trig_info = TRIG_CALI[use_cali_run]
-            trig_res = trig_info[(scope, trig_name, trig_cali)]["res"]
-            trig_res_err = trig_info[(scope, trig_name, trig_cali)]["res_err"]
-            trig_var = trig_info[(scope, trig_name, trig_cali)]["trig_var"]
-        except:
-            raise ValueError("Cannot find trigger time resolution")
+        trig_cali_run = sorted(list(TRIG_CALI.keys()))
+        use_cali_run = None
+        for i in range(len(trig_cali_run)):
+            if trig_cali_run[i] <= run_number:
+                use_cali_run = trig_cali_run[i]
+        if use_cali_run is None:
+            raise ValueError("Cannot match trigger calibration run number")
+        trig_info = TRIG_CALI[use_cali_run]
+        trig_res = trig_info[(scope, trig_name, trig_cali)]["res"]
+        trig_res_err = trig_info[(scope, trig_name, trig_cali)]["res_err"]
+        trig_var = trig_info[(scope, trig_name, trig_cali)]["var"]
 
     log.info(f"Trigger info: {trig_res}+-{trig_res_err}, var {trig_var}")
 
@@ -122,49 +142,39 @@ def Get_Time_Resolution(
         else:
             run_num = run.file_name.split("Sr_Run")[1].split("_")[0]
 
-        result = _get_time_diff(
+        result = Get_Time_Diff(
             run.file_name,
             run.cuts,
             CFD,
             run.dut_ch,
-            trig_var.fomat(trig_ch=run.trig_ch),
-            return_histo=True,
+            trig_var.format(trig_ch=run.trig_ch),
+            return_histo=get_histo,
             xmin=xmin,
             xmax=xmax,
             nbin=nbin,
         )
 
         if result["sigma"] < 1:
-            result = _get_time_diff(
+            result = Get_Time_Diff(
                 run.file_name,
                 run.cuts,
                 CFD,
                 run.dut_ch,
-                trig_var.fomat(trig_ch=run.trig_ch),
-                return_histo=True,
+                trig_var.format(trig_ch=run.trig_ch),
+                return_histo=get_histo,
                 xmin=1,
                 xmax=1,
                 nbin=100,
             )
 
         # saving plots
-        result["histo"].GetXaxis().SetTitle("Time Difference")
         c = ROOT.TCanvas(f"c{runIndex}")
         c.cd()
         result["histo"].Draw()
         c.SaveAs(f"bias_{run.bias}_temp_{run.temperature}C_tdiff_fit_CFD{CFD}.png")
 
-        dut_time_res = math.sqrt(
-            math.pow(result["sigma"], 2) - math.pow(trigger_resolution, 2)
-        )
-
-        sig_sq = math.pow(result["sigma"], 2)
-        sig_err_sq = math.pow(result["sigma_err"], 2)
-        trig_sq = math.pow(trigger_resolution, 2)
-        trig_err_sq = math.pow(trigger_resolution_err, 2)
-        dut_time_res_err = math.sqrt(
-            sig_sq / (sig_sq - trig_sq) * sig_err_sq
-            + trig_sq / (sig_sq - trig_sq) * trig_err_sq
+        dut_time_res, dut_time_res_err = Compute_Res(
+            result["sigma"], result["sigma_err"], trig_res, trig_res_err
         )
 
         output[(run.bias, run.cycle)] = [
