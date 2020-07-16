@@ -42,8 +42,6 @@ bool PlotConfigMgr::GenerateRunInfo()
 
   // Header
   pt.put("header.run_number", "-1");
-  pt.put("header.scope", "keysight");
-  pt.put("header.trigger", "HPKS8664");
   pt.put("header.trigger_res", "NA");
   pt.put("header.trigger_res_err", "NA");
   pt.put("header.trigger_var", "cfd3[20]");

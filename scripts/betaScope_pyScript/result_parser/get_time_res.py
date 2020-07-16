@@ -91,19 +91,14 @@ def Get_Time_Resolution(
 
     header, config_file = ConfigReader.open(config)
 
+    print(header)
+
     # getting trigger time resolution information
     if header["trigger_res"] != "NA":
         trig_res = header["trigger_res"]
         trig_res_err = header["trigger_res_err"]
         trig_var = header["trigger_var"]
     else:
-        if not scope:
-            scope = header["scope"].lower()
-        if not trig_name:
-            trig_name = header["trigger_name"].lower()
-        if not run_number:
-            run_number = int(header["run_number"])
-
         try:
             trig_cali_run = sorted(list(TRIG_CALI.keys()))
             use_cali_run = None
