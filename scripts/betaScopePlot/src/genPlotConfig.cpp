@@ -46,7 +46,7 @@ bool PlotConfigMgr::GenerateRunInfo()
   pt.put("header.trigger", "HPKS8664");
   pt.put("header.trigger_res", "NA");
   pt.put("header.trigger_res_err", "NA");
-  pt.put("header.trigger_var", "cfd3[20]")
+  pt.put("header.trigger_var", "cfd3[20]");
   pt.put("header.sensor", "?");
   pt.put("header.fluence", "?");
   pt.put("header.temperature", "?");
