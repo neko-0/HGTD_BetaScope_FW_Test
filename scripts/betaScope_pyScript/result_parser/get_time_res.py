@@ -80,7 +80,10 @@ def Get_Time_Diff(
     if nbin:
         nbin = nbin
     tdiff_histo = ROOT.TH1D("tdiff_h", "tdiff_h", nbin, min_range, max_range)
-    ttree_wfm.Project("tdiff_h", tdiff, cuts)
+    try:
+        ttree_wfm.Project("tdiff_h", tdiff, cuts)
+    except:
+        return None
     gaussian = ROOT.TF1("gaussian", "gaus")
     tdiff_histo.Fit(gaussian)
     sigma = gaussian.GetParameter(2)
@@ -153,6 +156,9 @@ def Get_Time_Resolution(
             xmax=xmax,
             nbin=nbin,
         )
+
+        if result is None:
+            return None
 
         if result["sigma"] < 1:
             result = Get_Time_Diff(

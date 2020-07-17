@@ -54,6 +54,30 @@ def ParseINItoROOT(fname="_results.ini"):
         description_file.run_number,
     )
 
+    res_tmax = Get_Time_Resolution(
+        f"run_info_v{os.environ['RUN_INFO_VER']}.ini",
+        "tmax",
+        description_file.scope.lower(),
+        my_trig_name,
+        description_file.run_number,
+    )
+
+    res_fit_tmax = Get_Time_Resolution(
+        f"run_info_v{os.environ['RUN_INFO_VER']}.ini",
+        "fit_tmax",
+        description_file.scope.lower(),
+        my_trig_name,
+        description_file.run_number,
+    )
+
+    res_zerox_tmax = Get_Time_Resolution(
+        f"run_info_v{os.environ['RUN_INFO_VER']}.ini",
+        "zero_cross_tmax",
+        description_file.scope.lower(),
+        my_trig_name,
+        description_file.run_number,
+    )
+
     leakage_data = Read_Current(f"run_info_v{os.environ['RUN_INFO_VER']}.ini")
 
     for ch in dut_trig:
@@ -65,11 +89,13 @@ def ParseINItoROOT(fname="_results.ini"):
             "data parsed from _results.ini",
         )
         for par in INI_TO_EXCEL.keys():
-            if "SensorName" in par:
+            if "sensor_name" in par:
                 output_file.create_char_branch(par)
                 output_file.set_char_branch_value(par, sensor_name)
-            elif "runNumber" in par:
+            elif "run_number" in par:
                 output_file.create_branch(par, "i")
+            elif "time_resolution" in par:
+                output_file.create_branch(par, "d")
             else:
                 if INI_TO_EXCEL[par][0] == None:
                     continue
@@ -82,39 +108,75 @@ def ParseINItoROOT(fname="_results.ini"):
                 Bias = run_header[1].replace("V", "")
                 cycle = run_header[2]
                 for par in INI_TO_EXCEL.keys():
-                    if par == "SensorName":
+                    if par == "sensor_name":
                         continue
-                    elif par == "runNumber":
+                    elif par == "run_number":
                         continue
-                    elif par == "Temp":
+                    elif par == "temperature":
                         try:
                             Temp = config[bias]["temperature"]
                         except:
                             Temp = "-30"
                         output_file.set_branch_value(par, float(Temp))
-                    elif par == "Bias":
+                    elif par == "bias_voltage":
                         output_file.set_branch_value(par, float(Bias))
                     elif par == "cycle":
                         output_file.set_branch_value(par, float(cycle))
-                    elif par == "Resistance":
+                    elif par == "resistance":
                         output_file.set_branch_value(par, float(resistance))
-                    elif par == "res50":
+                    elif par == "time_resolution_50":
                         output_file.set_branch_value(
                             par, res50_result[(float(Bias), int(cycle))][3]
                         )
-                    elif par == "res50_res":
+                    elif par == "time_resolution_50_err":
                         output_file.set_branch_value(
                             par, res50_result[(float(Bias), int(cycle))][4]
                         )
-                    elif par == "res20":
+                    elif par == "time_resolution_20":
                         output_file.set_branch_value(
                             par, res20_result[(float(Bias), int(cycle))][3]
                         )
-                    elif par == "res20_res":
+                    elif par == "time_resolution_20_err":
                         output_file.set_branch_value(
                             par, res20_result[(float(Bias), int(cycle))][4]
                         )
-                    elif par == "Leakage":
+                    elif "time_resolution_tmax" in par:
+                        if res_tmax is None:
+                            continue
+                        else:
+                            if "err" in par:
+                                output_file.set_branch_value(
+                                    par, res_tmax[(float(Bias), int(cycle))][4]
+                                )
+                            else:
+                                output_file.set_branch_value(
+                                    par, res_tmax[(float(Bias), int(cycle))][3]
+                                )
+                    elif "time_resolution_fit_tmax" in par:
+                        if res_tmax is None:
+                            continue
+                        else:
+                            if "err" in par:
+                                output_file.set_branch_value(
+                                    par, res_fit_tmax[(float(Bias), int(cycle))][4]
+                                )
+                            else:
+                                output_file.set_branch_value(
+                                    par, res_fit_tmax[(float(Bias), int(cycle))][3]
+                                )
+                    elif "time_resolution_zero_x_tmax" in par:
+                        if res_tmax is None:
+                            continue
+                        else:
+                            if "err" in par:
+                                output_file.set_branch_value(
+                                    par, res_zerox_tmax[(float(Bias), int(cycle))][4]
+                                )
+                            else:
+                                output_file.set_branch_value(
+                                    par, res_zerox_tmax[(float(Bias), int(cycle))][3]
+                                )
+                    elif par == "leakage":
                         output_file.set_branch_value(
                             par, leakage_data[(float(Bias), int(cycle))][3]
                         )
