@@ -15,7 +15,7 @@ import subprocess
 import threading
 import time
 import multiprocessing as mp
-from shutil import copyfile, copy
+from shutil import copyfile, copy, move
 from colorStringFormating import *
 
 predefined_path = {
@@ -128,6 +128,18 @@ class Lgad(cmd.Cmd, object):
                 colorString.sysError(
                     "cannot to output path to {}".format(self.output_dir)
                 )
+
+    def do_unpack(self, tdir=""):
+        "unpack segmented data"
+        self.do_cd(f"{self.my_raw_dir}{self.runNum_dir}/fromDAQ/")
+        if not os.path.isdir("raw"):
+            os.mkdir("raw")
+            os.system("mv *.root* raw/")
+            self.do_cd(f"{self.my_raw_dir}{self.runNum_dir}/fromDAQ/")
+            subprocess.call("/home/datataking/DAQForProduction/utility/unpack.sh")
+        else:
+            colorString.sysError("Raw directory already there, is the data already unpacked?")
+        self.do_cd_current_run()
 
     def do_set_run(self, runNum):
         "Setup a run for analysis. It will automatically search the run number in the pre-defined raw data direcotry. If it can find the run number , it will create a folder for the run in your output direcotry"
