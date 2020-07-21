@@ -44,37 +44,47 @@ par_list = [
 # will not be parsed
 # if the ini_key dose not exist, it will be skipped
 INI_TO_EXCEL = {
-    "runNumber": ("runNumber", "A"),
-    "SensorName": ("SensorName", "B"),
-    "Temp": ("Temp", "G"),
-    "Bias": ("Bias", "H"),
-    "Resistance": ("Resistance", "L"),
-    "pulseArea": ("pulseArea", "J"),
-    "pulseArea_Error": ("pulseArea_Error", "K"),
-    "Pmax": ("Pmax", "R"),
-    "Pmax_Error": ("Pmax_Error", "S"),
-    "RMS": ("RMS", "T"),
-    "RMS_Error": ("RMS_Error", "U"),
-    "Rise_Time": ("Rise_Time", "Z"),
-    "Rise_Time_Error": ("Rise_Time_Error", "AA"),
+    "run_number": ("runNumber", "A"),
+    "sensor_name": ("SensorName", "B"),
+    "temperature": ("Temp", "G"),
+    "bias_voltage": ("Bias", "H"),
+    "resistance": ("Resistance", "L"),
+    "pulse_area": ("pulseArea", "J"),
+    "pulse_area_chi": ("pulseArea_CHI_NDF", None),
+    "pulse_area_error": ("pulseArea_Error", "K"),
+    "pmax": ("Pmax", "R"),
+    "pmax_chi": ("Pmax_CHI_NDF", None),
+    "pmax_error": ("Pmax_Error", "S"),
+    "rms": ("RMS", "T"),
+    "rms_chi": ("RMS_CHI_NDF", None),
+    "rms_error": ("RMS_Error", "U"),
+    "rise_time": ("Rise_Time", "Z"),
+    "rise_time_chi": ("Rise_Time_CHI_NDF", None),
+    "rise_time_error": ("Rise_Time_Error", "AA"),
     "dvdt": ("dvdt", "AB"),
+    "dvdt_chi": ("dvdt_CHI_NDF", None),
     "dvdt_Error": ("dvdt_Error", "AC"),
-    "FWHM": ("FWHM", "AL"),
-    "FWHM_Error": ("FWHM_Error", "AM"),
-    "NewPulseArea": ("NewPulseArea", "CA"),
-    "NewPulseArea_Error": ("NewPulseArea_Error", "CB"),
-    "FallTime": ("FallTime", "DG"),
-    "FallTime_Error": ("FallTime_Error", "DH"),
+    "fwhm": ("FWHM", "AL"),
+    "fwhm_chi": ("FWHM_CHI", None),
+    "fwhm_error": ("FWHM_Error", "AM"),
+    "new_pulse_area": ("NewPulseArea", "CA"),
+    "new_pulse_area_chi": ("NewPulseArea_CHI_NDF", None),
+    "new_pulse_area_error": ("NewPulseArea_Error", "CB"),
+    "fall_time": ("FallTime", "DG"),
+    "fall_time_chi": ("FallTime_CHI_NDF", None),
+    "fall_time_error": ("FallTime_Error", "DH"),
     "cycle": ("cycle", "F"),
-    "CFD50Time": (None, "BW"),
-    "CFD50Time_Err": (None, "BX"),
-    "CFD20Time": (None, "DD"),
-    "CFD20Time_Err": (None, "DE"),
-    "res50": ("DeltaT_CFD50Time_Par2", None),
-    "res50_err": ("DeltaT_CFD50Time_Par2Err", None),
-    "res20": ("DeltaT_CFD20Time_Par2", None),
-    "res20_err": ("DeltaT_CFD20Time_Par2Err", None),
-    "Leakage": ("Leakage", "C"),
+    "time_resolution_50": (None, "BW"),
+    "time_resolution_50_err": (None, "BX"),
+    "time_resolution_20": (None, "DD"),
+    "time_resolution_20_err": (None, "DE"),
+    "time_resolution_tmax": (None, None),
+    "time_resolution_tmax_err": (None, None),
+    "time_resolution_fit_tmax": (None, None),
+    "time_resolution_fit_tmax_err": (None, None),
+    "time_resolution_fit_zero_x_tmax": (None, None),
+    "time_resolution_fit_zero_x_tmax_err": (None, None),
+    "leakage": ("Leakage", "C"),
 }
 
 
@@ -105,8 +115,8 @@ def MergeExcel(ifile="_results.xlxs"):
 
     # for meta data
     input_dut_wp = input_wb["DUT"]
-    run_number_cell = f"{INI_TO_EXCEL['runNumber'][1]}1"
-    sensor_name_cell = f"{INI_TO_EXCEL['SensorName'][1]}1"
+    run_number_cell = f"{INI_TO_EXCEL['run_number'][1]}1"
+    sensor_name_cell = f"{INI_TO_EXCEL['sensor_name'][1]}1"
     input_run_number = input_dut_wp[run_number_cell].value.split("->")[0]
     input_sensor_name = input_dut_wp[sensor_name_cell].value
 
@@ -217,13 +227,13 @@ def ParseINIToExcel(fname="_results.ini", update_merge=True):
                     cycle = run_header[2]
                 for par in INI_TO_EXCEL.keys():
                     cell = f"{INI_TO_EXCEL[par][1]}{row}"
-                    if par == "SensorName":
+                    if par == "sensor_name":
                         ws[cell] = my_sensor_name
-                    elif par == "runNumber":
+                    elif par == "run_number":
                         ws[cell] = my_run_num
-                    elif par == "Temp":
+                    elif par == "temperature":
                         ws[cell] = description_file.temperature
-                    elif par == "Bias":
+                    elif par == "bias_voltage":
                         try:
                             ws[cell] = float(my_bias)
                         except:
@@ -234,7 +244,7 @@ def ParseINIToExcel(fname="_results.ini", update_merge=True):
                                 ws[cell] = my_bias
                     elif par == "cycle":
                         ws[cell] = int(cycle)
-                    elif par == "Resistance":
+                    elif par == "resistance":
                         ws[cell] = float(resistance)
                     else:
                         if None in INI_TO_EXCEL[par]:
@@ -264,12 +274,16 @@ def ParseINIToExcel(fname="_results.ini", update_merge=True):
         description_file.run_number,
     )
     res = {}
-    res["CFD50Time"] = {key: item[3] for key, item in res50_result.items()}
-    res["CFD50Time_Err"] = {key: item[4] for key, item in res50_result.items()}
+    res["time_resolution_50"] = {key: item[3] for key, item in res50_result.items()}
+    res["time_resolution_50_err"] = {key: item[4] for key, item in res50_result.items()}
     # res["cycle"] = [item[5] for item in res50_result]
     # res["Bias"] = [item[2] for item in res50_result]
-    InjectSortColData(wb["DUT"], 1, "CFD50Time", ["Bias", "cycle"], res)
-    InjectSortColData(wb["DUT"], 1, "CFD50Time_Err", ["Bias", "cycle"], res)
+    InjectSortColData(
+        wb["DUT"], 1, "time_resolution_50", ["bias_voltage", "cycle"], res
+    )
+    InjectSortColData(
+        wb["DUT"], 1, "time_resolution_50_err", ["bias_voltage", "cycle"], res
+    )
 
     res20_result = Get_Time_Resolution(
         f"run_info_v{RUN_INFO_VER}.ini",
@@ -279,17 +293,23 @@ def ParseINIToExcel(fname="_results.ini", update_merge=True):
         description_file.run_number,
     )
     res = {}
-    res["CFD20Time"] = {key: item[3] for key, item in res20_result.items()}
-    res["CFD20Time_Err"] = {key: item[4] for key, item in res20_result.items()}
-    InjectSortColData(wb["DUT"], 1, "CFD20Time", ["Bias", "cycle"], res)
-    InjectSortColData(wb["DUT"], 1, "CFD20Time_Err", ["Bias", "cycle"], res)
+    res["time_resolution_20"] = {key: item[3] for key, item in res20_result.items()}
+    res["time_resolution_20_err"] = {key: item[4] for key, item in res20_result.items()}
+    InjectSortColData(
+        wb["DUT"], 1, "time_resolution_20", ["bias_voltage", "cycle"], res
+    )
+    InjectSortColData(
+        wb["DUT"], 1, "time_resolution_20_err", ["bias_voltage", "cycle"], res
+    )
 
     leakage_data = Read_Current(f"run_info_v{RUN_INFO_VER}.ini")
     leakage_current = {}
-    leakage_current["Leakage"] = {
+    leakage_current["leakage"] = {
         key: item[3] * 1000 for key, item in leakage_data.items()
     }
-    InjectSortColData(wb["DUT"], 1, "Leakage", ["Bias", "cycle"], leakage_current)
+    InjectSortColData(
+        wb["DUT"], 1, "leakage", ["bias_voltage", "cycle"], leakage_current
+    )
 
     wb.save("_results.xlsx")
 

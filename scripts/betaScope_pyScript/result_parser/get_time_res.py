@@ -20,7 +20,11 @@ log = logging.getLogger(__name__)
 
 
 def Compute_Res(sigma, sigma_err, trig_res, trig_res_err):
-    dut_time_res = math.sqrt(math.pow(sigma, 2) - math.pow(trig_res, 2))
+    sq_diff = math.pow(sigma, 2) - math.pow(trig_res, 2)
+    if sq_diff < 0:
+        return (0, 0)
+    else:
+        dut_time_res = math.sqrt(sq_diff)
 
     sig_sq = math.pow(sigma, 2)
     sig_err_sq = math.pow(sigma_err, 2)
@@ -56,16 +60,22 @@ def Get_Time_Diff(
     }
 
     if cfd in res_type_dict.keys():
-        tdiff = res_type[cfd]
+        tdiff = res_type_dict[cfd]
     else:
         tdiff = f"cfd{dut_ch}[{cfd}]-{trig_var}"
 
     # create default histogram for pre-processing.
     preHisto = ROOT.TH1D("preHisto", "preHisto", 100, 1, 1)
-    ttree_wfm.Project("preHisto", tdiff, cuts)
+    try:
+        ttree_wfm.Project("preHisto", tdiff, cuts)
+    except:
+        return None
     sample_std = preHisto.GetStdDev(1)
     sample_mean = preHisto.GetMean(1)
     num_events = preHisto.GetEntries()
+    if num_events == 0:
+        log.critical(f"0 event after filling {tdiff} !")
+        return None
     IQR = 2 * 0.67845 * sample_std  # might not be the correct one
 
     # cfd time different histogram for timing resolution extraction
@@ -154,6 +164,9 @@ def Get_Time_Resolution(
             nbin=nbin,
         )
 
+        if result is None:
+            return None
+
         if result["sigma"] < 1:
             result = Get_Time_Diff(
                 run.file_name,
@@ -171,7 +184,7 @@ def Get_Time_Resolution(
         c = ROOT.TCanvas(f"c{runIndex}")
         c.cd()
         result["histo"].Draw()
-        c.SaveAs(f"bias_{run.bias}_temp_{run.temperature}C_tdiff_fit_CFD{CFD}.png")
+        c.SaveAs(f"bias_{run.bias}_temp_{run.temperature}C_tdiff_CFD{CFD}.png")
 
         dut_time_res, dut_time_res_err = Compute_Res(
             result["sigma"], result["sigma_err"], trig_res, trig_res_err
