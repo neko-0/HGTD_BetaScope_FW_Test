@@ -141,6 +141,13 @@ class Lgad(cmd.Cmd, object):
             colorString.sysError("Raw directory already there, is the data already unpacked?")
         self.do_cd_current_run()
 
+    def do_reanalysis(self, runs):
+        "Re-run analysis on multiple runs passed as 001,002,003 ..."
+        print(runs)
+        for run in runs.split(","):
+            self.do_set_run(run)
+            self.do_run_analysis("full")
+
     def do_set_run(self, runNum):
         "Setup a run for analysis. It will automatically search the run number in the pre-defined raw data direcotry. If it can find the run number , it will create a folder for the run in your output direcotry"
         if hasattr(self, "output_dir"):
