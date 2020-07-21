@@ -115,8 +115,8 @@ def MergeExcel(ifile="_results.xlxs"):
 
     # for meta data
     input_dut_wp = input_wb["DUT"]
-    run_number_cell = f"{INI_TO_EXCEL['runNumber'][1]}1"
-    sensor_name_cell = f"{INI_TO_EXCEL['SensorName'][1]}1"
+    run_number_cell = f"{INI_TO_EXCEL['run_number'][1]}1"
+    sensor_name_cell = f"{INI_TO_EXCEL['sensor_name'][1]}1"
     input_run_number = input_dut_wp[run_number_cell].value.split("->")[0]
     input_sensor_name = input_dut_wp[sensor_name_cell].value
 

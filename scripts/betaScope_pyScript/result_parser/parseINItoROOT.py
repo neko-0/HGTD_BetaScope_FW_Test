@@ -86,7 +86,7 @@ def ParseINItoROOT(fname="_results.ini"):
         output_file = RootFile(
             "_results.root",
             f"run{description_file.run_number}",
-            "data parsed from _results.ini",
+            f"{os.getcwd()}/_results.ini",
         )
         for par in INI_TO_EXCEL.keys():
             if "sensor_name" in par:
@@ -153,7 +153,7 @@ def ParseINItoROOT(fname="_results.ini"):
                                     par, res_tmax[(float(Bias), int(cycle))][3]
                                 )
                     elif "time_resolution_fit_tmax" in par:
-                        if res_tmax is None:
+                        if res_fit_tmax is None:
                             continue
                         else:
                             if "err" in par:
@@ -165,7 +165,7 @@ def ParseINItoROOT(fname="_results.ini"):
                                     par, res_fit_tmax[(float(Bias), int(cycle))][3]
                                 )
                     elif "time_resolution_zero_x_tmax" in par:
-                        if res_tmax is None:
+                        if res_zerox_tmax is None:
                             continue
                         else:
                             if "err" in par:
