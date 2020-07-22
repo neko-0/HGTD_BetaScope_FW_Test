@@ -9,7 +9,7 @@ mdir_list = [
     "/media/mnt/BigHD/BetaScope_Data/Analyzed_YZ/",
     "/media/mnt/gunter/betaAna3/",
     "/media/mnt/gunter/betaAna2/",
-    "/media/mnt/COVID-19/betaAna4/",
+    #"/media/mnt/COVID-19/betaAna4/",
 ]
 
 dirlist = [[x for x in os.listdir(mdir_list[i])] for i in range(len(mdir_list))]

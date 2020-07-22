@@ -17,6 +17,7 @@ class DAQInfo(object):
         self.is_open = False
         self.run_number = "Run_Number_NA"
         self.dut_name = "DUT_Name_NA"
+        self.dut_udi = "DUT_UDI_NA"
         self.fluence_type = "Fluence_Type_NA"
         self.fluence = "Fluence_NA"
         self.board = "Board_NA"
@@ -49,6 +50,10 @@ class DAQInfo(object):
                 daq_info.dut_name = daq_info.run_description["DUT_Senor_Name"]
             except:
                 daq_info.dut_name = "DUT_Name_NA"
+            try:
+                daq_info.dut_udi = daq_info.run_description["DUT_UDI"]
+            except:
+                daq_info.dut_udi = "DUT_UDI_NA"
             try:
                 daq_info.fluence_type = daq_info.run_description["DUT_Fluence_Type"]
             except:
@@ -86,6 +91,7 @@ class DAQInfo(object):
 
         daq_info.full_name = "-".join(
             [
+                daq_info.dut_udi,
                 daq_info.dut_name,
                 daq_info.fluence_type,
                 daq_info.fluence,
