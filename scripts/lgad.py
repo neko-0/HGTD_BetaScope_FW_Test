@@ -17,6 +17,7 @@ import time
 import multiprocessing as mp
 from shutil import copyfile, copy, move
 from colorStringFormating import *
+sys.path.append('/home/datataking/betascope-plots/')
 
 predefined_path = {
     "": "/media/mnt/COVID-19/betaAna4/",
@@ -147,6 +148,22 @@ class Lgad(cmd.Cmd, object):
         for run in runs.split(","):
             self.do_set_run(run)
             self.do_run_analysis("full")
+
+    def do_plot_run(self, runNum):
+        "create simple plots for runNum"
+        self.do_set_run(runNum)
+        try:
+            self.do_cd(self.current_run + "/Results")
+        except:
+            print ("No result folder, analyze data first!")
+        try:
+            os.mkdir("plots")
+        except:
+            print ("Plot folder in place, overwriting")
+
+        from root_plotter import simple_plots
+        simple_plots([runNum], "_results.root" , "plots/", 0.8)
+
 
     def do_set_run(self, runNum):
         "Setup a run for analysis. It will automatically search the run number in the pre-defined raw data direcotry. If it can find the run number , it will create a folder for the run in your output direcotry"
