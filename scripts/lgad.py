@@ -14,6 +14,7 @@ import cmd
 import subprocess
 import threading
 import time
+import pandas
 import multiprocessing as mp
 from shutil import copyfile, copy, move
 from colorStringFormating import *
@@ -29,6 +30,7 @@ predefined_path = {
     "__covid": "/media/mnt/COVID-19/betaAna4/",
     "__gunter": "/media/mnt/gunter/betaAna2/",
     "__old_remake": "/media/mnt/gunter/betaAna3/",
+    "__central_data_folder": "/media/mnt/COVID-19/Central_data_folder/",
 }
 
 SRC_PATH = [
@@ -47,7 +49,9 @@ class Lgad(cmd.Cmd, object):
     def __init__(self):
         self.raw_dir = SRC_PATH
         self.files = os.listdir(os.getcwd())
+        self.central_data_folder = predefined_path["__central_data_folder"]
         self.package_dir = os.environ["BETASCOPE_SCRIPTS"]
+        self.output_dir = predefined_path[""]
         try:
             copyfile(
                 "{}/user_data/merged_beta_results.xlsx".format(self.package_dir),
@@ -117,7 +121,7 @@ class Lgad(cmd.Cmd, object):
     """
 
     def do_set_output_dir(self, path):
-        "Setup the stats file output direcotry. If you have predefined path, you can use it. "
+        "Setup the stats file output directory. If you have predefined path, you can use it. "
         if path in predefined_path:
             self.output_dir = predefined_path[path]
             colorString.sysMsg("output path is set to {}".format(self.output_dir))
@@ -147,13 +151,51 @@ class Lgad(cmd.Cmd, object):
         print(runs)
         for run in runs.split(","):
             self.do_set_run(run)
-            self.do_run_analysis("full")
+            self.do_run_analysis("res_only")
 
-    def do_plot_run(self, runNum):
+    def do_cp_central_data(self, runNum=""):
+        if runNum == "": runNum = self.runNum
+        self.do_set_run(runNum)
+        self.do_cd(self.current_run)
+        if not os.path.isdir(f"{self.central_data_folder}/Folders/{self.runNum_dir}"):
+            os.system(f"cp -r Results {self.central_data_folder}")
+            os.system(f"mv {self.central_data_folder}Results {self.central_data_folder}/{self.runNum_dir}")
+            self.do_cd(self.central_data_folder)
+            os.system(f"cp {self.runNum_dir}/_results.xlsx Excel_files/Singles/run{self.runNum}.xlsx")
+            os.system(f"cp {self.runNum_dir}/_results.root Root_Files/Singles/run{self.runNum}.root")
+            os.system(f"zip -r {self.runNum_dir}.zip {self.runNum_dir}")
+            os.system(f"mv {self.runNum_dir}.zip Compressed/")
+            os.system(f"mv {self.runNum_dir} Folders/")
+
+            self.do_cd(f"{self.central_data_folder}/Root_Files")
+            timestamp = str(time.ctime()).replace(" ", "_").replace(":", "p")
+            os.system(f"hadd Beta_run_{timestamp}.root Beta_run_until_763.root Singles/*.root")
+
+            self.do_cd(f"{self.central_data_folder}/Excel_files")
+            all_data = pandas.DataFrame()
+            df = pandas.read_excel("Header_Logbook.xlsx", "DUT", None)
+            all_data = all_data.append(df,ignore_index=True)
+            all_data = all_data.append(pandas.Series(), ignore_index=True)
+            for f in sorted(glob.glob("Singles/*.xlsx")):
+                print(f)
+                df = pandas.read_excel(f, "DUT", None)
+                all_data = all_data.append(df,ignore_index=True)
+                all_data = all_data.append(pandas.Series(), ignore_index=True)
+                all_data = all_data.append(pandas.Series(), ignore_index=True)
+            all_data.to_excel(f"Beta_run_{timestamp}.xlsx", "DUT", '', None, None, False, False)
+
+            self.do_cd(self.current_run)
+        else:
+            colorString.sysError(
+                "Run already in the central data folder, please delete it first"
+            )
+
+    def do_plot_run(self, runNum=""):
         "create simple plots for runNum"
+        if runNum == "": runNum = self.runNum
         self.do_set_run(runNum)
         try:
-            self.do_cd(self.current_run + "/Results")
+            self.do_cd(f"{self.current_run}/Results")
         except:
             print ("No result folder, analyze data first!")
         try:
@@ -162,7 +204,7 @@ class Lgad(cmd.Cmd, object):
             print ("Plot folder in place, overwriting")
 
         from root_plotter import simple_plots
-        simple_plots([runNum], "_results.root" , "plots/", 0.8)
+        simple_plots([runNum], "_results.root" , "plots/", 0.8, "")
 
 
     def do_set_run(self, runNum):
@@ -322,6 +364,9 @@ class Lgad(cmd.Cmd, object):
                 )
                 p.wait()
 
+                self.do_plot_run(self.runNum)
+                self.do_cp_central_data(self.runNum)
+
             elif "no_autocut" in mode[0]:
                 p = subprocess.Popen(
                     f"{nohup} $BETASCOPE_SCRIPTS/betaScopePlot/bin/getResults run_info_v{os.environ['RUN_INFO_VER']}.ini {nohup_log}",
@@ -351,6 +396,14 @@ class Lgad(cmd.Cmd, object):
                     shell=True,
                 )
                 p.wait()
+
+                self.do_plot_run(self.runNum)
+                self.do_cp_central_data(self.runNum)
+
+            elif "plotNcopy" in mode[0]:
+                self.do_plot_run(self.runNum)
+                self.do_cp_central_data(self.runNum)
+
             else:
                 colorString.sysError("please specify analysis mode.")
 
