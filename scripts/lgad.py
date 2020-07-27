@@ -164,7 +164,7 @@ class Lgad(cmd.Cmd, object):
             os.system(f"cp {self.runNum_dir}/_results.xlsx Excel_files/Singles/run{self.runNum}.xlsx")
             os.system(f"cp {self.runNum_dir}/_results.root Root_Files/Singles/run{self.runNum}.root")
             os.system(f"zip -r {self.runNum_dir}.zip {self.runNum_dir}")
-            os.system(f"mv {self.runNum_dir}.zip Compressed/")
+            os.system(f"mv {self.runNum_dir}.zip Compressed_folders/")
             os.system(f"mv {self.runNum_dir} Folders/")
 
             self.do_cd(f"{self.central_data_folder}/Root_Files")
