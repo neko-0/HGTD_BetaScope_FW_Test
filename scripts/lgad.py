@@ -16,6 +16,8 @@ import threading
 import time
 import pandas
 import multiprocessing as mp
+from Gdrive_interface.Gdrive_interface import gdrive_interface
+
 from shutil import copyfile, copy, move
 from colorStringFormating import *
 sys.path.append('/home/datataking/betascope-plots/')
@@ -152,6 +154,13 @@ class Lgad(cmd.Cmd, object):
         for run in runs.split(","):
             self.do_set_run(run)
             self.do_run_analysis("res_only")
+
+    def do_upload_gdrive(self, boh=""):
+        gdrive = gdrive_interface()
+        gdrive.empty_central_folder()
+        self.do_cd(f"{self.central_data_folder}/Compressed_folders")
+        for f in glob.glob("*.zip"):
+            gdrive.upload_file(f"{self.central_data_folder}/Compressed_folders/{f}")
 
     def do_cp_central_data(self, runNum=""):
         if runNum == "": runNum = self.runNum
