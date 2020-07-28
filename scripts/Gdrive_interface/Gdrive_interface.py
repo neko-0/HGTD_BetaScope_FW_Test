@@ -9,6 +9,9 @@ from apiclient.http import MediaFileUpload
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/drive']
 
+# Hardcoded and ugly
+code_folder = "/home/datataking/HGTD_BetaScope_FW_Test/scripts/Gdrive_interface/"
+
 # driveId="0AMlf51fRAjtrUk9PVA" for UCSC UFSD Group
 # Central data folder ID: 1zJNvXQV8YGAj5HdPVCFn0xBjYr9fZb9b
 class gdrive_interface():
@@ -20,8 +23,8 @@ class gdrive_interface():
         # The file token.pickle stores the user's access and refresh tokens, and is
         # created automatically when the authorization flow completes for the first
         # time.
-        if os.path.exists('token.pickle'):
-            with open('token.pickle', 'rb') as token:
+        if os.path.exists(f'{code_folder}token.pickle'):
+            with open(f'{code_folder}token.pickle', 'rb') as token:
                 creds = pickle.load(token)
 
         # If there are no (valid) credentials available, let the user log in.
@@ -30,10 +33,10 @@ class gdrive_interface():
                 creds.refresh(Request())
             else:
                 flow = InstalledAppFlow.from_client_secrets_file(
-                    'credentials.json', SCOPES)
+                    f'{code_folder}credentials.json', SCOPES)
                 creds = flow.run_local_server(port=0)
             # Save the credentials for the next run
-            with open('token.pickle', 'wb') as token:
+            with open(f'{code_folder}token.pickle', 'wb') as token:
                 pickle.dump(creds, token)
 
         self.gdrive_service = build('drive', 'v3', credentials=creds)
@@ -48,10 +51,10 @@ class gdrive_interface():
             'mimeType': 'application/vnd.google-apps.folder'
         }
 
-        file = self.gdrive_service.files().create(  body=file_metadata,
+        folder = self.gdrive_service.files().create(  body=file_metadata,
                                                     supportsAllDrives=True,
                                                     fields='id').execute()
-        return file.get('id')
+        return folder
 
     def upload_file(self, file_name, file_parents = []):
         #if not specified put in the central folder

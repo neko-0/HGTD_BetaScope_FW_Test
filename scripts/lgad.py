@@ -155,12 +155,44 @@ class Lgad(cmd.Cmd, object):
             self.do_set_run(run)
             self.do_run_analysis("res_only")
 
-    def do_upload_gdrive(self, boh=""):
+    def do_upload_gdrive(self, runNum=""):
         gdrive = gdrive_interface()
+
+        # Delete everything
         gdrive.empty_central_folder()
+
+        # Create folders
+        zip_folder = gdrive.create_folder("Compressed_folders")
+        root_folder = gdrive.create_folder("Root_files")
+        excel_folder = gdrive.create_folder("Excel_files")
+
+        # Upload
         self.do_cd(f"{self.central_data_folder}/Compressed_folders")
+        print(f"Uploading compressed folders to {zip_folder['id']}")
         for f in glob.glob("*.zip"):
-            gdrive.upload_file(f"{self.central_data_folder}/Compressed_folders/{f}")
+            gdrive.upload_file(f, [zip_folder['id']])
+
+        self.do_cd(f"{self.central_data_folder}/Root_files")
+        print(f"Uploading cumulative rootfiles to {root_folder['id']}")
+        for f in glob.glob("*.root"):
+            gdrive.upload_file(f, [root_folder['id']])
+
+        self.do_cd(f"{self.central_data_folder}/Root_files/Singles")
+        root_folder = gdrive.create_folder("Singles", [root_folder['id']])
+        print(f"Uploading single rootfiles to {root_folder['id']}")
+        for f in glob.glob("*.root"):
+            gdrive.upload_file(f, [root_folder['id']])
+
+        self.do_cd(f"{self.central_data_folder}/Excel_files")
+        print(f"Uploading cumulative excel files to {excel_folder['id']}")
+        for f in glob.glob("*.xlsx"):
+            gdrive.upload_file(f, [excel_folder['id']])
+
+        self.do_cd(f"{self.central_data_folder}/Excel_files/Singles")
+        excel_folder = gdrive.create_folder("Singles", [excel_folder['id']])
+        print(f"Uploading single excel files to {excel_folder['id']}")
+        for f in glob.glob("*.xlsx"):
+            gdrive.upload_file(f, [excel_folder['id']])
 
     def do_cp_central_data(self, runNum=""):
         if runNum == "": runNum = self.runNum
@@ -171,12 +203,12 @@ class Lgad(cmd.Cmd, object):
             os.system(f"mv {self.central_data_folder}Results {self.central_data_folder}/{self.runNum_dir}")
             self.do_cd(self.central_data_folder)
             os.system(f"cp {self.runNum_dir}/_results.xlsx Excel_files/Singles/run{self.runNum}.xlsx")
-            os.system(f"cp {self.runNum_dir}/_results.root Root_Files/Singles/run{self.runNum}.root")
+            os.system(f"cp {self.runNum_dir}/_results.root Root_files/Singles/run{self.runNum}.root")
             os.system(f"zip -r {self.runNum_dir}.zip {self.runNum_dir}")
             os.system(f"mv {self.runNum_dir}.zip Compressed_folders/")
             os.system(f"mv {self.runNum_dir} Folders/")
 
-            self.do_cd(f"{self.central_data_folder}/Root_Files")
+            self.do_cd(f"{self.central_data_folder}/Root_files")
             timestamp = str(time.ctime()).replace(" ", "_").replace(":", "p")
             os.system(f"hadd Beta_run_{timestamp}.root Beta_run_until_763.root Singles/*.root")
 
