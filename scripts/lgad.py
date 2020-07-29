@@ -215,7 +215,10 @@ class Lgad(cmd.Cmd, object):
 
             self.do_cd(f"{self.central_data_folder}/Root_files")
             timestamp = str(time.ctime()).replace(" ", "_").replace(":", "p")
-            os.system(f"hadd Beta_run_{timestamp}.root Beta_run_until_763.root Singles/*.root")
+            timestamp = timestamp.split("_")[0] + "_" + timestamp.split("_")[1] + "_" + \
+			 timestamp.split("_")[2] + "_" + timestamp.split("_")[4]
+            os.system(f"mv Beta_run_latest.root Beta_run_{timestamp}.root")
+            os.system(f"hadd Beta_run_latest.root Beta_run_until_763.root Singles/*.root")
 
             self.do_cd(f"{self.central_data_folder}/Excel_files")
             all_data = pandas.DataFrame()
@@ -228,7 +231,8 @@ class Lgad(cmd.Cmd, object):
                 all_data = all_data.append(df,ignore_index=True)
                 all_data = all_data.append(pandas.Series(), ignore_index=True)
                 all_data = all_data.append(pandas.Series(), ignore_index=True)
-            all_data.to_excel(f"Beta_run_{timestamp}.xlsx", "DUT", '', None, None, False, False)
+            os.system(f"mv Beta_run_latest.xlsx Beta_run_{timestamp}.xlsx")
+            all_data.to_excel(f"Beta_run_latest.xlsx", "DUT", '', None, None, False, False)
 
             self.do_cd(self.current_run)
         else:
