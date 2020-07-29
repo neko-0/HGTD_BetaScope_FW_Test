@@ -4,7 +4,8 @@ import os.path
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
-from apiclient.http import MediaFileUpload
+from apiclient.http import MediaFileUpload, MediaIoBaseDownload
+import io
 
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/drive']
@@ -12,12 +13,14 @@ SCOPES = ['https://www.googleapis.com/auth/drive']
 # Hardcoded and ugly
 code_folder = "/home/datataking/HGTD_BetaScope_FW_Test/scripts/Gdrive_interface/"
 
+#UDI_FILE = "1IgnXmQ9r2UbxzFZVLkMSLwS1D1F_BffOS8r9lcIvZG4"
 # driveId="0AMlf51fRAjtrUk9PVA" for UCSC UFSD Group
 # Central data folder ID: 1zJNvXQV8YGAj5HdPVCFn0xBjYr9fZb9b
 class gdrive_interface():
     def __init__(self):
         self.UCSC_shared_driveID = "0AMlf51fRAjtrUk9PVA"
         self.central_folderID = "1zJNvXQV8YGAj5HdPVCFn0xBjYr9fZb9b"
+        self.UDI_fileID = "1IgnXmQ9r2UbxzFZVLkMSLwS1D1F_BffOS8r9lcIvZG4"
 
         creds = None
         # The file token.pickle stores the user's access and refresh tokens, and is
@@ -71,6 +74,28 @@ class gdrive_interface():
                                                     fields='id').execute()
         return file
 
+    def download_UDI_file(self):
+        file_id = self.UDI_fileID
+        #file_id = "1QLGEk4yEoDULe1kic2LYLTdXR54iPKth"
+        request = self.gdrive_service.files().export_media( fileId=file_id,
+                                                            mimeType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        fh = io.FileIO("UDI_list.xlsx", "wb")
+        downloader = MediaIoBaseDownload(fh, request)
+        done = False
+        while done is False:
+            status, done = downloader.next_chunk()
+        print ("UDI list downloaded")
+
+    def download_file(self, file_id):
+        request = self.gdrive_service.files().get_media(fileId=file_id, supportsAllDrives=True)
+        fh = io.FileIO("file", "wb")
+        downloader = MediaIoBaseDownload(fh, request)
+        done = False
+        while done is False:
+            status, done = downloader.next_chunk()
+            print (f"Download {int(status.progress()*100)}")
+        print ("File downloaded")
+
     def list_files(self, folder_id = ""):
         # standard is to return files in the shared drive central folder
         if folder_id == "": folder_id = self.central_folderID
@@ -99,17 +124,14 @@ class gdrive_interface():
 
 if __name__ == '__main__':
     gdrive = gdrive_interface()
-
     #gdrive.empty_central_folder()
-
-    #gdrive.create_folder("Test")
-
     items = gdrive.list_files()
-    #print()
-
     for item in items:
         print(u'{0} ({1})\n'.format(item['name'], item['id']))
 
+    gdrive.download_UDI_file()
+    #gdrive.download_file("1QLGEk4yEoDULe1kic2LYLTdXR54iPKth")
     #item = gdrive.upload_file("Test.pdf")
     #print(item['id'])
+
     #gdrive.delete_file("10BqYomDcmbiaGmbCD6b4cRCGNaHDN26S")

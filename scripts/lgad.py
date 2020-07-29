@@ -155,6 +155,11 @@ class Lgad(cmd.Cmd, object):
             self.do_set_run(run)
             self.do_run_analysis("res_only")
 
+    def do_download_latest_UDI(self, runNum=""):
+        gdrive = gdrive_interface()
+        self.do_cd(self.central_data_folder)
+        gdrive.download_UDI_file()
+
     def do_upload_gdrive(self, runNum=""):
         gdrive = gdrive_interface()
 
