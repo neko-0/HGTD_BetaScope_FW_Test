@@ -214,7 +214,7 @@ class Lgad(cmd.Cmd, object):
             os.system(f"mv {self.runNum_dir} Folders/")
 
             self.do_cd(f"{self.central_data_folder}/Root_files")
-            timestamp = str(time.ctime()).replace(" ", "_").replace(":", "p")
+            timestamp = str(time.ctime()).replace("  ", "_").replace(" ", "_").replace(":", "p")
             timestamp = timestamp.split("_")[0] + "_" + timestamp.split("_")[1] + "_" + \
 			 timestamp.split("_")[2] + "_" + timestamp.split("_")[4]
             os.system(f"mv Beta_run_latest.root Beta_run_{timestamp}.root")
