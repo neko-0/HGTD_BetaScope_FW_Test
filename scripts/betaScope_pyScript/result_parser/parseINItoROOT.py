@@ -37,13 +37,15 @@ def ParseINItoROOT(fname="_results.ini"):
     # total transipedence (include amp)
     resistance = 4700
 
-    # Get PiN charge
+    # Get stuff from UDI file
     try:
         UDI_number = description_file.dut_udi
         reader = UDI_reader()
         pin_charge = reader.get_pin_charge(UDI_number)
+        foot_cv = reader.get_foot(UDI_number)
     except:
         pin_charge = 0.
+        foot_cv = 0.
 
     my_trig_name = description_file.trig_name.lower()
     if "hpk" in my_trig_name and "s8664" in my_trig_name:
@@ -138,6 +140,8 @@ def ParseINItoROOT(fname="_results.ini"):
                         output_file.set_branch_value(par, float(resistance))
                     elif par == "pin_charge":
                         output_file.set_branch_value(par, float(pin_charge))
+                    elif par == "foot_cv":
+                        output_file.set_branch_value(par, float(foot_cv))
                     elif par == "time_resolution_50":
                         output_file.set_branch_value(
                             par, res50_result[(float(Bias), int(cycle))][3]
@@ -271,13 +275,15 @@ def parseINItoROOT2(fileout, title="Hi", run_folder="./", fname="_results.ini"):
 
     Resistance = 4700
 
-    # Get PiN charge
+    # Get stuff from UDI file
     try:
         UDI_number = description_file.dut_udi
         reader = UDI_reader()
         pin_charge = reader.get_pin_charge(UDI_number)
+        foot_cv = reader.get_foot(UDI_number)
     except:
         pin_charge = 0.
+        foot_cv = 0.
 
     for ch in dut_trig:
         rowCounter = 1
@@ -329,6 +335,8 @@ def parseINItoROOT2(fileout, title="Hi", run_folder="./", fname="_results.ini"):
                         branches[par][0] = float(Resistance)
                     elif par == "pin_charge":
                         branches[par][0] = float(pin_charge)
+                    elif par == "foot_cv":
+                        branches[par][0] = float(foot_cv)
                     else:
                         try:
                             branches[par][0] = float(config[bias][par])

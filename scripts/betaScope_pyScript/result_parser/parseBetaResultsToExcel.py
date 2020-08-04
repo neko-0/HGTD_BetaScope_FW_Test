@@ -25,6 +25,7 @@ par_list = [
     "Bias",
     "Resistance",
     "pin_charge",
+    "foot_cv",
     "pulseArea",
     "pulseArea_Error",
     "Pmax",
@@ -55,6 +56,7 @@ INI_TO_EXCEL = {
     "bias_voltage": ("Bias", "H"),
     "resistance": ("Resistance", "L"),
     "pin_charge": ("pin_charge", "P"),
+    "foot_cv": ("foot_cv", "AT"),
     "pulse_area": ("pulseArea", "J"),
     "pulse_area_chi": ("pulseArea_CHI_NDF", None),
     "pulse_area_error": ("pulseArea_Error", "K"),
@@ -213,13 +215,15 @@ def ParseINIToExcel(fname="_results.ini", update_merge=True):
     # total transipedence (include amp)
     resistance = 4700
 
-    # Get PiN charge
+    # Get stuff from UDI file
     try:
         UDI_number = description_file.dut_udi
         reader = UDI_reader()
         pin_charge = reader.get_pin_charge(UDI_number)
+        foot_cv = reader.get_foot(UDI_number)
     except:
         pin_charge = 0.
+        foot_cv = 0.
 
     # start writing data to excel workbook
     for ch in ["DUT", "Trig"]:
@@ -262,6 +266,8 @@ def ParseINIToExcel(fname="_results.ini", update_merge=True):
                         ws[cell] = float(resistance)
                     elif par == "pin_charge":
                         ws[cell] = float(pin_charge)
+                    elif par == "foot_cv":
+                        ws[cell] = float(foot_cv)
                     else:
                         if None in INI_TO_EXCEL[par]:
                             continue
