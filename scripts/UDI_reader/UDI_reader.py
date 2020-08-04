@@ -12,6 +12,7 @@ class UDI_reader():
         print (self.db)
 
     def get_index(self, UDI_n):
+        UDI_n = str(int(UDI_n))
         return self.db.index[self.db.UDI == UDI_n]
 
     def get_pin_charge(self, UDI_n):
@@ -31,8 +32,8 @@ if __name__ == '__main__':
     reader = UDI_reader()
     #reader.print_UDI_list()
 
-    name = reader.get_name('4')
-    pinc = reader.get_pin_charge('4')
+    name = reader.get_name(4)
+    pinc = reader.get_pin_charge(4)
     foot = reader.get_foot('4')
 
     print (f"Params: {foot} {pinc}")
