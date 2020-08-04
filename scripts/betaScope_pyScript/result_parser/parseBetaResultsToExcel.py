@@ -8,6 +8,10 @@ from read_current import Read_Current
 from daq_info import DAQInfo
 from config_reader import RUN_INFO_VER
 
+import sys
+sys.path.append('/home/datataking/HGTD_BetaScope_FW_Test/scripts/UDI_reader/')
+from UDI_reader import UDI_reader
+
 import logging
 
 logging.basicConfig()
@@ -20,6 +24,7 @@ par_list = [
     "Temp",
     "Bias",
     "Resistance",
+    "pin_charge",
     "pulseArea",
     "pulseArea_Error",
     "Pmax",
@@ -49,6 +54,7 @@ INI_TO_EXCEL = {
     "temperature": ("Temp", "G"),
     "bias_voltage": ("Bias", "H"),
     "resistance": ("Resistance", "L"),
+    "pin_charge": ("pin_charge", "P"),
     "pulse_area": ("pulseArea", "J"),
     "pulse_area_chi": ("pulseArea_CHI_NDF", None),
     "pulse_area_error": ("pulseArea_Error", "K"),
@@ -207,6 +213,14 @@ def ParseINIToExcel(fname="_results.ini", update_merge=True):
     # total transipedence (include amp)
     resistance = 4700
 
+    # Get PiN charge
+    try:
+        UDI_number = description_file.dut_udi
+        reader = UDI_reader()
+        pin_charge = reader.get_pin_charge(UDI_number)
+    except:
+        pin_charge = 0.
+
     # start writing data to excel workbook
     for ch in ["DUT", "Trig"]:
         row = 1
@@ -246,6 +260,8 @@ def ParseINIToExcel(fname="_results.ini", update_merge=True):
                         ws[cell] = int(cycle)
                     elif par == "resistance":
                         ws[cell] = float(resistance)
+                    elif par == "pin_charge":
+                        ws[cell] = float(pin_charge)
                     else:
                         if None in INI_TO_EXCEL[par]:
                             continue
