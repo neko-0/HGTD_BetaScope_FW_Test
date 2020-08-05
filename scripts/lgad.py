@@ -149,11 +149,29 @@ class Lgad(cmd.Cmd, object):
         self.do_cd_current_run()
 
     def do_reanalysis(self, runs):
-        "Re-run analysis on multiple runs passed as 001,002,003 ..."
-        print(runs)
-        for run in runs.split(","):
+        "Re-run analysis on multiple runs passed as 001,002,003 ... or 001to005"
+
+        self.do_download_latest_UDI()
+        
+        run_ns = []
+        if "to" in runs:
+            min = int(runs.split("to")[0])
+            max = int(runs.split("to")[1])
+            print( min, max)
+            for run in range(min, max + 1): run_ns.append(str(run))
+        else:
+            for run in runs.split(","): run_ns.append(run)
+
+        print(run_ns)
+        for run in run_ns:
             self.do_set_run(run)
-            self.do_run_analysis("res_only")
+            self.do_run_analysis("get_res")
+
+            self.do_plot_run(self.runNum)
+            os.system(f"rm -r {self.central_data_folder}/Folders/{self.runNum_dir}")
+            self.do_cp_central_data(self.runNum)
+
+        self.do_upload_gdrive()
 
     def do_download_latest_UDI(self, runNum=""):
         gdrive = gdrive_interface()
@@ -308,6 +326,7 @@ class Lgad(cmd.Cmd, object):
             "$BETASCOPE_SCRIPTS/../BetaScope_Ana/BetaScopeWaveformAna/bin/GenerateWaveformConfig",
             shell=True,
         )
+        self.do_set_default_config()
 
     def do_set_default_config(self, place_holder=""):
         "Set the configuration file to default for beta-scope waveform analyzer"
@@ -365,6 +384,8 @@ class Lgad(cmd.Cmd, object):
 
         mode = i_mode.split(" ")
 
+        self.do_download_latest_UDI()
+
         if "dry" in mode[0]:
             colorString.sysMsg(f"dry run. mode:")
             for m in mode:
@@ -417,7 +438,7 @@ class Lgad(cmd.Cmd, object):
                 self.do_plot_run(self.runNum)
                 self.do_cp_central_data(self.runNum)
 
-            elif "no_autocut" in mode[0]:
+            elif "get_res" in mode[0]:
                 p = subprocess.Popen(
                     f"{nohup} $BETASCOPE_SCRIPTS/betaScopePlot/bin/getResults run_info_v{os.environ['RUN_INFO_VER']}.ini {nohup_log}",
                     shell=True,

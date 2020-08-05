@@ -40,6 +40,9 @@ par_list = [
     "FWHM_Error",
     "NewPulseArea",
     "NewPulseArea_Error",
+    "collected_charge",
+    "gain",
+    "gain2",
     "FallTime",
     "FallTime_Error",
     "cycle",
@@ -78,6 +81,9 @@ INI_TO_EXCEL = {
     "new_pulse_area": ("NewPulseArea", "CA"),
     "new_pulse_area_chi": ("NewPulseArea_CHI_NDF", None),
     "new_pulse_area_error": ("NewPulseArea_Error", "CB"),
+    "collected_charge": ("collected_charge", "CC"),
+    "gain": ("gain", "Q"),
+    "gain2": ("gain2", "CF"),
     "fall_time": ("FallTime", "DG"),
     "fall_time_chi": ("FallTime_CHI_NDF", None),
     "fall_time_error": ("FallTime_Error", "DH"),
@@ -213,7 +219,7 @@ def ParseINIToExcel(fname="_results.ini", update_merge=True):
     sensor_name = description_file.full_name
 
     # total transipedence (include amp)
-    resistance = 4700
+    resistance = 4700.
 
     # Get stuff from UDI file
     try:
@@ -229,6 +235,12 @@ def ParseINIToExcel(fname="_results.ini", update_merge=True):
     for ch in ["DUT", "Trig"]:
         row = 1
         for bias in data_ini_section:
+
+            ini_key = INI_TO_EXCEL["new_pulse_area"][0]
+            value = data_ini[bias][ini_key]
+            collected_charge = float(value)/resistance
+            gain = collected_charge/pin_charge
+
             my_run_num = f"{description_file.run_number}->{row}"
             if ch in bias:
                 if ch == "DUT":
@@ -266,6 +278,12 @@ def ParseINIToExcel(fname="_results.ini", update_merge=True):
                         ws[cell] = float(resistance)
                     elif par == "pin_charge":
                         ws[cell] = float(pin_charge)
+                    elif par == "collected_charge":
+                        ws[cell] = float(collected_charge)
+                    elif par == "gain":
+                        ws[cell] = float(gain)
+                    elif par == "gain2":
+                        ws[cell] = float(gain)
                     elif par == "foot_cv":
                         ws[cell] = float(foot_cv)
                     else:
