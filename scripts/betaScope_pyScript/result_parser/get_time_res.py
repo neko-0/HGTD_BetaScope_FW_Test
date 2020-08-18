@@ -130,22 +130,27 @@ def Get_Time_Resolution(
         trig_res_err = header["trigger_res_err"]
         trig_var = header["trigger_var"]
     else:
-        try:
-                trig_cali_run = sorted(list(TRIG_CALI.keys()))
-                use_cali_run = None
-                for i in range(len(trig_cali_run)):
-                        if trig_cali_run[i] <= run_number:
-                                use_cali_run = trig_cali_run[i]
-                if use_cali_run is None:
-                        raise ValueError("Cannot match trigger calibration run number")
-                trig_info = TRIG_CALI[use_cali_run]
+        trig_cali_run = sorted(list(TRIG_CALI.keys()))
+        use_cali_run = None
+        for i in range(len(trig_cali_run)):
+                if trig_cali_run[i] <= run_number:
+                        use_cali_run = trig_cali_run[i]
+        if use_cali_run:
+            trig_info = TRIG_CALI[use_cali_run]
+            try:
                 trig_res = trig_info[(scope, trig_name, trig_cali)]["res"]
                 trig_res_err = trig_info[(scope, trig_name, trig_cali)]["res_err"]
                 trig_var = trig_info[(scope, trig_name, trig_cali)]["var"]
-        except:
+            except KeyError:
+                log.warning(f"{(scope, trig_name, trig_cali)} is not in cali {use_cali_run}")
                 trig_res = 17.0
                 trig_res_err = 1.0
                 trig_var = "cfd3[20]"
+        else:
+            log.warning("Cannot match trigger calibration run number.")
+            trig_res = 17.0
+            trig_res_err = 1.0
+            trig_var = "cfd3[20]"
 
     log.info(f"Trigger info: {trig_res}+-{trig_res_err}, var {trig_var}")
 
