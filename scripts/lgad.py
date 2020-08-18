@@ -211,6 +211,7 @@ class Lgad(cmd.Cmd, object):
         zip_folder = gdrive.create_folder("Compressed_folders")
         root_folder = gdrive.create_folder("Root_files")
         excel_folder = gdrive.create_folder("Excel_files")
+        average_folder = gdrive.create_folder("Average_waveform_files")
 
         # Upload
         self.do_cd(f"{self.central_data_folder}/Compressed_folders")
@@ -240,6 +241,11 @@ class Lgad(cmd.Cmd, object):
         for f in glob.glob("*.xlsx"):
             gdrive.upload_file(f, [excel_folder['id']])
 
+        self.do_cd(f"{self.central_data_folder}/Average_waveform_files")
+        print(f"Uploading average waveforms {average_folder['id']}")
+        for f in glob.glob("*"):
+            gdrive.upload_file(f, [average_folder['id']])
+
     def do_cp_central_data(self, runNum=""):
         if runNum == "": runNum = self.runNum
         self.do_set_run(runNum)
@@ -250,6 +256,13 @@ class Lgad(cmd.Cmd, object):
             self.do_cd(self.central_data_folder)
             os.system(f"cp {self.runNum_dir}/_results.xlsx Excel_files/Singles/run{self.runNum}.xlsx")
             os.system(f"cp {self.runNum_dir}/_results.root Root_files/Singles/run{self.runNum}.root")
+
+            try:
+                os.system(f"cp {self.runNum_dir}/ave_wfm_run*.root Average_waveform_files/")
+                os.system(f"cp {self.runNum_dir}/average_waveform/average_waveform.png Average_waveform_files/ave_wfm_run{self.runNum}.png")
+            except:
+                print("No average waveform, skipping")
+
             os.system(f"zip -r {self.runNum_dir}.zip {self.runNum_dir}")
             os.system(f"mv {self.runNum_dir}.zip Compressed_folders/")
             os.system(f"mv {self.runNum_dir} Folders/")
@@ -318,11 +331,15 @@ class Lgad(cmd.Cmd, object):
                 shell=True,
             )
 
+            os.system(f"hadd ave_wfm_run{self.runNum}.root ave_wfm*.root")
+
             self.do_cd(f"{self.current_run}/Results")
             try:
                 os.mkdir("average_waveform")
             except:
                 print ("Average waveform folder in place, overwriting")
+
+            os.system(f"mv {self.current_run}/ave_wfm_run{self.runNum}.root {self.current_run}/Results")
             os.system(f"mv {self.current_run}/ave_wfm* {self.current_run}/Results/average_waveform")
             os.system(f"mv {self.current_run}/average_waveform* {self.current_run}/Results/average_waveform")
 

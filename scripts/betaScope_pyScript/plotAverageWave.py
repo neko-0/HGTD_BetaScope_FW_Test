@@ -2,6 +2,8 @@ import ROOT
 import configparser
 import argparse
 
+from result_parser.daq_info import DAQInfo
+
 ROOT.gROOT.ProcessLine(".x /home/datataking/atlasstyle-00-04-02/AtlasStyle.C")
 ROOT.gROOT.ProcessLine(".x /home/datataking/atlasstyle-00-04-02/AtlasLabels.C")
 ROOT.SetAtlasStyle()
@@ -23,10 +25,14 @@ def plot_average_waveform(config, volt_min=0, volt_max=1000, norm=0):
         file_prefix = "averaged_Selected_"
     else:
         file_prefix = "ave_wfm_"
-
     avelist = []
-    sensor_name = "Run " + config_file["header"]["run_number"]
-    print (sensor_name)
+
+    try:
+        description_file = DAQInfo.open("Sr_Run_" + config_file["header"]["run_number"] + "_Description.ini")
+        sensor_name = description_file.dut_name + ", " + description_file.temperature
+    except:
+        sensor_name = "Run " + config_file["header"]["run_number"]
+
     color = 2
     already_done = []
     for runIndex in range(int(num_file)):
