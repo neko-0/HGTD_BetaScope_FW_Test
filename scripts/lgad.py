@@ -149,7 +149,7 @@ class Lgad(cmd.Cmd, object):
         self.do_cd_current_run()
 
     def do_reanalysis(self, runs):
-        "Re-run analysis on multiple runs passed as 001,002,003 ... or 001to005"
+        "Re-run full analysis on multiple runs passed as 001,002,003 ... or 001to005"
 
         self.do_download_latest_UDI()
 
@@ -165,9 +165,32 @@ class Lgad(cmd.Cmd, object):
         print(run_ns)
         for run in run_ns:
             self.do_set_run(run)
-            self.do_run_analysis("get_res")
+            self.do_run_analysis("full")
 
-            self.do_plot_run(self.runNum)
+            os.system(f"rm -r {self.central_data_folder}/Folders/{self.runNum_dir}")
+            self.do_cp_central_data(self.runNum)
+
+        self.do_upload_gdrive()
+
+    def do_replot(self, runs):
+        "Re-run plotting on multiple runs passed as 001,002,003 ... or 001to005"
+
+        self.do_download_latest_UDI()
+
+        run_ns = []
+        if "to" in runs:
+            min = int(runs.split("to")[0])
+            max = int(runs.split("to")[1])
+            print( min, max)
+            for run in range(min, max + 1): run_ns.append(str(run))
+        else:
+            for run in runs.split(","): run_ns.append(run)
+
+        print(run_ns)
+        for run in run_ns:
+            self.do_set_run(run)
+            self.do_run_analysis("plot")
+
             os.system(f"rm -r {self.central_data_folder}/Folders/{self.runNum_dir}")
             self.do_cp_central_data(self.runNum)
 
@@ -500,11 +523,12 @@ class Lgad(cmd.Cmd, object):
                 p.wait()
 
                 self.do_plot_run(self.runNum)
+                self.do_average_waveform(self.runNum)
                 self.do_cp_central_data(self.runNum)
 
-            elif "plotNcopy" in mode[0]:
+            elif "plot" in mode[0]:
                 self.do_plot_run(self.runNum)
-                self.do_cp_central_data(self.runNum)
+                self.do_average_waveform(self.runNum)
 
             else:
                 colorString.sysError("please specify analysis mode.")
