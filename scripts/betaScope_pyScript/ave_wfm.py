@@ -6,16 +6,15 @@ import ROOT
 from result_parser.config_reader import ConfigReader
 from result_parser.config_reader import Run
 
-
 def ave_wfm(run):
     """
     run (Obj::ConfigReader.Run)
     """
     print ("Opening", run.file_name)
-    
+
     i_tfile = ROOT.TFile.Open(run.file_name)
     i_ttree = i_tfile.wfm
-    
+
     xbin_w = 50  # ps
     xmin = -25e3
     xmax = 25e3
@@ -46,7 +45,7 @@ def ave_wfm(run):
 if __name__ == "__main__":
 
     runs = ConfigReader.open()
-    
+
     #print (runs)
     #print (runs[1])
     #for run in runs[1]: print (run.file_name)

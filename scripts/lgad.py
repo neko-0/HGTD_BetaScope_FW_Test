@@ -89,7 +89,7 @@ class Lgad(cmd.Cmd, object):
         pass
 
     def do_cd(self, tdir):
-        "change direcotry, similar to the usual cd in cml."
+        "change directory, similar to the usual cd in cml."
         # glob.glob(os.path.expanduser(str(tdir)+"*"))
         # os.path.expanduser(tdir)
         if tdir:
@@ -152,7 +152,7 @@ class Lgad(cmd.Cmd, object):
         "Re-run analysis on multiple runs passed as 001,002,003 ... or 001to005"
 
         self.do_download_latest_UDI()
-        
+
         run_ns = []
         if "to" in runs:
             min = int(runs.split("to")[0])
@@ -278,18 +278,46 @@ class Lgad(cmd.Cmd, object):
         simple_plots([runNum], "_results.root" , "plots/", 0.8, "")
 
 
+    def do_average_waveform(self, runNum=""):
+        "create simple plots for runNum"
+        if runNum == "": runNum = self.runNum
+        self.do_set_run(runNum)
+        self.do_cd(f"{self.current_run}")
+
+        try:
+            p = subprocess.call(
+                f"python3 ~/HGTD_BetaScope_FW_Test/scripts/betaScope_pyScript/ave_wfm.py",
+                shell=True,
+            )
+
+            p = subprocess.call(
+                f"python3 ~/HGTD_BetaScope_FW_Test/scripts/betaScope_pyScript/plotAverageWave.py",
+                shell=True,
+            )
+
+            self.do_cd(f"{self.current_run}/Results")
+            try:
+                os.mkdir("average_waveform")
+            except:
+                print ("Average waveform folder in place, overwriting")
+            os.system(f"mv {self.current_run}/ave_wfm* {self.current_run}/Results/average_waveform")
+            os.system(f"mv {self.current_run}/average_waveform* {self.current_run}/Results/average_waveform")
+
+        except:
+            print ("Something went wrong, did you analyze the data first?")
+
     def do_set_run(self, runNum):
-        "Setup a run for analysis. It will automatically search the run number in the pre-defined raw data direcotry. If it can find the run number , it will create a folder for the run in your output direcotry"
+        "Setup a run for analysis. It will automatically search the run number in the pre-defined raw data directory. If it can find the run number , it will create a folder for the run in your output directory"
         if hasattr(self, "output_dir"):
             if self.output_dir:
                 pass
             else:
                 colorString.sysError(
-                    "output direcotry has not been set. Please run set_output_dir"
+                    "output directory has not been set. Please run set_output_dir"
                 )
         else:
             colorString.sysError(
-                "output direcotry has not been set. Please run set_output_dir"
+                "output directory has not been set. Please run set_output_dir"
             )
 
         for rawDir in self.raw_dir:
@@ -305,7 +333,7 @@ class Lgad(cmd.Cmd, object):
             if not os.path.isdir(f"{self.current_run}"):
                 os.mkdir(f"{self.current_run}")
             else:
-                colorString.sysError(f"direcotry {self.current_run} is already there")
+                colorString.sysError(f"directory {self.current_run} is already there")
 
             try:
                 copyfile(
@@ -320,7 +348,7 @@ class Lgad(cmd.Cmd, object):
             colorString.sysError(f"No run number {runNum}")
 
     def do_cd_current_run(self, tdir=""):
-        "change direcotry to the run you set from set_run"
+        "change directory to the run you set from set_run"
         self.do_cd(self.current_run)
 
     def do_generate_config(self, place_holder=""):

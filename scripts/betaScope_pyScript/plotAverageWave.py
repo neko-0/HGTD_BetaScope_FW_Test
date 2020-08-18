@@ -2,8 +2,13 @@ import ROOT
 import configparser
 import argparse
 
-#from atlasplots import atlas_style as astyle
-#astyle.SetAtlasStyle()
+ROOT.gROOT.ProcessLine(".x /home/datataking/atlasstyle-00-04-02/AtlasStyle.C")
+ROOT.gROOT.ProcessLine(".x /home/datataking/atlasstyle-00-04-02/AtlasLabels.C")
+ROOT.SetAtlasStyle()
+ROOT.gROOT.SetBatch(ROOT.kTRUE)
+ROOT.gStyle.SetPalette(55)
+ROOT.gStyle.SetOptStat(0)
+ROOT.gStyle.SetEndErrorSize(2)
 
 
 def plot_average_waveform(config, volt_min=0, volt_max=1000, norm=0):
@@ -23,6 +28,7 @@ def plot_average_waveform(config, volt_min=0, volt_max=1000, norm=0):
     sensor_name = "Run " + config_file["header"]["run_number"]
     print (sensor_name)
     color = 2
+    already_done = []
     for runIndex in range(int(num_file)):
         fileName = file_prefix + config_file["run%s" % runIndex]["file_name"]
         bias = config_file["run%s" % runIndex]["bias"]
@@ -31,8 +37,10 @@ def plot_average_waveform(config, volt_min=0, volt_max=1000, norm=0):
         if True: #volt_min < bias_value and bias_value < volt_max:
             tfile = ROOT.TFile.Open(fileName)
             pf_name = "V" + str(bias_value) + "_pfx"
+            if pf_name in already_done: continue
+            already_done.append(pf_name)
             ave = tfile.Get(pf_name)
-            
+
             ave.SetDirectory(0)
             ave.GetYaxis().SetRangeUser(-2000, 2000)
             ave.SetLineColor(color)
@@ -115,7 +123,7 @@ if __name__ == "__main__":
         "--configFile",
         dest="configFile",
         nargs="?",
-        default="run_info_v08022018.ini",
+        default="run_info_v2020_7_14.ini",
         type=str,
         help="Configuration file",
     )
@@ -135,8 +143,9 @@ if __name__ == "__main__":
     # ROOT.gROOT.SetBatch(True)
     c = ROOT.TCanvas()
     c.cd()
-    leg = ROOT.TLegend(0.12, 0.7, 0.3, 0.88)
+    leg = ROOT.TLegend(0.21, 0.8, 0.89, 0.94)
     leg.SetBorderSize(0)
+    leg.SetNColumns(5)
     leg.SetHeader(aveWave[0]["sensor"])
     leg.SetTextSize(0.03)
     for ientry, wave in enumerate(aveWave):
@@ -145,7 +154,9 @@ if __name__ == "__main__":
             #wave["lline"].Draw()
             #wave["rline"].Draw()
             wave["wf"].GetYaxis().SetRangeUser(-50,300)
-            wave["wf"].GetXaxis().SetRangeUser(-5000,10000)
+            wave["wf"].GetYaxis().SetTitle("Amplitude [mV]")
+            wave["wf"].GetXaxis().SetRangeUser(-1000,5000)
+            wave["wf"].GetXaxis().SetTitle("Time [ps]")
         else:
             wave["wf"].Draw("HIST L same")
             #wave["lline"].Draw()
@@ -156,5 +167,5 @@ if __name__ == "__main__":
     #astyle.ATLASLabel(0.25, 0.87, "Internal", 1)
 
     #raw_input("Finished.")
-    c.SaveAs("ave.png")
-    c.SaveAs("ave.pdf")
+    c.SaveAs("average_waveform.png")
+    c.SaveAs("average_waveform.pdf")
