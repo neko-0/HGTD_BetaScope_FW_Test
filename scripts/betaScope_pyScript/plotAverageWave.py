@@ -2,12 +2,12 @@ import ROOT
 import configparser
 import argparse
 
-from atlasplots import atlas_style as astyle
-
-astyle.SetAtlasStyle()
+#from atlasplots import atlas_style as astyle
+#astyle.SetAtlasStyle()
 
 
 def plot_average_waveform(config, volt_min=0, volt_max=1000, norm=0):
+    print ("In function")
     config_file = configparser.ConfigParser()
     config_file.read(config)
     num_file = config_file["header"]["number_of_runs"]
@@ -15,21 +15,22 @@ def plot_average_waveform(config, volt_min=0, volt_max=1000, norm=0):
     if config_file["header"]["use_selected_events"] == "true":
         file_prefix = "averaged_Selected_"
     else:
-        file_prefix = "averaged_"
+        file_prefix = "ave_wfm_"
 
     avelist = []
-    sensor_name = config_file["header"]["sensor"]
+    sensor_name = "Run " + config_file["header"]["run_number"]
+    print (sensor_name)
     color = 2
     for runIndex in range(int(num_file)):
         fileName = file_prefix + config_file["run%s" % runIndex]["file_name"]
         bias = config_file["run%s" % runIndex]["bias"]
         bias_value = int(bias.split("V")[0])
-        if volt_min < bias_value and bias_value < volt_max:
+        print(fileName, bias_value)
+        if True: #volt_min < bias_value and bias_value < volt_max:
             tfile = ROOT.TFile.Open(fileName)
-            try:
-                ave = tfile.Get("dut_profx")
-            except:
-                continue
+            pf_name = "V" + str(bias_value) + "_pfx"
+            ave = tfile.Get(pf_name)
+            
             ave.SetDirectory(0)
             ave.GetYaxis().SetRangeUser(-2000, 2000)
             ave.SetLineColor(color)
@@ -96,12 +97,11 @@ def plot_average_waveform(config, volt_min=0, volt_max=1000, norm=0):
             )
         else:
             continue
-
+    #print (avelist)
     return avelist
 
 
 if __name__ == "__main__":
-
     commandline_ArgsParser = argparse.ArgumentParser()
     commandline_ArgsParser.add_argument(
         "--Vmin", dest="Vmin", nargs="?", default="0", type=int, help="min bias"
@@ -121,7 +121,7 @@ if __name__ == "__main__":
         "--norm",
         dest="norm",
         nargs="?",
-        default="1",
+        default="0",
         type=int,
         help="Normalized waveform",
     )
@@ -133,23 +133,26 @@ if __name__ == "__main__":
     # ROOT.gROOT.SetBatch(True)
     c = ROOT.TCanvas()
     c.cd()
-    leg = ROOT.TLegend()
+    leg = ROOT.TLegend(0.12, 0.7, 0.3, 0.88)
+    leg.SetBorderSize(0)
     leg.SetHeader(aveWave[0]["sensor"])
     leg.SetTextSize(0.03)
     for ientry, wave in enumerate(aveWave):
         if ientry == 0:
             wave["wf"].Draw("HIST L")
-            wave["lline"].Draw()
-            wave["rline"].Draw()
+            #wave["lline"].Draw()
+            #wave["rline"].Draw()
+            wave["wf"].GetYaxis().SetRangeUser(-50,300)
+            wave["wf"].GetXaxis().SetRangeUser(-5000,10000)
         else:
             wave["wf"].Draw("HIST L same")
-            wave["lline"].Draw()
-            wave["rline"].Draw()
+            #wave["lline"].Draw()
+            #wave["rline"].Draw()
         leg.AddEntry(wave["wf"], wave["bias"], "l")
     leg.Draw("")
 
-    astyle.ATLASLabel(0.25, 0.87, "Internal", 1)
+    #astyle.ATLASLabel(0.25, 0.87, "Internal", 1)
 
-    raw_input("Finished.")
+    #raw_input("Finished.")
     c.SaveAs("ave.png")
     c.SaveAs("ave.pdf")
