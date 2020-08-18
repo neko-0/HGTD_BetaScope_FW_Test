@@ -2,12 +2,13 @@ import ROOT
 import configparser
 import argparse
 
-from atlasplots import atlas_style as astyle
+#from atlasplots import atlas_style as astyle
 
-astyle.SetAtlasStyle()
+#astyle.SetAtlasStyle()
 
 
 def plot_average_waveform(config, volt_min=0, volt_max=1000, norm=0):
+    print ("Plotting")
     config_file = configparser.ConfigParser()
     config_file.read(config)
     num_file = config_file["header"]["number_of_runs"]

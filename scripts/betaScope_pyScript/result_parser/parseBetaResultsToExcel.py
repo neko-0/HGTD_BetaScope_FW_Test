@@ -228,7 +228,7 @@ def ParseINIToExcel(fname="_results.ini", update_merge=True):
         pin_charge = reader.get_pin_charge(UDI_number)
         foot_cv = reader.get_foot(UDI_number)
     except:
-        pin_charge = 0.
+        pin_charge = 0.5
         foot_cv = 0.
 
     # start writing data to excel workbook
