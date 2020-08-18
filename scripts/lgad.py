@@ -238,6 +238,9 @@ class Lgad(cmd.Cmd, object):
             os.system(f"mv Beta_run_latest.root Beta_run_{timestamp}.root")
             os.system(f"hadd Beta_run_latest.root Beta_run_until_763.root Singles/*.root")
 
+            os.system(f"mv Beta_run_latest_noOld.root Beta_run_{timestamp}_noOld.root")
+            os.system(f"hadd Beta_run_latest_noOld.root Singles/*.root")
+
             self.do_cd(f"{self.central_data_folder}/Excel_files")
             all_data = pandas.DataFrame()
             df = pandas.read_excel("Header_Logbook.xlsx", "DUT", None)
