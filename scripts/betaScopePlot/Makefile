@@ -4,7 +4,7 @@
 
 ########## defaut ##########
 
-CC      = g++ --std=c++17 --std=c++1z --std=gnu++1z -fPIC -no-pie
+CC      = g++-8 --std=c++17 -fPIC -no-pie
 DEBUG   = -g -Wall
 CFLAGS  = -c
 CFLAGS_NO_C  = -Wall $(DEBUG)
@@ -19,7 +19,7 @@ ROOT_LINKS   = `root-config --cflags --glibs`
 ROOFIT       = -lRooFit -lHtml -lMinuit -lRooFitCore -lRooStats
 ROOT_LIBS    = -L${ROOTSYS}/lib -lTreePlayer -lCore
 ROOT_INCLUDE = -I${ROOTSYS}/include
-BOOST_LIB    = -L/usr/include/boost/property_tree -L/usr/include/boost/ -lboost_thread -lboost_system -fopenmp
+BOOST_LIB    = -L/usr/include/boost/property_tree -L/usr/include/boost/ -lboost_thread -lboost_system -fopenmp -lstdc++fs
 
 GENERAL_DIR = ../General/
 
@@ -59,10 +59,10 @@ all: $(BETASCOPE_PLOTTER_DEP) \
 $(BETASCOPE_PLOTTER_BUILD_DIR)/%.o: $(BETASCOPE_PLOTTER_SRC_DIR)/%.cpp
 	$(CC) $(DEBUG) -Iinclude -I$(SCRIPTS_DIR) -I$(BETASCOPE_PLOTTER_DIR) -I$(BETASCOPE_PLOTTER_INC_DIR) -I$(GENERAL_DIR) -c $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOFIT) $(ROOT_INCLUDE) $(BOOST_LIB) -lfmt
 
-$(BETASCOPE_PLOTTER_BIN_DIR)/getResults: $(BETASCOPE_PLOTTER_DIR)/main/main_getResults.c $(BETASCOPE_PLOTTER_DEP)
+$(BETASCOPE_PLOTTER_BIN_DIR)/getResults: $(BETASCOPE_PLOTTER_DIR)/main/main_getResults.cpp $(BETASCOPE_PLOTTER_DEP)
 	$(CC) $(DEBUG) -Iinclude -I$(SCRIPTS_DIR) -I$(BETASCOPE_PLOTTER_DIR) -I$(BETASCOPE_PLOTTER_INC_DIR) -I$(GENERAL_DIR) $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOFIT) $(ROOT_INCLUDE) $(BOOST_LIB) -lfmt
 
-$(BETASCOPE_PLOTTER_BIN_DIR)/genPlotConfig: $(BETASCOPE_PLOTTER_DIR)/main/main_genPlotConfig.c $(BETASCOPE_PLOTTER_DEP)
+$(BETASCOPE_PLOTTER_BIN_DIR)/genPlotConfig: $(BETASCOPE_PLOTTER_DIR)/main/main_genPlotConfig.cpp $(BETASCOPE_PLOTTER_DEP)
 	$(CC) $(DEBUG) -Iinclude -I$(SCRIPTS_DIR) -I$(BETASCOPE_PLOTTER_DIR) -I$(BETASCOPE_PLOTTER_INC_DIR) -I$(GENERAL_DIR) $^ -o $@ $(ROOT_LINKS) $(ROOT_LIBS) $(ROOFIT) $(ROOT_INCLUDE) $(BOOST_LIB) -lfmt
 
 ################################################################################

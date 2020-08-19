@@ -1,3 +1,4 @@
+import os
 import ROOT
 import configparser
 import argparse
@@ -22,27 +23,27 @@ def plot_average_waveform(config, volt_min=0, volt_max=1000, norm=0):
     num_file = config_file["header"]["number_of_runs"]
     file_prefix = ""
     if config_file["header"]["use_selected_events"] == "true":
-        file_prefix = "averaged_Selected_"
+        file_prefix = "ave_wfm_files/averaged_Selected_"
     else:
-        file_prefix = "ave_wfm_"
+        file_prefix = "ave_wfm_files/ave_wfm_"
     avelist = []
 
     try:
-        description_file = DAQInfo.open("Sr_Run_" + config_file["header"]["run_number"] + "_Description.ini")
-        sensor_name = description_file.dut_name + ", " + description_file.temperature
+        description_file = DAQInfo.open(f"Sr_Run_{config_file['header']['run_number']}_Description.ini")
+        sensor_name = f"{description_file.dut_name},{description_file.temperature}"
     except:
-        sensor_name = "Run " + config_file["header"]["run_number"]
+        sensor_name = f"Run {config_file['header']['run_number']}"
 
     color = 2
     already_done = []
     for runIndex in range(int(num_file)):
-        fileName = file_prefix + config_file["run%s" % runIndex]["file_name"]
-        bias = config_file["run%s" % runIndex]["bias"]
+        fileName = file_prefix + config_file[f"run{runIndex}"]["file_name"]
+        bias = config_file[f"run{runIndex}"]["bias"]
         bias_value = int(bias.split("V")[0])
         print(fileName, bias_value)
         if True: #volt_min < bias_value and bias_value < volt_max:
             tfile = ROOT.TFile.Open(fileName)
-            pf_name = "V" + str(bias_value) + "_pfx"
+            pf_name = f"V{bias_value}_pfx"
             if pf_name in already_done: continue
             already_done.append(pf_name)
             ave = tfile.Get(pf_name)
@@ -144,6 +145,9 @@ if __name__ == "__main__":
 
     argv = commandline_ArgsParser.parse_args()
 
+    if not os.path.exists("ave_wfm_plots/"):
+        os.makedirs("ave_wfm_plots/")
+
     aveWave = plot_average_waveform(argv.configFile, argv.Vmin, argv.Vmax, argv.norm)
 
     # ROOT.gROOT.SetBatch(True)
@@ -173,5 +177,5 @@ if __name__ == "__main__":
     #astyle.ATLASLabel(0.25, 0.87, "Internal", 1)
 
     #raw_input("Finished.")
-    c.SaveAs("average_waveform.png")
-    c.SaveAs("average_waveform.pdf")
+    c.SaveAs("ave_wfm_plots/average_waveform.png")
+    c.SaveAs("ave_wfm_plots/average_waveform.pdf")

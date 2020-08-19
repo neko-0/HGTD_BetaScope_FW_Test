@@ -78,11 +78,12 @@ public:
     HistoPackage &i_hist,
     HistoPackage frontBaseArea,
     HistoPackage backBaseArea,
-    bool savePlot = true
+    bool savePlot = true,
+    std::string output_dir="./"
   );
 
-  FitResult fitter_RooLanGaus( HistoPackage &i_hist, bool savePlot = true );
-  FitResult fitter_fit( HistoPackage &i_hist, std::string fitName, bool savePlot = true );
+  FitResult fitter_RooLanGaus( HistoPackage &i_hist, bool savePlot = true, std::string output_dir="./");
+  FitResult fitter_fit( HistoPackage &i_hist, std::string fitName, bool savePlot = true, std::string output_dir="./");
 };
 
 #endif

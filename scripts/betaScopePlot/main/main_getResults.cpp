@@ -4,6 +4,7 @@
 #include <mutex>
 #include <unistd.h>
 #include <stdio.h>
+#include <filesystem>
 
 #include <omp.h>
 
@@ -22,12 +23,25 @@
 #include "betaScopePlot/include/output_format.h"
 #include "betaScopePlot/include/dataSelection.h"
 
-void result( PlotConfigMgr::ConfigSection sec, int dut_channel, int trigger_channel )
+struct ResultHolder
+{
+  std::string biasVoltage;
+  std::map<std::string, FitResult> outData;
+  int temperature;
+  int trigger_bias;
+  int cycle;
+  float f_biasVoltage;
+};
+
+ResultHolder Result( PlotConfigMgr::ConfigSection sec, int dut_channel, int trigger_channel )
 {
   fmt::print("Start processing : {}\n", sec.file_name );
 
   TFile *loadFile = TFile::Open( sec.file_name.c_str() );
   TTree* itree = (TTree*) loadFile->Get("wfm");
+
+  std::string run_plot_dir = fmt::format("plots.{}",sec.file_name);
+  std::filesystem::create_directories(run_plot_dir);
 
   // parsing cuts
   std::string delimiter = " ";
@@ -75,17 +89,17 @@ void result( PlotConfigMgr::ConfigSection sec, int dut_channel, int trigger_chan
         frontBaseArea.fillFromTree( itree );
 
         std::unique_lock<std::mutex> lck(MTX);
-        fitResult = my_fitter.fitter_RooLanGausArea( job.histo_pack, frontBaseArea, backBaseArea, savePlot);
+        fitResult = my_fitter.fitter_RooLanGausArea( job.histo_pack, frontBaseArea, backBaseArea, savePlot, run_plot_dir);
       }
       else if( job.fitFunc == "LanGaus" )
       {
         std::lock_guard<std::mutex> lck(MTX);
-        fitResult = my_fitter.fitter_RooLanGaus( job.histo_pack, savePlot);
+        fitResult = my_fitter.fitter_RooLanGaus( job.histo_pack, savePlot, run_plot_dir);
       }
       else
       {
         std::lock_guard<std::mutex> lck(MTX);
-        fitResult = my_fitter.fitter_fit( job.histo_pack, job.fitFunc, savePlot);
+        fitResult = my_fitter.fitter_fit( job.histo_pack, job.fitFunc, savePlot, run_plot_dir);
       }
     }
     //std::pair<double,double> oParams = std::make_pair( std::get<0>(fitResult), std::get<1>(fitResult) );
@@ -94,31 +108,100 @@ void result( PlotConfigMgr::ConfigSection sec, int dut_channel, int trigger_chan
 
   // output data;
   //std::unique_lock<std::mutex> lck(MTX);
-  std::lock_guard<std::mutex> lck(MTX);
-  DataOutputFormat outfile;
+  //std::lock_guard<std::mutex> lck(MTX);
+  //DataOutputFormat outfile;
   std::string biasVoltage;
   std::string myBuffer = sec.file_name;
+  int cycle;
   if(myBuffer.find(".root.")!=std::string::npos)
   {
     std::string fIndex;
     fIndex = myBuffer.substr(myBuffer.find(".root.")+6, myBuffer.length() );
     biasVoltage = sec.bias + "," + fIndex;
+    cycle = std::stoi(fIndex);
   }
   else
   {
     biasVoltage = sec.bias+",1";
+    cycle = 1;
   }
-  outfile.CreateBetaScopeOutputFile( biasVoltage.c_str(), oData, sec.temperature, sec.trigger_bias );
-  outfile.ParseRawOutputToINI(biasVoltage, oData, sec.temperature );
+  //outfile.CreateBetaScopeOutputFile( biasVoltage.c_str(), oData, sec.temperature, sec.trigger_bias );
+  //outfile.ParseRawOutputToINI(biasVoltage, oData, sec.temperature );
 
   fmt::print("{} is Finished.\n", sec.file_name);
   my_cut_v.clear();
   delete selection;
   //lck.unlock();
+  return ResultHolder{biasVoltage, oData, sec.temperature, sec.trigger_bias, cycle, std::stof(sec.bias)};
+}
+
+void DumpOutputFiles(const std::vector<ResultHolder> &results, bool sort=true)
+{
+  fmt::print("Start dumping results...\n");
+  DataOutputFormat outfile;
+  if(!sort)
+  {
+    for(auto &result : results)
+    {
+      outfile.CreateBetaScopeOutputFile( result.biasVoltage.c_str(), result.outData, result.temperature, result.trigger_bias );
+      outfile.ParseRawOutputToINI(result.biasVoltage, result.outData, result.temperature );
+    }
+  }
+  else
+  {
+    fmt::print("sorting output\n");
+    int cycle = 1;
+    std::vector<ResultHolder> result_buffer[15];
+    std::map<int, std::vector<ResultHolder>> cycle_buffer;
+    cycle_buffer.insert(std::pair<int, std::vector<ResultHolder>>(cycle, result_buffer[0]));
+    for(auto &result : results)
+    {
+      if(!cycle_buffer.count(result.cycle))
+      {
+        cycle++;
+        cycle_buffer.insert(std::pair<int, std::vector<ResultHolder>>(cycle, result_buffer[cycle-1]));
+        cycle_buffer[result.cycle].push_back(result);
+      }
+      else
+      {
+        cycle_buffer[result.cycle].push_back(result);
+      }
+    }
+    for(auto &m_cycle : cycle_buffer)
+    {
+      std::vector<ResultHolder> sorted_results;
+      for(auto result : m_cycle.second)
+      {
+        if(sorted_results.size()==0)
+        {
+          sorted_results.push_back(result);
+        }
+        else
+        {
+          int insert_i;
+          for(int i=0, max =sorted_results.size(); i < max; i++)
+          {
+            if(result.f_biasVoltage >= sorted_results[i].f_biasVoltage)
+            {
+              insert_i = i+1;
+            }
+          }
+          sorted_results.insert(sorted_results.begin()+insert_i, result);
+        }
+      }
+
+      for(auto &m_result : sorted_results)
+      {
+        fmt::print("processing output: {}\n", m_result.biasVoltage );
+        outfile.CreateBetaScopeOutputFile( m_result.biasVoltage.c_str(), m_result.outData, m_result.temperature, m_result.trigger_bias );
+        outfile.ParseRawOutputToINI(m_result.biasVoltage, m_result.outData, m_result.temperature );
+      }
+    }
+  }
 }
 
 
-void getResults(std::string plotConfig_fname, std::string outDir = "Results/" )
+void GetResults(std::string plotConfig_fname, std::string outDir = "Results/" )
 {
   gROOT->SetBatch(true);
   gStyle->SetOptFit(1);
@@ -127,7 +210,7 @@ void getResults(std::string plotConfig_fname, std::string outDir = "Results/" )
 
   ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2");
   ROOT::EnableThreadSafety();
-  ROOT::EnableImplicitMT(std::thread::hardware_concurrency());
+  //ROOT::EnableImplicitMT(std::thread::hardware_concurrency());
 
   PlotConfigMgr plotConfig = PlotConfigMgr::ParseConfig(plotConfig_fname);
 
@@ -151,12 +234,16 @@ void getResults(std::string plotConfig_fname, std::string outDir = "Results/" )
   unsigned numThreads = std::thread::hardware_concurrency();
   if(numThreads!=1){numThreads = numThreads/2;}
 
+  std::vector<ResultHolder> results_holder;
+
   #pragma omp parallel for num_threads(numThreads)
   for( std::size_t it =0; it<plotConfig.sections.size(); it++ )
   {
     auto &sec = plotConfig.sections.at(it);
-    result(sec, dut_channel, trigger_channel);
+    results_holder.push_back( Result(sec, dut_channel, trigger_channel) );
   }
+
+  DumpOutputFiles(results_holder);
 
   fmt::print("Start dumping plots...\n");
 	if(mkdir( outDir.c_str(), ACCESSPERMS ) == 0)
@@ -171,7 +258,9 @@ void getResults(std::string plotConfig_fname, std::string outDir = "Results/" )
 	system( "python3  $BETASCOPE_SCRIPTS/betaScope_pyScript/result_parser/parseBetaResultsToExcel.py");
   system( "python3  $BETASCOPE_SCRIPTS/betaScope_pyScript/result_parser/parseINItoROOT.py");
   system( fmt::format("mkdir plots_{}", outDir).c_str() );
+  system( fmt::format("rm plots_{}/*", outDir).c_str() );
   system( fmt::format("mv *.png plots_{}", outDir).c_str() );
+  system( fmt::format("mv plots.* plots_{}", outDir).c_str() );
   system( fmt::format("mv *_results.ini {}", outDir).c_str() );
   system( fmt::format("mv *_results.xlsx {}", outDir).c_str() );
   system( fmt::format("cp *Description*.ini {}", outDir).c_str() );
@@ -185,7 +274,7 @@ void getResults(std::string plotConfig_fname, std::string outDir = "Results/" )
 int main(int argc, const char *argv[])
 {
 	if(argc == 1) printf("Error! Runlist Requires\n");
-	if(argc == 2) getResults(argv[1]);
-	if(argc == 3) getResults(argv[1], argv[2]);
+	if(argc == 2) GetResults(argv[1]);
+	if(argc == 3) GetResults(argv[1], argv[2]);
 	if(argc > 4) printf("Error! Check the input arguments!");
 }
