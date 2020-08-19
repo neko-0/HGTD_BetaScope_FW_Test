@@ -4,7 +4,7 @@
 
 ########## defaut ##########
 
-CC      = g++ --std=c++17 --std=c++1z --std=gnu++1z -fPIC -no-pie
+CC      = g++-8 --std=c++17 -fPIC -no-pie
 DEBUG   = -g -Wall
 CFLAGS  = -c
 CFLAGS_NO_C  = -Wall $(DEBUG)
@@ -19,7 +19,7 @@ ROOT_LINKS   = `root-config --cflags --glibs`
 ROOFIT       = -lRooFit -lHtml -lMinuit -lRooFitCore -lRooStats
 ROOT_LIBS    = -L${ROOTSYS}/lib -lTreePlayer -lCore
 ROOT_INCLUDE = -I${ROOTSYS}/include
-BOOST_LIB    = -L/usr/include/boost/property_tree -L/usr/include/boost/ -lboost_thread -lboost_system -fopenmp
+BOOST_LIB    = -L/usr/include/boost/property_tree -L/usr/include/boost/ -lboost_thread -lboost_system -fopenmp -lstdc++fs
 
 GENERAL_DIR = ../General/
 

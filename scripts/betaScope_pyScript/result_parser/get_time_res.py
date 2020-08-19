@@ -2,6 +2,7 @@
 function to extract time resolution from the beta scope measurement
 """
 
+import os
 import math
 import configparser
 
@@ -133,8 +134,8 @@ def Get_Time_Resolution(
         trig_cali_run = sorted(list(TRIG_CALI.keys()))
         use_cali_run = None
         for i in range(len(trig_cali_run)):
-                if trig_cali_run[i] <= run_number:
-                        use_cali_run = trig_cali_run[i]
+            if trig_cali_run[i] <= run_number:
+                use_cali_run = trig_cali_run[i]
         if use_cali_run:
             trig_info = TRIG_CALI[use_cali_run]
             try:
@@ -142,7 +143,9 @@ def Get_Time_Resolution(
                 trig_res_err = trig_info[(scope, trig_name, trig_cali)]["res_err"]
                 trig_var = trig_info[(scope, trig_name, trig_cali)]["var"]
             except KeyError:
-                log.warning(f"{(scope, trig_name, trig_cali)} is not in cali {use_cali_run}")
+                log.warning(
+                    f"{(scope, trig_name, trig_cali)} is not in cali {use_cali_run}"
+                )
                 trig_res = 17.0
                 trig_res_err = 1.0
                 trig_var = "cfd3[20]"
@@ -194,7 +197,13 @@ def Get_Time_Resolution(
         c = ROOT.TCanvas(f"c{runIndex}")
         c.cd()
         result["histo"].Draw()
-        c.SaveAs(f"bias_{run.bias}_temp_{run.temperature}C_tdiff_CFD{CFD}.png")
+
+        if not os.path.exists(f"plots.{run.file_name}/"):
+            os.makedirs(f"plots.{run.file_name}/")
+        
+        c.SaveAs(
+            f"plots.{run.file_name}/bias_{run.bias}_temp_{run.temperature}C_tdiff_CFD{CFD}.png"
+        )
 
         dut_time_res, dut_time_res_err = Compute_Res(
             result["sigma"], result["sigma_err"], trig_res, trig_res_err

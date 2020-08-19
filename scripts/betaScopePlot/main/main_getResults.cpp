@@ -4,6 +4,7 @@
 #include <mutex>
 #include <unistd.h>
 #include <stdio.h>
+#include <filesystem>
 
 #include <omp.h>
 
@@ -38,6 +39,9 @@ ResultHolder Result( PlotConfigMgr::ConfigSection sec, int dut_channel, int trig
 
   TFile *loadFile = TFile::Open( sec.file_name.c_str() );
   TTree* itree = (TTree*) loadFile->Get("wfm");
+
+  std::string run_plot_dir = fmt::format("plots.{}",sec.file_name);
+  std::filesystem::create_directories(run_plot_dir);
 
   // parsing cuts
   std::string delimiter = " ";
@@ -85,17 +89,17 @@ ResultHolder Result( PlotConfigMgr::ConfigSection sec, int dut_channel, int trig
         frontBaseArea.fillFromTree( itree );
 
         std::unique_lock<std::mutex> lck(MTX);
-        fitResult = my_fitter.fitter_RooLanGausArea( job.histo_pack, frontBaseArea, backBaseArea, savePlot);
+        fitResult = my_fitter.fitter_RooLanGausArea( job.histo_pack, frontBaseArea, backBaseArea, savePlot, run_plot_dir);
       }
       else if( job.fitFunc == "LanGaus" )
       {
         std::lock_guard<std::mutex> lck(MTX);
-        fitResult = my_fitter.fitter_RooLanGaus( job.histo_pack, savePlot);
+        fitResult = my_fitter.fitter_RooLanGaus( job.histo_pack, savePlot, run_plot_dir);
       }
       else
       {
         std::lock_guard<std::mutex> lck(MTX);
-        fitResult = my_fitter.fitter_fit( job.histo_pack, job.fitFunc, savePlot);
+        fitResult = my_fitter.fitter_fit( job.histo_pack, job.fitFunc, savePlot, run_plot_dir);
       }
     }
     //std::pair<double,double> oParams = std::make_pair( std::get<0>(fitResult), std::get<1>(fitResult) );
@@ -254,7 +258,9 @@ void GetResults(std::string plotConfig_fname, std::string outDir = "Results/" )
 	system( "python3  $BETASCOPE_SCRIPTS/betaScope_pyScript/result_parser/parseBetaResultsToExcel.py");
   system( "python3  $BETASCOPE_SCRIPTS/betaScope_pyScript/result_parser/parseINItoROOT.py");
   system( fmt::format("mkdir plots_{}", outDir).c_str() );
+  system( fmt::format("rm plots_{}/*", outDir).c_str() );
   system( fmt::format("mv *.png plots_{}", outDir).c_str() );
+  system( fmt::format("mv plots.* plots_{}", outDir).c_str() );
   system( fmt::format("mv *_results.ini {}", outDir).c_str() );
   system( fmt::format("mv *_results.xlsx {}", outDir).c_str() );
   system( fmt::format("cp *Description*.ini {}", outDir).c_str() );

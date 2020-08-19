@@ -11,7 +11,9 @@ FitResult Fitter::fitter_RooLanGausArea(
   HistoPackage &i_histo,
   HistoPackage frontBaseArea,
   HistoPackage backBaseArea,
-  bool savePlot)
+  bool savePlot,
+  std::string output_dir
+)
 {
   gStyle->SetStatW(0.125);
   gStyle->SetStatH(0.125);
@@ -179,7 +181,7 @@ FitResult Fitter::fitter_RooLanGausArea(
     TImage *img = TImage::Create();
     gSystem->ProcessEvents();
     img->FromPad(oCanvas);
-    img->WriteImage(Form("%s_%s_lxg_RooFit.png", i_histo.get_tfile_name().c_str(), i_histo.get_simple_tag().c_str()));
+    img->WriteImage(Form("%s/%s_%s_lxg_RooFit.png", output_dir.c_str(), i_histo.get_tfile_name().c_str(), i_histo.get_simple_tag().c_str()));
 
     //if (histo_fit != NULL)delete histo_fit;
     //if (paveText != NULL)delete paveText;
@@ -216,7 +218,11 @@ FitResult Fitter::fitter_RooLanGausArea(
   return fitResult; // std::make_tuple( Par, ParErr, range_min, range_max );
 }
 
-FitResult Fitter::fitter_RooLanGaus(HistoPackage &i_histo, bool savePlot)
+FitResult Fitter::fitter_RooLanGaus(
+  HistoPackage &i_histo,
+  bool savePlot,
+  std::string output_dir
+)
 {
   gStyle->SetStatW(0.125);
   gStyle->SetStatH(0.125);
@@ -345,7 +351,7 @@ FitResult Fitter::fitter_RooLanGaus(HistoPackage &i_histo, bool savePlot)
     TImage *img = TImage::Create();
     gSystem->ProcessEvents();
     img->FromPad(oCanvas);
-    img->WriteImage(Form("%s_%s_lxg_RooFit.png", i_histo.get_tfile_name().c_str(), i_histo.get_simple_tag().c_str()));
+    img->WriteImage(Form("%s/%s_%s_lxg_RooFit.png", output_dir.c_str(), i_histo.get_tfile_name().c_str(), i_histo.get_simple_tag().c_str()));
 
     if( oCanvas != NULL ){ delete oCanvas; }
   }
@@ -365,7 +371,12 @@ FitResult Fitter::fitter_RooLanGaus(HistoPackage &i_histo, bool savePlot)
   return fitResult;
 }
 
-FitResult Fitter::fitter_fit(HistoPackage &i_histo, std::string fitName, bool savePlot)
+FitResult Fitter::fitter_fit(
+  HistoPackage &i_histo,
+  std::string fitName,
+  bool savePlot,
+  std::string output_dir
+)
 {
   TF1 fitter( fmt::format("{}_{}",fitName, std::rand()).c_str(), fitName.c_str());
   fitter.AddToGlobalList(false);
@@ -427,7 +438,7 @@ FitResult Fitter::fitter_fit(HistoPackage &i_histo, std::string fitName, bool sa
     gSystem->ProcessEvents();
     TImage *img = TImage::Create();
     img->FromPad(oCanvas);
-    img->WriteImage(Form("%s_%s.png", i_histo.get_tfile_name().c_str(), i_histo.get_simple_tag().c_str()));
+    img->WriteImage(Form("%s/%s_%s.png", output_dir.c_str(), i_histo.get_tfile_name().c_str(), i_histo.get_simple_tag().c_str()));
     delete oCanvas;
   }
 
