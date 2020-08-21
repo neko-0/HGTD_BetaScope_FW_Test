@@ -10,7 +10,7 @@ jobs:
       - name: pull repo
         uses: actions/checkout@v2
       - name: setup bash
-        run: /bin/bash -c "source .bashrc"
+        run: /bin/bash -c "source ~/.bashrc"
       - name: setup beta analysis
         run: cd scripts ; source setup.sh
         
