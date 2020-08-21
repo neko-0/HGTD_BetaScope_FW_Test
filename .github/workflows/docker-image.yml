@@ -9,6 +9,8 @@ jobs:
     steps:
       - name: pull repo
         uses: actions/checkout@v2
+      - name: install g++-8
+        run: sudo apt-get install g++-8
       - name: install boost lib
         run: sudo apt-get install libboost-all-dev
       - name: setup beta analysis
