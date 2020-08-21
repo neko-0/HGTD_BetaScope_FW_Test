@@ -1,16 +1,6 @@
 name: Docker Image CI
 on: [push]
-jobs:
-  build:
-    using: 'docker'
-    image: 'Dockerfile'
-    
-    steps:
-    - uses: actions/checkout@v2
-     
-    - name: setup beta analysis
-      run: cd scripts/ ; source setup.sh
-        
-    - name: Build the Docker image
-      run: docker run --rm rootproject/root
+runs:
+  using: 'docker'
+  image: 'Dockerfiel'
       
