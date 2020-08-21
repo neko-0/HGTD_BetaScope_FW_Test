@@ -20,5 +20,5 @@ jobs:
       - name: setup beta analysis
         run: cd scripts ; /bin/bash -c "source setup.sh"
       - name: testing run_WaveformAna
-        run: ../BetaScope_Ana/BetaScopeWaveformAna/bin/run_WaveformAna -config WaveformAna.ini
+        run: ../BetaScope_Ana/BetaScopeWaveformAna/bin/Run_WaveformAna -config WaveformAna.ini
         
