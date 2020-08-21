@@ -9,6 +9,8 @@ jobs:
     steps:
       - name: pull repo
         uses: actions/checkout@v2
+      - name: update 
+        run: apt-get update
       - name: install g++-8
         run: apt-get install g++-8
       - name: install boost lib
