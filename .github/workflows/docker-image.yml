@@ -12,9 +12,9 @@ jobs:
       - name: update 
         run: apt-get update
       - name: install g++-8
-        run: apt-get install g++-8
+        run: apt-get --assume-yes install g++-8
       - name: install boost lib
-        run: apt-get install libboost-all-dev
+        run: apt-get --assume-yes install libboost-all-dev
       - name: setup beta analysis
         run: cd scripts ; /bin/bash -c "source setup.sh"
         
