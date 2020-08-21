@@ -2,7 +2,7 @@ name: Docker Image CI
 on: [push]
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: rootproject/root
     
     steps:
     - uses: actions/checkout@v2
