@@ -3,10 +3,9 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:
     
+    steps:
     - uses: actions/checktout@v2
-   
-   - name: Build the Docker image
+    - name: Build the Docker image
       run: docker run --rm -it rootproject/root
       
