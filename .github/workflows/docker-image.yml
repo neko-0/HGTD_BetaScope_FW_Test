@@ -5,7 +5,10 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+    - uses: actions/checkout@v2
+      run: cd HGTD_BetaScope_FW_Test/scripts/
+      run: source setup.sh        
+        
     - name: Build the Docker image
       run: docker run --rm rootproject/root
-    - uses: actions/checkout@v2
       
