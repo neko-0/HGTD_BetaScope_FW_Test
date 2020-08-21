@@ -9,8 +9,8 @@ jobs:
     steps:
       - name: pull repo
         uses: actions/checkout@v2
-      - name: check linux
-        run: uname -a
+      - name: setup bash
+        run: /bin/bash -c "source .bashrc"
       - name: setup beta analysis
         run: cd scripts ; source setup.sh
         
