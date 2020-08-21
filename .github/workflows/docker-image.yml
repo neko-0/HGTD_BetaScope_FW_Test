@@ -6,15 +6,9 @@ jobs:
     
     steps:
     - uses: actions/checkout@v2
-      
-    - name: list dir files
-      run: ls
-    
-    - name: cd beta analysis dir
-      run: cd HGTD_BetaScope_FW_Test/scripts/
-    
-    - name: sourcing setup 
-      run: source setup.sh        
+     
+    - name: setup beta analysis
+      run: cd scripts/ ; source setup.sh
         
     - name: Build the Docker image
       run: docker run --rm rootproject/root
