@@ -4,7 +4,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - run: ls /
-    - run: echo $HOME
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+    
+    - uses: actions/checktout@v2
+   
+   - name: Build the Docker image
+      run: docker run --rm -it rootproject/root
+      
