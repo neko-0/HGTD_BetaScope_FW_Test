@@ -4,12 +4,11 @@ on: [push]
 
 jobs:
   
-  container:
-    
+  build:
+    name: build
     runs-on: ubuntu-latest
-    
-    contatiner: 
-    
     steps:
-      - uses: 
-      
+      -name: checkout root repo
+       container:
+        image: "rootprojet/6.22.00-ubuntu20.04"
+        
