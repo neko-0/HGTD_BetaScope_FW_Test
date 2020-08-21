@@ -19,12 +19,6 @@ jobs:
         run: apt-get --assume-yes install libfmt-dev
       - name: setup beta analysis
         run: cd scripts ; /bin/bash -c "source setup.sh"
-      - name: ls 1
-        run: ls
-      - name: ls 3
-        run: ls ../
-      - name: ls 2
-        run: ls ../BetaScope_Ana/BetaScopeWaveformAna/bin/
       - name: testing run_WaveformAna
-        run: ../BetaScope_Ana/BetaScopeWaveformAna/bin/Run_WaveformAna -config WaveformAna.ini
+        run: ./BetaScope_Ana/BetaScopeWaveformAna/bin/Run_WaveformAna -config WaveformAna.ini
         
