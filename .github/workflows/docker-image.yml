@@ -9,6 +9,8 @@ jobs:
     steps:
       - name: pull repo
         uses: actions/checkout@v2
+      - name: install boost lib
+        run: sudo apt-get install libboost-all-dev
       - name: setup beta analysis
         run: cd scripts ; /bin/bash -c "source setup.sh"
         
