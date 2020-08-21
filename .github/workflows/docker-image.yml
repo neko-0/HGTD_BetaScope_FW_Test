@@ -2,7 +2,8 @@ name: Docker Image CI
 on: [push]
 jobs:
   build:
-    runs-on: rootproject/root
+    using: 'docker'
+    image: 'Dockerfile'
     
     steps:
     - uses: actions/checkout@v2
