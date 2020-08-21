@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v2
     - name: Build the Docker image
-      run: docker run --rm -it rootproject/root
+      run: docker run --rm rootproject/root
+    - uses: actions/checkout@v2
       
