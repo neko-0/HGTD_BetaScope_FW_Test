@@ -10,9 +10,9 @@ jobs:
       - name: pull repo
         uses: actions/checkout@v2
       - name: install g++-8
-        run: /bin/bash -c "sudo apt-get install g++-8"
+        run: apt-get install g++-8
       - name: install boost lib
-        run: /bin/bash -c "sudo apt-get install libboost-all-dev"
+        run: apt-get install libboost-all-dev
       - name: setup beta analysis
         run: cd scripts ; /bin/bash -c "source setup.sh"
         
