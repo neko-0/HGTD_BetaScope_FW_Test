@@ -1,6 +1,15 @@
 name: Docker Image CI
+
 on: [push]
-runs:
-  using: 'docker'
-  image: 'Dockerfiel'
+
+jobs:
+  
+  container:
+    
+    runs-on: ubuntu-latest
+    
+    contatiner: 
+    
+    steps:
+      - uses: 
       
