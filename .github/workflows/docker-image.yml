@@ -6,6 +6,7 @@ jobs:
     
     steps:
     - uses: actions/checkout@v2
+    - name: setup beta analysis
       run: cd HGTD_BetaScope_FW_Test/scripts/
       run: source setup.sh        
         
