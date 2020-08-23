@@ -11,6 +11,8 @@ jobs:
     steps:
       - name: shell
         run: chsh -h
+      - name: shell ls
+        run: chsh ls
       - name: pull repo
         uses: actions/checkout@v2
       - name: update 
