@@ -11,6 +11,8 @@ jobs:
     steps:
       - name: shell
         run: echo $SHELL
+      - name: ls
+        run: ls /bin/
       - name: pull repo
         uses: actions/checkout@v2
       - name: update 
