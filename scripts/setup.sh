@@ -1,5 +1,3 @@
-#!/bin/bash
-
 echo "Setting up BetaScope Framwork"
 
 current_path=`pwd`
