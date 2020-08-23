@@ -6,8 +6,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container: 
-      options: "--entrypoint /bin/bash"
       image: rootproject/root:6.22.00-ubuntu20.04
+      options: "--entrypoint /bin/bash'
     steps:
       - name: shell
         run: echo $SHELL
