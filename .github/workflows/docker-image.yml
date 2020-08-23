@@ -6,25 +6,27 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container: 
-      image: rootproject/root:latest
-      options: --entrypoint /usr/bin/bash
+      image: rootproject/root:6.20.06-centos7
+      options: --entrypoint /bin/bash
     steps:
       #- name: setup docker
       #  run: docker run -t rootproject/root:latest bash
       #- name: run docker
       #  run: docker exec -it root_docker /bin/bash
-      - name: chsh
-        run: chsh -s /usr/bin/bash
+      #- name: chsh
+      #  run: chsh -s /usr/bin/bash
+      - name: shell
+        run: echo $SHELL
       - name: pull repo
         uses: actions/checkout@v2
       - name: update 
-        run: apt-get update && apt-get install --assume-yes apt-utils
+        run: dnf update
       - name: install g++-8
-        run: apt-get --assume-yes install g++-8
+        run: dnf -y install g++-8
       - name: install boost lib
-        run: apt-get --assume-yes install libboost-all-dev      
+        run: dnf -y install libboost-all-dev      
       - name: install format lib
-        run: apt-get --assume-yes install libfmt-dev
+        run: dnf -y install libfmt-dev
       - name: setup beta analysis
         run: cd scripts ; source setup.sh
         
