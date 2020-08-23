@@ -12,7 +12,7 @@ jobs:
       - name: update 
         run: apt-get update && apt-get install --assume-yes apt-utils && apt-get install --assume-yes bash
       - name: bash
-        run: chsh -s bash
+        run: chsh -s /bin/bash
       - name: install g++-8
         run: apt-get --assume-yes install g++-8
       - name: install boost lib
