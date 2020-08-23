@@ -26,5 +26,5 @@ jobs:
       - name: ls
         run: alias
       - name: testing run_WaveformAna
-        run: run_WaveformAna -config WaveformAna.ini
+        run: /bin/bash -c "run_WaveformAna -config WaveformAna.ini"
         
