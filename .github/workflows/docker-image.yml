@@ -24,5 +24,5 @@ jobs:
       - name: install format lib
         run: apt-get --assume-yes install libfmt-dev
       - name: setup beta analysis
-        run: cd scripts ; chmod 777 test.sh; . ./test.sh
+        run: cd scripts ; source setup.sh
         
