@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     container: 
       image: rootproject/root:latest
-      options: --entrypoint=bash
+      options: --entrypoint /usr/bin/bash
     steps:
       #- name: setup docker
       #  run: docker run -t rootproject/root:latest bash
