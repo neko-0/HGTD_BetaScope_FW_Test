@@ -7,9 +7,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: build docker image
-        run: docker build --file .github/workflows/dockerfile -tag my-image-name:testing
-  Test:
-    steps:
+        run: docker build -t local < .github/workflows/dockerfile
+      - name: run docker
+        run: docker urn -it -v 
       - name: pull repo
         uses: actions/checkout@v2
       - name: update 
