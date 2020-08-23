@@ -6,6 +6,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: ls
+        run: ls
       - name: build docker image
         run: docker build -t local < .github/workflows/dockerfile
       - name: run docker
