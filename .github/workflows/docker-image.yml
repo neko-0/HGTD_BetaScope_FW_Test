@@ -15,12 +15,6 @@ jobs:
       #  run: docker exec -it root_docker /bin/bash
       - name: chsh
         run: chsh -s /usr/bin/bash
-      - name: ls
-        run: echo $SHELL ;
-      - name: shell
-        run: alias hi='hi'
-      - name: print
-        run: alias -p
       - name: pull repo
         uses: actions/checkout@v2
       - name: update 
@@ -32,5 +26,5 @@ jobs:
       - name: install format lib
         run: apt-get --assume-yes install libfmt-dev
       - name: setup beta analysis
-        run: cd scripts ; chsh -s /bin/bash ; source setup.sh
+        run: cd scripts ; source setup.sh
         
