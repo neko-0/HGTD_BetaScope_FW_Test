@@ -16,7 +16,7 @@ jobs:
       #- name: install g++-8
       #  run: dnf -y install devtoolset-8-gcc devtoolset-8-gcc-c++
       - name: install boost lib
-        run: dnf -y install libboost-all-dev      
+        run: dnf -y install boost-devel      
       - name: install format lib
         run: dnf -y install libfmt-dev
       - name: setup beta analysis
