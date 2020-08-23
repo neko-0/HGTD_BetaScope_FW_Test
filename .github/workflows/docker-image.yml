@@ -10,7 +10,7 @@ jobs:
       image: rootproject/root:6.22.00-ubuntu20.04
     steps:
       - name: shell
-        run: chsh -s /bin/bash ; echo $SHELL
+        run: echo $SHELL
       - name: ls
         run: ls /bin/
       - name: pull repo
