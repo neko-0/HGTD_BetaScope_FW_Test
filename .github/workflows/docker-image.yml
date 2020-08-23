@@ -30,7 +30,7 @@ jobs:
       - name: setup beta analysis
         run: cd scripts ; chmod 777 setup.sh ; ./setup.sh
       - name: alias
-        run : alias
+        run : alias -p
       - name: run beta analysis
         run: run_WaveformAna -config WaveformAna.ini
         
