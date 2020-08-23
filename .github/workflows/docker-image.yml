@@ -19,8 +19,8 @@ jobs:
         run: echo $SHELL
       - name: pull repo
         uses: actions/checkout@v2
-      - name: update 
-        run: dnf -y update
+      #- name: update 
+      #  run: dnf -y update
       - name: install g++-8
         run: dnf -y install g++
       - name: install boost lib
@@ -28,5 +28,5 @@ jobs:
       - name: install format lib
         run: dnf -y install fmt-devel
       - name: setup beta analysis
-        run: cd scripts ; source setup.sh
+        run: cd scripts ; ls ; source setup.sh
         
