@@ -5,12 +5,10 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
-    #container: 
-      #image: rootproject/root:latest
-      #options: --entrypoint "/bin/bash -c"
+    container: 
+      image: rootproject/root:6.20.06-fedora32
+      options: --entrypoint /bin/bash
     steps:
-      - name: docker
-        run: docker container run -i rootproject/root:latest /bin/bash
       - name: pull repo
         uses: actions/checkout@v2
       - name: update 
