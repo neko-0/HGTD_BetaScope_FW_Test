@@ -12,13 +12,13 @@ jobs:
       - name: pull repo
         uses: actions/checkout@v2
       - name: update 
-        run: apt-get update && apt-get install --assume-yes apt-utils
+        run: dnf install update && dnf install --assume-yes apt-utils
       - name: install g++-8
-        run: apt-get --assume-yes install g++-8
+        run: dnf --assume-yes install g++-8
       - name: install boost lib
-        run: apt-get --assume-yes install libboost-all-dev      
+        run: dnf --assume-yes install libboost-all-dev      
       - name: install format lib
-        run: apt-get --assume-yes install libfmt-dev
+        run: dnf --assume-yes install libfmt-dev
       - name: setup beta analysis
         run: cd scripts ; chmod 777 setup_sh.sh; . ./setup_sh.sh
       - name: ls
