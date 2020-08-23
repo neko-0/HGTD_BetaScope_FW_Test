@@ -31,8 +31,8 @@ make
 export RUN_INFO_VER="2020_7_14"
 cd ${current_path}
 echo "creating user data direcotry"
-mkdir user_data
-mkdir user_data/bkup
+mkdir -p user_data
+mkdir -p user_data/bkup
 echo "setting up alias"
 alias run_RunConfig='${BETASCOPE_SCRIPTS}/betaScopePlot/bin/genPlotConfig'
 alias run_GetResults='${BETASCOPE_SCRIPTS}/betaScopePlot/bin/getResults run_info_v${RUN_INFO_VER}.ini'
