@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     container: 
       image: rootproject/root:6.22.00-ubuntu20.04
-      options: --entrypoint "/bin/bash" --env "SHELL /bin/bash"
+      options: --entrypoint "/bin/bash" --env SHELL=/bin/bash
     steps:
       - name: shell
         run: echo $SHELL
