@@ -20,7 +20,7 @@ cd ../BetaScope_Ana
 make -j
 for f in */setup.sh
   do
-    source $f
+    . $f
 done
 cd ${current_path}
 
