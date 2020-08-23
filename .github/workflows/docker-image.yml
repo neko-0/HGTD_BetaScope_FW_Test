@@ -8,10 +8,9 @@ jobs:
     container: 
       image: rootproject/root:latest
       options: --entrypoint /bin/bash
-      CMD: /bin/bash
     steps:
       - name: shell
-        run: chsh -s /bin/bash ; exec bash ; echo $SHELL
+        run: /bin/bash ; source 
       - name: ls
         run: ls 
       - name: pull repo
