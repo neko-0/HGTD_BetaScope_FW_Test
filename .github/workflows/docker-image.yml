@@ -6,19 +6,19 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container: 
-      image: rootproject/root:6.20.06-fedora32
+      image: rootproject/root:latest
       options: --entrypoint /bin/bash
     steps:
       - name: pull repo
         uses: actions/checkout@v2
       - name: update 
-        run: dnf -y update 
-      #- name: install g++-8
-      #  run: dnf -y install devtoolset-8-gcc devtoolset-8-gcc-c++
+        run: apt-get update && apt-get install --assume-yes apt-utils
+      - name: install g++-8
+        run: apt-get --assume-yes install g++-8
       - name: install boost lib
-        run: dnf -y install boost-devel      
+        run: apt-get --assume-yes install libboost-all-dev      
       - name: install format lib
-        run: dnf -y install fmt-devel
+        run: apt-get --assume-yes install libfmt-dev
       - name: setup beta analysis
         run: cd scripts ; chmod 777 setup_sh.sh; . ./setup_sh.sh
       - name: ls
