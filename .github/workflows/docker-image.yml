@@ -5,7 +5,9 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
-    run: docker build --file .github/workflows/dockerfile -tag my-image-name:testing
+    steps:
+      - name: build docker image
+        run: docker build --file .github/workflows/dockerfile -tag my-image-name:testing
   Test:
     steps:
       - name: pull repo
