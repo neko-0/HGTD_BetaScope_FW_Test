@@ -5,13 +5,10 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
+    container: 
+      image: rootproject/root:6.22.00-ubuntu20.04
+      entrypoint: /bin/bash
     steps:
-      - name: ls
-        run: ls
-      - name: build docker image
-        run: docker build -t local < .github/workflows/dockerfile
-      - name: run docker
-        run: docker urn -it -v 
       - name: pull repo
         uses: actions/checkout@v2
       - name: update 
