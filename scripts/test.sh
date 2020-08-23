@@ -39,3 +39,8 @@ alias run_GetResults='${BETASCOPE_SCRIPTS}/betaScopePlot/bin/getResults run_info
 alias run_beta_excel='python2 ${BETASCOPE_SCRIPTS}/betaScope_pyScript/parseBetaResultsToExcel.py -task '
 
 export BETA_PLOT_JOBS=$BETASCOPE_SCRIPTS/betaScopePlot/src/plot_list.json
+
+cd 
+
+run_WaveformAna -config WaveformAna.ini
+run_GetResutls
