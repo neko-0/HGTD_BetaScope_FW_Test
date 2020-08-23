@@ -22,5 +22,5 @@ jobs:
       - name: setup beta analysis
         run: cd scripts ; chmod 777 setup.sh ; ./setup.sh
       - name: testing run_WaveformAna
-        run: ./BetaScope_Ana/BetaScopeWaveformAna/bin/Run_WaveformAna -config WaveformAna.ini
+        run: run_WaveformAna -config WaveformAna.ini
         
