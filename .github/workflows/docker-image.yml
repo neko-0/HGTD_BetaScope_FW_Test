@@ -10,7 +10,7 @@ jobs:
       options: --entrypoint /bin/bash -it
     steps:
       - name: shell
-        run: chsh -s echo $SHELL
+        run: chsh -s /bin/bash ; echo $SHELL
       - name: ls
         run: ls 
       - name: pull repo
