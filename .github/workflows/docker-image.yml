@@ -13,6 +13,8 @@ jobs:
       #  run: docker run --name root_docker --rm -t -t rootproject/root:latest bash
       #- name: run docker
       #  run: docker exec -it root_docker /bin/bash
+      - name: chsh
+        run: chsh -s /bin/bash
       - name: ls
         run: echo $SHELL ;
       - name: shell
