@@ -28,5 +28,5 @@ jobs:
       - name: install format lib
         run: dnf -y install fmt-devel
       - name: setup beta analysis
-        run: cd scripts ; ls ; source setup.sh
+        run: cd scripts ; chmod 777 setup.sh ; ./setup.sh
         
