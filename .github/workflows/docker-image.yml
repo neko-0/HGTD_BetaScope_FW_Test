@@ -20,7 +20,7 @@ jobs:
       - name: install format lib
         run: apt-get --assume-yes install libfmt-dev
       - name: setup beta analysis
-        run: cd scripts ; source setup.sh
+        run: cd scripts ; ./setup.sh
       - name: testing run_WaveformAna
         run: ./BetaScope_Ana/BetaScopeWaveformAna/bin/Run_WaveformAna -config WaveformAna.ini
         
