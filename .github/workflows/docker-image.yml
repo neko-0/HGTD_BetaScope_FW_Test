@@ -10,7 +10,7 @@ jobs:
       options: --entrypoint /bin/bash
     steps:
       - name: shell
-        run: chsh -l
+        run: chsh -h
       - name: pull repo
         uses: actions/checkout@v2
       - name: update 
