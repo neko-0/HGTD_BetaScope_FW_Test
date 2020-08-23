@@ -10,7 +10,7 @@ jobs:
       - name: pull repo
         uses: actions/checkout@v2
       - name: update 
-        run: apt-get update && apt-get install --assume-yes apt-utils && apt-get isntall --assume-yes bash
+        run: apt-get update && apt-get install --assume-yes apt-utils && apt-get install --assume-yes bash
       - name: bash
         run: chsh -s bash
       - name: install g++-8
