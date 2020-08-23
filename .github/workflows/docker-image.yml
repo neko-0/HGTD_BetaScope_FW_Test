@@ -14,7 +14,7 @@ jobs:
       - name: update 
         run: dnf -y update 
       - name: install g++-8
-        run: dnf -y install g++-8
+        run: dnf -y install devtoolset-8-gcc devtoolset-8-gcc-c++
       - name: install boost lib
         run: dnf -y install libboost-all-dev      
       - name: install format lib
