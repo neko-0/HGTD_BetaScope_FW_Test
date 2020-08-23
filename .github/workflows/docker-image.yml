@@ -10,9 +10,9 @@ jobs:
       #options: --entrypoint=bash
     steps:
       - name: setup docker
-        run: docker run --name root_docker --rm -t -t rootproject/root:latest bash
-      - name: run docker
-        run: docker exec -it root_docker /bin/bash
+        run: docker run -t rootproject/root:latest bash
+      #- name: run docker
+        #run: docker exec -it root_docker /bin/bash
       - name: chsh
         run: chsh -s /bin/bash
       - name: ls
