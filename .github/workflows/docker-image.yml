@@ -7,12 +7,12 @@ jobs:
     runs-on: ubuntu-latest
     container: 
       image: rootproject/root:6.22.00-ubuntu20.04
-      options: --entrypoint "" 
+      options: --entrypoint /bib/bash
     steps:
       - name: shell
         run: echo $SHELL
       - name: ls
-        run: ls /bin/
+        run: ls 
       - name: pull repo
         uses: actions/checkout@v2
       - name: update 
