@@ -5,10 +5,12 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: 
-      image: rootproject/root:latest
-      options: --entrypoint "/bin/bash -c"
+    #container: 
+      #image: rootproject/root:latest
+      #options: --entrypoint "/bin/bash -c"
     steps:
+      - name: docker
+        run: docker container run -it rootproject/root:latest /bin/bash
       - name: pull repo
         uses: actions/checkout@v2
       - name: update 
