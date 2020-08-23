@@ -18,7 +18,7 @@ jobs:
       - name: install boost lib
         run: dnf -y install boost-devel      
       - name: install format lib
-        run: dnf -y install libfmt-dev
+        run: dnf -y install fmt-devel
       - name: setup beta analysis
         run: cd scripts ; chmod 777 setup_sh.sh; . ./setup_sh.sh
       - name: ls
