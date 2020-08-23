@@ -5,14 +5,14 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: 
-      image: rootproject/root:latest
-      options: --entrypoint=bash
+    #container: 
+      #image: rootproject/root:latest
+      #options: --entrypoint=bash
     steps:
-      #- name: setup docker
-      #  run: docker run --name root_docker --rm -t -t rootproject/root:latest bash
-      #- name: run docker
-      #  run: docker exec -it root_docker /bin/bash
+      - name: setup docker
+        run: docker run --name root_docker --rm -t -t rootproject/root:latest bash
+      - name: run docker
+        run: docker exec -it root_docker /bin/bash
       - name: chsh
         run: chsh -s /bin/bash
       - name: ls
