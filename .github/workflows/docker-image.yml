@@ -22,9 +22,5 @@ jobs:
       - name: install format lib
         run: apt-get --assume-yes install libfmt-dev
       - name: setup beta analysis
-        run: cd scripts ; chmod 777 setup_sh.sh; . ./setup_sh.sh
-      - name: ls
-        run: alias
-      - name: testing run_WaveformAna
-        run: /bin/bash -c "run_WaveformAna -config WaveformAna.ini"
+        run: cd scripts ; chmod 777 test.sh; . ./test.sh
         
