@@ -10,7 +10,7 @@ jobs:
       #options: --entrypoint "/bin/bash -c"
     steps:
       - name: docker
-        run: docker container run -it rootproject/root:latest /bin/bash
+        run: docker container run -i rootproject/root:latest /bin/bash
       - name: pull repo
         uses: actions/checkout@v2
       - name: update 
