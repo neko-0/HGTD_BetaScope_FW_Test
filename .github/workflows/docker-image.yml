@@ -7,12 +7,10 @@ jobs:
     runs-on: ubuntu-latest
     container: 
       image: rootproject/root:latest
-      options: --entrypoint /bin/bash
+      options: --entrypoint=bash
     steps:
       - name: shell
-        run: chsh -h
-      - name: shell
-        run: usermod -s /bin/bash
+        run: echo $SHELL
       - name: pull repo
         uses: actions/checkout@v2
       - name: update 
