@@ -29,4 +29,6 @@ jobs:
         run: dnf -y install fmt-devel
       - name: setup beta analysis
         run: cd scripts ; chmod 777 setup.sh ; ./setup.sh
+      - name: run beta analysis
+        run: run_WaveformAna -config WaveformAna.ini
         
