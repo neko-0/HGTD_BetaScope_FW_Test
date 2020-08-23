@@ -14,7 +14,9 @@ jobs:
       #- name: run docker
       #  run: docker exec -it root_docker /bin/bash
       - name: ls
-        run: ls .
+        run: echo $SHELL ;
+      - name: shell
+        run: echo $0
       - name: pull repo
         uses: actions/checkout@v2
       - name: update 
