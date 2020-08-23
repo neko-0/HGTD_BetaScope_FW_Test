@@ -12,7 +12,7 @@ jobs:
       - name: pull repo
         uses: actions/checkout@v2
       - name: update 
-        run: dnf install update && dnf install --assume-yes apt-utils
+        run: dnf update && dnf install --assume-yes apt-utils
       - name: install g++-8
         run: dnf --assume-yes install g++-8
       - name: install boost lib
