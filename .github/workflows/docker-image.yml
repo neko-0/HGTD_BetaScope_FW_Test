@@ -3,8 +3,8 @@ name: Docker Image CI
 on: [push]
 
 jobs:
-  runs-on: ubuntu-latest
   build:
+    runs-on: ubuntu-latest
     steps:
       - name: build docker image
         run: docker build --file .github/workflows/dockerfile -tag my-image-name:testing
