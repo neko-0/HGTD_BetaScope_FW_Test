@@ -9,6 +9,8 @@ jobs:
       image: rootproject/root:latest
       options: --entrypoint /bin/bash
     steps:
+      - name: shell
+        run: chsh -l
       - name: pull repo
         uses: actions/checkout@v2
       - name: update 
