@@ -165,7 +165,7 @@ class Lgad(cmd.Cmd, object):
         print(run_ns)
         for run in run_ns:
             self.do_set_run(run)
-            self.do_run_analysis("full")
+            self.do_run_analysis("res_only")
 
             os.system(f"rm -r {self.central_data_folder}/Folders/{self.runNum_dir}")
             self.do_cp_central_data(self.runNum)
@@ -258,8 +258,8 @@ class Lgad(cmd.Cmd, object):
             os.system(f"cp {self.runNum_dir}/_results.root Root_files/Singles/run{self.runNum}.root")
 
             try:
-                os.system(f"cp {self.runNum_dir}/ave_wfm_files/ave_wfm_run*.root Average_waveform_files/")
-                os.system(f"cp {self.runNum_dir}/ave_wfm_plots/average_waveform.png Average_waveform_files/ave_wfm_run{self.runNum}.png")
+                os.system(f"cp {self.runNum_dir}/ave_wfm_run*.root Average_waveform_files/")
+                os.system(f"cp {self.runNum_dir}/average_waveform/average_waveform.png Average_waveform_files/ave_wfm_run{self.runNum}.png")
             except:
                 print("No average waveform, skipping")
 
@@ -455,7 +455,7 @@ class Lgad(cmd.Cmd, object):
 
         mode = i_mode.split(" ")
 
-        self.do_download_latest_UDI()
+        #self.do_download_latest_UDI()
 
         if "dry" in mode[0]:
             colorString.sysMsg(f"dry run. mode:")
@@ -507,6 +507,7 @@ class Lgad(cmd.Cmd, object):
                 p.wait()
 
                 self.do_plot_run(self.runNum)
+                self.do_average_waveform(self.runNum)
                 self.do_cp_central_data(self.runNum)
 
             elif "get_res" in mode[0]:
