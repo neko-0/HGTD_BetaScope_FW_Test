@@ -2,6 +2,8 @@ wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download
 
 unzip raw.zip
 
+mv test_run raw
+
 ls ./BetaScope_Ana/BetaScopeWaveformAna/bin
  
 ./BetaScope_Ana/BetaScopeWaveformAna/bin/GenerateWaveformConfig
