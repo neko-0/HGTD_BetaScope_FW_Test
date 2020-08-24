@@ -49,9 +49,6 @@ function LGAD(){
   fi
 }
 
-echo "::set-env name=run_WaveformAna::$run_WaveformAna"
-echo "::set-env name=run_RunConfig::$run_RunConfig"
-echo "::set-env name=run_GetResults::$run_GetResults"
 echo "::set-env name=BETASCOPE_SCRIPTS::$BETASCOPE_SCRIPTS"
 echo "::set-env name=BETASCOPE_ANALYSIS_DIR::$BETASCOPE_ANALYSIS_DIR"
 echo "::set-env name=BETASCOPE::$BETASCOPE"
