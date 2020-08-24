@@ -27,6 +27,8 @@ jobs:
         run: dnf -y install boost-devel      
       - name: install format lib
         run: dnf -y install fmt-devel
+      - name: install wget
+        run: dnf -y install wget
       - name: setup beta analysis
         run: cd scripts ; chmod 777 setup.sh; ./setup.sh
       - name: alias
