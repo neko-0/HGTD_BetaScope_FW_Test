@@ -4,7 +4,7 @@ unzip raw.zip
 
 ls ./BetaScope_Ana/BetaScopeWaveformAna/bin
  
-./BetaScope_Ana/BetaScopeWaveformAna/bin/GenerateWaveformCofing
+./BetaScope_Ana/BetaScopeWaveformAna/bin/GenerateWaveformConfig
 
 ls
 
