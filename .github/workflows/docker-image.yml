@@ -28,7 +28,7 @@ jobs:
       - name: install format lib
         run: dnf -y install fmt-devel
       - name: setup beta analysis
-        run: cd scripts ; chmod 777 setup.sh; . "setup.sh" ; echo "::set-env name=run_WaveformAna::$run_WaveformAna" ;  run_WaveformAna -config Wave.ini
+        run: cd scripts ; chmod 777 setup.sh; ./setup.sh ;  run_WaveformAna -config Wave.ini
       - name: alias
         run : alias -p
       - name: run beta analysis
