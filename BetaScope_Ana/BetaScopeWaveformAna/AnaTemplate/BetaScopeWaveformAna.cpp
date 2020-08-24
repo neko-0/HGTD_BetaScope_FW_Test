@@ -452,7 +452,7 @@ void BetaScopeWaveformAna::generateWaveformConfig()
   configFile << "pmaxSearchMaxRange = 2200.0 " << std::endl;
   configFile << "assistThreshold = 10.0 " << std::endl;
   configFile << "triggerCh = 3 " << std::endl;
-  configFile << "rawFilesDir = " << std::endl;
+  configFile << "rawFilesDir = ./raw/" << std::endl;
   configFile << "enable_fit = false" << std::endl;
 
   configFile << std::endl;
