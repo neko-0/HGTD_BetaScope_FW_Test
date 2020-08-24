@@ -16,7 +16,7 @@ jobs:
       #- name: chsh
       #  run: chsh -s /usr/bin/bash
       - name: shell
-        run: echo $SHELL
+        run: echo $SHELL ; echo $0
       - name: pull repo
         uses: actions/checkout@v2
       #- name: update 
