@@ -5,4 +5,7 @@ unzip raw.zip
 ls ./BetaScope_Ana/BetaScopeWaveformAna/bin
  
 ./BetaScope_Ana/BetaScopeWaveformAna/bin/GenerateWaveformCofing
+
+ls
+
 ./BetaScope_Ana/BetaScopeWaveformAna/bin/Run_WaveformAna -config WaveformAnaConfig.ini
