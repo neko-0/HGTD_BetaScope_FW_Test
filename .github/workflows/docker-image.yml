@@ -34,5 +34,5 @@ jobs:
       - name: echo
         run: echo $BETASCOPE_SCRIPTS
       - name: test beta analysis
-        run: chmod 777 test.sh; ./test.sh
+        run: chmod 777 scripts/test.sh; ./scripts/test.sh
         
