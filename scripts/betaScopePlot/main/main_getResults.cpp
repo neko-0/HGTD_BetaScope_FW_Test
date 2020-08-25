@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <experimental/filesystem>
 
+
 #include <omp.h>
 
 #include <boost/thread.hpp>
@@ -137,10 +138,17 @@ ResultHolder Result( PlotConfigMgr::ConfigSection sec, int dut_channel, int trig
   return ResultHolder{biasVoltage, oData, sec.temperature, sec.trigger_bias, cycle, std::stof(sec.bias)};
 }
 
+bool sorter (ResultHolder a, ResultHolder b){
+  if (a.cycle == b.cycle) return (a.f_biasVoltage < b.f_biasVoltage);
+  else return (a.cycle < b.cycle);
+
+}
+
 void DumpOutputFiles(const std::vector<ResultHolder> &results, bool sort=true)
 {
   fmt::print("Start dumping results...\n");
   DataOutputFormat outfile;
+
   if(!sort)
   {
     for(auto &result : results)
@@ -149,55 +157,14 @@ void DumpOutputFiles(const std::vector<ResultHolder> &results, bool sort=true)
       outfile.ParseRawOutputToINI(result.biasVoltage, result.outData, result.temperature );
     }
   }
-  else
-  {
-    fmt::print("sorting output\n");
-    int cycle = 1;
-    std::vector<ResultHolder> result_buffer[15];
-    std::map<int, std::vector<ResultHolder>> cycle_buffer;
-    cycle_buffer.insert(std::pair<int, std::vector<ResultHolder>>(cycle, result_buffer[0]));
-    for(auto &result : results)
-    {
-      if(!cycle_buffer.count(result.cycle))
-      {
-        cycle++;
-        cycle_buffer.insert(std::pair<int, std::vector<ResultHolder>>(cycle, result_buffer[cycle-1]));
-        cycle_buffer[result.cycle].push_back(result);
-      }
-      else
-      {
-        cycle_buffer[result.cycle].push_back(result);
-      }
-    }
-    for(auto &m_cycle : cycle_buffer)
-    {
-      std::vector<ResultHolder> sorted_results;
-      for(auto result : m_cycle.second)
-      {
-        if(sorted_results.size()==0)
-        {
-          sorted_results.push_back(result);
-        }
-        else
-        {
-          int insert_i;
-          for(int i=0, max =sorted_results.size(); i < max; i++)
-          {
-            if(result.f_biasVoltage >= sorted_results[i].f_biasVoltage)
-            {
-              insert_i = i+1;
-            }
-          }
-          sorted_results.insert(sorted_results.begin()+insert_i, result);
-        }
-      }
+  else{
+    std::vector<ResultHolder> sorted_results(results);
+    std::sort(sorted_results.begin(), sorted_results.end(), sorter);
 
-      for(auto &m_result : sorted_results)
-      {
-        fmt::print("processing output: {}\n", m_result.biasVoltage );
-        outfile.CreateBetaScopeOutputFile( m_result.biasVoltage.c_str(), m_result.outData, m_result.temperature, m_result.trigger_bias );
-        outfile.ParseRawOutputToINI(m_result.biasVoltage, m_result.outData, m_result.temperature );
-      }
+    for(auto &m_result : sorted_results){
+      fmt::print("processing output: {}\n", m_result.biasVoltage );
+      outfile.CreateBetaScopeOutputFile( m_result.biasVoltage.c_str(), m_result.outData, m_result.temperature, m_result.trigger_bias );
+      outfile.ParseRawOutputToINI(m_result.biasVoltage, m_result.outData, m_result.temperature );
     }
   }
 }

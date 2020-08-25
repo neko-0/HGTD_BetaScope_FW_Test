@@ -23,9 +23,9 @@ def plot_average_waveform(config, volt_min=0, volt_max=1000, norm=0):
     num_file = config_file["header"]["number_of_runs"]
     file_prefix = ""
     if config_file["header"]["use_selected_events"] == "true":
-        file_prefix = "ave_wfm_files/averaged_Selected_"
+        file_prefix = "averaged_Selected_"
     else:
-        file_prefix = "ave_wfm_files/ave_wfm_"
+        file_prefix = "ave_wfm_"
     avelist = []
 
     try:
@@ -145,8 +145,8 @@ if __name__ == "__main__":
 
     argv = commandline_ArgsParser.parse_args()
 
-    if not os.path.exists("ave_wfm_plots/"):
-        os.makedirs("ave_wfm_plots/")
+    #if not os.path.exists("ave_wfm_plots/"):
+    #    os.makedirs("ave_wfm_plots/")
 
     aveWave = plot_average_waveform(argv.configFile, argv.Vmin, argv.Vmax, argv.norm)
 
@@ -177,5 +177,5 @@ if __name__ == "__main__":
     #astyle.ATLASLabel(0.25, 0.87, "Internal", 1)
 
     #raw_input("Finished.")
-    c.SaveAs("ave_wfm_plots/average_waveform.png")
-    c.SaveAs("ave_wfm_plots/average_waveform.pdf")
+    c.SaveAs("average_waveform.png")
+    c.SaveAs("average_waveform.pdf")
