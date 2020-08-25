@@ -9,7 +9,7 @@ from daq_info import DAQInfo
 from config_reader import RUN_INFO_VER
 
 import sys
-sys.path.append('/home/datataking/HGTD_BetaScope_FW_Test/scripts/UDI_reader/')
+sys.path.append(f'{os.environ["BETASCOPE_SCRIPTS"]}/UDI_reader/')
 from UDI_reader import UDI_reader
 
 import logging

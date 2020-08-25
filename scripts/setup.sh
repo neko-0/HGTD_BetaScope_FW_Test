@@ -51,4 +51,9 @@ function LGAD(){
   fi
 }
 
+echo "::set-env name=BETASCOPE_SCRIPTS::$BETASCOPE_SCRIPTS"
+echo "::set-env name=BETASCOPE_ANALYSIS_DIR::$BETASCOPE_ANALYSIS_DIR"
+echo "::set-env name=BETASCOPE::$BETASCOPE"
+echo "::set-env name=RUN_INFO_VER::$RUN_INFO_VER"
+
 #cd ~

@@ -8,7 +8,7 @@ from get_time_res import Get_Time_Resolution
 import logging, coloredlogs
 
 import sys
-sys.path.append('/home/datataking/HGTD_BetaScope_FW_Test/scripts/UDI_reader/')
+sys.path.append(f'{os.environ["BETASCOPE_SCRIPTS"]}/UDI_reader/')
 from UDI_reader import UDI_reader
 
 logging.basicConfig()
@@ -99,8 +99,7 @@ def ParseINItoROOT(fname="_results.ini"):
         output_file = RootFile(
             "_results.root",
             f"run{description_file.run_number}",
-            #f"{os.getcwd()}/_results.ini",
-            os.getcwd().split("/")[5]
+            f"{os.getcwd()}/_results.ini",
         )
         for par in INI_TO_EXCEL.keys():
             if "sensor_name" in par:

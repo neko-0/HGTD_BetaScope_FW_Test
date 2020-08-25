@@ -1,0 +1,32 @@
+name: Docker Image CI
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: 
+      image: rootproject/root:latest
+      options: --entrypoint /bin/bash 
+    steps:
+      #- name: setup docker
+      #  run: docker run -t rootproject/root:latest bash
+      #- name: run docker
+      #  run: docker exec -it root_docker /bin/bash
+      #- name: chsh
+      #  run: chsh -s /usr/bin/bash
+      #- name: shell
+      #  run: echo $SHELL ; echo $0
+      - name: pull repo
+        uses: actions/checkout@v2
+      - name: update 
+        run: apt-get -y update
+      - name: install lib
+        run: apt-get -y install g++ libboost-all-dev libfmt-dev wget zip libfftw3-dev python3-pip 
+      - name: python lib
+        run: python3 -m pip install openpyxl pandas coloredlogs
+      - name: setup beta analysis
+        run: cd scripts ; /bin/bash -c "source setup.sh"
+      - name: test beta analysis
+        run: /bin/bash -c "source scripts/test.sh"
+        
