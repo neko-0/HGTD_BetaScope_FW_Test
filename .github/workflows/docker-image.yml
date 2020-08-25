@@ -6,8 +6,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container: 
-      image: rootproject/root:6.22.00-fedora32
-      options: --entrypoint /bin/bash --env 0=/bin/bash
+      image: rootproject/root:latest
+      options: --entrypoint /bin/bash 
     steps:
       #- name: setup docker
       #  run: docker run -t rootproject/root:latest bash
@@ -19,18 +19,18 @@ jobs:
         run: echo $SHELL ; echo $0
       - name: pull repo
         uses: actions/checkout@v2
-      #- name: update 
-      #  run: dnf -y update
+      - name: update 
+        run: apt-get install update
       - name: install g++-8
-        run: dnf -y install g++
+        run: apt-get -y install g++
       - name: install boost lib
-        run: dnf -y install boost-devel      
+        run: apt-get -y install libboost-dev      
       - name: install format lib
-        run: dnf -y install fmt-devel
+        run: apt-get -y install libfmt-devel
       - name: install wget
-        run: dnf -y install wget
+        run: apt-get -y install wget
       - name: fft
-        run: dnf -y install fftw-devel fftw-doc
+        run: apt-get -y install libfftw-dev
       - name: setup beta analysis
         run: cd scripts ; chmod 777 setup.sh; ./setup.sh
       - name: alias
