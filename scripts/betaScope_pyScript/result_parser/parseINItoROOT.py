@@ -8,8 +8,8 @@ from get_time_res import Get_Time_Resolution
 import logging, coloredlogs
 
 import sys
-sys.path.append('/home/datataking/HGTD_BetaScope_FW_Test/scripts/UDI_reader/')
-from ...UDI_reader import UDI_reader
+sys.path.append(f'{os.environ["BETASCOPE_SCRIPTS"]}/UDI_reader/')
+from UDI_reader import UDI_reader
 
 logging.basicConfig()
 log = logging.getLogger(__name__)
