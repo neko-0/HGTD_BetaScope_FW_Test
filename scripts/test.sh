@@ -15,7 +15,7 @@ ${BETASCOPE_SCRIPTS}/betaScopePlot/bin/genPlotConfig
 
 ls
 
-python3 $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum 801
+python $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum 801
 
 ls 
 
