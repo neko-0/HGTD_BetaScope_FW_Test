@@ -36,7 +36,7 @@ jobs:
       - name: pip
         run: apt-get -y install python3-pip 
       - name: python openpyxl
-        run: pip install -u openpyxl
+        run: python3 -m pip install -u openpyxl
       - name: setup beta analysis
         run: cd scripts ; /bin/bash -c "source setup.sh"
       - name: echo
