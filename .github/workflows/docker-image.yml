@@ -24,7 +24,7 @@ jobs:
       - name: install g++-8
         run: apt-get -y install g++
       - name: install boost lib
-        run: apt-get -y install libboost-dev      
+        run: apt-get -y install libboost-all-dev      
       - name: install format lib
         run: apt-get -y install libfmt-dev
       - name: install wget
