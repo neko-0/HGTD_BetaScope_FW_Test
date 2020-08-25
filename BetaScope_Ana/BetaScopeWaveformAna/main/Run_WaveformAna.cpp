@@ -98,7 +98,7 @@ int main(int argc, char **argv) {
 
   if(vm.count("help")){
     std::cout << desc << std::endl;
-    return 1;
+    return 0;
   }
 
   if(vm.count("config"))
@@ -144,7 +144,7 @@ int main(int argc, char **argv) {
 
     LOG_INFO("Finished. Time cost: " + std::to_string(std::time(nullptr) - main_time));
 
-    return 1;
+    return 0;
   }
   else
   {
