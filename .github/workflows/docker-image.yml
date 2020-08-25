@@ -20,7 +20,7 @@ jobs:
       - name: pull repo
         uses: actions/checkout@v2
       - name: update 
-        run: apt-get install update
+        run: apt-get -y update
       - name: install g++-8
         run: apt-get -y install g++
       - name: install boost lib
