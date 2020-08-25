@@ -4,10 +4,9 @@ unzip raw.zip
 
 mv test_run raw
 
-ls ./BetaScope_Ana/BetaScopeWaveformAna/bin
- 
 ./BetaScope_Ana/BetaScopeWaveformAna/bin/GenerateWaveformConfig
 
-ls
+sed -i 's/channel_2 = 0/channel_2 = 1/g' WaveformAnaConfig.ini
+sed -i 's/channel_3 = 0/channel_3 = 1' WaveformAnaConfig.ini
 
 ./BetaScope_Ana/BetaScopeWaveformAna/bin/Run_WaveformAna -config WaveformAnaConfig.ini
