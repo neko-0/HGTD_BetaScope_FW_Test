@@ -16,8 +16,7 @@ CFLAGS_NO_C  = -Wall $(DEBUG)
 ################################################################################
 GLIB         = `pkg-config --cflags --libs glib-2.0`
 ROOT_LINKS   = `root-config --cflags --glibs`
-ROOFIT       = -lRooFit -lMinuit -lRooFitCore 
-#-lRooStats -lHtml
+ROOFIT       = -lRooFit -lMinuit -lRooFitCore -lRooStats -lHtml
 ROOT_LIBS    = -L${ROOTSYS}/lib -lTreePlayer -lCore
 ROOT_INCLUDE = -I${ROOTSYS}/include
 BOOST_LIB    = -L/usr/include/boost/property_tree -L/usr/include/boost/ -lboost_thread -lboost_system -fopenmp
