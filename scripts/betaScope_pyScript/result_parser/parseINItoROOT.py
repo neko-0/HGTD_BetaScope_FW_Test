@@ -99,8 +99,7 @@ def ParseINItoROOT(fname="_results.ini"):
         output_file = RootFile(
             "_results.root",
             f"run{description_file.run_number}",
-            #f"{os.getcwd()}/_results.ini",
-            os.getcwd().split("/")[5]
+            f"{os.getcwd()}/_results.ini",
         )
         for par in INI_TO_EXCEL.keys():
             if "sensor_name" in par:
