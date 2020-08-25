@@ -1,8 +1,10 @@
-wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1qCYdSienjzc9QlKpNPY3AJHNplcROWNr' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1qCYdSienjzc9QlKpNPY3AJHNplcROWNr" -O raw.zip && rm -rf /tmp/cookies.tx
+wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1qCYdSienjzc9QlKpNPY3AJHNplcROWNr' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1qCYdSienjzc9QlKpNPY3AJHNplcROWNr" -O run_test.zip && rm -rf /tmp/cookies.tx
 
-unzip raw.zip
+unzip run_test.zip
+mkdir raw
 
-mv test_run raw
+mv test_run/*root raw/
+mv test_run/* .
 
 ./BetaScope_Ana/BetaScopeWaveformAna/bin/GenerateWaveformConfig
 
@@ -15,5 +17,4 @@ ${BETASCOPE_SCRIPTS}/betaScopePlot/bin/genPlotConfig
 python3 $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum 801
 ${BETASCOPE_SCRIPTS}/betaScopePlot/bin/getResults run_info_v${RUN_INFO_VER}.ini
 
-ls
 
