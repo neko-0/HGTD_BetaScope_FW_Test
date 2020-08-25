@@ -29,6 +29,8 @@ jobs:
         run: dnf -y install fmt-devel
       - name: install wget
         run: dnf -y install wget
+      - name: fft
+        run: dnf -y install fftw-devel fftw-doc
       - name: setup beta analysis
         run: cd scripts ; chmod 777 setup.sh; ./setup.sh
       - name: alias
