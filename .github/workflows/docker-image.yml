@@ -29,6 +29,8 @@ jobs:
         run: apt-get -y install libfmt-dev
       - name: install wget
         run: apt-get -y install wget
+      - name: install zip
+        run: apt-get -y install zip
       - name: fft
         run: apt-get -y install libfftw3-dev
       - name: setup beta analysis
