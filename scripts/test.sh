@@ -7,7 +7,7 @@ mv test_run raw
 ./BetaScope_Ana/BetaScopeWaveformAna/bin/GenerateWaveformConfig
 
 sed -i 's/channel_2 = 0/channel_2 = 1/g' WaveformAnaConfig.ini
-sed -i 's/channel_3 = 0/channel_3 = 1/1' WaveformAnaConfig.ini
+sed -i '0,/channel_3 = 0/s//channel_3 = 1/' WaveformAnaConfig.ini
 
 ./BetaScope_Ana/BetaScopeWaveformAna/bin/Run_WaveformAna -config WaveformAnaConfig.ini
 
