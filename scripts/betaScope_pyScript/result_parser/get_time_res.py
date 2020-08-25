@@ -134,7 +134,7 @@ def Get_Time_Resolution(
         trig_cali_run = sorted(list(TRIG_CALI.keys()))
         use_cali_run = None
         for i in range(len(trig_cali_run)):
-            if trig_cali_run[i] <= run_number:
+            if trig_cali_run[i] <= int(run_number):
                 use_cali_run = trig_cali_run[i]
         if use_cali_run:
             trig_info = TRIG_CALI[use_cali_run]
