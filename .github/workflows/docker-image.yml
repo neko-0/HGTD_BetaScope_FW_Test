@@ -34,7 +34,7 @@ jobs:
       - name: fft
         run: apt-get -y install libfftw3-dev
       - name: python openpyxl
-        run: python3 -m pip install -u openpyxl
+        run: pip3 install -u openpyxl
       - name: setup beta analysis
         run: cd scripts ; /bin/bash -c "source setup.sh"
       - name: echo
