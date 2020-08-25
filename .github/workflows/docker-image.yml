@@ -15,8 +15,8 @@ jobs:
       #  run: docker exec -it root_docker /bin/bash
       #- name: chsh
       #  run: chsh -s /usr/bin/bash
-      - name: shell
-        run: echo $SHELL ; echo $0
+      #- name: shell
+      #  run: echo $SHELL ; echo $0
       - name: pull repo
         uses: actions/checkout@v2
       - name: update 
@@ -39,8 +39,6 @@ jobs:
         run: python3 -m pip install openpyxl
       - name: setup beta analysis
         run: cd scripts ; /bin/bash -c "source setup.sh"
-      - name: echo
-        run: echo $BETASCOPE_SCRIPTS
       - name: test beta analysis
         run: /bin/bash -c "source scripts/test.sh"
         
