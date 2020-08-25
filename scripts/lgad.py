@@ -165,6 +165,12 @@ class Lgad(cmd.Cmd, object):
         print(run_ns)
         for run in run_ns:
             self.do_set_run(run)
+            self.do_cd(self.current_run)
+
+            os.system(f"rm raw_results.root")
+            os.system(f"rm _results.root")
+            os.system(f"rm -r Results")
+
             self.do_run_analysis("res_only")
 
             os.system(f"rm -r {self.central_data_folder}/Folders/{self.runNum_dir}")
