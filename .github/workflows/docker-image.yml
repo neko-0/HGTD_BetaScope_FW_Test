@@ -26,7 +26,7 @@ jobs:
       - name: install boost lib
         run: apt-get -y install libboost-dev      
       - name: install format lib
-        run: apt-get -y install libfmt-devel
+        run: apt-get -y install libfmt-dev
       - name: install wget
         run: apt-get -y install wget
       - name: fft
