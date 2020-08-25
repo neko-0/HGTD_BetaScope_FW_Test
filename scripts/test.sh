@@ -10,3 +10,8 @@ sed -i 's/channel_2 = 0/channel_2 = 1/g' WaveformAnaConfig.ini
 sed -i 's/channel_3 = 0/channel_3 = 1' WaveformAnaConfig.ini
 
 ./BetaScope_Ana/BetaScopeWaveformAna/bin/Run_WaveformAna -config WaveformAnaConfig.ini
+
+${BETASCOPE_SCRIPTS}/betaScopePlot/bin/genPlotConfig
+python3 $BETASCOPE_SCRIPTS/betaScope_pyScript/autoCut_v2.py --runNum 801
+${BETASCOPE_SCRIPTS}/betaScopePlot/bin/getResults run_info_v${RUN_INFO_VER}.ini
+
