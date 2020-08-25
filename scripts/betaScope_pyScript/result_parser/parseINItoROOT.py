@@ -9,7 +9,7 @@ import logging, coloredlogs
 
 import sys
 sys.path.append('/home/datataking/HGTD_BetaScope_FW_Test/scripts/UDI_reader/')
-from UDI_reader import UDI_reader
+from ../../UDI_reader import UDI_reader
 
 logging.basicConfig()
 log = logging.getLogger(__name__)
