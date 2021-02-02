@@ -5,7 +5,7 @@ std::mutex BetaScope_AnalysisDriver::mu_lock;
 bool BetaScope_AnalysisDriver::Initialize()
 {
   std::lock_guard<std::mutex> lck(this->mu_lock);
-  LOG_INFO(this->class_name + ":Start Initialization.");
+  LOG_INFO(this->class_name + " Start Initialization.");
   if( this->initialize() )
   {
     return true;
@@ -18,7 +18,7 @@ bool BetaScope_AnalysisDriver::Initialize()
 
 bool BetaScope_AnalysisDriver::EventLoop()
 {
-  LOG_INFO(this->class_name + ":Start EventLoop.");
+  LOG_INFO("Start EventLoop.");
   while(this->beta_scope.NextEvent())
   {
     this->Execute();
@@ -29,7 +29,7 @@ bool BetaScope_AnalysisDriver::EventLoop()
     }
     this->beta_scope.ClearVecBuffer();
   }
-  LOG_INFO(this->class_name + ":Finished EventLoop.");
+  LOG_INFO("Finished EventLoop.");
   return true;
 }
 
@@ -41,7 +41,7 @@ bool BetaScope_AnalysisDriver::Execute()
 bool BetaScope_AnalysisDriver::Finalize()
 {
   std::lock_guard<std::mutex> lck(this->mu_lock);
-  LOG_INFO(this->class_name + ":Start Finalizing.")
+  LOG_INFO("Start Finalizing.")
   this->finalize();
   this->beta_scope.FileClose();
   return true;

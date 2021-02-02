@@ -56,14 +56,12 @@ int runAna(
   const bool &mp = false
 )
 {
-  TThread::Lock();
   BetaScopeWaveformAna doAna(fileName.c_str());
   if (skipWaveform){doAna.setWaveform(skipWaveform);}
   doAna.readWaveformConfig(config);
   doAna.skim_output = skim;
   doAna.internal_mp = mp;
-  TThread::UnLock();
-  return doAna.Run();  
+  return doAna.Run();
 }
 
 int main(int argc, char **argv) {

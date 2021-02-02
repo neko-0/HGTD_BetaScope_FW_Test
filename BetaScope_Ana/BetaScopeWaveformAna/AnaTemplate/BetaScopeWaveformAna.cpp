@@ -184,11 +184,11 @@ bool BetaScopeWaveformAna::execute()
   // filling value that's indep of scope channels
   if (this->has_daq_cycle)
   {
-    this->beta_scope.SetOutBranchValue( "cycle", *this->beta_scope.GetInBranch<TTreeReaderValue<int>>("cycle"));
+    this->beta_scope.SetOutBranchValue( "cycle", this->beta_scope.GetInBranch<TTreeReaderValue<int>>("cycle"));
   }
   if (this->has_daq_temperature)
   {
-    this->beta_scope.SetOutBranchValue( "temperature", *this->beta_scope.GetInBranch<TTreeReaderValue<double>>("temperature"));
+    this->beta_scope.SetOutBranchValue( "temperature", this->beta_scope.GetInBranch<TTreeReaderValue<double>>("temperature"));
   }
   if (this->has_daq_humidity)
   {
@@ -237,6 +237,7 @@ bool BetaScopeWaveformAna::initialize()
 {
   bool file_opened = this->beta_scope.FileOpen(ifile.c_str());
   if(!file_opened){return false;}
+
   this->beta_scope.SetTreeReader();
 
   BETA_LOG::LOG_LEVEL = 5;

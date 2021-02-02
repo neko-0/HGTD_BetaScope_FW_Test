@@ -34,8 +34,7 @@ bool BetaScope::FileOpen(const std::string &ifile_path)
 {
 
   std::string cout_prefix = "BetaScope::FileOpen => ";
-  LOG_INFO("Entering" );
-  LOG_INFO("Preparing IO." );
+  LOG_INFO("Preparing input file." );
 
   this->input_tfile_ = TFile::Open(ifile_path.c_str());
   if (this->input_tfile_->IsZombie())
@@ -74,7 +73,6 @@ bool BetaScope::FileOpen(const std::string &ifile_path)
 void BetaScope::FileClose()
 {
   std::string cout_prefix = "BetaScope::FileClose => ";
-  LOG_INFO("Entering");
   LOG_INFO("Writing output files.");
 
   //this->output_ttree_->Write("", TObject::kOverwrite);
@@ -95,13 +93,12 @@ void BetaScope::FileClose()
 bool BetaScope::SetTreeReader()
 {
   std::string cout_prefix = "BetaScope::RawTreeReader => ";
-  LOG_INFO("Entering");
   LOG_INFO("Preparing TTree Reader from " + this->input_tree_name_);
 
   this->input_tree_reader_ = new TTreeReader(this->input_tree_name_.c_str(), this->input_tfile_);
   this->input_num_event_ = this->input_tree_reader_->GetEntries(true);
 
-  LOG_INFO( this->input_file_nick_name_ + ", found number of events: " + std::to_string(this->input_num_event_));
+  LOG_INFO("Found number of events: " + std::to_string(this->input_num_event_));
   LOG_INFO("Attempt looping through raw scope channels.");
   for( int b = 1, max = 5; b < max; b++)
   {
@@ -122,7 +119,6 @@ bool BetaScope::BuildOutTree(const std::string &additional_branch_list)
 {
 
   std::string cout_prefix = "BetaScope::NewTreeMaker => ";
-  LOG_INFO("Entering " + cout_prefix);
   LOG_INFO("Preparing new tree: " + this->output_tree_name_);
 
   this->output_ttree_ = new TTree("wfm", this->input_file_nick_name_.c_str());

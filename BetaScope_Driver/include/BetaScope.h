@@ -70,10 +70,7 @@ struct TypeWrapper : public TypeWrapperBase
     T *data_ = nullptr;
 
   public:
-    TypeWrapper(const std::string name) : name_(name)
-    {
-      LOG_INFO("Building " + this->name_);
-    }
+    TypeWrapper(const std::string name):name_(name){}
 
     ~TypeWrapper()
     {
@@ -84,7 +81,15 @@ struct TypeWrapper : public TypeWrapperBase
     }
 
     T *Get(){ return this->data_; }
-    void Set( T *data){ this->data_ = data; }
+
+    void Set(T *data)
+    {
+      if(this->data_)
+      {
+        delete this->data_;
+      }
+      this->data_ = data;
+    }
 
     void Clear()
     {
@@ -92,7 +97,7 @@ struct TypeWrapper : public TypeWrapperBase
       {
           this->data_->clear();
       }
-    };
+    }
 };
 
 
@@ -229,6 +234,9 @@ class BetaScope {
     template <typename dtype>
     void SetOutBranchValue(const std::string &branchName, const dtype &value);
 
+    template <template<class> class C, typename dtype>
+    void SetOutBranchValue(const std::string &branchName, const C<dtype> *value);
+
     void SetCompLevel(const int &i_value);
 
     void FillEvent();
@@ -279,10 +287,13 @@ dtype *BetaScope::GetInBranch(const std::string &key)
 }
 
 template <typename dtype>
-bool BetaScope::BuildOutBranch(const std::string &branchName, const int &size) {
+bool BetaScope::BuildOutBranch(const std::string &branchName, const int &size)
+{
   try
   {
+    LOG_INFO("Building branch " + branchName)
     auto my_ptr = new TypeWrapper<dtype>(branchName);
+    my_ptr->Set(new dtype);
     this->output_branch_buffer_.push_back( my_ptr );
     this->output_branch_map_.insert(std::pair<std::string, TypeWrapperBase*>(branchName, this->output_branch_buffer_[this->output_branch_counter_]));
     this->output_branch_map_index_.insert(std::pair<std::string, int>(branchName, this->output_branch_counter_));
@@ -293,7 +304,7 @@ bool BetaScope::BuildOutBranch(const std::string &branchName, const int &size) {
     {
       this->output_vector_reserved_index_.push_back(this->new_branch_counter_);
 
-      LOG_INFO( "BetaScope::BuildOutBranch Branch:" + branchName + " is std::vector, Handle buffer internally");
+      LOG_INFO("It's a std::vector, Handle buffer internally");
 
       static_cast<TypeWrapper<dtype>*>(this->output_branch_buffer_[this->output_branch_counter_])->Get()->reserve(size);
 
@@ -301,7 +312,7 @@ bool BetaScope::BuildOutBranch(const std::string &branchName, const int &size) {
     }
     else
     {
-      LOG_INFO( "BetaScope::BuildOutBranch Branch:" + branchName + " is NOT std::vector. No action is needed.");
+      LOG_INFO("It's NOT a std::vector. No action is needed.");
     }
 
     this->output_branch_counter_++;
@@ -334,6 +345,16 @@ void BetaScope::SetOutBranchValue(const std::string &branchName, const dtype &va
   if(m_ptr)
   {
     *m_ptr = value;
+  }
+}
+
+template <template<class> class C, typename dtype>
+void BetaScope::SetOutBranchValue(const std::string &branchName, const C<dtype> *value)
+{
+  dtype *m_ptr = this->GetOutBranch<dtype>(branchName);
+  if(m_ptr)
+  {
+    *m_ptr = &value;
   }
 }
 
