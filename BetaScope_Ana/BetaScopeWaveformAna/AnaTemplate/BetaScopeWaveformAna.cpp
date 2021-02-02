@@ -114,11 +114,11 @@ int BetaScopeWaveformAna::event_ana(int ch, WaveformAna<double, double> waveform
 }
 
 
-void BetaScopeWaveformAna::Analysis()
+bool BetaScopeWaveformAna::execute()
 {
   // fill up your own analysis in the while loop
 
-  if (!this->isProcessing)
+  if(!this->isProcessing)
   {
     LOG_INFO( beta_scope.GetInFileNickName() + " BetaScopeWaveformAna::analysis: Start event processing: ");
     this->isProcessing = true;
@@ -184,40 +184,60 @@ void BetaScopeWaveformAna::Analysis()
   // filling value that's indep of scope channels
   if (this->has_daq_cycle)
   {
-    this->beta_scope.SetOutBranchValue( "cycle", this->beta_scope.GetInBranchValue<TTreeReaderValue, int>("cycle"));
+    this->beta_scope.SetOutBranchValue( "cycle", *this->beta_scope.GetInBranch<TTreeReaderValue<int>>("cycle"));
   }
   if (this->has_daq_temperature)
   {
-    this->beta_scope.SetOutBranchValue( "temperature", this->beta_scope.GetInBranchValue<TTreeReaderValue, double>("temperature"));
+    this->beta_scope.SetOutBranchValue( "temperature", *this->beta_scope.GetInBranch<TTreeReaderValue<double>>("temperature"));
   }
   if (this->has_daq_humidity)
   {
-    this->beta_scope.SetOutBranchValue( "humidity", this->beta_scope.GetInBranchValue<TTreeReaderValue, double>("humidity"));
+    this->beta_scope.SetOutBranchValue( "humidity", this->beta_scope.GetInBranch<TTreeReaderValue<double>>("humidity"));
   }
   if (this->has_daq_bias)
   {
-    this->beta_scope.SetOutBranchValue( "bias", this->beta_scope.GetInBranchValue<TTreeReaderValue, double>("bias"));
+    this->beta_scope.SetOutBranchValue( "bias", this->beta_scope.GetInBranch<TTreeReaderValue<double>>("bias"));
   }
   if (this->has_daq_timestamp)
   {
-    this->beta_scope.SetOutBranchValue("timestamp", this->beta_scope.GetInBranchValue<TTreeReaderValue, double>("timestamp"));
+    this->beta_scope.SetOutBranchValue("timestamp", this->beta_scope.GetInBranch<TTreeReaderValue<double>>("timestamp"));
   }
   if (this->has_daq_current)
   {
-    this->beta_scope.SetOutBranchValue("current", this->beta_scope.GetInBranchValue<TTreeReaderValue, double>("current"));
+    this->beta_scope.SetOutBranchValue("current", this->beta_scope.GetInBranch<TTreeReaderValue<double>>("current"));
   }
   if (this->has_daq_eventNum)
   {
-    this->beta_scope.SetOutBranchValue( "ievent", this->beta_scope.GetInBranchValue<TTreeReaderValue, int>("ievent"));
+    this->beta_scope.SetOutBranchValue( "ievent", this->beta_scope.GetInBranch<TTreeReaderValue<int>>("ievent"));
   }
+
+  if(this->skim_output)
+  {
+    if(this->Selector())
+    {
+      this->beta_scope.FillEvent();
+    }
+  }
+  else
+  {
+    this->beta_scope.FillEvent();
+  }
+
+  return true;
 }
 
 
-bool BetaScopeWaveformAna::Initialize()
+bool BetaScopeWaveformAna::Selector()
 {
-  // required
+  return *(this->beta_scope.GetOutBranch<bool>("isGoodTrig3"));
+}
+
+
+bool BetaScopeWaveformAna::initialize()
+{
   bool file_opened = this->beta_scope.FileOpen(ifile.c_str());
   if(!file_opened){return false;}
+  this->beta_scope.SetTreeReader();
 
   BETA_LOG::LOG_LEVEL = 5;
 
@@ -228,12 +248,11 @@ bool BetaScopeWaveformAna::Initialize()
   {
     LOG_INFO("Found myOwnTree.ini");
     std::string beta_scope_path(getenv("BETASCOPE_SCRIPTS"));
-    BetaScope_AnaFramework::Initialize( beta_scope_path + "/../BetaScope_Ana/BetaScopeWaveformAna/AnaTemplate/myOwnTree.ini");
+    this->beta_scope.BuildOutTree( beta_scope_path + "/../BetaScope_Ana/BetaScopeWaveformAna/AnaTemplate/myOwnTree.ini");
   }
   else
   {
     LOG_INFO("Did not find myOwnTree.ini");
-    BetaScope_AnaFramework::Initialize("");
   }
 
   this->my_anaParam.limiting_search_region_OnOff = this->limitPmaxSearchRange;
@@ -324,56 +343,58 @@ bool BetaScopeWaveformAna::Initialize()
     this->pulseArea_withZeroCross[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("pulseArea_withZeroCross" + std::to_string(ch));
     this->frontBaselineInt_indepBaseCorr[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("frontBaselineInt_indepBaseCorr" + std::to_string(ch));
     this->backBaselineInt_indepBaseCorr[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("backBaselineInt_indepBaseCorr" + std::to_string(ch));
-    this->i_w[ch] = this->beta_scope.GetInBranch<TTreeReaderArray, double>("w" + std::to_string(ch));
-    this->i_t[ch] = this->beta_scope.GetInBranch<TTreeReaderArray, double>("t" + std::to_string(ch));
     this->tot[ch] = this->beta_scope.GetOutBranch<std::vector<double>>("tot"+std::to_string(ch));
+
+    this->i_w[ch] = this->beta_scope.GetInBranch<TTreeReaderArray<double>>("w" + std::to_string(ch));
+    this->i_t[ch] = this->beta_scope.GetInBranch<TTreeReaderArray<double>>("t" + std::to_string(ch));
+
     if( !this->i_w[ch] )
     {
       std::cout << this->i_w[ch] << std::endl;
-      std::cout << this->beta_scope.GetInBranch<TTreeReaderArray, double>("w" + std::to_string(ch)) << std::endl;
+      std::cout << this->beta_scope.GetInBranch<TTreeReaderArray<double>>("w" + std::to_string(ch)) << std::endl;
     }
   }
 
   if( beta_scope.IsBranchExists("ievent") )
   {
     this->has_daq_eventNum = true;
-    this->beta_scope.SetInBranch<TTreeReaderValue, int>("ievent", "ievent");
+    this->beta_scope.SetInBranch<TTreeReaderValue<int>>("ievent", "ievent");
     this->beta_scope.BuildOutBranch<int>("ievent");
   }
   if( beta_scope.IsBranchExists("temperature") )
   {
     this->has_daq_temperature = true;
-    this->beta_scope.SetInBranch<TTreeReaderValue, double>("temperature", "temperature");
+    this->beta_scope.SetInBranch<TTreeReaderValue<double>>("temperature", "temperature");
     this->beta_scope.BuildOutBranch<double>("temperature");
   }
   if( beta_scope.IsBranchExists("humidity"))
   {
     this->has_daq_humidity = true;
-    this->beta_scope.SetInBranch<TTreeReaderValue, double>("humidity", "humidity");
+    this->beta_scope.SetInBranch<TTreeReaderValue<double>>("humidity", "humidity");
     this->beta_scope.BuildOutBranch<double>("humidity");
   }
   if( beta_scope.IsBranchExists("i_timestamp"))
   {
     this->has_daq_timestamp = true;
-    this->beta_scope.SetInBranch<TTreeReaderValue, double>("i_timestamp", "timestamp");
+    this->beta_scope.SetInBranch<TTreeReaderValue<double>>("i_timestamp", "timestamp");
     this->beta_scope.BuildOutBranch<double>("timestamp");
   }
   if( beta_scope.IsBranchExists("i_current"))
   {
     this->has_daq_current = true;
-    this->beta_scope.SetInBranch<TTreeReaderValue, double>("i_current", "current");
+    this->beta_scope.SetInBranch<TTreeReaderValue<double>>("i_current", "current");
     this->beta_scope.BuildOutBranch<double>("current");
   }
   if( beta_scope.IsBranchExists("bias"))
   {
     this->has_daq_bias = true;
-    this->beta_scope.SetInBranch<TTreeReaderValue, double>("bias", "bias");
+    this->beta_scope.SetInBranch<TTreeReaderValue<double>>("bias", "bias");
     this->beta_scope.BuildOutBranch<double>("bias");
   }
   if( beta_scope.IsBranchExists("cycle"))
   {
     this->has_daq_cycle = true;
-    this->beta_scope.SetInBranch<TTreeReaderValue, int>("cycle", "cycle");
+    this->beta_scope.SetInBranch<TTreeReaderValue<int>>("cycle", "cycle");
     this->beta_scope.BuildOutBranch<int>("cycle");
   }
 
@@ -383,31 +404,12 @@ bool BetaScopeWaveformAna::Initialize()
   return true;
 }
 
-void BetaScopeWaveformAna::LoopEvents()
-{
-  LOG_INFO("running Derived class LoopEvents." );
-  if(this->skim_output)
-  {
-    BetaScope_AnaFramework::LoopEvents(&BetaScope_AnaFramework::Analysis, std::bind(&BetaScopeWaveformAna::Selector, this) );
-  }
-  else
-  {
-    BetaScope_AnaFramework::LoopEvents(&BetaScope_AnaFramework::Analysis);
-  }
-}
-
-bool BetaScopeWaveformAna::Selector()
-{
-  return *(this->beta_scope.GetOutBranch<bool>("isGoodTrig3"));
-}
-
-void BetaScopeWaveformAna::Finalize()
+bool BetaScopeWaveformAna::finalize()
 {
   // do your own stuffs here
-
-  // required
-  BetaScope_AnaFramework::Finalize();
+  return true;
 }
+
 
 // custom class methods start from here
 void BetaScopeWaveformAna::readWaveformConfig(std::string configName)

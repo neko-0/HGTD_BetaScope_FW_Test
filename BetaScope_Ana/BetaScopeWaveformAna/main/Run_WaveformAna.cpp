@@ -62,19 +62,8 @@ int runAna(
   doAna.readWaveformConfig(config);
   doAna.skim_output = skim;
   doAna.internal_mp = mp;
-  bool initialized = doAna.Initialize();
   TThread::UnLock();
-  // doAna.run();
-  if(initialized)
-  {
-    doAna.LoopEvents();
-    doAna.Finalize();
-    return 0;
-  }
-  else
-  {
-    return 1;
-  }
+  return doAna.Run();  
 }
 
 int main(int argc, char **argv) {
